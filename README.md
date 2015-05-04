@@ -1,0 +1,12 @@
+# Android-Plugin-Framework
+PluginCore工程是插件库工程。
+
+PluginMain是用来测试的插件宿主程序Demo工程
+
+PluginShareLib是用来测试的插件宿主程序的依赖库Demo工程
+
+PluginTest是用来测试的插件Demo工程
+
+宿主程序工程可以通过ant编译或者导入eclipse后直接点击Run菜单进行安装
+
+插件Demo工程需要通过ant脚本编译。原因是Demo中引用了宿主程序的依赖库。需要在编译时对共享库进行排除
