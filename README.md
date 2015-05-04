@@ -135,7 +135,8 @@
     
     还有1种是，fragment运行在PluginCore提供的PluginSpecDisplayer中，这种方式，由于其运行容器PluginSpecDisplayer的Context已经被PluginLoader.getPluginContext获取的context替换，因此这种fragment的代码和普通非插件开发时开发的fragment的代码没有任何区别。
     
-     
+# 需要注意的问题
+  项目插件开发后，特别需要注意的是宿主程序混淆问题。宿主程序混淆后，可能会导致插件程序运行时出现classnotfound
      
 联系作者：
   QQ：15871365851 添加时请注明插件开发。
