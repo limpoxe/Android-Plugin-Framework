@@ -67,14 +67,17 @@
 
 实现原理简介：
   1、插件apk的class
+  
      通过构造插件apk的Dexclassloader来加载插件apk中的类。DexClassLoader的parent设置为宿主程序的classloader，即可将主程序和插件程序的class贯通
   
   2、插件apk的资源
+  
      通过构造插件apk的AssetManager和Resouce类即可。
      本项目最关键一点功能、也是和网上其他插件项目不同的地方之一，在于
      通过addAssetsPath方法添加资源的时候，同时添加了插件程序的资源文件和宿主程序的资源。这样就     可以做到插件资源合并。很多资源文件都迎刃而解。
   
   3、插件apk中的资源id
+  
     完成上述第二点以后，还有需要解决的难题，是宿主程序资源id和插件程序id重复的问题。
     这个问题解决办法也很简单
     我们知道，资源id是在编译时生成的，其生成的规则是0xPPTTNNNN
@@ -91,18 +94,22 @@
     
     
   4、插件apk的Context
+  
     构造一个Context即可，具体的Context实现请参考PluginCore/src/com/plugin/core/PluginContextTheme.java
     关键是要重写几个获取资源、主题的方法，以及重写getClassLoader方法
 
   5、插件中的LayoutInfalter
+  
      通过第4步构造出来的Context获取LayoutInfater即可
      
      
   6、如何实现插件代码不依赖任何特殊代码，如继承特定的基类、接口等。
+  
     要做到这一点，最主要的是实现上述第4步，构造出插件的Context后，所有问题都可以得到解决。
     
     
   7、通过activity代理方式实现加载插件中的activity是如何实现的
+  
      要实现这一点，同样是基于上述第4点，构造出插件的Context后，通过attachBaseContext的方式，替换代理Activiyt的context即可。
      另外还需要在获得插件Activity对象后，通过反射给Activity的attach()方法中attach的成员变量赋值。
      这样可解决另外一个插件框架作者singwhatiwanna实现的代码中所谓this和that的问题。也是可以使插件Activity不需要继承任何特定基类或者接口的原因。
@@ -111,6 +118,7 @@
   
   
   9、插件编译问题。
+  
      如果插件和宿主共享依赖库，那边编译插件的时候不可将共享库编译到插件当中，包括共享库的代码以及R文件，但是需要在编译时添加到classpath中，且插件中如果要使用共享依赖库中的资源，需要使用共享库的R文件来进行引用。这几点在PluginTest示例工程中有体现。
      
      
