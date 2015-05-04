@@ -125,7 +125,17 @@
   
      如果插件和宿主共享依赖库，那边编译插件的时候不可将共享库编译到插件当中，包括共享库的代码以及R文件，但是需要在编译时添加到classpath中，且插件中如果要使用共享依赖库中的资源，需要使用共享库的R文件来进行引用。这几点在PluginTest示例工程中有体现。
      
+  
+  10、插件开发模式
+    插件UI可通过fragment或者activity来实现
+    如果是activity实现的插件，则最终会在PluginProxyActivity中运行
+    
+    如果是fragment实现的插件，又分为两种
+    1种是fragment运行在任意支持fragment的activity中，这种方式，在开发fragment的时候，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getPluginContext()获取的context，那么这种fragment对其运行容器没有特殊要求
+    
+    还有1种是，fragment运行在PluginCore提供的PluginSpecDisplayer中，这种方式，由于其运行容器PluginSpecDisplayer的Context已经被PluginLoader.getPluginContext获取的context替换，因此这种fragment的代码和普通非插件开发时开发的fragment的代码没有任何区别。
+    
      
      
 联系作者：
-  QQ：15871365851
+  QQ：15871365851 添加时请注明插件开发。
