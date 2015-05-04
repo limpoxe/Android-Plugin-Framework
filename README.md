@@ -65,7 +65,7 @@
   2、使支持插件资源文件中直接引用依赖库中的资源。目测可能需要重写android自带的aapt程序。
   
 
-实现原理简介：
+# 实现原理简介：
   1、插件apk的class
   
      通过构造插件apk的Dexclassloader来加载插件apk中的类。DexClassLoader的parent设置为宿主程序的classloader，即可将主程序和插件程序的class贯通
