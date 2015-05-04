@@ -1,0 +1,11 @@
+{
+	"id":123,
+	"version":"1.0.1",
+	"fragments":{
+		"test1":"com.example.plugintest.PluginNormalFragment",
+		"test2":"com.example.plugintest.PluginSpecFragment"
+	},
+	"activities":{
+		"test3":"com.example.plugintest.PluginTestActivity"
+	}
+}

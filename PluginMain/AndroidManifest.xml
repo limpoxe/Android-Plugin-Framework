@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.pluginmain"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="21" />
+
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:theme="@style/ShareTheme" >
+        
+        <!-- plugin Begin -->
+        <activity
+            android:name="com.plugin.core.ui.PluginNormalDisplayer"
+            android:exported="true" >
+        </activity>
+        
+        <activity
+            android:name="com.plugin.core.ui.PluginSpecDisplayer"
+            android:exported="true" >
+        </activity>
+        
+        <activity
+            android:name="com.plugin.core.ui.PluginProxyActivity"
+            android:exported="true" >
+        </activity>
+        <!-- plugin End -->
+        
+        <activity
+            android:name="com.example.pluginmain.PluginListActivity" >
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.MAIN" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+
+        
+        <receiver
+            android:name="com.example.pluginmain.PluginDebugHelper" >
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.PACKAGE_ADDED" />
+                <action
+                    android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action
+                    android:name="android.intent.action.PACKAGE_RESTARTED" />
+
+                <data
+                    android:scheme="package" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

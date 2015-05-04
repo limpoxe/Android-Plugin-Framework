@@ -1,0 +1,6 @@
+<resources>
+
+    <dimen name="share_dimen_1">50dp</dimen>
+    <dimen name="share_dimen_2">100dp</dimen>
+
+</resources>

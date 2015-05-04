@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="@dimen/share_dimen_1"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@color/share_color_2"
+        android:text="@string/share_string_1" />
+
+    <com.example.pluginsharelib.ShareLayout
+        android:layout_width="fill_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/share_color_1" >
+    </com.example.pluginsharelib.ShareLayout>
+
+</LinearLayout>

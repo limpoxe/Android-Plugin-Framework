@@ -1,0 +1,6 @@
+<resources>
+
+    <dimen name="main_demin_1">150dp</dimen>
+    <dimen name="main_demin_2">250dp</dimen>
+
+</resources>

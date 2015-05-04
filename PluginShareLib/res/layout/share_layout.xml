@@ -1,0 +1,18 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <Button
+        android:layout_width="@dimen/share_dimen_2"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/share_string_2" />
+
+    <Button
+        android:layout_width="@dimen/share_dimen_1"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="@string/share_string_1" />
+
+</RelativeLayout>
