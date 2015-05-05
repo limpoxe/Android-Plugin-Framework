@@ -37,6 +37,10 @@ public class PluginListActivity extends Activity {
 		// 这行代码应当在Application的onCreate中执行。
 		PluginLoader.initLoader(getApplication());
 
+		//安装一个插件
+		//PluginLoader.installPlugin("/sdcard/test/test.apk");
+		
+		//列出所有已经安装的插件
 		HashMap<String, PluginDescriptor> plugins = PluginLoader.listAll();
 
 		Iterator<Entry<String, PluginDescriptor>> it = plugins.entrySet().iterator();
