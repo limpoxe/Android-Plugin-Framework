@@ -6,6 +6,7 @@
 		"test2":"com.example.plugintest.PluginSpecFragment"
 	},
 	"activities":{
-		"test3":"com.example.plugintest.PluginTestActivity"
+		"test3":"com.example.plugintest.PluginTestActivity",
+		"test4":"com.example.plugintest.PluginFragmentTestActivity"
 	}
 }
