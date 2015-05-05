@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * 插件中引用主程序资源文件需要显式的指定引用的R 因为主程序的资源id每次编译时都会变化 所以使用主程序资源id的时候必须使用引用
@@ -40,6 +43,19 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		setContentView(scrollview);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0,0, 0, "test plugin menu");
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Toast.makeText(this, "test plugin menu", Toast.LENGTH_LONG).show();
+		Log.e("xx", "" + item.getTitle());
+		return super.onOptionsItemSelected(item);
+	}
+	
 	public void initViews() {
 
 		Button btn1 = (Button) mRoot.findViewById(R.id.plugin_test_btn1);

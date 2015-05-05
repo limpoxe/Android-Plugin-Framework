@@ -6,10 +6,14 @@ import java.util.Map.Entry;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.plugin.core.PluginDescriptor;
 import com.plugin.core.PluginLoader;
@@ -69,6 +73,19 @@ public class PluginListActivity extends Activity {
 			root.addView(btn);
 
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0,0, 0, "test menu");
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Toast.makeText(this, "text", Toast.LENGTH_LONG).show();
+		Log.e("xx", "" + item.getTitle());
+		return super.onOptionsItemSelected(item);
 	}
 
 }
