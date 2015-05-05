@@ -5,8 +5,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.Toast;
@@ -23,7 +28,7 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 		setContentView(root, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		root.setId(android.R.id.primary);
 
-		Fragment fragment = new PluginNormalFragment();
+		Fragment fragment = new TestFragment();
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(android.R.id.primary, fragment).commit();
 	}
@@ -41,6 +46,81 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	public static class TestFragment extends Fragment implements OnClickListener {
+
+		private ViewGroup mRoot;
+		private LayoutInflater mInflater;
+
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			mInflater = getActivity().getLayoutInflater();
+			View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
+
+			mRoot = (ViewGroup) scrollview.findViewById(R.id.content);
+
+			initViews();
+
+			return scrollview;
+		}
+
+		public void initViews() {
+
+			Button btn1 = (Button) mRoot.findViewById(R.id.plugin_test_btn1);
+			btn1.setOnClickListener(this);
+
+			Button btn2 = (Button) mRoot.findViewById(R.id.plugin_test_btn2);
+			btn2.setOnClickListener(this);
+
+			Button btn3 = (Button) mRoot.findViewById(R.id.plugin_test_btn3);
+			btn3.setOnClickListener(this);
+
+			Button btn4 = (Button) mRoot.findViewById(R.id.plugin_test_btn4);
+			btn4.setOnClickListener(this);
+
+			Button btn5 = (Button) mRoot.findViewById(R.id.plugin_test_btn5);
+			btn5.setOnClickListener(this);
+
+			Button btn6 = (Button) mRoot.findViewById(R.id.plugin_test_btn6);
+			btn6.setOnClickListener(this);
+		}
+
+		@Override
+		public void onClick(View v) {
+			Log.v("v.click 111", "" + v.getId());
+			if (v.getId() == R.id.plugin_test_btn1) {
+				View view = mInflater.inflate(R.layout.plugin_layout, null,
+						false);
+				mRoot.addView(view);
+				((Button) v).setText(R.string.hello_world14);
+			} else if (v.getId() == R.id.plugin_test_btn2) {
+				View view = mInflater
+						.inflate(com.example.pluginsharelib.R.layout.share_main,
+								null, false);
+				mRoot.addView(view);
+				((Button) v).setText(R.string.hello_world15);
+			} else if (v.getId() == R.id.plugin_test_btn3) {
+				View view = LayoutInflater.from(getActivity())
+						.inflate(com.example.pluginsharelib.R.layout.share_main,
+								null, false);
+				mRoot.addView(view);
+				//((Button) v).setText(R.string.hello_world17);/////////////////////////////
+			} else if (v.getId() == R.id.plugin_test_btn4) {
+				((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);///////////////////////////////
+			} else if (v.getId() == R.id.plugin_test_btn5) {
+				//((Button) v).setText(R.string.hello_world18);
+				//getActivity().getResources().getString(R.string.hello_world18);
+			} else if (v.getId() == R.id.plugin_test_btn6) {
+				//pluginContext.getResources().getString(R.string.hello_world19);
+				//((Button) v).setText(pluginContext.getString(R.string.hello_world19));
+			}
+		}
+	}
 
 
 }
