@@ -11,6 +11,7 @@ import java.util.Iterator;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Build;
@@ -28,6 +29,12 @@ public class PluginLoader {
 	private static final HashMap<String, PluginDescriptor> sInstalledPlugins = new HashMap<String, PluginDescriptor>();
 	private static boolean isInited = false;
 
+	public static final String ACTION_PLUGIN_CHANGED = "com.plugin.core.ACTION_PLUGIN_CHANGED";
+	public static final String EXTRA_INSTALL_SRC = "com.plugin.core.ACTION_PLUGIN_CHANGED";
+	public static final String EXTRA_INSTALL_RESULT = "com.plugin.core.ACTION_PLUGIN_CHANGED";
+	public static final String EXTRA_ID = "com.plugin.core.ACTION_PLUGIN_CHANGED";
+	public static final String EXTRA_VERSION = "com.plugin.core.ACTION_PLUGIN_CHANGED";
+	
 	private PluginLoader() {
 	}
 
@@ -44,6 +51,14 @@ public class PluginLoader {
 		}
 	}
 
+	public boolean isInstalled(String pluginId, String pluginVersion) {
+		PluginDescriptor pluginDescriptor  = getPluginDescriptorByPluginId(pluginId);
+		if (pluginDescriptor != null) {
+			return pluginDescriptor.getVersion().equals(pluginVersion);
+		}
+		return false;
+	}
+	
 	/**
 	 * 安装一个插件
 	 * 
@@ -52,22 +67,32 @@ public class PluginLoader {
 	 */
 	public static synchronized boolean installPlugin(String srcPluginFile) {
 		Log.e(LOG_TAG, "Install plugin " + srcPluginFile);
-		boolean isSuccess = false;
+		
+		boolean isInstallSuccess = false;
 		// 第一步，读取插件描述文件
 		PluginDescriptor pluginDescriptor = ApkReader.readPluginDescriptor(srcPluginFile);
 		// 第二步骤，复制插件到插件目录
 		if (pluginDescriptor != null) {
 			String destPluginFile = genInstallPath(pluginDescriptor.getId(), pluginDescriptor.getVersion());
-			isSuccess = ApkReader.copyFile(srcPluginFile, destPluginFile);
+			boolean isCopySuccess = ApkReader.copyFile(srcPluginFile, destPluginFile);
 			// 第三步 添加到已安装插件列表
-			if (isSuccess) {
+			if (isCopySuccess) {
 				pluginDescriptor.setInstalledPath(destPluginFile);
 				sInstalledPlugins.put(pluginDescriptor.getId(), pluginDescriptor);
-				saveInstalledPlugins(sInstalledPlugins);
+				isInstallSuccess = saveInstalledPlugins(sInstalledPlugins);
 			}
 		}
-		Log.e(LOG_TAG, "Install plugin " + (isSuccess ? "Success " : "Fail ") + srcPluginFile);
-		return isSuccess;
+		
+		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+		intent.putExtra(EXTRA_INSTALL_SRC, srcPluginFile);
+		intent.putExtra(EXTRA_INSTALL_RESULT, isInstallSuccess);
+		if (pluginDescriptor != null) {
+			intent.putExtra(EXTRA_ID, pluginDescriptor.getId());
+			intent.putExtra(EXTRA_VERSION, pluginDescriptor.getVersion());
+		}
+		sApplication.sendBroadcast(intent);
+	
+		return isInstallSuccess;
 	}
 
 	private static String getPluginClassNameById(PluginDescriptor pluginDescriptor, String clazzId) {
@@ -157,7 +182,7 @@ public class PluginLoader {
 		pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 	}
 
-	private static synchronized void saveInstalledPlugins(HashMap<String, PluginDescriptor> installedPlugins) {
+	private static synchronized boolean saveInstalledPlugins(HashMap<String, PluginDescriptor> installedPlugins) {
 		ObjectOutputStream objectOutputStream = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		try {
@@ -169,7 +194,7 @@ public class PluginLoader {
 			String list = Base64.encodeToString(data, Base64.DEFAULT);
 
 			getSharedPreference().edit().putString("plugins.list", list).commit();
-
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -188,6 +213,7 @@ public class PluginLoader {
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -216,6 +242,18 @@ public class PluginLoader {
 		return null;
 	}
 
+	public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
+
+		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
+		while (itr.hasNext()) {
+			PluginDescriptor descriptor = itr.next();
+			descriptor.getId().equals(pluginId);
+			return descriptor;
+		}
+		return null;
+	
+	}
+	
 	private static PluginDescriptor getPluginDescriptorByName(String clazzName) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
