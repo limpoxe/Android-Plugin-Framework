@@ -29,11 +29,8 @@ public class PluginLoader {
 	private static final HashMap<String, PluginDescriptor> sInstalledPlugins = new HashMap<String, PluginDescriptor>();
 	private static boolean isInited = false;
 
-	public static final String ACTION_PLUGIN_CHANGED = "com.plugin.core.ACTION_PLUGIN_CHANGED";
-	public static final String EXTRA_INSTALL_SRC = "com.plugin.core.ACTION_PLUGIN_CHANGED";
-	public static final String EXTRA_INSTALL_RESULT = "com.plugin.core.ACTION_PLUGIN_CHANGED";
-	public static final String EXTRA_ID = "com.plugin.core.ACTION_PLUGIN_CHANGED";
-	public static final String EXTRA_VERSION = "com.plugin.core.ACTION_PLUGIN_CHANGED";
+	public static final String ACTION_PLUGIN_CHANGED = "com.plugin.core.action_plugin_changed";
+	public static final String EXTRA_TYPE = "com.plugin.core.EXTRA_TYPE";
 	
 	private PluginLoader() {
 	}
@@ -78,19 +75,22 @@ public class PluginLoader {
 			// 第三步 添加到已安装插件列表
 			if (isCopySuccess) {
 				pluginDescriptor.setInstalledPath(destPluginFile);
-				sInstalledPlugins.put(pluginDescriptor.getId(), pluginDescriptor);
+				PluginDescriptor previous = sInstalledPlugins.put(pluginDescriptor.getId(), pluginDescriptor);
 				isInstallSuccess = saveInstalledPlugins(sInstalledPlugins);
+				
+				if (isInstallSuccess) {
+					Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+					if (previous == null) {
+						intent.putExtra(EXTRA_TYPE, "add");
+					} else {
+						intent.putExtra(EXTRA_TYPE, "replace");
+					}
+					intent.putExtra("id", pluginDescriptor.getId());
+					intent.putExtra("version", pluginDescriptor.getVersion());
+					sApplication.sendBroadcast(intent);
+				}
 			}
 		}
-		
-		Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-		intent.putExtra(EXTRA_INSTALL_SRC, srcPluginFile);
-		intent.putExtra(EXTRA_INSTALL_RESULT, isInstallSuccess);
-		if (pluginDescriptor != null) {
-			intent.putExtra(EXTRA_ID, pluginDescriptor.getId());
-			intent.putExtra(EXTRA_VERSION, pluginDescriptor.getVersion());
-		}
-		sApplication.sendBroadcast(intent);
 	
 		return isInstallSuccess;
 	}
@@ -221,7 +221,12 @@ public class PluginLoader {
 	 */
 	public static void removeAll() {
 		sInstalledPlugins.clear();
-		saveInstalledPlugins(sInstalledPlugins);
+		boolean isSuccess = saveInstalledPlugins(sInstalledPlugins);
+		if (isSuccess) {
+			Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+			intent.putExtra(EXTRA_TYPE, "remove");
+			sApplication.sendBroadcast(intent);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
