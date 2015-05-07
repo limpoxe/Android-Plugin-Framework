@@ -5,12 +5,17 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,27 +26,40 @@ import com.plugin.core.PluginLoader;
 import com.plugin.core.ui.PluginDispatcher;
 
 public class PluginListActivity extends Activity {
-
+	
+	private ViewGroup mRoot;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
-		LinearLayout root = (LinearLayout) findViewById(R.id.root);
-		TextView text = new TextView(this);
-		text.setText("注意：插件Fragment如果运行在和它的开发方式不匹配的运行容器中，会出错，\n" +
-				"" +
-				"如下列表中会对这种异常进行演示");
-		text.setTextSize(16);
-		root.addView(text);
 		
 		// 这行代码应当在Application的onCreate中执行。
 		PluginLoader.initLoader(getApplication());
-
+		
 		//安装一个插件
 		//PluginLoader.installPlugin("/sdcard/test/test.apk");
 		
-		//列出所有已经安装的插件
+		registerReceiver(pluginChange, new IntentFilter(PluginLoader.ACTION_PLUGIN_CHANGED));
+		
+		mRoot = (ViewGroup) findViewById(R.id.root);
+		
+		listAll(mRoot);
+	}
+	
+	private void listAll(ViewGroup root) {
+		root.removeAllViews();
+		
 		HashMap<String, PluginDescriptor> plugins = PluginLoader.listAll();
+		
+		TextView text = new TextView(this);
+		text.setText("注意：插件Fragment如果运行在和它的开发方式不匹配的运行容器中，会出错。" +
+				"\n" +
+				"如下列表中会对这种异常进行演示: " + plugins.size() + "个插件");
+		text.setTextSize(16);
+		root.addView(text);
+		
+		//列出所有已经安装的插件
 
 		Iterator<Entry<String, PluginDescriptor>> it = plugins.entrySet().iterator();
 		while (it.hasNext()) {
@@ -115,5 +133,16 @@ public class PluginListActivity extends Activity {
 		Log.e("xx", "" + item.getTitle());
 		return super.onOptionsItemSelected(item);
 	}
+	
+	private BroadcastReceiver pluginChange = new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+			Log.d("PluginListActivity", intent.toUri(0));
+			listAll(mRoot);
+		};
+	};
+	
+	protected void onDestroy() {
+		unregisterReceiver(pluginChange);
+	};
 
 }
