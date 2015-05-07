@@ -142,6 +142,7 @@ public class PluginListActivity extends Activity {
 	};
 	
 	protected void onDestroy() {
+		super.onDestroy();
 		unregisterReceiver(pluginChange);
 	};
 
