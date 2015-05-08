@@ -47,8 +47,9 @@ public class PluginListActivity extends Activity {
 				try {
 					InputStream assestInput = getAssets().open("PluginTest-debug.apk");
 					String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/PluginTest-debug.apk";
-					ApkReader.copyFile(assestInput, sdcardDest);
-					PluginLoader.installPlugin(sdcardDest);
+					if (ApkReader.copyFile(assestInput, sdcardDest)) {
+						PluginLoader.installPlugin(sdcardDest);						
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -68,7 +69,7 @@ public class PluginListActivity extends Activity {
 		HashMap<String, PluginDescriptor> plugins = PluginLoader.listAll();
 		Iterator<Entry<String, PluginDescriptor>> itr = plugins.entrySet().iterator();
 		while (itr.hasNext()) {
-			Entry<String, PluginDescriptor> entry  = itr.next();
+			final Entry<String, PluginDescriptor> entry  = itr.next();
 			Button btton = new Button(this);
 			btton.setText("插件id：" + entry.getKey() + 
 					"\n插件介绍：" + entry.getValue().getDescription() +
@@ -85,6 +86,7 @@ public class PluginListActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					Intent intent  = new Intent(PluginListActivity.this, PluginDetailActivity.class);
+					intent.putExtra("plugin_id", entry.getKey());
 					startActivity(intent);
 				}
 			});
