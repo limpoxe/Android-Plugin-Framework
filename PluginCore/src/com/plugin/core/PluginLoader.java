@@ -2,11 +2,13 @@ package com.plugin.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 import android.app.Application;
@@ -18,6 +20,7 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.webkit.WebView.FindListener;
 
 import com.plugin.util.ApkReader;
 
@@ -26,7 +29,7 @@ import dalvik.system.DexClassLoader;
 public class PluginLoader {
 	private static final String LOG_TAG = PluginLoader.class.getSimpleName();
 	private static Application sApplication;
-	private static final HashMap<String, PluginDescriptor> sInstalledPlugins = new HashMap<String, PluginDescriptor>();
+	private static final Hashtable<String, PluginDescriptor> sInstalledPlugins = new Hashtable<String, PluginDescriptor>();
 	private static boolean isInited = false;
 
 	public static final String ACTION_PLUGIN_CHANGED = "com.plugin.core.action_plugin_changed";
@@ -68,11 +71,23 @@ public class PluginLoader {
 		boolean isInstallSuccess = false;
 		// 第一步，读取插件描述文件
 		PluginDescriptor pluginDescriptor = ApkReader.readPluginDescriptor(srcPluginFile);
-		// 第二步骤，复制插件到插件目录
+		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getId())) {
+			return isInstallSuccess;
+		}
+		
+		// 第二步，检查插件是否已经存在,若存在删除旧的
+		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getId());
+		if (oldPluginDescriptor != null) {
+			remove(pluginDescriptor.getId());
+		}
+		
+		// 第三步骤，复制插件到插件目录
 		if (pluginDescriptor != null) {
+			
 			String destPluginFile = genInstallPath(pluginDescriptor.getId(), pluginDescriptor.getVersion());
 			boolean isCopySuccess = ApkReader.copyFile(srcPluginFile, destPluginFile);
-			// 第三步 添加到已安装插件列表
+			
+			// 第四步 添加到已安装插件列表
 			if (isCopySuccess) {
 				pluginDescriptor.setInstalledPath(destPluginFile);
 				PluginDescriptor previous = sInstalledPlugins.put(pluginDescriptor.getId(), pluginDescriptor);
@@ -154,8 +169,10 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByName(clazz.getName());
 		if (pluginDescriptor != null) {
 			pluginContext = pluginDescriptor.getPluginContext();
+		} else {
+			Log.e(LOG_TAG, "PluginDescriptor Not Found for " + clazz.getName());
 		}
-
+		
 		if (pluginContext == null) {
 			Log.e(LOG_TAG, "Context Not Found for " + clazz.getName());
 		}
@@ -182,7 +199,7 @@ public class PluginLoader {
 		pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 	}
 
-	private static synchronized boolean saveInstalledPlugins(HashMap<String, PluginDescriptor> installedPlugins) {
+	private static synchronized boolean saveInstalledPlugins(Hashtable<String, PluginDescriptor> installedPlugins) {
 		ObjectOutputStream objectOutputStream = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		try {
@@ -219,13 +236,31 @@ public class PluginLoader {
 	/**
 	 * 清除列表并不能清除已经加载到内存当中的class,因为class一旦加载后后无法卸载
 	 */
-	public static void removeAll() {
+	public static synchronized void removeAll() {
+		sInstalledPlugins.entrySet().iterator();
+		
 		sInstalledPlugins.clear();
 		boolean isSuccess = saveInstalledPlugins(sInstalledPlugins);
 		if (isSuccess) {
 			Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
 			intent.putExtra(EXTRA_TYPE, "remove");
 			sApplication.sendBroadcast(intent);
+		}
+	}
+	
+	public static synchronized void remove(String pluginId) {
+		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
+		if (old != null) {
+			
+			boolean isSuccess = saveInstalledPlugins(sInstalledPlugins);
+			
+			new File(old.getInstalledPath()).delete();
+			
+			if (isSuccess) {
+				Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+				intent.putExtra(EXTRA_TYPE, "remove");
+				sApplication.sendBroadcast(intent);
+			}
 		}
 	}
 
@@ -248,16 +283,7 @@ public class PluginLoader {
 	}
 
 	public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
-
-		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
-		while (itr.hasNext()) {
-			PluginDescriptor descriptor = itr.next();
-			if (descriptor.getId().equals(pluginId)) {
-				return descriptor;
-			}
-		}
-		return null;
-	
+		return sInstalledPlugins.get(pluginId);
 	}
 	
 	private static PluginDescriptor getPluginDescriptorByName(String clazzName) {
@@ -274,7 +300,7 @@ public class PluginLoader {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static synchronized HashMap<String, PluginDescriptor> readInstalledPlugins() {
+	private static synchronized Hashtable<String, PluginDescriptor> readInstalledPlugins() {
 		if (sInstalledPlugins.size() == 0) {
 			// 读取已经安装的插件列表
 			String list = getSharedPreference().getString("plugins.list", "");
@@ -306,7 +332,7 @@ public class PluginLoader {
 				}
 			}
 			if (object != null) {
-				sInstalledPlugins.putAll((HashMap<String, PluginDescriptor>) object);
+				sInstalledPlugins.putAll((Hashtable<String, PluginDescriptor>) object);
 			}
 		}
 		return sInstalledPlugins;
