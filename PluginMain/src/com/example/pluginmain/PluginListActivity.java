@@ -45,6 +45,7 @@ public class PluginListActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
+				Toast.makeText(PluginListActivity.this, "开始安装", Toast.LENGTH_LONG).show();
 				try {
 					InputStream assestInput = getAssets().open("PluginTest-debug.apk");
 					String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/PluginTest-debug.apk";
@@ -53,6 +54,7 @@ public class PluginListActivity extends Activity {
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
+					Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
 				}
 			}
 		});
