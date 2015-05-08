@@ -8,6 +8,8 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="21" />
 
+    <uses-permission  android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    
     <application
         android:icon="@drawable/ic_launcher"
         android:theme="@style/ShareTheme" >
