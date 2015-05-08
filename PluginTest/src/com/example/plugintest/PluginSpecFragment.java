@@ -33,8 +33,10 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		pluginContext = PluginLoader.getPluginContext(PluginSpecFragment.class);
+		//设置主题为宿主程序主题
 		pluginContext.setTheme(getActivity().getApplicationInfo().theme);
-		//pluginContext.setTheme(com.example.pluginsharelib.R.style.ShareTheme);
+		//pluginContext.setTheme(R.style.AppTheme);
+
 		pluginInflater = (LayoutInflater) pluginContext
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
