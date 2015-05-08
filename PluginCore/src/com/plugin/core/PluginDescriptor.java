@@ -11,13 +11,14 @@ import dalvik.system.DexClassLoader;
  * {
  * 	"id":123,
  * 	"version":"1.0.1",
+ *  "description":"插件介绍",
  * 	"fragments":{
  * 		"test1":"com.example.plugintest.PluginMustRunInSpec",
  * 		"test2":"com.example.plugintest.PluginRunEasy"
  * 	},
  * 	"activities":{
  * 		"test3":"com.example.plugintest.PluginTextActivity",
- * 	}
+ * 	} 	
  * }
  * @author cailiming
  * </Pre>
@@ -29,6 +30,8 @@ public class PluginDescriptor implements Serializable {
 	private String id;
 
 	private String version;
+
+	private String description;
 
 	private HashMap<String, String> fragments;
 
@@ -94,5 +97,13 @@ public class PluginDescriptor implements Serializable {
 
 	public void setActivities(HashMap<String, String> activities) {
 		this.activities = activities;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }
