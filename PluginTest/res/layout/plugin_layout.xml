@@ -11,7 +11,13 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin" >
-
+        
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MyButton"
+            android:text="测试插件style" />
+        
         <Button
             android:id="@+id/plugin_test_btn1"
             android:layout_width="wrap_content"
