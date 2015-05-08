@@ -66,7 +66,7 @@ public class ApkReader {
 		return null;
 	}
 
-	private static boolean copyFile(final InputStream inputStream, String dest) {
+	public static boolean copyFile(final InputStream inputStream, String dest) {
 		Log.d(LOG_TAG, "copyFile to " + dest);
 		FileOutputStream oputStream = null;
 		try {
