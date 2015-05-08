@@ -34,15 +34,15 @@ public class PluginDetailActivity extends Activity {
 	private void initViews(PluginDescriptor pluginDescriptor) {
 		if (pluginDescriptor != null) {
 			TextView pluginIdView = (TextView)mRoot.findViewById(R.id.plugin_id);
-			pluginIdView.setText("插件Id:" + pluginDescriptor.getId());
+			pluginIdView.setText("插件Id：" + pluginDescriptor.getId());
 			
 			TextView pluginVerView = (TextView)mRoot.findViewById(R.id.plugin_version);
-			pluginVerView.setText("插件Version:" + pluginDescriptor.getVersion());
+			pluginVerView.setText("插件Version：" + pluginDescriptor.getVersion());
 			
 			LinearLayout pluginFragmentView = (LinearLayout)mRoot.findViewById(R.id.plugin_fragments);
-			Iterator<Entry<String, String>> Fragment = pluginDescriptor.getFragments().entrySet().iterator();
-			while (Fragment.hasNext()) {
-				final Entry<String, String> entry = Fragment.next();
+			Iterator<Entry<String, String>> fragment = pluginDescriptor.getFragments().entrySet().iterator();
+			while (fragment.hasNext()) {
+				final Entry<String, String> entry = fragment.next();
 				TextView tv = new TextView(this);
 				tv.setText("插件ClassId：" + entry.getKey());
 				tv.append("\n插件ClassName：" + entry.getValue());
@@ -68,7 +68,8 @@ public class PluginDetailActivity extends Activity {
 				tv.setText("插件ClassId：" + entry.getKey());
 				tv.append("\n插件ClassName：" + entry.getValue());
 				tv.append("\n插件Class类型：Activity");
-				tv.append("\n点击打开插件：");
+				tv.append("\n点击打开>>");
+				tv.append("\n");
 				tv.setOnClickListener(new OnClickListener() {
 					
 					@Override
