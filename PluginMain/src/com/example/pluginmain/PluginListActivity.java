@@ -3,6 +3,7 @@ package com.example.pluginmain;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -66,7 +67,7 @@ public class PluginListActivity extends Activity {
 		root.removeAllViews();
 		
 		//列出所有已经安装的插件
-		HashMap<String, PluginDescriptor> plugins = PluginLoader.listAll();
+		Hashtable<String, PluginDescriptor> plugins = PluginLoader.listAll();
 		Iterator<Entry<String, PluginDescriptor>> itr = plugins.entrySet().iterator();
 		while (itr.hasNext()) {
 			final Entry<String, PluginDescriptor> entry  = itr.next();
