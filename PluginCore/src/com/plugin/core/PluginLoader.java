@@ -252,8 +252,9 @@ public class PluginLoader {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
-			descriptor.getId().equals(pluginId);
-			return descriptor;
+			if (descriptor.getId().equals(pluginId)) {
+				return descriptor;
+			}
 		}
 		return null;
 	
