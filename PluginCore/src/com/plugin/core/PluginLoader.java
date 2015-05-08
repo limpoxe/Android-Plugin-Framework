@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -20,7 +19,6 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.webkit.WebView.FindListener;
 
 import com.plugin.util.ApkReader;
 
@@ -265,8 +263,8 @@ public class PluginLoader {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static HashMap<String, PluginDescriptor> listAll() {
-		return (HashMap<String, PluginDescriptor>) sInstalledPlugins.clone();
+	public static Hashtable<String, PluginDescriptor> listAll() {
+		return (Hashtable<String, PluginDescriptor>) sInstalledPlugins.clone();
 	}
 
 	private static PluginDescriptor getPluginDescriptorById(String clazzID) {
