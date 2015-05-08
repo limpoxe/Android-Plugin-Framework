@@ -1,6 +1,7 @@
 {
-	"id":123,
+	"id":"xyz.abc.123",
 	"version":"1.0.1",
+	"description":"包含4个UI的插件demo",
 	"fragments":{
 		"test1":"com.example.plugintest.PluginNormalFragment",
 		"test2":"com.example.plugintest.PluginSpecFragment"
