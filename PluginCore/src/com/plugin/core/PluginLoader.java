@@ -332,12 +332,21 @@ public class PluginLoader {
 				}
 			}
 			if (object != null) {
-				sInstalledPlugins.putAll((Hashtable<String, PluginDescriptor>) object);
+				
+				Hashtable<String, PluginDescriptor> installedPlugin = (Hashtable<String, PluginDescriptor>) object;
+				installedPlugin = checkEnableList(installedPlugin);
+				
+				sInstalledPlugins.putAll(installedPlugin);
 			}
 		}
 		return sInstalledPlugins;
 	}
 
+	private static Hashtable<String, PluginDescriptor> checkEnableList(Hashtable<String, PluginDescriptor> installedPlugin) {
+		//TODO 检查是否需要禁用部分插件
+		return installedPlugin;
+	}
+	
 	/**
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
 	 */

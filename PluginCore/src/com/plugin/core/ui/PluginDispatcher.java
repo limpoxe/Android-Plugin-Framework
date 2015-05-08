@@ -61,6 +61,7 @@ public class PluginDispatcher {
 	}
 	
 	private static String resloveTarget(String target) {
+		//TODO target到classId的映射
 		return target;
 	}
 	
