@@ -36,7 +36,8 @@ public class ApkReader {
 				PluginDescriptor pluginDescriptor = new PluginDescriptor();
 				pluginDescriptor.setId(json.get("id").toString());
 				pluginDescriptor.setVersion(json.get("version").toString());
-
+				pluginDescriptor.setDescription(json.get("description").toString());
+				
 				HashMap<String, String> pluginFragment = new HashMap<String, String>();
 				JSONObject fragmentJson = json.getJSONObject("fragments");
 				Iterator<String> fragmentIds = fragmentJson.keys();
