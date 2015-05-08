@@ -40,7 +40,9 @@
             </intent-filter>
         </activity>
         
-
+        <activity
+            android:name="com.example.pluginmain.PluginDetailActivity" >
+        </activity>
         
         <receiver
             android:name="com.example.pluginmain.PluginDebugHelper" >
