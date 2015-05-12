@@ -198,9 +198,9 @@ public class PluginProxyActivity extends Activity {
 	/**
 	 * 这里需要attach的值 根据不同的android版本和厂商版本，可能会有所不同 需要实际测试后才能保证兼容
 	 * 
-	 * 这里后续还需要考虑对不同android版本的差异性支持，attach的代码是基于AndroidL的实现
+	 * 这里后续还需要考虑对不同android版本的差异性支持，attach的代码是基于Android L的实现
 	 * 
-	 * 重要：由于作者设备有限，以下内容仅在小米2s4.4.3系统上测试过。
+	 * 重要：由于作者设备有限，以下内容仅在 小米2s 4.1.1 系统上测试过。
 	 * 
 	 */
 	private void attach() {
