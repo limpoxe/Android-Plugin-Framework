@@ -32,6 +32,7 @@ public class PluginListActivity extends Activity {
 
 	private ViewGroup mList;
 	private Button install;
+	boolean isInstalled = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +49,20 @@ public class PluginListActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(PluginListActivity.this, "开始安装", Toast.LENGTH_LONG).show();
-				try {
-					InputStream assestInput = getAssets().open("PluginTest-debug.apk");
-					String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath()
-							+ "/PluginTest-debug.apk";
-					if (ApkReader.copyFile(assestInput, sdcardDest)) {
-						PluginLoader.installPlugin(sdcardDest);
+				if (!isInstalled) {
+					isInstalled = true;
+					Toast.makeText(PluginListActivity.this, "开始安装", Toast.LENGTH_LONG).show();
+					try {
+						InputStream assestInput = getAssets().open("PluginTest-debug.apk");
+						String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath()
+								+ "/PluginTest-debug.apk";
+						if (ApkReader.copyFile(assestInput, sdcardDest)) {
+							PluginLoader.installPlugin(sdcardDest);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+						Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
 				}
 			}
 		});
@@ -108,7 +112,9 @@ public class PluginListActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		install.performClick();
+		if (!isInstalled) {
+			install.performClick();
+		}
 	}
 	
 	private final BroadcastReceiver pluginChange = new BroadcastReceiver() {
