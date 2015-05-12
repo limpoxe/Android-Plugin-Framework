@@ -30,7 +30,8 @@ import dalvik.system.DexClassLoader;
 public class PluginListActivity extends Activity {
 
 	private ViewGroup mList;
-
+	private Button install;
+	
 	public static class MyLoader extends DexClassLoader {
 
 		public MyLoader(String dexPath, String optimizedDirectory,
@@ -61,7 +62,7 @@ public class PluginListActivity extends Activity {
 
 		registerReceiver(pluginChange, new IntentFilter(PluginLoader.ACTION_PLUGIN_CHANGED));
 
-		Button install = (Button) findViewById(R.id.install);
+		install = (Button) findViewById(R.id.install);
 		install.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -143,6 +144,12 @@ public class PluginListActivity extends Activity {
 		}
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		install.performClick();
+	}
+	
 	private final BroadcastReceiver pluginChange = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
