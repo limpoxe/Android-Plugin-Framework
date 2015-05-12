@@ -297,6 +297,14 @@ public class PluginLoader {
 		return null;
 	}
 
+	public static synchronized void enablePlugin(String pluginId, boolean enable) {
+		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
+		if (pluginDescriptor != null && !pluginDescriptor.isEnabled()) {
+			pluginDescriptor.setEnabled(enable);
+			saveInstalledPlugins(sInstalledPlugins);
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	private static synchronized Hashtable<String, PluginDescriptor> readInstalledPlugins() {
 		if (sInstalledPlugins.size() == 0) {
@@ -332,17 +340,10 @@ public class PluginLoader {
 			if (object != null) {
 				
 				Hashtable<String, PluginDescriptor> installedPlugin = (Hashtable<String, PluginDescriptor>) object;
-				installedPlugin = checkEnableList(installedPlugin);
-				
 				sInstalledPlugins.putAll(installedPlugin);
 			}
 		}
 		return sInstalledPlugins;
-	}
-
-	private static Hashtable<String, PluginDescriptor> checkEnableList(Hashtable<String, PluginDescriptor> installedPlugin) {
-		//TODO 检查是否需要禁用部分插件
-		return installedPlugin;
 	}
 	
 	/**

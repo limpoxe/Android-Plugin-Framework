@@ -34,6 +34,7 @@ public class ApkReader {
 			try {
 				JSONObject json = new JSONObject(pluginDesciption);
 				PluginDescriptor pluginDescriptor = new PluginDescriptor();
+				pluginDescriptor.setEnabled(true);
 				pluginDescriptor.setId(json.get("id").toString());
 				pluginDescriptor.setVersion(json.get("version").toString());
 				pluginDescriptor.setDescription(json.get("description").toString());

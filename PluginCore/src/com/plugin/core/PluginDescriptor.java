@@ -33,6 +33,8 @@ public class PluginDescriptor implements Serializable {
 
 	private String description;
 
+	private boolean isEnabled;
+
 	private HashMap<String, String> fragments;
 
 	private HashMap<String, String> activities;
@@ -105,5 +107,13 @@ public class PluginDescriptor implements Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	public void setEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled;
 	}
 }
