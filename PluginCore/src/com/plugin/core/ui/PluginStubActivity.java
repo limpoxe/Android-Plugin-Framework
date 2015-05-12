@@ -1,4 +1,4 @@
-package com.example.pluginmain;
+package com.plugin.core.ui;
 
 import android.app.Activity;
 

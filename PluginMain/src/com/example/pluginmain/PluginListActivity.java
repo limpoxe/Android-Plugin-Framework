@@ -22,6 +22,7 @@ import android.widget.LinearLayout.LayoutParams;
 
 import com.plugin.core.PluginDescriptor;
 import com.plugin.core.PluginLoader;
+import com.plugin.core.ui.PluginDispatcher;
 import com.plugin.util.ApkReader;
 import com.plugin.util.RefInvoker;
 
@@ -31,26 +32,6 @@ public class PluginListActivity extends Activity {
 
 	private ViewGroup mList;
 	private Button install;
-	
-	public static class MyLoader extends DexClassLoader {
-
-		public MyLoader(String dexPath, String optimizedDirectory,
-				String libraryPath, ClassLoader parent) {
-			super(dexPath, optimizedDirectory, libraryPath, parent);
-		}
-		
-		@Override
-		protected Class<?> loadClass(String className, boolean resolve)
-				throws ClassNotFoundException {
-			
-			if (className.equals(PluginStubActivity.class.getName())) {
-				return PluginLoader.loadPluginClassById("test5");
-			}
-			
-			return super.loadClass(className, resolve);
-		}
-		
-	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -89,31 +70,11 @@ public class PluginListActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				
-				//替换成可以加载 插件元素test5 的classLoader
-				replaceClassLoader();
-				
-				//打开stubActivity实际上会打开插件中test5对应的activity
-				Intent targent = new Intent(PluginListActivity.this, PluginStubActivity.class);
-				startActivity(targent);
+				PluginDispatcher.startRealActivity(PluginListActivity.this, "test5");
 			}
 		});
 		
 		listAll(mList);
-	}
-	
-	private void replaceClassLoader() {
-		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(), "mLoadedApk");
-		
-		ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(
-				mLoadedApk, "android.app.LoadedApk", "mClassLoader");
-		
-		DexClassLoader dLoader = new MyLoader("", PluginLoader.getApplicatoin().getCacheDir()
-				.getAbsolutePath(), PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(),
-				originalLoader);
-
-		RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk",
-				"mClassLoader", dLoader);
 	}
 	
 	private void listAll(ViewGroup root) {

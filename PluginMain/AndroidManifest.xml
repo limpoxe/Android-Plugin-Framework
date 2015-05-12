@@ -29,6 +29,12 @@
             android:name="com.plugin.core.ui.PluginProxyActivity"
             android:exported="true" >
         </activity>
+        
+        <activity
+            android:name="com.plugin.core.ui.PluginStubActivity"
+            android:exported="true" >
+        </activity>
+        
         <!-- plugin End -->
         
         <activity
@@ -44,10 +50,6 @@
         
         <activity
             android:name="com.example.pluginmain.PluginDetailActivity" >
-        </activity>
-        
-        <activity
-            android:name="com.example.pluginmain.PluginStubActivity" >
         </activity>
         
         <receiver

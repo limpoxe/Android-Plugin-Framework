@@ -271,7 +271,7 @@ public class PluginLoader {
 		return (Hashtable<String, PluginDescriptor>) sInstalledPlugins.clone();
 	}
 
-	private static PluginDescriptor getPluginDescriptorByClassId(String clazzID) {
+	public static PluginDescriptor getPluginDescriptorByClassId(String clazzID) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();

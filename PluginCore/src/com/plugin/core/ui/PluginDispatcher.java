@@ -1,5 +1,12 @@
 package com.plugin.core.ui;
 
+import com.plugin.core.PluginDescriptor;
+import com.plugin.core.PluginLoader;
+import com.plugin.util.RefInvoker;
+
+import dalvik.system.DexClassLoader;
+
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 
@@ -60,9 +67,76 @@ public class PluginDispatcher {
 	
 	}
 	
+	/**
+	 * 显示插件中的activity
+	 * 
+	 * 打开stubActivity实际上会打开插件中test5对应的activity	 * 
+	 * @param context
+	 * @param target
+	 */
+	public static void startRealActivity(Context context, String target) {
+		
+		//替换成可以加载 插件元素test5 的classLoader
+		replaceClassLoader(target);
+		
+		Intent pluginActivity = new Intent();
+		pluginActivity.setClass(context, PluginStubActivity.class);
+		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(pluginActivity);
+	
+	}
+	
 	private static String resloveTarget(String target) {
 		//TODO target到classId的映射
 		return target;
+	}
+	
+	public static class PluginComponentLoader extends DexClassLoader {
+
+		private String currentId;
+		
+		public void setCurrentId(String classId) {
+			this.currentId = classId;
+		}
+		
+		public PluginComponentLoader(String dexPath, String optimizedDirectory,
+				String libraryPath, ClassLoader parent) {
+			super(dexPath, optimizedDirectory, libraryPath, parent);
+		}
+		
+		@Override
+		protected Class<?> loadClass(String className, boolean resolve)
+				throws ClassNotFoundException {
+			
+			if (currentId != null && className.equals(PluginStubActivity.class.getName())) {
+				Class clazz = PluginLoader.loadPluginClassById(currentId);
+				currentId = null;
+				if (clazz != null) {
+					return clazz;
+				}
+			}
+			
+			return super.loadClass(className, resolve);
+		}
+		
+	}
+	
+	private static void replaceClassLoader(String target) {
+
+		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(), "mLoadedApk");
+		ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(
+				mLoadedApk, "android.app.LoadedApk", "mClassLoader");
+		
+		if (originalLoader instanceof PluginComponentLoader) {
+			((PluginComponentLoader)originalLoader).setCurrentId(target);
+		} else {
+			PluginComponentLoader dLoader = new PluginComponentLoader("", PluginLoader.getApplicatoin().getCacheDir()
+					.getAbsolutePath(), PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(),
+					originalLoader);
+			dLoader.setCurrentId(target);
+			RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk",
+					"mClassLoader", dLoader);
+		}
 	}
 	
 }
