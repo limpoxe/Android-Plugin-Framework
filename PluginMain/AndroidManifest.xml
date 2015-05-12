@@ -46,6 +46,10 @@
             android:name="com.example.pluginmain.PluginDetailActivity" >
         </activity>
         
+        <activity
+            android:name="com.example.pluginmain.PluginStubActivity" >
+        </activity>
+        
         <receiver
             android:name="com.example.pluginmain.PluginDebugHelper" >
             <intent-filter>

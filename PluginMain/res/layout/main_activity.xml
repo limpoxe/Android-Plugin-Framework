@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="点击安装内置插件"
         android:textSize="16sp" />
-    
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,5 +26,12 @@
         android:background="#ff33b5e5"
         android:orientation="vertical" >
     </LinearLayout>
+
+    <Button
+        android:id="@+id/open"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击打开拥有完整生命周期的插件Activity"
+        android:textSize="16sp" />
 
 </LinearLayout>

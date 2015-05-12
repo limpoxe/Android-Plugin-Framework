@@ -42,7 +42,7 @@ public class PluginListActivity extends Activity {
 		protected Class<?> loadClass(String className, boolean resolve)
 				throws ClassNotFoundException {
 			
-			if (className.equals(PluginDetailActivity.class.getName())) {
+			if (className.equals(PluginStubActivity.class.getName())) {
 				return PluginLoader.loadPluginClassById("test5");
 			}
 			
@@ -83,14 +83,22 @@ public class PluginListActivity extends Activity {
 
 		mList = (ViewGroup) findViewById(R.id.list);
 
-		listAll(mList);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
+		Button open = (Button) findViewById(R.id.open);
+		open.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				//替换成可以加载 插件元素test5 的classLoader
+				replaceClassLoader();
+				
+				//打开stubActivity实际上会打开插件中test5对应的activity
+				Intent targent = new Intent(PluginListActivity.this, PluginStubActivity.class);
+				startActivity(targent);
+			}
+		});
 		
-		replaceClassLoader();
+		listAll(mList);
 	}
 	
 	private void replaceClassLoader() {
