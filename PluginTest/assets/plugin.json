@@ -9,6 +9,6 @@
 	"activities":{
 		"test3":"com.example.plugintest.PluginTestActivity",
 		"test4":"com.example.plugintest.PluginFragmentTestActivity",
-		"test5":"com.example.plugintest.PluginEmptyActivity"
+		"test5":"com.example.plugintest.PluginNotInManifestActivity"
 	}
 }
