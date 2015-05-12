@@ -126,7 +126,7 @@ public class PluginLoader {
 	public static Class loadPluginClassById(String clazzId) {
 		Log.v(LOG_TAG, "loadPluginClass for clazzId " + clazzId);
 
-		PluginDescriptor pluginDescriptor = getPluginDescriptorById(clazzId);
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassId(clazzId);
 		if (pluginDescriptor != null) {
 			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
 			if (pluginClassLoader == null) {
@@ -164,7 +164,7 @@ public class PluginLoader {
 		// clazz.getClassLoader(); 直接获取classloader的方式，
 		// 如果同一个插件安装两次，但是宿主程序进程没有重启，那么得到的classloader可能是前次安装时的loader
 		Context pluginContext = null;
-		PluginDescriptor pluginDescriptor = getPluginDescriptorByName(clazz.getName());
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazz.getName());
 		if (pluginDescriptor != null) {
 			pluginContext = pluginDescriptor.getPluginContext();
 		} else {
@@ -267,7 +267,7 @@ public class PluginLoader {
 		return (Hashtable<String, PluginDescriptor>) sInstalledPlugins.clone();
 	}
 
-	private static PluginDescriptor getPluginDescriptorById(String clazzID) {
+	private static PluginDescriptor getPluginDescriptorByClassId(String clazzID) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
@@ -284,7 +284,7 @@ public class PluginLoader {
 		return sInstalledPlugins.get(pluginId);
 	}
 	
-	private static PluginDescriptor getPluginDescriptorByName(String clazzName) {
+	private static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
