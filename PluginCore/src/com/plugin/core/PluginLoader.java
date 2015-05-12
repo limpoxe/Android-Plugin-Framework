@@ -48,6 +48,10 @@ public class PluginLoader {
 			isInited = true;
 		}
 	}
+	
+	public static Application getApplicatoin() {
+		return sApplication;
+	}
 
 	public boolean isInstalled(String pluginId, String pluginVersion) {
 		PluginDescriptor pluginDescriptor  = getPluginDescriptorByPluginId(pluginId);
