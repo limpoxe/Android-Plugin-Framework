@@ -271,9 +271,9 @@ public class PluginLoader {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
-			if (descriptor.getFragments().containsKey(clazzID)) {
+			if (descriptor.getFragments().containsKey(clazzID) && descriptor.isEnabled()) {
 				return descriptor;
-			} else if (descriptor.getActivities().containsKey(clazzID)) {
+			} else if (descriptor.getActivities().containsKey(clazzID) && descriptor.isEnabled()) {
 				return descriptor;
 			}
 		}
@@ -281,16 +281,20 @@ public class PluginLoader {
 	}
 
 	public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
-		return sInstalledPlugins.get(pluginId);
+		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
+		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
+			return pluginDescriptor;
+		} 
+		return null;
 	}
 	
 	private static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
-			if (descriptor.getFragments().containsValue(clazzName)) {
+			if (descriptor.getFragments().containsValue(clazzName) && descriptor.isEnabled()) {
 				return descriptor;
-			} else if (descriptor.getActivities().containsValue(clazzName)) {
+			} else if (descriptor.getActivities().containsValue(clazzName) && descriptor.isEnabled()) {
 				return descriptor;
 			}
 		}
