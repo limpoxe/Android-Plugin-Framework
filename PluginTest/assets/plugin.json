@@ -1,7 +1,7 @@
 {
 	"id":"com.example.plugintest",
 	"version":"1.0.1",
-	"description":"包含4个UI的插件demo, UI的id和className要求是全局唯一的，因为宿主程序需要根据id和className来进行查找",
+	"description":"包含5个UI的插件demo, 代表5中开发方式，UI的id和className要求是全局唯一的，因为宿主程序需要根据id和className来进行查找",
 	"fragments":{
 		"test1":"com.example.plugintest.PluginNormalFragment",
 		"test2":"com.example.plugintest.PluginSpecFragment"
