@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,11 +23,34 @@ import android.widget.LinearLayout.LayoutParams;
 import com.plugin.core.PluginDescriptor;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.ApkReader;
+import com.plugin.util.RefInvoker;
+
+import dalvik.system.DexClassLoader;
 
 public class PluginListActivity extends Activity {
 
 	private ViewGroup mList;
 
+	public static class MyLoader extends DexClassLoader {
+
+		public MyLoader(String dexPath, String optimizedDirectory,
+				String libraryPath, ClassLoader parent) {
+			super(dexPath, optimizedDirectory, libraryPath, parent);
+		}
+		
+		@Override
+		protected Class<?> loadClass(String className, boolean resolve)
+				throws ClassNotFoundException {
+			
+			if (className.equals(PluginDetailActivity.class.getName())) {
+				return PluginLoader.loadPluginClassById("test5");
+			}
+			
+			return super.loadClass(className, resolve);
+		}
+		
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -62,6 +86,27 @@ public class PluginListActivity extends Activity {
 		listAll(mList);
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		replaceClassLoader();
+	}
+	
+	private void replaceClassLoader() {
+		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(), "mLoadedApk");
+		
+		ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(
+				mLoadedApk, "android.app.LoadedApk", "mClassLoader");
+		
+		DexClassLoader dLoader = new MyLoader("", PluginLoader.getApplicatoin().getCacheDir()
+				.getAbsolutePath(), PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(),
+				originalLoader);
+
+		RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk",
+				"mClassLoader", dLoader);
+	}
+	
 	private void listAll(ViewGroup root) {
 		root.removeAllViews();
 
