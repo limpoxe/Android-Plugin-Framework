@@ -57,7 +57,7 @@ public class PluginDetailActivity extends Activity {
 				
 				
 				tv = new TextView(this);
-				tv.append("插件ClassName ： 点评" + entry.getValue());
+				tv.append("插件ClassName ： " + entry.getValue());
 				pluginFragmentView.addView(tv);
 				
 				
