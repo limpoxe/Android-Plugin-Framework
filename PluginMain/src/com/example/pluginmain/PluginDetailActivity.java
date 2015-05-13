@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,48 +40,82 @@ public class PluginDetailActivity extends Activity {
 			TextView pluginVerView = (TextView)mRoot.findViewById(R.id.plugin_version);
 			pluginVerView.setText("插件Version：" + pluginDescriptor.getVersion());
 			
+			TextView pluginDescipt = (TextView)mRoot.findViewById(R.id.plugin_description);
+			pluginDescipt.setText("插件Description：" + pluginDescriptor.getDescription());
+			
+			TextView pluginInstalled = (TextView)mRoot.findViewById(R.id.plugin_installedPath);
+			pluginInstalled.setText("插件安装路径：" + pluginDescriptor.getInstalledPath());
+			
 			LinearLayout pluginFragmentView = (LinearLayout)mRoot.findViewById(R.id.plugin_fragments);
 			Iterator<Entry<String, String>> fragment = pluginDescriptor.getFragments().entrySet().iterator();
 			while (fragment.hasNext()) {
 				final Entry<String, String> entry = fragment.next();
+				
 				TextView tv = new TextView(this);
 				tv.setText("插件ClassId：" + entry.getKey());
-				tv.append("\n插件ClassName：" + entry.getValue());
-				tv.append("\n插件Class类型：Fragment");
-				tv.append("\n点击打开>>");
-				tv.append("\n");
-				tv.setOnClickListener(new OnClickListener() {
+				pluginFragmentView.addView(tv);
+				
+				
+				tv = new TextView(this);
+				tv.append("插件ClassName：" + entry.getValue());
+				pluginFragmentView.addView(tv);
+				
+				
+				tv = new TextView(this);
+				tv.append("插件类型：Fragment");
+				pluginFragmentView.addView(tv);
+				
+				
+				Button btn = new Button(this);
+				btn.append("点击打开");
+				btn.setOnClickListener(new OnClickListener() {
 					
 					@Override
 					public void onClick(View v) {
+						//两种fragment模式
 						//PluginDispatcher.startFragment(PluginDetailActivity.this, entry.getKey());
 						PluginDispatcher.startNormalFragment(PluginDetailActivity.this, entry.getKey());
 					}
 				});
-				pluginFragmentView.addView(tv);
+				pluginFragmentView.addView(btn);
 			}
 			
 			LinearLayout pluginActivitysView = (LinearLayout)mRoot.findViewById(R.id.plugin_activities);
 			Iterator<Entry<String, String>> activity = pluginDescriptor.getActivities().entrySet().iterator();
 			while (activity.hasNext()) {
+
 				final Entry<String, String> entry = activity.next();
+				
 				TextView tv = new TextView(this);
 				tv.setText("插件ClassId：" + entry.getKey());
-				tv.append("\n插件ClassName：" + entry.getValue());
-				tv.append("\n插件Class类型：Activity");
-				tv.append("\n点击打开>>");
-				tv.append("\n");
-				tv.setOnClickListener(new OnClickListener() {
+				pluginActivitysView.addView(tv);
+				
+				
+				tv = new TextView(this);
+				tv.append("插件ClassName ： " + entry.getValue());
+				pluginActivitysView.addView(tv);
+				
+				
+				tv = new TextView(this);
+				tv.append("插件类型：Activity");
+				pluginActivitysView.addView(tv);
+				
+				
+				Button btn = new Button(this);
+				btn.append("点击打开");
+				btn.setOnClickListener(new OnClickListener() {
 					
 					@Override
 					public void onClick(View v) {
+						//Activity两种模式
 						PluginDispatcher.startActivity(PluginDetailActivity.this, entry.getKey());
 						if (entry.getKey().equals("test5")) {
 							PluginDispatcher.startRealActivity(PluginDetailActivity.this, entry.getKey());
 						}
 					}
 				});
-				pluginActivitysView.addView(tv);
+				pluginActivitysView.addView(btn);
+			
 			}
 			
 		}

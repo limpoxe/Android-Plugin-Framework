@@ -7,26 +7,23 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.Gallery;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.Toast;
 
 import com.plugin.core.PluginDescriptor;
 import com.plugin.core.PluginLoader;
-import com.plugin.core.ui.PluginDispatcher;
 import com.plugin.util.ApkReader;
-import com.plugin.util.RefInvoker;
-
-import dalvik.system.DexClassLoader;
 
 public class PluginListActivity extends Activity {
 
@@ -42,8 +39,13 @@ public class PluginListActivity extends Activity {
 		// 这行代码应当在Application的onCreate中执行。
 		PluginLoader.initLoader(getApplication());
 
+		//监听插件安装  安装新插件后刷新当前页面 
 		registerReceiver(pluginChange, new IntentFilter(PluginLoader.ACTION_PLUGIN_CHANGED));
 
+		initView();
+	}
+	
+	private void initView() {
 		install = (Button) findViewById(R.id.install);
 		install.setOnClickListener(new View.OnClickListener() {
 
@@ -68,16 +70,6 @@ public class PluginListActivity extends Activity {
 		});
 
 		mList = (ViewGroup) findViewById(R.id.list);
-
-		Button open = (Button) findViewById(R.id.open);
-		open.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				PluginDispatcher.startRealActivity(PluginListActivity.this, "test5");
-			}
-		});
-		
 		listAll(mList);
 	}
 	
@@ -89,15 +81,10 @@ public class PluginListActivity extends Activity {
 		Iterator<Entry<String, PluginDescriptor>> itr = plugins.entrySet().iterator();
 		while (itr.hasNext()) {
 			final Entry<String, PluginDescriptor> entry = itr.next();
-			Button btton = new Button(this);
-			btton.setText("插件id：" + entry.getKey() + "\n插件介绍：" + entry.getValue().getDescription() + "\n安装路径："
-					+ entry.getValue().getInstalledPath() + "\n点击查看详情>>");
-			LayoutParams layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			layoutParam.topMargin = 10;
-			layoutParam.bottomMargin = 10;
-			root.addView(btton, layoutParam);
-
-			btton.setOnClickListener(new View.OnClickListener() {
+			Button button = new Button(this);
+			button.setPadding(10, 10, 10, 10);
+			button.setText("插件id：" + entry.getKey() + "，点击查看");
+			button.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
@@ -106,6 +93,12 @@ public class PluginListActivity extends Activity {
 					startActivity(intent);
 				}
 			});
+			
+			LayoutParams layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layoutParam.topMargin = 10;
+			layoutParam.bottomMargin = 10;
+			layoutParam.gravity = Gravity.LEFT;
+			root.addView(button, layoutParam);
 		}
 	}
 

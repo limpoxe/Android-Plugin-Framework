@@ -1,37 +1,39 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ff33b5e5"
-    android:orientation="vertical" >
-
-    <Button
-        android:id="@+id/install"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="点击安装内置插件"
-        android:textSize="16sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="已安装的插件列表："
-        android:textSize="16sp" />
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
     <LinearLayout
-        android:id="@+id/list"
+        android:id="@+id/root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="#ff33b5e5"
         android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/install"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击安装内置插件\n assets/PluginTest-debug.apk"
+            android:padding="10dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="已安装的插件列表："
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:minHeight="100dp"
+            android:background="#ff33b5e5"
+            android:orientation="vertical" >
+        </LinearLayout>
+ 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/open"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="点击打开拥有完整生命周期的插件Activity"
-        android:textSize="16sp" />
-
-</LinearLayout>
+</ScrollView>
