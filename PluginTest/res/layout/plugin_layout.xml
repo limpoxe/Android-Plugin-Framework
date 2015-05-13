@@ -22,25 +22,25 @@
             android:id="@+id/plugin_test_btn1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hello_world14" />
+            android:text="@string/hello_world1" />
 
         <Button
             android:id="@+id/plugin_test_btn2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hello_world15" />
+            android:text="@string/hello_world2" />
 
         <Button
             android:id="@+id/plugin_test_btn3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hello_world16" />
+            android:text="@string/hello_world3" />
 
         <Button
             android:id="@+id/plugin_test_btn4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="hello_world17" />
+            android:text="@string/hello_world4" />
 
         <com.example.pluginsharelib.ShareLayout
             android:layout_width="fill_parent"

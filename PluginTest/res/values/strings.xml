@@ -1,20 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="hello_world1">来着插件文字1</string>
     <string name="hello_world2">来着插件文字2</string>
     <string name="hello_world3">来着插件文字3</string>
     <string name="hello_world4">来着插件文字4</string>
-    <string name="hello_world5">来着插件文字5</string>
-	<string name="hello_world6">来着插件文字6</string>
-	<string name="hello_world7">来着插件文字7</string>
-	<string name="hello_world8">来着插件文字8</string>
-	<string name="hello_world9">来着插件文字9</string>
-	<string name="hello_world10">来着插件文字10</string>
-	<string name="hello_world11">来着插件文字11</string>
-	<string name="hello_world12">来着插件文字12</string>
-	<string name="hello_world13">来着插件文字13</string>
-	<string name="hello_world14">来着插件文字14</string>
-	<string name="hello_world15">来着插件文字15</string>
-	<string name="hello_world16">来着插件文字16</string>
 </resources>
