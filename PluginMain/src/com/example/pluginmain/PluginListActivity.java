@@ -101,14 +101,6 @@ public class PluginListActivity extends Activity {
 			root.addView(button, layoutParam);
 		}
 	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (!isInstalled) {
-			install.performClick();
-		}
-	}
 	
 	private final BroadcastReceiver pluginChange = new BroadcastReceiver() {
 		@Override
