@@ -147,7 +147,7 @@
   
   11、插件开发模式
     插件UI可通过fragment或者activity来实现
-    如果是activity实现的插件，则最终会在PluginProxyActivity中运行
+    如果是activity实现的插件，前面介绍了，分两种模式。自由模式和代理模式
     
     如果是fragment实现的插件，又分为两种
     1种是fragment运行在任意支持fragment的activity中，这种方式，在开发fragment的时候，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getPluginContext()获取的context，那么这种fragment对其运行容器没有特殊要求
