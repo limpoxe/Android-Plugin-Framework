@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * 插件中引用主程序资源文件需要显式的指定引用的R 因为主程序的资源id每次编译时都会变化 所以使用主程序资源id的时候必须使用引用
@@ -69,13 +70,13 @@ public class PluginNormalFragment extends Fragment implements OnClickListener {
 			View view = mInflater.inflate(R.layout.plugin_layout, null,
 					false);
 			mRoot.addView(view);
-			((Button) v).setText(R.string.hello_world14);
+			Toast.makeText(this.getActivity(), getString(R.string.hello_world1), Toast.LENGTH_LONG).show();
 		} else if (v.getId() == R.id.plugin_test_btn2) {
 			View view = mInflater
 					.inflate(com.example.pluginsharelib.R.layout.share_main,
 							null, false);
 			mRoot.addView(view);
-			((Button) v).setText(R.string.hello_world15);
+			Toast.makeText(this.getActivity(), getString(com.example.pluginsharelib.R.string.share_string_1), Toast.LENGTH_LONG).show();
 		} else if (v.getId() == R.id.plugin_test_btn3) {
 			View view = LayoutInflater.from(getActivity())
 					.inflate(com.example.pluginsharelib.R.layout.share_main,
