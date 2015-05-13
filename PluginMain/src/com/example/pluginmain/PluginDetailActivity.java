@@ -75,6 +75,9 @@ public class PluginDetailActivity extends Activity {
 					@Override
 					public void onClick(View v) {
 						PluginDispatcher.startActivity(PluginDetailActivity.this, entry.getKey());
+						if (entry.getKey().equals("test5")) {
+							PluginDispatcher.startRealActivity(PluginDetailActivity.this, entry.getKey());
+						}
 					}
 				});
 				pluginActivitysView.addView(tv);
