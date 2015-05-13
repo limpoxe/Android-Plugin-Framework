@@ -71,12 +71,7 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 
 		Button btn4 = (Button) mRoot.findViewById(R.id.plugin_test_btn4);
 		btn4.setOnClickListener(this);
-
-		Button btn5 = (Button) mRoot.findViewById(R.id.plugin_test_btn5);
-		btn5.setOnClickListener(this);
-
-		Button btn6 = (Button) mRoot.findViewById(R.id.plugin_test_btn6);
-		btn6.setOnClickListener(this);
+ 
 	}
 
 	@Override
@@ -93,17 +88,8 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		} else if (v.getId() == R.id.plugin_test_btn3) {
 			View view = LayoutInflater.from(this).inflate(com.example.pluginsharelib.R.layout.share_main, null, false);
 			mRoot.addView(view);
-			// ((Button)
-			// v).setText(R.string.hello_world17);/////////////////////////////
 		} else if (v.getId() == R.id.plugin_test_btn4) {
-			((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);// /////////////////////////////
-		} else if (v.getId() == R.id.plugin_test_btn5) {
-			// ((Button) v).setText(R.string.hello_world18);
-			// getActivity().getResources().getString(R.string.hello_world18);
-		} else if (v.getId() == R.id.plugin_test_btn6) {
-			// pluginContext.getResources().getString(R.string.hello_world19);
-			// ((Button)
-			// v).setText(pluginContext.getString(R.string.hello_world19));
+			((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);
 		}
 	}
 }

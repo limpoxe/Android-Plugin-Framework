@@ -42,19 +42,6 @@
             android:layout_height="wrap_content"
             android:text="hello_world17" />
 
-        <Button
-            android:id="@+id/plugin_test_btn5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="hello_world18" />
-
-        <Button
-            android:id="@+id/plugin_test_btn6"
-            style="@style/MyButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="hello_world19" />
-
         <com.example.pluginsharelib.ShareLayout
             android:layout_width="fill_parent"
             android:layout_height="300dp"

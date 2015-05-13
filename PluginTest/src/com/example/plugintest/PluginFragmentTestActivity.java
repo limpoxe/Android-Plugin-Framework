@@ -52,11 +52,6 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 		private LayoutInflater mInflater;
 
 		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-		}
-
-		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			mInflater = getActivity().getLayoutInflater();
@@ -82,12 +77,7 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 
 			Button btn4 = (Button) mRoot.findViewById(R.id.plugin_test_btn4);
 			btn4.setOnClickListener(this);
-
-			Button btn5 = (Button) mRoot.findViewById(R.id.plugin_test_btn5);
-			btn5.setOnClickListener(this);
-
-			Button btn6 = (Button) mRoot.findViewById(R.id.plugin_test_btn6);
-			btn6.setOnClickListener(this);
+ 
 		}
 
 		@Override
@@ -99,6 +89,7 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 				mRoot.addView(view);
 				((Button) v).setText(R.string.hello_world14);
 			} else if (v.getId() == R.id.plugin_test_btn2) {
+				
 				View view = mInflater
 						.inflate(com.example.pluginsharelib.R.layout.share_main,
 								null, false);
@@ -109,15 +100,8 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 						.inflate(com.example.pluginsharelib.R.layout.share_main,
 								null, false);
 				mRoot.addView(view);
-				//((Button) v).setText(R.string.hello_world17);/////////////////////////////
 			} else if (v.getId() == R.id.plugin_test_btn4) {
-				((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);///////////////////////////////
-			} else if (v.getId() == R.id.plugin_test_btn5) {
-				//((Button) v).setText(R.string.hello_world18);
-				//getActivity().getResources().getString(R.string.hello_world18);
-			} else if (v.getId() == R.id.plugin_test_btn6) {
-				//pluginContext.getResources().getString(R.string.hello_world19);
-				//((Button) v).setText(pluginContext.getString(R.string.hello_world19));
+				((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);
 			}
 		}
 	}
