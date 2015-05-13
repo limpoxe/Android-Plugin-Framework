@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 
@@ -49,7 +50,13 @@ public class PluginProxyActivity extends Activity {
 		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onCreate", new Class[] { Bundle.class },
 				new Object[] { savedInstanceState });
 	}
-
+   
+    protected void onPostCreate(Bundle savedInstanceState) {
+    	super.onPostCreate(savedInstanceState);
+		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onPostCreate", new Class[] { Bundle.class },
+				new Object[] { savedInstanceState });
+    }
+	
 	private Context findPluginContext() {
 		String classId = getIntent().getStringExtra("classId");
 		Log.v(LOG_TAG, "findPluginContext " + classId);
@@ -134,6 +141,12 @@ public class PluginProxyActivity extends Activity {
 		super.onResume();
 		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onResume", new Class[] {}, new Object[] {});
 	}
+	
+    @Override
+    protected void onPostResume() {
+    	super.onPostResume();
+    	RefInvoker.invokeMethod(activity, Activity.class.getName(), "onPostResume", new Class[] {}, new Object[] {});
+    }
 
 	@Override
 	protected void onPause() {
@@ -194,7 +207,7 @@ public class PluginProxyActivity extends Activity {
 		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onActivityResult", new Class[] { Integer.class,
 				Integer.class, Intent.class, }, new Object[] { requestCode, resultCode, data });
 	}
-
+    
 	/**
 	 * 这里需要attach的值 根据不同的android版本和厂商版本，可能会有所不同 需要实际测试后才能保证兼容
 	 * 
