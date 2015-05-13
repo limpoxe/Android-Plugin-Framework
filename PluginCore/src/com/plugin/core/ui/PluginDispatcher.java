@@ -21,7 +21,7 @@ public class PluginDispatcher {
 	 * @param context
 	 * @param target
 	 */
-	public static void startFragment(Context context, String target) {
+	public static void startFragmentWithSimpleActivity(Context context, String target) {
 
 		Intent pluginActivity = new Intent();
 		pluginActivity.setClass(context, PluginNormalDisplayer.class);
@@ -40,7 +40,7 @@ public class PluginDispatcher {
 	 * @param context
 	 * @param target
 	 */
-	public static void startNormalFragment(Context context, String target) {
+	public static void startFragmentWithBuildInActivity(Context context, String target) {
 
 		Intent pluginActivity = new Intent();
 		pluginActivity.setClass(context, PluginSpecDisplayer.class);

@@ -73,8 +73,8 @@ public class PluginDetailActivity extends Activity {
 					@Override
 					public void onClick(View v) {
 						//两种fragment模式
-						//PluginDispatcher.startFragment(PluginDetailActivity.this, entry.getKey());
-						PluginDispatcher.startNormalFragment(PluginDetailActivity.this, entry.getKey());
+						PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
+						PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
 					}
 				});
 				pluginFragmentView.addView(btn);
