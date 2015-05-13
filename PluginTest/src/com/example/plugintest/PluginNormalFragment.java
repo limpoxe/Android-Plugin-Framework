@@ -33,6 +33,9 @@ public class PluginNormalFragment extends Fragment implements OnClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
+		getActivity().setTitle("测试插件中非自由模式的Fragment");
+
 		mInflater = inflater;
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
 

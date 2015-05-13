@@ -29,7 +29,7 @@ public class PluginNotInManifestActivity extends Activity implements OnClickList
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		setTitle("测试插件中拥有真正生命周期的Activity");
 		mInflater = getLayoutInflater();
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
 

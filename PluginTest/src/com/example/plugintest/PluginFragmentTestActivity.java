@@ -23,7 +23,7 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		setTitle("测试插件中的FragmentActivity");
 		FrameLayout root = new FrameLayout(this);
 		setContentView(root, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		root.setId(android.R.id.primary);
