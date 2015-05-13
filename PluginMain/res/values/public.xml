@@ -2,6 +2,8 @@
 <resources>
     <!--
     	在插件中指定这些id的范围是为了使主程序的各类资源的id和插件各类资源的id不重复，否则会出错 
+    	
+    	注意：style属性需要特殊配置end="0x7f09000f"，不能分组，否则插件中定义的style不可用
      -->
     <public-padding type="attr" name="main_attr_"     start="0x7f010000" end="0x7f010000" />
     <public-padding type="drawable" name="main_drawable_" start="0x7f020000" end="0x7f020000" />
@@ -11,7 +13,7 @@
     <public-padding type="raw" name="main_raw_"      start="0x7f060000" end="0x7f060000" />
     <public-padding type="dimen" name="main_dimen_"    start="0x7f070000" end="0x7f070000" />
     <public-padding type="string" name="main_string_"   start="0x7f080000" end="0x7f080000" />
-	<public-padding type="style" name="main_style_"    start="0x7f090000" end="0x7f090000" />
+	<public-padding type="style" name="main_style_"    start="0x7f090000" end="0x7f09000f" />
     <public-padding type="color" name="main_color_"    start="0x7f0a0000" end="0x7f0a0000" />
     <public-padding type="id" name="main_id_"       start="0x7f0b0000" end="0x7f0b0000" />
     <public-padding type="bool" name="main_bool_"     start="0x7f0c0000" end="0x7f0c0000" />
