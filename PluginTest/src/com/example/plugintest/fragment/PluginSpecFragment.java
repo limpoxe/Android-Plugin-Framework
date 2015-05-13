@@ -37,26 +37,23 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		getActivity().setTitle("测试插件自由模式的Fragment");
-		
-		pluginContext = PluginLoader.getPluginContext(PluginSpecFragment.class);
-		
-		//设置主题为宿主程序主题
-		//pluginContext.setTheme(getActivity().getApplicationInfo().theme);
-		//设置主题为插件程序主题
-		pluginContext.setTheme(R.style.AppTheme);
 
-		pluginInflater = (LayoutInflater) pluginContext
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		getActivity().setTitle("测试插件自由模式的Fragment");
+
+		pluginContext = PluginLoader.getPluginContext(PluginSpecFragment.class);
+
+		// 设置主题为宿主程序主题
+		// pluginContext.setTheme(getActivity().getApplicationInfo().theme);
+		// 设置主题为插件程序主题
+		pluginContext.setTheme(R.style.PluginTheme);
+
+		pluginInflater = (LayoutInflater) pluginContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		
-		View scrollview = pluginInflater.inflate(R.layout.plugin_layout,
-				null);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+		View scrollview = pluginInflater.inflate(R.layout.plugin_layout, null);
 
 		mRoot = (ViewGroup) scrollview.findViewById(R.id.content);
 
@@ -85,23 +82,20 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 	public void onClick(View v) {
 		Log.v("v.click MainFragment", "" + v.getId());
 		if (v.getId() == R.id.plugin_test_btn1) {
-			View view = pluginInflater.inflate(R.layout.plugin_layout, null,
-					false);
+			View view = pluginInflater.inflate(R.layout.plugin_layout, null, false);
 			mRoot.addView(view);
 			Toast.makeText(this.getActivity(), getString(R.string.hello_world1), Toast.LENGTH_LONG).show();
 		} else if (v.getId() == R.id.plugin_test_btn2) {
-			View view = pluginInflater
-					.inflate(com.example.pluginsharelib.R.layout.share_main,
-							null, false);
+			View view = pluginInflater.inflate(com.example.pluginsharelib.R.layout.share_main, null, false);
 			mRoot.addView(view);
-			Toast.makeText(this.getActivity(), getString(com.example.pluginsharelib.R.string.share_string_1), Toast.LENGTH_LONG).show();
+			Toast.makeText(this.getActivity(), getString(com.example.pluginsharelib.R.string.share_string_1),
+					Toast.LENGTH_LONG).show();
 		} else if (v.getId() == R.id.plugin_test_btn3) {
-			View view = LayoutInflater.from(getActivity())
-					.inflate(com.example.pluginsharelib.R.layout.share_main,
-							null, false);
+			View view = LayoutInflater.from(getActivity()).inflate(com.example.pluginsharelib.R.layout.share_main,
+					null, false);
 			mRoot.addView(view);
 		} else if (v.getId() == R.id.plugin_test_btn4) {
 			((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);
-		} 
+		}
 	}
 }
