@@ -8,6 +8,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
 import dalvik.system.DexClassLoader;
 
@@ -45,9 +46,16 @@ public class PluginCreator {
 			Method addAssetPaths = AssetManager.class.getDeclaredMethod("addAssetPaths", String[].class);
 
 			String[] assetPaths = new String[2];
-			// 顺序不可更改 否则不能兼容4.x版本
-			assetPaths[0] = application.getApplicationInfo().sourceDir;
-			assetPaths[1] = absolutePluginApkPath;
+
+			// 5.x or 2.x
+			if (Build.VERSION.SDK_INT > 20 || Build.VERSION.SDK_INT < 14) {
+				assetPaths[0] = absolutePluginApkPath;
+				assetPaths[1] = application.getApplicationInfo().sourceDir;
+			} else {
+				// 4.x
+				assetPaths[0] = application.getApplicationInfo().sourceDir;
+				assetPaths[1] = absolutePluginApkPath;
+			}
 
 			addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
