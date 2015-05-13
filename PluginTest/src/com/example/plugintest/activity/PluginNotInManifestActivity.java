@@ -1,6 +1,13 @@
-package com.example.plugintest;
+package com.example.plugintest.activity;
+
+import com.example.plugintest.R;
+import com.example.plugintest.R.id;
+import com.example.plugintest.R.layout;
+import com.example.plugintest.R.string;
+import com.plugin.core.PluginLoader;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,18 +20,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 /**
- * 插件中引用主程序资源文件需要显式的指定引用的R 因为主程序的资源id每次编译时都会变化 所以使用主程序资源id的时候必须使用引用
- * 而不是id的const常量， 因此在插件工程code-gen时没有合并依赖库的R，（合并后会获得依赖库R的id常量）
- * 而是将依赖库的R文件作为编译时的classpath引用 反编译插件可以看到，插件资源id都替换成了常量，二非插件id还是保留R.id的引用形式
- * 这正是我们想要的结果
+ * 完整生命周期模式 不使用反射、也不使用代理，真真正证实现activity无需在Manifest中注册！
  * 
- *不携带插件相关代码的activity。完全就是一个普通的activity 
- *
- *
  * @author cailiming
- * 
+ *
  */
-public class PluginTestActivity extends Activity implements OnClickListener {
+public class PluginNotInManifestActivity extends Activity implements OnClickListener {
 
 	private ViewGroup mRoot;
 	private LayoutInflater mInflater;
@@ -32,9 +33,7 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		setTitle("测试插件中的Activity");
-		
+		setTitle("测试插件中拥有真正生命周期的Activity");
 		mInflater = getLayoutInflater();
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
 
@@ -91,5 +90,10 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		} else if (v.getId() == R.id.plugin_test_btn4) {
 			((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);
 		}
+	}
+	
+	@Override
+	protected void attachBaseContext(Context newBase) {
+		super.attachBaseContext(PluginLoader.getPluginContext(PluginNotInManifestActivity.class));
 	}
 }
