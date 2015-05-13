@@ -57,7 +57,7 @@ public class PluginDispatcher {
 	 * @param context
 	 * @param target
 	 */
-	public static void startActivity(Context context, String target) {
+	public static void startProxyActivity(Context context, String target) {
 
 		Intent pluginActivity = new Intent();
 		pluginActivity.setClass(context, PluginProxyActivity.class);

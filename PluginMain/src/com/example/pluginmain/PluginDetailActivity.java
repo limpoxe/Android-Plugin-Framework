@@ -108,7 +108,9 @@ public class PluginDetailActivity extends Activity {
 					@Override
 					public void onClick(View v) {
 						//Activity两种模式
-						PluginDispatcher.startActivity(PluginDetailActivity.this, entry.getKey());
+						PluginDispatcher.startProxyActivity(PluginDetailActivity.this, entry.getKey());
+						
+						//test5是自由模式开发的
 						if (entry.getKey().equals("test5")) {
 							PluginDispatcher.startRealActivity(PluginDetailActivity.this, entry.getKey());
 						}
