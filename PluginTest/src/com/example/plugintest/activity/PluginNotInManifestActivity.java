@@ -1,9 +1,6 @@
 package com.example.plugintest.activity;
 
 import com.example.plugintest.R;
-import com.example.plugintest.R.id;
-import com.example.plugintest.R.layout;
-import com.example.plugintest.R.string;
 import com.plugin.core.PluginLoader;
 
 import android.app.Activity;

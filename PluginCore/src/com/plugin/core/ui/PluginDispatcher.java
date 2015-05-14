@@ -1,6 +1,5 @@
 package com.plugin.core.ui;
 
-import com.plugin.core.PluginDescriptor;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.RefInvoker;
 
@@ -109,6 +108,7 @@ public class PluginDispatcher {
 				throws ClassNotFoundException {
 			
 			if (currentId != null && className.equals(PluginStubActivity.class.getName())) {
+				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassById(currentId);
 				currentId = null;
 				if (clazz != null) {
