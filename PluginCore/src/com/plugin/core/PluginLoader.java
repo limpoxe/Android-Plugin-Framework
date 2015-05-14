@@ -182,6 +182,18 @@ public class PluginLoader {
 		return pluginContext;
 
 	}
+	
+	public static Context getNewPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
+
+		Context pluginContext = getPluginContext(clazz);
+
+		if (pluginContext != null) {
+			pluginContext = PluginCreator.createPluginApplicationContext(sApplication,
+					pluginContext.getResources(), (DexClassLoader)pluginContext.getClassLoader());
+		}
+		
+		return pluginContext;
+	}
 
 	/**
 	 * 构造插件信息
