@@ -159,6 +159,7 @@ public class PluginLoader {
 
 	/**
 	 * 获取当前class所在插件的Context
+	 * 每个插件只有1个DefaultContext,是当前插件中所有class公用的Context
 	 * 
 	 * @param clazz
 	 * @return
@@ -183,6 +184,12 @@ public class PluginLoader {
 
 	}
 	
+	/**
+	 * 获取当前class所在插件的Context
+	 * 为当前 插件class创建一个单独的context
+	 * @param clazz
+	 * @return
+	 */
 	public static Context getNewPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
 
 		Context pluginContext = getDefaultPluginContext(clazz);
