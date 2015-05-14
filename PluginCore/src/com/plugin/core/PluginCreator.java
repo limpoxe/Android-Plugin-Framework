@@ -47,15 +47,9 @@ public class PluginCreator {
 
 			String[] assetPaths = new String[2];
 
-			// 5.x or 2.x
-			if (Build.VERSION.SDK_INT > 20 || Build.VERSION.SDK_INT < 14) {
-				assetPaths[0] = absolutePluginApkPath;
-				assetPaths[1] = application.getApplicationInfo().sourceDir;
-			} else {
-				// 4.x
-				assetPaths[0] = application.getApplicationInfo().sourceDir;
-				assetPaths[1] = absolutePluginApkPath;
-			}
+			//不可更改顺序否则不能兼容4.x
+			assetPaths[0] = application.getApplicationInfo().sourceDir;
+			assetPaths[1] = absolutePluginApkPath;
 
 			addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
