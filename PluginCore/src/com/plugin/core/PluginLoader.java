@@ -244,7 +244,7 @@ public class PluginLoader {
 						resFor5, (DexClassLoader)pluginContext.getClassLoader());
 				pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 			}
-			return null;
+			return pluginContext;
 		}
 		
 	}
