@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.plugintest.R;
+import com.plugin.core.PluginCompat;
 import com.plugin.core.PluginLoader;
 
 /**
@@ -40,7 +41,7 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 		//默认是宿主程序Application主题
 		pluginContext = PluginLoader.getNewPluginContext(PluginSpecFragment.class);
 		// 设置主题为插件程序主题
-		pluginContext.setTheme(R.style.PluginTheme);
+		PluginCompat.applyHostTheme(pluginContext, com.example.pluginsharelib.R.style.ShareTheme, PluginSpecFragment.class);
 
 		pluginInflater = (LayoutInflater) pluginContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
