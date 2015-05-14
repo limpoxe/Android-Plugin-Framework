@@ -197,6 +197,7 @@ public class PluginLoader {
 		if (pluginContext != null) {
 			pluginContext = PluginCreator.createPluginApplicationContext(sApplication,
 					pluginContext.getResources(), (DexClassLoader)pluginContext.getClassLoader());
+			pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		}
 		
 		return pluginContext;
