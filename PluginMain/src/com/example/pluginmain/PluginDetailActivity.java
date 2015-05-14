@@ -114,7 +114,7 @@ public class PluginDetailActivity extends Activity {
 						
 						//test5是自由模式开发的
 						if (entry.getKey().equals("test5")) {
-							PluginDispatcher.startRealActivity(PluginDetailActivity.this, entry.getKey());
+							PluginDispatcher.startRealActivityById(PluginDetailActivity.this, entry.getKey());
 						}
 					}
 				});
