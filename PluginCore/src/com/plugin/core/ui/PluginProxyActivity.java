@@ -18,10 +18,10 @@ import com.plugin.core.PluginLoader;
 import com.plugin.util.RefInvoker;
 
 /**
- * activity代理
+ * activity代理, 不建议使用代理模式 建议使用stub模式
  * @author cailiming
- *
  */
+@Deprecated
 public class PluginProxyActivity extends Activity {
 
 	private static final String LOG_TAG = PluginProxyActivity.class.getSimpleName();
