@@ -221,32 +221,13 @@ public class PluginLoader {
 	 * @return
 	 */
 	public static Context getNewPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
-
 		Context pluginContext = getDefaultPluginContext(clazz);
-		//为了使5.0支持主题， 这里做api版本区分
-		if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT <= 20 ) {
-			
-			if (pluginContext != null) {
-				pluginContext = PluginCreator.createPluginApplicationContext(sApplication,
-						pluginContext.getResources(), (DexClassLoader)pluginContext.getClassLoader());
-				pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
-			}
-			
-			return pluginContext;
-			
-		} else {
-			PluginDescriptor pd = getPluginDescriptorByClassName(clazz.getName());
-
-			Resources resFor5 = PluginCreator.createPluginResourceFor5(sApplication, pd.getInstalledPath());
-			
-			if (pluginContext != null) {
-				pluginContext = PluginCreator.createPluginApplicationContext(sApplication,
-						resFor5, (DexClassLoader)pluginContext.getClassLoader());
-				pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
-			}
-			return pluginContext;
+		if (pluginContext != null) {
+			pluginContext = PluginCreator.createPluginApplicationContext(sApplication,
+					pluginContext.getResources(), (DexClassLoader)pluginContext.getClassLoader());
+			pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		}
-		
+		return pluginContext;
 	}
 
 	/**
@@ -358,7 +339,7 @@ public class PluginLoader {
 		return null;
 	}
 	
-	private static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
+	public static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();

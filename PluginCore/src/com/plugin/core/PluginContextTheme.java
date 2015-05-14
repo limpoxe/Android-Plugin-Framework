@@ -10,10 +10,10 @@ import android.view.LayoutInflater;
 
 public class PluginContextTheme extends ContextWrapper {
     private int mThemeResource;
-    private Resources.Theme mTheme;
+    Resources.Theme mTheme;
     private LayoutInflater mInflater;
     
-    private Resources mResources;
+    Resources mResources;
     private ClassLoader mClassLoader;
 
     public PluginContextTheme(Context base, Resources resources, ClassLoader classLoader) {
