@@ -94,6 +94,6 @@ public class PluginNotInManifestActivity extends Activity implements OnClickList
 	
 	@Override
 	protected void attachBaseContext(Context newBase) {
-		super.attachBaseContext(PluginLoader.getPluginContext(PluginNotInManifestActivity.class));
+		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
 	}
 }

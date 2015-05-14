@@ -63,7 +63,7 @@ public class PluginProxyActivity extends Activity {
 		@SuppressWarnings("rawtypes")
 		Class clazz = PluginLoader.loadPluginClassById(classId);
 		if (clazz != null) {
-			return PluginLoader.getPluginContext(clazz);
+			return PluginLoader.getDefaultPluginContext(clazz);
 		}
 		return null;
 	}

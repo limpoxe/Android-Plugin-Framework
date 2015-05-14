@@ -34,7 +34,7 @@ public class PluginSpecDisplayer extends PluginNormalDisplayer {
 		Class clazz = PluginLoader.loadPluginClassById(classId);
 
 		if (clazz != null) {
-			return PluginLoader.getPluginContext(clazz);
+			return PluginLoader.getDefaultPluginContext(clazz);
 		}
 		return null;
 	}

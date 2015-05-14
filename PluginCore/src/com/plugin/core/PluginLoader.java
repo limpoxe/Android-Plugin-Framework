@@ -163,7 +163,7 @@ public class PluginLoader {
 	 * @param clazz
 	 * @return
 	 */
-	public static Context getPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
+	public static Context getDefaultPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
 
 		// clazz.getClassLoader(); 直接获取classloader的方式，
 		// 如果同一个插件安装两次，但是宿主程序进程没有重启，那么得到的classloader可能是前次安装时的loader
@@ -185,7 +185,7 @@ public class PluginLoader {
 	
 	public static Context getNewPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
 
-		Context pluginContext = getPluginContext(clazz);
+		Context pluginContext = getDefaultPluginContext(clazz);
 
 		if (pluginContext != null) {
 			pluginContext = PluginCreator.createPluginApplicationContext(sApplication,
