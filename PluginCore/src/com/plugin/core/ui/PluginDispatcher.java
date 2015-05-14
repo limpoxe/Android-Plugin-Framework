@@ -20,11 +20,11 @@ public class PluginDispatcher {
 	 * @param context
 	 * @param target
 	 */
-	public static void startFragmentWithSimpleActivity(Context context, String target) {
+	public static void startFragmentWithSimpleActivity(Context context, String targetId) {
 
 		Intent pluginActivity = new Intent();
 		pluginActivity.setClass(context, PluginNormalDisplayer.class);
-		pluginActivity.putExtra("classId", resloveTarget(target));
+		pluginActivity.putExtra("classId", resloveTarget(targetId));
 		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(pluginActivity);
 	}
@@ -39,11 +39,11 @@ public class PluginDispatcher {
 	 * @param context
 	 * @param target
 	 */
-	public static void startFragmentWithBuildInActivity(Context context, String target) {
+	public static void startFragmentWithBuildInActivity(Context context, String targetId) {
 
 		Intent pluginActivity = new Intent();
 		pluginActivity.setClass(context, PluginSpecDisplayer.class);
-		pluginActivity.putExtra("classId", resloveTarget(target));
+		pluginActivity.putExtra("classId", resloveTarget(targetId));
 		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(pluginActivity);
 	}
@@ -56,11 +56,11 @@ public class PluginDispatcher {
 	 * @param context
 	 * @param target
 	 */
-	public static void startProxyActivity(Context context, String target) {
+	public static void startProxyActivity(Context context, String targetId) {
 
 		Intent pluginActivity = new Intent();
 		pluginActivity.setClass(context, PluginProxyActivity.class);
-		pluginActivity.putExtra("classId", resloveTarget(target));
+		pluginActivity.putExtra("classId", resloveTarget(targetId));
 		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(pluginActivity);
 	
@@ -73,10 +73,29 @@ public class PluginDispatcher {
 	 * @param context
 	 * @param target
 	 */
-	public static void startRealActivity(Context context, String target) {
+	public static void startRealActivityById(Context context, String targetId) {
 		
 		//替换成可以加载 插件元素test5 的classLoader
-		replaceClassLoader(target);
+		replaceClassLoader(targetId, null);
+		
+		Intent pluginActivity = new Intent();
+		pluginActivity.setClass(context, PluginStubActivity.class);
+		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(pluginActivity);
+	
+	}
+	
+	/**
+	 * 显示插件中的activity
+	 * 
+	 * 打开stubActivity实际上会打开插件中test5对应的activity	 * 
+	 * @param context
+	 * @param target
+	 */
+	public static void startRealActivityByClassName(Context context, String targetName) {
+		
+		//替换成可以加载 插件元素test5 的classLoader
+		replaceClassLoader(null, targetName);
 		
 		Intent pluginActivity = new Intent();
 		pluginActivity.setClass(context, PluginStubActivity.class);
@@ -93,9 +112,14 @@ public class PluginDispatcher {
 	public static class PluginComponentLoader extends DexClassLoader {
 
 		private String currentId;
+		private String currentClassName;
 		
 		public void setCurrentId(String classId) {
 			this.currentId = classId;
+		}
+		
+		public void setCurrentClassName(String currentClassName) {
+			this.currentClassName = currentClassName;
 		}
 		
 		public PluginComponentLoader(String dexPath, String optimizedDirectory,
@@ -107,21 +131,34 @@ public class PluginDispatcher {
 		protected Class<?> loadClass(String className, boolean resolve)
 				throws ClassNotFoundException {
 			
-			if (currentId != null && className.equals(PluginStubActivity.class.getName())) {
-				@SuppressWarnings("rawtypes")
-				Class clazz = PluginLoader.loadPluginClassById(currentId);
-				currentId = null;
-				if (clazz != null) {
-					return clazz;
+			if (className.equals(PluginStubActivity.class.getName())) {
+				
+				if (currentClassName != null) {
+					@SuppressWarnings("rawtypes")
+					Class clazz = PluginLoader.loadPluginClassByName(currentClassName);
+					currentId = null;
+					currentClassName = null;
+					if (clazz != null) {
+						return clazz;
+					}
+				} else if (currentId != null) {
+					@SuppressWarnings("rawtypes")
+					Class clazz = PluginLoader.loadPluginClassById(currentId);
+					currentId = null;
+					currentClassName = null;
+					if (clazz != null) {
+						return clazz;
+					}
 				}
 			}
+			
 			
 			return super.loadClass(className, resolve);
 		}
 		
 	}
 	
-	private static void replaceClassLoader(String target) {
+	private static void replaceClassLoader(String target, String targetClassName) {
 
 		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(), "mLoadedApk");
 		ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(
@@ -129,6 +166,7 @@ public class PluginDispatcher {
 		
 		if (originalLoader instanceof PluginComponentLoader) {
 			((PluginComponentLoader)originalLoader).setCurrentId(target);
+			((PluginComponentLoader)originalLoader).setCurrentClassName(targetClassName);
 		} else {
 			PluginComponentLoader dLoader = new PluginComponentLoader("", PluginLoader.getApplicatoin().getCacheDir()
 					.getAbsolutePath(), PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(),

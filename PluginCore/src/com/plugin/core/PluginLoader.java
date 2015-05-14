@@ -156,6 +156,36 @@ public class PluginLoader {
 		return null;
 
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public static Class loadPluginClassByName(String clazzName) {
+		Log.v(LOG_TAG, "loadPluginClass for clazzName " + clazzName);
+
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazzName);
+		if (pluginDescriptor != null) {
+			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
+			if (pluginClassLoader == null) {
+				initPlugin(pluginDescriptor);
+				pluginClassLoader = pluginDescriptor.getPluginClassLoader();
+			}
+
+			if (pluginClassLoader != null) {
+
+				try {
+					Class pluginClazz = ((ClassLoader) pluginClassLoader).loadClass(clazzName);
+					Log.v(LOG_TAG, "loadPluginClass Success for clazzName " + clazzName);
+					return pluginClazz;
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			
+			}
+		}
+
+		Log.e(LOG_TAG, "loadPluginClass Fail for clazzName " + clazzName);
+		return null;
+
+	}
 
 	/**
 	 * 获取当前class所在插件的Context
