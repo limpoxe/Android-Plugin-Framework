@@ -41,7 +41,9 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 		//默认是宿主程序Application主题
 		pluginContext = PluginLoader.getNewPluginContext(PluginSpecFragment.class);
 		// 设置主题为插件程序主题
-		PluginCompat.applyHostTheme(pluginContext, com.example.pluginsharelib.R.style.ShareTheme, PluginSpecFragment.class);
+		PluginCompat.setTheme(pluginContext, R.style.PluginTheme, PluginSpecFragment.class);
+		// 设置主题为宿主程序主题
+		//PluginCompat.setTheme(pluginContext, com.example.pluginsharelib.R.style.ShareTheme, PluginSpecFragment.class);
 
 		pluginInflater = (LayoutInflater) pluginContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
