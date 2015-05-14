@@ -64,6 +64,31 @@ public class PluginCreator {
 		}
 		return null;
 	}
+	
+	/*package*/ static Resources createPluginResourceFor5(Application application, String absolutePluginApkPath) {
+		try {
+			AssetManager assetMgr = AssetManager.class.newInstance();
+			Method addAssetPaths = AssetManager.class.getDeclaredMethod("addAssetPaths", String[].class);
+
+			String[] assetPaths = new String[2];
+
+			//不可更改顺序否则不能兼容4.x
+			assetPaths[0] = absolutePluginApkPath;
+			assetPaths[1] = application.getApplicationInfo().sourceDir;
+
+			addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
+
+			Resources mainRes = application.getResources();
+			Resources pluginRes = new Resources(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
+
+			Log.e(LOG_TAG, "create Plugin Resource from: " + assetPaths[0] + ", " + assetPaths[1]);
+
+			return pluginRes;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	/**
 	 * 创建插件apk的Context。
