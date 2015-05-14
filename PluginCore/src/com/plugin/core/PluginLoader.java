@@ -196,7 +196,7 @@ public class PluginLoader {
 		DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath());
 		Context pluginContext = PluginCreator
 				.createPluginApplicationContext(sApplication, pluginRes, pluginClassLoader);
-
+		pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		pluginDescriptor.setPluginContext(pluginContext);
 		pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 	}
