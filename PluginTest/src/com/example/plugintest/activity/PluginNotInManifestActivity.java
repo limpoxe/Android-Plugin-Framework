@@ -89,6 +89,9 @@ public class PluginNotInManifestActivity extends Activity implements OnClickList
 		}
 	}
 	
+	/**
+	 * 如果不用代理activity，而是要拥有完整生命周期，需重写如下方法
+	 */
 	@Override
 	protected void attachBaseContext(Context newBase) {
 		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
