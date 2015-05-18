@@ -78,9 +78,7 @@ public class PluginForOppoAndVivoActivity extends Activity implements OnClickLis
 			mRoot.addView(view);
 			Toast.makeText(this, getString(R.string.hello_world1), Toast.LENGTH_LONG).show();
 		} else if (v.getId() == R.id.plugin_test_btn2) {
-			View view = mInflater.inflate(com.example.pluginsharelib.R.layout.share_main, null, false);
-			mRoot.addView(view);
-			Toast.makeText(this, getString(com.example.pluginsharelib.R.string.share_string_1), Toast.LENGTH_LONG).show();
+
 		} else if (v.getId() == R.id.plugin_test_btn4) {
 			((Button) v).setText(getResources().getString(com.example.pluginsharelib.R.string.share_string_2));
 		}
