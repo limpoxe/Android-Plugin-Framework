@@ -9,6 +9,7 @@
 	"activities":{
 		"test3":"com.example.plugintest.activity.PluginTestActivity",
 		"test4":"com.example.plugintest.activity.PluginFragmentTestActivity",
-		"test5":"com.example.plugintest.activity.PluginNotInManifestActivity"
+		"test5":"com.example.plugintest.activity.PluginNotInManifestActivity",
+		"test6":"com.example.plugintest.activity.PluginForOppoAndVivoActivity"
 	}
 }

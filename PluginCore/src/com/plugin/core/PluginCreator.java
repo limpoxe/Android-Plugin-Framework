@@ -48,9 +48,14 @@ public class PluginCreator {
 			String[] assetPaths = new String[2];
 
 			//不可更改顺序否则不能兼容4.x
-			//TODO 但是！！！如是OPPO或者vivo4.x系统的话 ，要吧这个顺序反过来，否则在混合模式下会找不到资源
 			assetPaths[0] = application.getApplicationInfo().sourceDir;
 			assetPaths[1] = absolutePluginApkPath;
+			
+			if ("vivo".equals(Build.BRAND) || "oppo".equals(Build.BRAND)) {
+				//但是！！！如是OPPO或者vivo4.x系统的话 ，要吧这个顺序反过来，否则在混合模式下会找不到资源
+				assetPaths[0] = absolutePluginApkPath;
+				assetPaths[1] = application.getApplicationInfo().sourceDir;
+			}
 
 			addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
