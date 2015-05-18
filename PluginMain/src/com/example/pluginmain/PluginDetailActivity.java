@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.plugin.core.PluginDescriptor;
 import com.plugin.core.PluginLoader;
@@ -72,6 +74,12 @@ public class PluginDetailActivity extends Activity {
 					
 					@Override
 					public void onClick(View v) {
+						if (Build.BRAND.equals("vivo") || Build.BRAND.equals("oppo")) {
+							//要想步步高手机也支持fragment模式,插件需要使用独立模式，即不通过R直接或者间接使用注宿主程序的资源
+							//如果步步高手机也需要使用非独立插件，则要舍弃宿主主题
+							Toast.makeText(PluginDetailActivity.this, "步步高手机暂时只支持Activity模式！", Toast.LENGTH_LONG).show();
+							return;
+						}
 						//两种fragment模式
 						if (!entry.getKey().equals("test1")) {
 							PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
@@ -110,10 +118,24 @@ public class PluginDetailActivity extends Activity {
 					@Override
 					public void onClick(View v) {
 						//Activity两种模式
-						PluginDispatcher.startProxyActivity(PluginDetailActivity.this, entry.getKey());
+						//oppo 和  vivo  手机单独处理
+						if (Build.BRAND.equals("vivo") || Build.BRAND.equals("oppo")) {
+							//要想步步高手机也支持fragment模式,插件需要使用独立模式，即不通过R直接或者间接使用注宿主程序的资源
+							//如果步步高手机也需要使用非独立插件，则要舍弃宿主主题
+							
+							//test5是自由模式开发的
+							if (entry.getKey().equals("test5") || entry.getKey().equals("test6")) {
+								PluginDispatcher.startRealActivityById(PluginDetailActivity.this, entry.getKey());
+							} else {
+								Toast.makeText(PluginDetailActivity.this, "步步高手机暂时只支持test5 , test6 ！", Toast.LENGTH_LONG).show();
+							}
+							return;
+						}
 						
-						//test5是自由模式开发的
-						if (entry.getKey().equals("test5")) {
+						PluginDispatcher.startProxyActivity(PluginDetailActivity.this, entry.getKey());							
+						
+						//test5, test6是自由模式开发的
+						if (entry.getKey().equals("test5") || entry.getKey().equals("test6")) {
 							PluginDispatcher.startRealActivityById(PluginDetailActivity.this, entry.getKey());
 						}
 					}
