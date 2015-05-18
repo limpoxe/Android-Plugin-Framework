@@ -51,7 +51,7 @@ public class PluginCreator {
 			assetPaths[0] = application.getApplicationInfo().sourceDir;
 			assetPaths[1] = absolutePluginApkPath;
 			
-			if ("vivo".equals(Build.BRAND) || "oppo".equals(Build.BRAND)) {
+			if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)) {
 				//但是！！！如是OPPO或者vivo4.x系统的话 ，要吧这个顺序反过来，否则在混合模式下会找不到资源
 				assetPaths[0] = absolutePluginApkPath;
 				assetPaths[1] = application.getApplicationInfo().sourceDir;

@@ -74,7 +74,7 @@ public class PluginDetailActivity extends Activity {
 					
 					@Override
 					public void onClick(View v) {
-						if (Build.BRAND.equals("vivo") || Build.BRAND.equals("oppo")) {
+						if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)) {
 							//要想步步高手机也支持fragment模式,插件需要使用独立模式，即不通过R直接或者间接使用注宿主程序的资源
 							//如果步步高手机也需要使用非独立插件，则要舍弃宿主主题
 							Toast.makeText(PluginDetailActivity.this, "步步高手机暂时只支持Activity模式！", Toast.LENGTH_LONG).show();
@@ -119,7 +119,7 @@ public class PluginDetailActivity extends Activity {
 					public void onClick(View v) {
 						//Activity两种模式
 						//oppo 和  vivo  手机单独处理
-						if (Build.BRAND.equals("vivo") || Build.BRAND.equals("oppo")) {
+						if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)) {
 							//要想步步高手机也支持fragment模式,插件需要使用独立模式，即不通过R直接或者间接使用注宿主程序的资源
 							//如果步步高手机也需要使用非独立插件，则要舍弃宿主主题
 							
