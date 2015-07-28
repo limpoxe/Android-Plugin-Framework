@@ -60,6 +60,9 @@
   
   13、支持使用插件中定义的主题以及style(控件style暂不支持5.x)。
   
+  (2015.07.29)
+  14、添加对插件Application和Service的支持
+  
 # 暂不支持的功能：
 
   1、插件中定义的控件的style 暂不支持5.x
@@ -127,6 +130,10 @@
     
     在PluginMain和PluginTest已经添加了这种实现方式的测试实例。
     
+    （2015.07.29）
+    通过在Classloader阶段进行ClassName欺骗的方式，更适用于Service和Receiver等组件。
+    而Activity的欺骗行为修改为通过Instrumentation进行，可以更好的利用Intent传递参数。
+    另外增加了Handle CallBack的注入，通过callback，也可以在handleMessage时className的欺骗
     
   8、通过activity代理方式实现加载插件中的activity是如何实现的
   
