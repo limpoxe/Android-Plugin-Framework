@@ -11,6 +11,7 @@
     <uses-permission  android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     
     <application
+        android:name="com.plugin.core.PluginApplication"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/ShareTheme" >
         
@@ -35,6 +36,17 @@
             android:exported="true" >
         </activity>
         
+        <service android:name="com.plugin.core.ui.PluginStubService">
+            <intent-filter>
+                <action android:name="com.plugin.core.ui.ACTION_STUB_SERVICE"></action>
+            </intent-filter>
+        </service>
+        
+        <receiver android:name="com.plugin.core.ui.PluginStubReceiver">
+            <intent-filter>
+                <action android:name="com.plugin.core.ui.ACTION_STUB_RECEIVER"></action>
+            </intent-filter>
+        </receiver>
         <!-- plugin End -->
         
         <activity

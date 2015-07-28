@@ -38,6 +38,7 @@ public class ApkReader {
 				pluginDescriptor.setId(json.get("id").toString());
 				pluginDescriptor.setVersion(json.get("version").toString());
 				pluginDescriptor.setDescription(json.get("description").toString());
+				pluginDescriptor.setApplication(json.get("application").toString());
 				
 				HashMap<String, String> pluginFragment = new HashMap<String, String>();
 				JSONObject fragmentJson = json.getJSONObject("fragments");
@@ -57,6 +58,15 @@ public class ApkReader {
 				}
 				pluginDescriptor.setActivities(pluginActiviy);
 
+				HashMap<String, String> pluginService = new HashMap<String, String>();
+				JSONObject serviceJson = json.getJSONObject("services");
+				Iterator<String> serviceIds = serviceJson.keys();
+				while (serviceIds.hasNext()) {
+					String serviceId = serviceIds.next();
+					pluginService.put(serviceId, serviceJson.getString(serviceId));
+				}
+				pluginDescriptor.setServices(pluginService);
+				
 				return pluginDescriptor;
 			} catch (JSONException e) {
 				e.printStackTrace();

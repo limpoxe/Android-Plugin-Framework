@@ -1,13 +1,17 @@
 package com.plugin.core.ui;
 
-import com.plugin.core.PluginLoader;
-import com.plugin.util.RefInvoker;
-
-import dalvik.system.DexClassLoader;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
+
+import com.plugin.core.PluginLoader;
+import com.plugin.util.RefInvoker;
+
+import dalvik.system.DexClassLoader;
 
 public class PluginDispatcher {
 	
@@ -75,10 +79,8 @@ public class PluginDispatcher {
 	 */
 	public static void startRealActivityById(Context context, String targetId) {
 		
-		//替换成可以加载 插件元素test5 的classLoader
-		replaceClassLoader(targetId, null);
-		
 		Intent pluginActivity = new Intent();
+		pluginActivity.putExtra("classId", targetId);
 		pluginActivity.setClass(context, PluginStubActivity.class);
 		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(pluginActivity);
@@ -93,15 +95,19 @@ public class PluginDispatcher {
 	 * @param target
 	 */
 	public static void startRealActivityByClassName(Context context, String targetName) {
-		
-		//替换成可以加载 插件元素test5 的classLoader
-		replaceClassLoader(null, targetName);
-		
+
 		Intent pluginActivity = new Intent();
+		pluginActivity.putExtra("className", targetName);
 		pluginActivity.setClass(context, PluginStubActivity.class);
 		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(pluginActivity);
 	
+	}
+	
+	public static void startRealService(Context context, String targetId) {
+		replaceClassLoader(targetId, null);
+		
+		context.startService(new Intent(context, PluginStubService.class));
 	}
 	
 	private static String resloveTarget(String target) {
@@ -111,15 +117,13 @@ public class PluginDispatcher {
 	
 	public static class PluginComponentLoader extends DexClassLoader {
 
-		private String currentId;
-		private String currentClassName;
+		private final BlockingQueue<String[]> mServiceClassQueue = new LinkedBlockingQueue<String[]>();;
 		
-		public void setCurrentId(String classId) {
-			this.currentId = classId;
-		}
-		
-		public void setCurrentClassName(String currentClassName) {
-			this.currentClassName = currentClassName;
+		public void offer(String classId, String className) {
+			String[] target = new String[2];
+			target[0] = classId;
+			target[1] = className;
+			mServiceClassQueue.offer(target);
 		}
 		
 		public PluginComponentLoader(String dexPath, String optimizedDirectory,
@@ -131,28 +135,27 @@ public class PluginDispatcher {
 		protected Class<?> loadClass(String className, boolean resolve)
 				throws ClassNotFoundException {
 			
-			if (className.equals(PluginStubActivity.class.getName())) {
-				
-				if (currentClassName != null) {
-					@SuppressWarnings("rawtypes")
-					Class clazz = PluginLoader.loadPluginClassByName(currentClassName);
-					currentId = null;
-					currentClassName = null;
-					if (clazz != null) {
-						return clazz;
+			if (className.equals(PluginStubService.class.getName())) {
+				String[] target = mServiceClassQueue.poll();
+				Log.d("PluginDispatcher", "className=" + className + " " + target[0] + ", "
+						+ target[1]);
+				if (target != null) {
+					if (target[0] != null) {
+						@SuppressWarnings("rawtypes")
+						Class clazz = PluginLoader.loadPluginClassById(target[0]);
+						if (clazz != null) {
+							return clazz;
+						}
+					} else if (target[1] != null) {
+						@SuppressWarnings("rawtypes")
+						Class clazz = PluginLoader.loadPluginClassByName(target[1]);
+						if (clazz != null) {
+							return clazz;
+						}
 					}
-				} else if (currentId != null) {
-					@SuppressWarnings("rawtypes")
-					Class clazz = PluginLoader.loadPluginClassById(currentId);
-					currentId = null;
-					currentClassName = null;
-					if (clazz != null) {
-						return clazz;
-					}
-				}
+				} 
 			}
-			
-			
+
 			return super.loadClass(className, resolve);
 		}
 		
@@ -165,15 +168,14 @@ public class PluginDispatcher {
 				mLoadedApk, "android.app.LoadedApk", "mClassLoader");
 		
 		if (originalLoader instanceof PluginComponentLoader) {
-			((PluginComponentLoader)originalLoader).setCurrentId(target);
-			((PluginComponentLoader)originalLoader).setCurrentClassName(targetClassName);
+			((PluginComponentLoader)originalLoader).offer(target, targetClassName);
 		} else {
-			PluginComponentLoader dLoader = new PluginComponentLoader("", PluginLoader.getApplicatoin().getCacheDir()
+			PluginComponentLoader newLoader = new PluginComponentLoader("", PluginLoader.getApplicatoin().getCacheDir()
 					.getAbsolutePath(), PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(),
 					originalLoader);
-			dLoader.setCurrentId(target);
+			newLoader.offer(target, targetClassName);
 			RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk",
-					"mClassLoader", dLoader);
+					"mClassLoader", newLoader);
 		}
 	}
 	

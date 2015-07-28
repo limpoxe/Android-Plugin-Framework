@@ -56,6 +56,14 @@
             android:layout_margin="5dp"
             android:orientation="vertical" >
         </LinearLayout>
+        
+        <LinearLayout
+            android:id="@+id/plugin_services"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical" >
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

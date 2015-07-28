@@ -21,6 +21,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.plugin.util.ApkReader;
+import com.plugin.util.RefInvoker;
 
 import dalvik.system.DexClassLoader;
 
@@ -112,14 +113,6 @@ public class PluginLoader {
 		return isInstallSuccess;
 	}
 
-	private static String getPluginClassNameById(PluginDescriptor pluginDescriptor, String clazzId) {
-		String clazzName = pluginDescriptor.getFragments().get(clazzId);
-		if (clazzName == null) {
-			clazzName = pluginDescriptor.getActivities().get(clazzId);
-		}
-		return clazzName;
-	}
-
 	/**
 	 * 根据插件中的classId加载一个插件中的class
 	 * 
@@ -139,11 +132,12 @@ public class PluginLoader {
 			}
 
 			if (pluginClassLoader != null) {
-				String clazzName = getPluginClassNameById(pluginDescriptor, clazzId);
+				String clazzName = pluginDescriptor.getPluginClassNameById(clazzId);
+				Log.v(LOG_TAG, "loadPluginClass clazzName=" + clazzName);
 				if (clazzName != null) {
 					try {
 						Class pluginClazz = ((ClassLoader) pluginClassLoader).loadClass(clazzName);
-						Log.v(LOG_TAG, "loadPluginClass Success for classId " + clazzId);
+						Log.v(LOG_TAG, "loadPluginClass for classId " + clazzId + " Success");
 						return pluginClazz;
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
@@ -152,7 +146,7 @@ public class PluginLoader {
 			}
 		}
 
-		Log.e(LOG_TAG, "loadPluginClass Fail for classId " + clazzId);
+		Log.e(LOG_TAG, "loadPluginClass for classId " + clazzId + " Fail");
 		return null;
 
 	}
@@ -246,6 +240,31 @@ public class PluginLoader {
 		pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		pluginDescriptor.setPluginContext(pluginContext);
 		pluginDescriptor.setPluginClassLoader(pluginClassLoader);
+		
+		if (pluginDescriptor.getApplication() != null) {
+			try {
+				Class pluginApplicationClass = ((ClassLoader)pluginClassLoader).loadClass(pluginDescriptor.getApplication());
+				Application application = (Application)pluginApplicationClass.newInstance();
+				
+				RefInvoker.invokeMethod(application, "android.app.Application", 
+						"attach", new Class[]{Context.class}, new Object[]{sApplication});
+				
+				Log.d(LOG_TAG, "call plugin Application oncreate");
+				
+				application.onCreate();
+				
+				Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+				intent.putExtra(EXTRA_TYPE, "inited");
+				sApplication.sendBroadcast(intent);
+				
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private static synchronized boolean saveInstalledPlugins(Hashtable<String, PluginDescriptor> installedPlugins) {
@@ -318,13 +337,11 @@ public class PluginLoader {
 		return (Hashtable<String, PluginDescriptor>) sInstalledPlugins.clone();
 	}
 
-	public static PluginDescriptor getPluginDescriptorByClassId(String clazzID) {
+	public static PluginDescriptor getPluginDescriptorByClassId(String clazzId) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
-			if (descriptor.getFragments().containsKey(clazzID) && descriptor.isEnabled()) {
-				return descriptor;
-			} else if (descriptor.getActivities().containsKey(clazzID) && descriptor.isEnabled()) {
+			if (descriptor.containsId(clazzId)) {
 				return descriptor;
 			}
 		}
@@ -343,9 +360,7 @@ public class PluginLoader {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
-			if (descriptor.getFragments().containsValue(clazzName) && descriptor.isEnabled()) {
-				return descriptor;
-			} else if (descriptor.getActivities().containsValue(clazzName) && descriptor.isEnabled()) {
+			if (descriptor.containsName(clazzName)) {
 				return descriptor;
 			}
 		}

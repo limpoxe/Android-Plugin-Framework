@@ -36,7 +36,8 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		
 		setTitle("测试插件中的Activity");
-		
+		Log.d("xx", getIntent().toUri(0));
+		Log.d("xx", getIntent().getStringExtra("classId"));
 		mInflater = getLayoutInflater();
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
 

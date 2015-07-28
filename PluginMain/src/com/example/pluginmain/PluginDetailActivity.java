@@ -144,6 +144,41 @@ public class PluginDetailActivity extends Activity {
 			
 			}
 			
+			LinearLayout pluginServicesView = (LinearLayout)mRoot.findViewById(R.id.plugin_services);
+			Iterator<Entry<String, String>> service = pluginDescriptor.getServices().entrySet().iterator();
+			while (service.hasNext()) {
+
+				final Entry<String, String> entry = service.next();
+				
+				TextView tv = new TextView(this);
+				tv.setText("插件ClassId：" + entry.getKey());
+				pluginServicesView.addView(tv);
+				
+				
+				tv = new TextView(this);
+				tv.append("插件ClassName ： " + entry.getValue());
+				pluginServicesView.addView(tv);
+				
+				
+				tv = new TextView(this);
+				tv.append("插件类型：Service");
+				pluginServicesView.addView(tv);
+				
+				
+				Button btn = new Button(this);
+				btn.append("点击启动Service");
+				btn.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						
+						PluginDispatcher.startRealService(PluginDetailActivity.this, entry.getKey());
+						
+					}
+				});
+				pluginServicesView.addView(btn);
+			
+			}
 		}
 	}
 }
