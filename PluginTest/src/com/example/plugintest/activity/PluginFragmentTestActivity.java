@@ -1,7 +1,9 @@
 package com.example.plugintest.activity;
 
 import com.example.plugintest.R;
+import com.plugin.core.PluginLoader;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -18,6 +20,12 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.Toast;
  
+/**
+ * 
+ * @author cailiming
+ * 放弃proxy方式
+ */
+@Deprecated
 public class PluginFragmentTestActivity extends FragmentActivity {
 
 	private static final String LOG_TAG = PluginFragmentTestActivity.class.getSimpleName();
@@ -108,5 +116,12 @@ public class PluginFragmentTestActivity extends FragmentActivity {
 		}
 	}
 
+	/**
+	 * 如果不用代理activity，而是要拥有完整生命周期，需重写如下方法
+	 */
+	@Override
+	protected void attachBaseContext(Context newBase) {
+		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
+	}
 
 }

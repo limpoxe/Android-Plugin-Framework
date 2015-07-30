@@ -3,6 +3,7 @@ package com.plugin.core;
 import com.plugin.util.RefInvoker;
 
 import android.app.Application;
+import android.app.Instrumentation;
 import android.os.Handler;
 
 public class PluginApplication extends Application {
@@ -23,8 +24,10 @@ public class PluginApplication extends Application {
 		mProcessName = (String)RefInvoker.invokeMethod(activityThread, "android.app.ActivityThread",
 				"getProcessName", (Class[])null, (Object[])null);
 	
+		//给Instrumentation添加一层代理，用来实现隐藏api的调用
+		Instrumentation originalInstrumentation = (Instrumentation)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mInstrumentation");
 		RefInvoker.setFieldObject(activityThread, "android.app.ActivityThread", "mInstrumentation",
-				new PluginInstrumention());
+				new PluginInstrumentionWrapper(originalInstrumentation));
 		
 		//getHandler
 		Handler handler = (Handler)RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sMainThreadHandler");

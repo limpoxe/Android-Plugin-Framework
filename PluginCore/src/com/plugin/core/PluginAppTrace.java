@@ -1,5 +1,15 @@
 package com.plugin.core;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import com.plugin.core.ui.PluginStubService;
+import com.plugin.util.RefInvoker;
+
+import dalvik.system.DexClassLoader;
+import android.app.Application;
+import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -31,7 +41,7 @@ public class PluginAppTrace implements Handler.Callback {
 		}
 		return true;
 	}
-	
+
 	private static class CodeConst {
 		public static final int LAUNCH_ACTIVITY         = 100;
         public static final int PAUSE_ACTIVITY          = 101;

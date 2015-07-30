@@ -1,8 +1,10 @@
 package com.example.plugintest.activity;
 
 import com.example.plugintest.R;
+import com.plugin.core.PluginLoader;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +27,9 @@ import android.widget.Toast;
  *
  * @author cailiming
  * 
+ * 放弃proxy方式
  */
+@Deprecated
 public class PluginTestActivity extends Activity implements OnClickListener {
 
 	private ViewGroup mRoot;
@@ -37,7 +41,6 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		
 		setTitle("测试插件中的Activity");
 		Log.d("xx", getIntent().toUri(0));
-		Log.d("xx", getIntent().getStringExtra("classId"));
 		mInflater = getLayoutInflater();
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
 
@@ -94,5 +97,13 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		} else if (v.getId() == R.id.plugin_test_btn4) {
 			((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);
 		}
+	}
+	
+	/**
+	 * 如果不用代理activity，而是要拥有完整生命周期，需重写如下方法
+	 */
+	@Override
+	protected void attachBaseContext(Context newBase) {
+		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
 	}
 }

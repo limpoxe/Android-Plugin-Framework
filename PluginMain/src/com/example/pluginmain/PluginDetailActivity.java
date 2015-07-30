@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -37,7 +38,7 @@ public class PluginDetailActivity extends Activity {
 	private void initViews(PluginDescriptor pluginDescriptor) {
 		if (pluginDescriptor != null) {
 			TextView pluginIdView = (TextView)mRoot.findViewById(R.id.plugin_id);
-			pluginIdView.setText("插件Id：" + pluginDescriptor.getId());
+			pluginIdView.setText("插件Id：" + pluginDescriptor.getPackageName());
 			
 			TextView pluginVerView = (TextView)mRoot.findViewById(R.id.plugin_version);
 			pluginVerView.setText("插件Version：" + pluginDescriptor.getVersion());
@@ -47,7 +48,7 @@ public class PluginDetailActivity extends Activity {
 			
 			TextView pluginInstalled = (TextView)mRoot.findViewById(R.id.plugin_installedPath);
 			pluginInstalled.setText("插件安装路径：" + pluginDescriptor.getInstalledPath());
-			
+
 			LinearLayout pluginFragmentView = (LinearLayout)mRoot.findViewById(R.id.plugin_fragments);
 			Iterator<Entry<String, String>> fragment = pluginDescriptor.getFragments().entrySet().iterator();
 			while (fragment.hasNext()) {
@@ -80,7 +81,7 @@ public class PluginDetailActivity extends Activity {
 							Toast.makeText(PluginDetailActivity.this, "步步高手机暂时只支持Activity模式！", Toast.LENGTH_LONG).show();
 							return;
 						}
-						//两种fragment模式
+						//两种fragment模式, 一种是显示在内建的Fragment容器中，一种是可嵌入在任意支持fragment的页面
 						if (!entry.getKey().equals("test1")) {
 							PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
 						}
@@ -91,23 +92,24 @@ public class PluginDetailActivity extends Activity {
 			}
 			
 			LinearLayout pluginActivitysView = (LinearLayout)mRoot.findViewById(R.id.plugin_activities);
-			Iterator<Entry<String, String>> activity = pluginDescriptor.getActivities().entrySet().iterator();
-			while (activity.hasNext()) {
+			Iterator<String> components = pluginDescriptor.getComponents().keySet().iterator();
+			while (components.hasNext()) {
 
-				final Entry<String, String> entry = activity.next();
+				final String entry = components.next();
 				
 				TextView tv = new TextView(this);
-				tv.setText("插件ClassId：" + entry.getKey());
+				//tv.setText("插件ClassId：" + entry.getKey());
+				//pluginActivitysView.addView(tv);
+				
+				
+				tv = new TextView(this);
+				tv.append("插件ClassName ： " + entry);
 				pluginActivitysView.addView(tv);
 				
 				
 				tv = new TextView(this);
-				tv.append("插件ClassName ： " + entry.getValue());
-				pluginActivitysView.addView(tv);
-				
-				
-				tv = new TextView(this);
-				tv.append("插件类型：Activity");
+				//这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
+				tv.append("插件类型：" + (entry.contains("Service")?"service":"activity"));
 				pluginActivitysView.addView(tv);
 				
 				
@@ -117,26 +119,34 @@ public class PluginDetailActivity extends Activity {
 					
 					@Override
 					public void onClick(View v) {
-						//Activity两种模式
-						//oppo 和  vivo  手机单独处理
-						if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)) {
-							//要想步步高手机也支持fragment模式,插件需要使用独立模式，即不通过R直接或者间接使用注宿主程序的资源
-							//如果步步高手机也需要使用非独立插件，则要舍弃宿主主题
-							
-							//test5是自由模式开发的
-							if (entry.getKey().equals("test5") || entry.getKey().equals("test6")) {
-								PluginDispatcher.startRealActivityById(PluginDetailActivity.this, entry.getKey());
-							} else {
-								Toast.makeText(PluginDetailActivity.this, "步步高手机暂时只支持test5 , test6 ！", Toast.LENGTH_LONG).show();
+						
+						//这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
+						if (entry.contains("Service")) {
+	
+							Intent intent = new Intent();
+							intent.setClassName(PluginDetailActivity.this, entry);
+							PluginDispatcher.startRealService(PluginDetailActivity.this, intent);
+						
+						} else {
+							//oppo 和  vivo  手机单独处理
+							if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)) {
+								return;
 							}
-							return;
-						}
-						
-						PluginDispatcher.startProxyActivity(PluginDetailActivity.this, entry.getKey());							
-						
-						//test5, test6是自由模式开发的
-						if (entry.getKey().equals("test5") || entry.getKey().equals("test6")) {
-							PluginDispatcher.startRealActivityById(PluginDetailActivity.this, entry.getKey());
+							
+							//PluginDispatcher.startProxyActivity(PluginDetailActivity.this, entry.getKey());							
+		
+							
+							Intent intent = new Intent();
+							intent.setClassName(PluginDetailActivity.this, entry);
+							startActivity(intent);
+							
+							//测试通过action进行匹配的方式
+							if (entry.equals("com.example.plugintest.activity.PluginNotInManifestActivity")) {
+								intent = new Intent("test.xyz");
+								startActivity(intent);
+							}
+							
+							
 						}
 					}
 				});
@@ -144,41 +154,40 @@ public class PluginDetailActivity extends Activity {
 			
 			}
 			
-			LinearLayout pluginServicesView = (LinearLayout)mRoot.findViewById(R.id.plugin_services);
-			Iterator<Entry<String, String>> service = pluginDescriptor.getServices().entrySet().iterator();
-			while (service.hasNext()) {
-
-				final Entry<String, String> entry = service.next();
-				
-				TextView tv = new TextView(this);
-				tv.setText("插件ClassId：" + entry.getKey());
-				pluginServicesView.addView(tv);
-				
-				
-				tv = new TextView(this);
-				tv.append("插件ClassName ： " + entry.getValue());
-				pluginServicesView.addView(tv);
-				
-				
-				tv = new TextView(this);
-				tv.append("插件类型：Service");
-				pluginServicesView.addView(tv);
-				
-				
-				Button btn = new Button(this);
-				btn.append("点击启动Service");
-				btn.setOnClickListener(new OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						
-						PluginDispatcher.startRealService(PluginDetailActivity.this, entry.getKey());
-						
-					}
-				});
-				pluginServicesView.addView(btn);
-			
-			}
+//			LinearLayout pluginServicesView = (LinearLayout)mRoot.findViewById(R.id.plugin_services);
+//			Iterator<Entry<String, String>> service = null;// pluginDescriptor.getServices().entrySet().iterator();
+//			if (service == null) {
+//				return;
+//			}
+//			while (service.hasNext()) {
+//
+//				final Entry<String, String> entry = service.next();
+//				
+//				TextView tv = new TextView(this);
+//				tv.setText("插件ClassId：" + entry.getKey());
+//				pluginServicesView.addView(tv);
+//				
+//				
+//				tv = new TextView(this);
+//				tv.append("插件ClassName ： " + entry.getValue());
+//				pluginServicesView.addView(tv);
+//				
+//				
+//				tv = new TextView(this);
+//				tv.append("插件类型：Service");
+//				pluginServicesView.addView(tv);
+//				
+//				
+//				Button btn = new Button(this);
+//				btn.append("点击启动Service");
+//				btn.setOnClickListener(new OnClickListener() {
+//					
+//					@Override
+//					public void onClick(View v) {}
+//				});
+//				pluginServicesView.addView(btn);
+//			
+//			}
 		}
 	}
 }

@@ -7,13 +7,28 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.os.Build;
 import android.text.TextUtils;
@@ -21,6 +36,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.plugin.util.ApkReader;
+import com.plugin.util.ManifestReader;
 import com.plugin.util.RefInvoker;
 
 import dalvik.system.DexClassLoader;
@@ -73,27 +89,27 @@ public class PluginLoader {
 		
 		boolean isInstallSuccess = false;
 		// 第一步，读取插件描述文件
-		PluginDescriptor pluginDescriptor = ApkReader.readPluginDescriptor(srcPluginFile);
-		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getId())) {
+		PluginDescriptor pluginDescriptor = ApkReader.parseManifest(srcPluginFile);
+		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
 			return isInstallSuccess;
 		}
 		
 		// 第二步，检查插件是否已经存在,若存在删除旧的
-		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getId());
+		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
-			remove(pluginDescriptor.getId());
+			remove(pluginDescriptor.getPackageName());
 		}
 		
 		// 第三步骤，复制插件到插件目录
 		if (pluginDescriptor != null) {
 			
-			String destPluginFile = genInstallPath(pluginDescriptor.getId(), pluginDescriptor.getVersion());
+			String destPluginFile = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			boolean isCopySuccess = ApkReader.copyFile(srcPluginFile, destPluginFile);
 			
 			// 第四步 添加到已安装插件列表
 			if (isCopySuccess) {
 				pluginDescriptor.setInstalledPath(destPluginFile);
-				PluginDescriptor previous = sInstalledPlugins.put(pluginDescriptor.getId(), pluginDescriptor);
+				PluginDescriptor previous = sInstalledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
 				isInstallSuccess = saveInstalledPlugins(sInstalledPlugins);
 				
 				if (isInstallSuccess) {
@@ -103,7 +119,7 @@ public class PluginLoader {
 					} else {
 						intent.putExtra(EXTRA_TYPE, "replace");
 					}
-					intent.putExtra("id", pluginDescriptor.getId());
+					intent.putExtra("id", pluginDescriptor.getPackageName());
 					intent.putExtra("version", pluginDescriptor.getVersion());
 					sApplication.sendBroadcast(intent);
 				}
@@ -123,7 +139,7 @@ public class PluginLoader {
 	public static Class loadPluginClassById(String clazzId) {
 		Log.v(LOG_TAG, "loadPluginClass for clazzId " + clazzId);
 
-		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassId(clazzId);
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByFragmenetId(clazzId);
 		if (pluginDescriptor != null) {
 			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
 			if (pluginClassLoader == null) {
@@ -231,7 +247,7 @@ public class PluginLoader {
 	 */
 	private static void initPlugin(PluginDescriptor pluginDescriptor) {
 
-		Log.d(LOG_TAG, "initPlugin, Resources, DexClassLoader, Context");
+		Log.d(LOG_TAG, "initPlugin, Resources, DexClassLoader, Context, Application " + pluginDescriptor.getApplicationName());
 
 		Resources pluginRes = PluginCreator.createPluginResource(sApplication, pluginDescriptor.getInstalledPath());
 		DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath());
@@ -240,17 +256,17 @@ public class PluginLoader {
 		pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		pluginDescriptor.setPluginContext(pluginContext);
 		pluginDescriptor.setPluginClassLoader(pluginClassLoader);
-		
-		if (pluginDescriptor.getApplication() != null) {
+
+		if (pluginDescriptor.getApplicationName() != null && pluginDescriptor.getPluginApplication() == null) {
 			try {
-				Class pluginApplicationClass = ((ClassLoader)pluginClassLoader).loadClass(pluginDescriptor.getApplication());
+				Class pluginApplicationClass = ((ClassLoader)pluginClassLoader).loadClass(pluginDescriptor.getApplicationName());
 				Application application = (Application)pluginApplicationClass.newInstance();
 				
 				RefInvoker.invokeMethod(application, "android.app.Application", 
 						"attach", new Class[]{Context.class}, new Object[]{sApplication});
 				
-				Log.d(LOG_TAG, "call plugin Application oncreate");
-				
+				Log.e(LOG_TAG, "call plugin Application oncreate");
+				pluginDescriptor.setPluginApplication(application);
 				application.onCreate();
 				
 				Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
@@ -268,6 +284,13 @@ public class PluginLoader {
 	}
 
 	private static synchronized boolean saveInstalledPlugins(Hashtable<String, PluginDescriptor> installedPlugins) {
+		
+		if(true) {
+			//TODO
+			Log.e("PluginLoader", "TODO saveInstalledPlugins!!!!!!!!!!!!!!!!!!");
+			return true;
+		}
+		
 		ObjectOutputStream objectOutputStream = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		try {
@@ -337,11 +360,16 @@ public class PluginLoader {
 		return (Hashtable<String, PluginDescriptor>) sInstalledPlugins.clone();
 	}
 
-	public static PluginDescriptor getPluginDescriptorByClassId(String clazzId) {
+	/**
+	 * for Fragment
+	 * @param clazzId
+	 * @return
+	 */
+	public static PluginDescriptor getPluginDescriptorByFragmenetId(String clazzId) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
-			if (descriptor.containsId(clazzId)) {
+			if (descriptor.containsFragment(clazzId)) {
 				return descriptor;
 			}
 		}
@@ -373,6 +401,62 @@ public class PluginLoader {
 			pluginDescriptor.setEnabled(enable);
 			saveInstalledPlugins(sInstalledPlugins);
 		}
+	}
+	
+	/**
+	 * //If getComponent returns an explicit class, that is returned without any further consideration.
+     * //If getAction is non-NULL, the activity must handle this action.
+	 * //If resolveType returns non-NULL, the activity must handle this type.
+	 * //If addCategory has added any categories, the activity must handle ALL of the categories specified.
+     * //If getPackage is non-NULL, only activity components in that application package will be considered.
+	 * @param intent
+	 * @return
+	 */
+	public static String isMatchPlugin(Intent intent) {
+
+		Hashtable<String, PluginDescriptor> plugins = listAll();
+		
+		Iterator<PluginDescriptor> itr = plugins.values().iterator();
+		
+		while (itr.hasNext()) {
+			PluginDescriptor plugin = itr.next();
+			//如果是通过组件进行匹配的
+	    	if (intent.getComponent() != null) {
+	    		if (plugin.containsName(intent.getComponent().getClassName())) {
+	    			Log.d("PluginLoader", "通过Component进行匹配成功，" + intent.getComponent().getClassName());
+	    			return intent.getComponent().getClassName();
+	    		}
+	    	} else {
+	    		//如果是通过IntentFilter进行匹配的
+	    		HashMap<String, ArrayList<IntentFilter>> intentFilter = plugin.getComponents();
+	    		if (intentFilter != null) {
+
+	    			Iterator<Entry<String, ArrayList<IntentFilter>>> entry = intentFilter.entrySet().iterator();
+	    			while(entry.hasNext()) {
+	    				Entry<String, ArrayList<IntentFilter>> item = entry.next();
+	    				Iterator<IntentFilter> values = item.getValue().iterator();
+	    				while(values.hasNext()) {
+	    					IntentFilter filter = values.next();
+	    					int result = filter.match(intent.getAction(), 
+	    							intent.getType(),
+	    							intent.getScheme(), 
+	    							intent.getData(), 
+	    							intent.getCategories(), "PluginLoader");
+	    					if (result != IntentFilter.NO_MATCH_ACTION &&
+	    							result != IntentFilter.NO_MATCH_CATEGORY &&
+	    							result != IntentFilter.NO_MATCH_DATA &&
+	    							result != IntentFilter.NO_MATCH_TYPE) {
+	    						Log.d("PluginLoader", "通过IntentFilter进行匹配的成功");
+	    						return item.getKey();
+	    					}
+	    				}
+	    			}
+	    		}
+	    		
+	    	}
+			
+		}
+		return null;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -429,5 +513,5 @@ public class PluginLoader {
 				Build.VERSION.SDK_INT < 11 ? Context.MODE_PRIVATE : Context.MODE_PRIVATE | 0x0004);
 		return sp;
 	}
-
+	
 }

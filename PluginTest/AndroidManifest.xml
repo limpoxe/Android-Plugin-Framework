@@ -8,21 +8,75 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="21" />
 
- 	<application>
+ 	<application 
+ 	    android:name="com.example.plugintest.PluginTestApplication"
+ 	    android:label="包含UI的插件demo, 代表5中开发方式，UIclassName要求是唯一的，宿主程序需要根据和className来进行查找">
         
-        <meta-data android:name="launcher" android:value="test2"/>
+ 	    <!-- for fragment -->
+        <meta-data android:name="fragmentTest1" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
         
+        <!-- for fragment -->
+        <meta-data android:name="fragmentTest2" android:value="com.example.plugintest.fragment.PluginSpecFragment"/>
+        
+        <!-- for proxy test -->
         <activity
             android:name="com.example.plugintest.activity.PluginTestActivity" >
             <intent-filter>
                 <action
-                    android:name="android.intent.action.MAIN" />
+                    android:name="test.abc" />
 
                 <category
-                    android:name="android.intent.category.LAUNCHER" />
+                    android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
+        <!-- for proxy test -->
+        <activity
+            android:name="com.example.plugintest.activity.PluginFragmentTestActivity" >
+            <intent-filter>
+                <action
+                    android:name="test.abc" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <!-- for instrumentation -->
+        <activity
+            android:name="com.example.plugintest.activity.PluginNotInManifestActivity" >
+            <intent-filter>
+                <action
+                    android:name="test.xyz" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <!-- for instrumentation -->
+        <activity
+            android:name="com.example.plugintest.activity.PluginForOppoAndVivoActivity" >
+            <intent-filter>
+                <action
+                    android:name="test.ijk" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <!-- for instrumentation -->
+        <service android:name="com.example.plugintest.service.PluginTestService">
+            <intent-filter>
+                <action
+                    android:name="test.lmn" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        
     </application>
 
 </manifest>

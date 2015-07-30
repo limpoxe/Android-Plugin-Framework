@@ -28,22 +28,14 @@ public class PluginInstrumention extends Instrumentation {
 			ClassNotFoundException {
 		
 		String targetClassName = intent.getStringExtra("className");
-		String targetId = intent.getStringExtra("classId");
-		
+
 		Log.d(LOG_TAG, intent.toUri(0));
-		Log.d(LOG_TAG, "className = " + className + ", targetClassName = " + targetClassName + ", targetId = " + targetId);
 		
 		if (className.equals(PluginStubActivity.class.getName())) {
 			
 			if (targetClassName != null) {
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassByName(targetClassName);
-				if (clazz != null) {
-					return (Activity)clazz.newInstance();
-				}
-			} else if (targetId != null) {
-				@SuppressWarnings("rawtypes")
-				Class clazz = PluginLoader.loadPluginClassById(targetId);
 				if (clazz != null) {
 					return (Activity)clazz.newInstance();
 				}

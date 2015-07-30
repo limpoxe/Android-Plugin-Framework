@@ -1,30 +1,18 @@
 package com.plugin.core;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
 import android.util.Log;
 import dalvik.system.DexClassLoader;
 
 /**
  * <Pre>
- * {
- * 	"id":123,
- * 	"version":"1.0.1",
- *  "description":"插件介绍",
- *  "application":"com.example.plugintest.PluginApplication",
- * 	"fragments":{
- * 		"test1":"com.example.plugintest.PluginMustRunInSpec",
- * 		"test2":"com.example.plugintest.PluginRunEasy"
- * 	},
- * 	"activities":{
- * 		"test3":"com.example.plugintest.PluginTextActivity",
- * 	},
- *  "services":{
- *  	"test4":"com.example.plugintest.PluginTextService"
- *  } 	
- * }
  * @author cailiming
  * </Pre>
  */
@@ -32,7 +20,7 @@ public class PluginDescriptor implements Serializable {
 
 	private static final long serialVersionUID = -7545734825911798344L;
 
-	private String id;
+	private String packageName;
 
 	private String version;
 
@@ -40,16 +28,16 @@ public class PluginDescriptor implements Serializable {
 
 	private boolean isEnabled;
 
-	private String application;
+	private String applicationName;
 	
-	private HashMap<String, String> fragments;
+	private HashMap<String, String> fragments = new HashMap<String, String>();
 
-	private HashMap<String, String> activities;
+	private HashMap<String, ArrayList<IntentFilter>> components;
 
-	private HashMap<String, String> services;
-	
 	private String installedPath;
 
+	private transient Application pluginApplication;
+	
 	private transient DexClassLoader pluginClassLoader;
 
 	private transient Context pluginContext;
@@ -70,12 +58,12 @@ public class PluginDescriptor implements Serializable {
 		this.pluginClassLoader = pluginLoader;
 	}
 
-	public String getId() {
-		return id;
+	public String getPackageName() {
+		return packageName;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
 	}
 
 	public String getVersion() {
@@ -102,12 +90,12 @@ public class PluginDescriptor implements Serializable {
 		this.installedPath = installedPath;
 	}
 
-	public HashMap<String, String> getActivities() {
-		return activities;
+	public HashMap<String, ArrayList<IntentFilter>> getComponents() {
+		return components;
 	}
 
-	public void setActivities(HashMap<String, String> activities) {
-		this.activities = activities;
+	public void setComponents(HashMap<String, ArrayList<IntentFilter>> activities) {
+		this.components = activities;
 	}
 	
 	public String getDescription() {
@@ -118,20 +106,12 @@ public class PluginDescriptor implements Serializable {
 		this.description = description;
 	}
 	
-	public String getApplication() {
-		return application;
+	public String getApplicationName() {
+		return applicationName;
 	}
 
-	public void setApplication(String application) {
-		this.application = application;
-	}
-	
-	public HashMap<String, String> getServices() {
-		return services;
-	}
-
-	public void setServices(HashMap<String, String> services) {
-		this.services = services;
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
 	}
 	
 	public boolean isEnabled() {
@@ -142,15 +122,14 @@ public class PluginDescriptor implements Serializable {
 		this.isEnabled = isEnabled;
 	}
 	
+	/**
+	 * 需要根据id查询的只有fragment
+	 * @param clazzId
+	 * @return
+	 */
 	public String getPluginClassNameById(String clazzId) {
 		String clazzName = getFragments().get(clazzId);
-		if (clazzName == null) {
-			clazzName = getActivities().get(clazzId);
-		}
-		if (clazzName == null) {
-			clazzName = getServices().get(clazzId);
-		}
-		
+
 		if (clazzName == null) {
 			Log.d("PluginDescriptor", "clazzName not found for classId " + clazzId);
 		} else {
@@ -159,23 +138,35 @@ public class PluginDescriptor implements Serializable {
 		return clazzName;
 	}
 	
-	public boolean containsId(String clazzId) {
+	public Application getPluginApplication() {
+		return pluginApplication;
+	}
+
+	public void setPluginApplication(Application pluginApplication) {
+		this.pluginApplication = pluginApplication;
+	}
+
+	/**
+	 * 需要根据Id查询的只有fragment
+	 * @param clazzId
+	 * @return
+	 */
+	public boolean containsFragment(String clazzId) {
 		if (getFragments().containsKey(clazzId) && isEnabled()) {
-			return true;
-		} else if (getActivities().containsKey(clazzId) && isEnabled()) {
-			return true;
-		} else if (getServices().containsKey(clazzId) && isEnabled()) {
 			return true;
 		}
 		return false;
 	}
 	
+	/**
+	 * 根据className查询
+	 * @param clazzName
+	 * @return
+	 */
 	public boolean containsName(String clazzName) {
 		if (getFragments().containsValue(clazzName) && isEnabled()) {
 			return true;
-		} else if (getActivities().containsValue(clazzName) && isEnabled()) {
-			return true;
-		} else if (getServices().containsValue(clazzName) && isEnabled()) {
+		} else if (getComponents().containsKey(clazzName) && isEnabled()) {
 			return true;
 		}
 		return false;

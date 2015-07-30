@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.util.Log;
 
 import com.plugin.core.PluginLoader;
@@ -59,55 +60,28 @@ public class PluginDispatcher {
 	 * 
 	 * @param context
 	 * @param target
+	 * 
+	 * 放弃代理模式了。采用Activity免注册方式
 	 */
+	@Deprecated 
 	public static void startProxyActivity(Context context, String targetId) {
 
-		Intent pluginActivity = new Intent();
-		pluginActivity.setClass(context, PluginProxyActivity.class);
-		pluginActivity.putExtra("classId", resloveTarget(targetId));
-		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(pluginActivity);
+//		Intent pluginActivity = new Intent();
+//		pluginActivity.setClass(context, PluginProxyActivity.class);
+//		pluginActivity.putExtra("classId", resloveTarget(targetId));
+//		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//		context.startActivity(pluginActivity);
 	
 	}
 	
-	/**
-	 * 显示插件中的activity
-	 * 
-	 * 打开stubActivity实际上会打开插件中test5对应的activity	 * 
-	 * @param context
-	 * @param target
-	 */
-	public static void startRealActivityById(Context context, String targetId) {
-		
-		Intent pluginActivity = new Intent();
-		pluginActivity.putExtra("classId", targetId);
-		pluginActivity.setClass(context, PluginStubActivity.class);
-		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(pluginActivity);
-	
-	}
-	
-	/**
-	 * 显示插件中的activity
-	 * 
-	 * 打开stubActivity实际上会打开插件中test5对应的activity	 * 
-	 * @param context
-	 * @param target
-	 */
-	public static void startRealActivityByClassName(Context context, String targetName) {
-
-		Intent pluginActivity = new Intent();
-		pluginActivity.putExtra("className", targetName);
-		pluginActivity.setClass(context, PluginStubActivity.class);
-		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(pluginActivity);
-	
-	}
-	
-	public static void startRealService(Context context, String targetId) {
-		replaceClassLoader(targetId, null);
-		
-		context.startService(new Intent(context, PluginStubService.class));
+	public static void startRealService(Context context, Intent intent) {
+		if (hackClassLoadIfNeeded(intent)) {
+			Intent newIntent = new Intent(context, PluginStubService.class);
+			newIntent.putExtra("targetIntent", intent);
+			context.startService(newIntent);
+		} else {
+			context.startService(intent);
+		}
 	}
 	
 	private static String resloveTarget(String target) {
@@ -115,6 +89,69 @@ public class PluginDispatcher {
 		return target;
 	}
 	
+	private static boolean hackClassLoadIfNeeded(Intent intent) {
+		
+		String targetClassName = PluginLoader.isMatchPlugin(intent);
+
+		Log.d("PluginDispather", "targetClassName " + targetClassName);
+		
+		if (targetClassName != null) {
+			
+			Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(), "mLoadedApk");
+			
+			ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(
+					mLoadedApk, "android.app.LoadedApk", "mClassLoader");
+			
+			if (originalLoader instanceof PluginComponentLoader) {
+				((PluginComponentLoader)originalLoader).offer(targetClassName);
+			} else {
+				PluginComponentLoader newLoader = new PluginComponentLoader("", PluginLoader.getApplicatoin().getCacheDir()
+						.getAbsolutePath(), PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(),
+						originalLoader);
+				newLoader.offer(targetClassName);
+				RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk",
+						"mClassLoader", newLoader);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public static class PluginComponentLoader extends DexClassLoader {
+
+		private final BlockingQueue<String> mServiceClassQueue = new LinkedBlockingQueue<String>();;
+		
+		public void offer(String className) {
+			mServiceClassQueue.offer(className);
+		}
+		
+		public PluginComponentLoader(String dexPath, String optimizedDirectory,
+				String libraryPath, ClassLoader parent) {
+			super(dexPath, optimizedDirectory, libraryPath, parent);
+		}
+		
+		@Override
+		protected Class<?> loadClass(String className, boolean resolve)
+				throws ClassNotFoundException {
+			
+			if (className.equals(PluginStubService.class.getName())) {
+				String target = mServiceClassQueue.poll();
+				Log.d("PluginAppTrace", "className " + className + ", " + target);
+				if (target != null) {
+					@SuppressWarnings("rawtypes")
+					Class clazz = PluginLoader.loadPluginClassByName(target);
+					if (clazz != null) {
+						return clazz;
+					}
+				} 
+			}
+
+			return super.loadClass(className, resolve);
+		}
+		
+	}
+	
+	/**
 	public static class PluginComponentLoader extends DexClassLoader {
 
 		private final BlockingQueue<String[]> mServiceClassQueue = new LinkedBlockingQueue<String[]>();;
@@ -178,5 +215,5 @@ public class PluginDispatcher {
 					"mClassLoader", newLoader);
 		}
 	}
-	
+	**/
 }
