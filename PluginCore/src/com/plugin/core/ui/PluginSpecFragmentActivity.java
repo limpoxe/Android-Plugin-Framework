@@ -4,17 +4,17 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.plugin.core.PluginContextTheme;
+import com.plugin.core.PluginDispatcher;
 import com.plugin.core.PluginLoader;
+import com.plugin.util.LogUtil;
 /**
  * 重写过context的Activity 用来展示fragment
  * @author cailiming
  *
  */
-public class PluginSpecDisplayer extends PluginNormalDisplayer {
-	private static final String LOG_TAG = PluginSpecDisplayer.class.getSimpleName();
+public class PluginSpecFragmentActivity extends PluginNormalFragmentActivity {
 
 	private Context mOrignalContext;
 	private int mOrignalThemeResourceId;
@@ -28,8 +28,8 @@ public class PluginSpecDisplayer extends PluginNormalDisplayer {
 	}
 
 	private Context findPluginContext() {
-		String classId = getIntent().getStringExtra("classId");
-		Log.v(LOG_TAG, "findPluginContext " + classId);
+		String classId = getIntent().getStringExtra(PluginDispatcher.FRAGMENT_ID_IN_PLUGIN);
+		LogUtil.d("findPluginContext ", classId);
 		@SuppressWarnings("rawtypes")
 		Class clazz = PluginLoader.loadPluginClassById(classId);
 

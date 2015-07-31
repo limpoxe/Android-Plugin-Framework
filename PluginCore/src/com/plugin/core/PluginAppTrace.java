@@ -1,22 +1,21 @@
 package com.plugin.core;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import com.plugin.core.ui.PluginStubService;
+import com.plugin.core.ui.stub.PluginStubReceiver;
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-import dalvik.system.DexClassLoader;
-import android.app.Application;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
+/**
+ * 插件Receiver免注册的主要实现原理
+ * @author cailiming
+ *
+ */
 public class PluginAppTrace implements Handler.Callback {
-	private static final String LOG_TAG = PluginAppTrace.class.getSimpleName();
-	private static final boolean IS_DEBUG = true;
+	
 	private final Handler mHandler;
 
 	protected PluginAppTrace(Handler handler) {
@@ -26,22 +25,31 @@ public class PluginAppTrace implements Handler.Callback {
 	@Override
 	public boolean handleMessage(Message msg) {
 		try {
-			if (IS_DEBUG) {
-				Log.v(LOG_TAG, ">>> handling: " + CodeConst.codeToString(msg.what));	
+			LogUtil.d(">>> handling: ", CodeConst.codeToString(msg.what));
+			if (msg.what == CodeConst.RECEIVER) {
+				hackReceiverIfNeed(msg.obj);
 			}
-			
 			mHandler.handleMessage(msg);
-			
-			if (IS_DEBUG) {
-				Log.v(LOG_TAG, ">>> done: " + CodeConst.codeToString(msg.what));
-			}
-			
+			LogUtil.d(">>> done: " + CodeConst.codeToString(msg.what));
 		} catch (Throwable e) {
-			Log.e(LOG_TAG, "handleMessage " + CodeConst.codeToString(msg.what), e);
+			LogUtil.printException(CodeConst.codeToString(msg.what), e);
 		}
 		return true;
 	}
 
+	private static void hackReceiverIfNeed(Object msgObj) {
+		Intent intent = (Intent)RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
+		if (intent.getComponent().getClassName().equals(PluginStubReceiver.class.getName())) {
+			Intent realIntent = (Intent)(intent.getParcelableExtra(PluginDispatcher.RECEIVER_ID_IN_PLUGIN));
+			LogUtil.d("receiver", realIntent.toUri(0));
+			intent.putExtras(realIntent.getExtras());
+			String realClassName = PluginLoader.isMatchPlugin(realIntent);
+			//classLoader检测到这个特殊标记后会进行替换
+			intent.setComponent(new ComponentName(intent.getComponent().getPackageName(),
+					PluginStubReceiver.class.getName() + "." + realClassName));
+		}
+	}
+	
 	private static class CodeConst {
 		public static final int LAUNCH_ACTIVITY         = 100;
         public static final int PAUSE_ACTIVITY          = 101;

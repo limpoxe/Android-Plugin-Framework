@@ -1,8 +1,9 @@
-package com.plugin.core.ui;
+package com.plugin.core.ui.stub;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+
+import com.plugin.util.LogUtil;
 
 /**
  * Stub模式, 用于运行时被插件中的activity替换,这种方式比代理模式更稳定
@@ -11,9 +12,10 @@ import android.util.Log;
  *
  */
 public class PluginStubActivity extends Activity {
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.e("PluginStubActivity", "should not happen");
+		LogUtil.d("PluginStubActivity", "should not happen");
 	}
 }

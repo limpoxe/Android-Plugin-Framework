@@ -7,14 +7,15 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 
 import com.plugin.core.PluginContextTheme;
+import com.plugin.core.PluginDispatcher;
 import com.plugin.core.PluginLoader;
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 /**
@@ -23,8 +24,6 @@ import com.plugin.util.RefInvoker;
  */
 @Deprecated
 public class PluginProxyActivity extends Activity {
-
-	private static final String LOG_TAG = PluginProxyActivity.class.getSimpleName();
 
 	private Activity activity;
 
@@ -57,8 +56,8 @@ public class PluginProxyActivity extends Activity {
     }
 	
 	private Context findPluginContext() {
-		String classId = getIntent().getStringExtra("classId");
-		Log.v(LOG_TAG, "findPluginContext " + classId);
+		String classId = getIntent().getStringExtra(PluginDispatcher.ACTIVITY_ID_IN_PLUGIN);
+		LogUtil.d("findPluginContext ", classId);
 		@SuppressWarnings("rawtypes")
 		Class clazz = PluginLoader.loadPluginClassById(classId);
 		if (clazz != null) {
@@ -240,7 +239,7 @@ public class PluginProxyActivity extends Activity {
 	}
 
 	private void set(String name) {
-		Log.e(LOG_TAG, "attach " + name);
+		LogUtil.d("attach " + name);
 		Object obj = RefInvoker.getFieldObject(this, Activity.class.getName(), name);
 		if (obj != null) {
 			RefInvoker.setFieldObject(activity, Activity.class.getName(), name, obj);
@@ -249,8 +248,8 @@ public class PluginProxyActivity extends Activity {
 
 	private void loadPluginActivity() {
 		try {
-			String classId = getIntent().getStringExtra("classId");
-			Log.v(LOG_TAG, "loadPluginActivity " + classId);
+			String classId = getIntent().getStringExtra(PluginDispatcher.ACTIVITY_ID_IN_PLUGIN);
+			LogUtil.d("classId ", classId);
 			@SuppressWarnings("rawtypes")
 			Class clazz = PluginLoader.loadPluginClassById(classId);
 			activity = (Activity) clazz.newInstance();

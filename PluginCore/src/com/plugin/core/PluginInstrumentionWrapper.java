@@ -1,6 +1,7 @@
 package com.plugin.core;
 
-import com.plugin.core.ui.PluginStubActivity;
+import com.plugin.core.ui.stub.PluginStubActivity;
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 import android.annotation.TargetApi;
@@ -16,16 +17,17 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 
  /**
-  * 如有必要，可以增加被代理的方法数量
+  * 插件Activity免注册的主要实现原理。
+  * 如有必要，可以增加被代理的方法数量。
   * @author cailiming
   *
   */
 public class PluginInstrumentionWrapper extends Instrumentation {
-	private static final String LOG_TAG = "PluginInstrumention";
+	
+	private static final String ACTIVITY_NAME_IN_PLUGIN = "InstrumentationWrapper.className";
 	
 	private Instrumentation realInstrumention;
 	
@@ -47,13 +49,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public Activity newActivity(ClassLoader cl, String className, Intent intent)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-		
-		String targetClassName = intent.getStringExtra("className");
 
-		Log.d(LOG_TAG, "className = " + className + ", " + intent.toUri(0));
-		
+		//将PluginStubActivity替换成插件中的activity
 		if (className.equals(PluginStubActivity.class.getName())) {
-			
+			LogUtil.d("className", className, intent.toUri(0));
+			String targetClassName = intent.getStringExtra(ACTIVITY_NAME_IN_PLUGIN);	
 			if (targetClassName != null) {
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassByName(targetClassName);
@@ -62,7 +62,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				}
 			}
 		}
-	
+
 		return realInstrumention.newActivity(cl, className, intent);
 	}
 
@@ -70,12 +70,13 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
 		
 		//先判断如果是插件Activity
+		//太可惜了，这里通过反射去attach总是失败
 		Intent intent = activity.getIntent();
 		if (false && intent.getComponent() != null) {
 			if (intent.getComponent().getClassName().equals(PluginStubActivity.class.getName())) {
 				
 				//attach base context已经被系统调用过了，所以这里需要通过反射的方式重置为插件Context
-				Log.d(LOG_TAG,"attach base context " + activity.getClass().getName());
+				LogUtil.d("attach base context ", activity.getClass().getName());
 				Context pluginContext = PluginLoader.getDefaultPluginContext(activity.getClass());
 				RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
 				RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext", 
@@ -188,18 +189,17 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		return (ActivityResult)result;
     }
     
-    public static void resloveIntent(Intent intent) {
+    private static void resloveIntent(Intent intent) {
+    	//如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
     	String className = PluginLoader.isMatchPlugin(intent);
     	if (className != null) {
-    		Log.d("InstrumentationWrapper", "resloveIntent Before:" + intent.toUri(0));
-    		intent.putExtra("className", className);
     		intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(), PluginStubActivity.class.getName()));
-    		Log.d("InstrumentationWrapper", "resloveIntent After:" + intent.toUri(0));
+    		intent.putExtra(ACTIVITY_NAME_IN_PLUGIN, className);
     	}
     }
     
     private static void resloveIntent(Intent[] intent) {
-    	//TODO
+    	//not needed
     }
 
 }

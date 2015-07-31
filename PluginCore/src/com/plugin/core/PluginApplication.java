@@ -1,5 +1,6 @@
 package com.plugin.core;
 
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 import android.app.Application;
@@ -10,13 +11,23 @@ public class PluginApplication extends Application {
 	
 	private String mProcessName;
 	
+	public String getProcessName() {
+		return mProcessName;
+	}
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();	
-		inject();
+		injectInstrumentation();
+		injectClassLoader();
 	}
 	
-	private void inject() {
+	/**
+	 * 注入Instrumentation主要是为了支持Activity
+	 */
+	private void injectInstrumentation() {
+		LogUtil.d("injectInstrumentation");
+		
 		//从ThreadLocal中取出来的
 		Object activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
 				(Class[])null, (Object[])null);
@@ -37,8 +48,13 @@ public class PluginApplication extends Application {
 	
 	}
 	
-	public String getProcessName() {
-		return mProcessName;
+	/**
+	 * 注入classloader主要是为了支持Service和Receiver
+	 */
+	private void injectClassLoader() {
+		//
+		LogUtil.d("injectClassLoader");
 	}
+	
 
 }

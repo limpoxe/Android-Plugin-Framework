@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -15,9 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.plugin.core.PluginDescriptor;
+import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
-import com.plugin.core.ui.PluginDispatcher;
+import com.plugin.core.PluginDispatcher;
 
 public class PluginDetailActivity extends Activity {
 	
@@ -82,10 +83,13 @@ public class PluginDetailActivity extends Activity {
 							return;
 						}
 						//两种fragment模式, 一种是显示在内建的Fragment容器中，一种是可嵌入在任意支持fragment的页面
-						if (!entry.getKey().equals("test1")) {
+						if (entry.getValue().equals("com.example.plugintest.fragment.PluginNormalFragment")) {
+							PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
+						} else {
+							PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
 							PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
 						}
-						PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
+						
 					}
 				});
 				pluginFragmentView.addView(btn);
@@ -109,7 +113,7 @@ public class PluginDetailActivity extends Activity {
 				
 				tv = new TextView(this);
 				//这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
-				tv.append("插件类型：" + (entry.contains("Service")?"service":"activity"));
+				tv.append("插件类型：" + (entry.contains("Service")?"service":(entry.contains("Receiver")?"Receiver":"activity")));
 				pluginActivitysView.addView(tv);
 				
 				
@@ -119,33 +123,51 @@ public class PluginDetailActivity extends Activity {
 					
 					@Override
 					public void onClick(View v) {
+						//oppo 和  vivo  手机单独处理
+						if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)) {
+							return;
+						}
 						
 						//这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
 						if (entry.contains("Service")) {
 	
 							Intent intent = new Intent();
 							intent.setClassName(PluginDetailActivity.this, entry);
-							PluginDispatcher.startRealService(PluginDetailActivity.this, intent);
+							intent.putExtra("testParam", "testParam");
+							PluginDispatcher.startService(PluginDetailActivity.this, intent);
 						
-						} else {
-							//oppo 和  vivo  手机单独处理
-							if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)) {
-								return;
-							}
-							
-							//PluginDispatcher.startProxyActivity(PluginDetailActivity.this, entry.getKey());							
-		
+						} else if (entry.contains("Receiver")) {//这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
 							
 							Intent intent = new Intent();
 							intent.setClassName(PluginDetailActivity.this, entry);
+							intent.putExtra("testParam", "testParam");
+							PluginDispatcher.sendBroadcast(PluginDetailActivity.this, intent);
+							
+						} else {
+							//PluginDispatcher.startProxyActivity(PluginDetailActivity.this, entry.getKey());							
+		
+							//测试通过ClassName匹配
+							Intent intent = new Intent();
+							intent.setClassName(PluginDetailActivity.this, entry);
+							intent.putExtra("testParam", "testParam");
 							startActivity(intent);
 							
 							//测试通过action进行匹配的方式
 							if (entry.equals("com.example.plugintest.activity.PluginNotInManifestActivity")) {
-								intent = new Intent("test.xyz");
+								intent = new Intent("test.xyz1");
+								intent.putExtra("testParam", "testParam");
 								startActivity(intent);
 							}
 							
+							//测试通过url进行匹配的方式
+							if (entry.equals("com.example.plugintest.activity.PluginNotInManifestActivity")) {
+								intent = new Intent(Intent.ACTION_VIEW);
+								intent.addCategory(Intent.CATEGORY_DEFAULT);
+								intent.addCategory(Intent.CATEGORY_BROWSABLE);
+								intent.setData(Uri.parse("testscheme://testhost"));
+								intent.putExtra("testParam", "testParam");
+								startActivity(intent);
+							}
 							
 						}
 					}
@@ -153,41 +175,6 @@ public class PluginDetailActivity extends Activity {
 				pluginActivitysView.addView(btn);
 			
 			}
-			
-//			LinearLayout pluginServicesView = (LinearLayout)mRoot.findViewById(R.id.plugin_services);
-//			Iterator<Entry<String, String>> service = null;// pluginDescriptor.getServices().entrySet().iterator();
-//			if (service == null) {
-//				return;
-//			}
-//			while (service.hasNext()) {
-//
-//				final Entry<String, String> entry = service.next();
-//				
-//				TextView tv = new TextView(this);
-//				tv.setText("插件ClassId：" + entry.getKey());
-//				pluginServicesView.addView(tv);
-//				
-//				
-//				tv = new TextView(this);
-//				tv.append("插件ClassName ： " + entry.getValue());
-//				pluginServicesView.addView(tv);
-//				
-//				
-//				tv = new TextView(this);
-//				tv.append("插件类型：Service");
-//				pluginServicesView.addView(tv);
-//				
-//				
-//				Button btn = new Button(this);
-//				btn.append("点击启动Service");
-//				btn.setOnClickListener(new OnClickListener() {
-//					
-//					@Override
-//					public void onClick(View v) {}
-//				});
-//				pluginServicesView.addView(btn);
-//			
-//			}
 		}
 	}
 }

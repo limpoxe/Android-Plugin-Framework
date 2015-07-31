@@ -1,10 +1,17 @@
 package com.plugin.core;
 
+import com.plugin.content.PluginDescriptor;
+import com.plugin.util.LogUtil;
+
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 
 public class PluginCompat {
+	
+	/**
+	 * “main_style_”是在pluglic.xml文件中定义的！
+	 */
+	private static final String MAIN_STYLE = "main_style_";
 	
 	/**
 	 * 
@@ -17,10 +24,8 @@ public class PluginCompat {
 		boolean isThemeInHostResouce = false;
 		try {
 			String themeEntryName = PluginLoader.getApplicatoin().getResources().getResourceEntryName(resId);
-			Log.v("PluginCompat", "" +themeEntryName);
-			
-			//“main_style_”是在pluglic.xml文件中定义的！
-			if (themeEntryName != null && !themeEntryName.startsWith("main_style_")) {
+			LogUtil.d("themeEntryName", themeEntryName);
+			if (themeEntryName != null && !themeEntryName.startsWith(MAIN_STYLE)) {
 				isThemeInHostResouce = true;
 			}
 		} catch (Exception e) {

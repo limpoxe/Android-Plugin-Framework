@@ -3,18 +3,17 @@ package com.plugin.core;
 import java.io.File;
 import java.lang.reflect.Method;
 
+import com.plugin.util.LogUtil;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
-import android.util.Log;
 import dalvik.system.DexClassLoader;
 
 public class PluginCreator {
-
-	private static final String LOG_TAG = PluginCreator.class.getSimpleName();
 
 	private PluginCreator() {
 	}
@@ -26,7 +25,7 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath) {
+	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone) {
 		return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(), null,
 				PluginLoader.class.getClassLoader());
 	}
@@ -40,7 +39,7 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static Resources createPluginResource(Application application, String absolutePluginApkPath) {
+	public static Resources createPluginResource(Application application, String absolutePluginApkPath, boolean isStandalone) {
 		try {
 			AssetManager assetMgr = AssetManager.class.newInstance();
 			Method addAssetPaths = AssetManager.class.getDeclaredMethod("addAssetPaths", String[].class);
@@ -62,7 +61,7 @@ public class PluginCreator {
 			Resources mainRes = application.getResources();
 			Resources pluginRes = new Resources(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
 
-			Log.e(LOG_TAG, "create Plugin Resource from: " + assetPaths[0] + ", " + assetPaths[1]);
+			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
 
 			return pluginRes;
 		} catch (Exception e) {
@@ -87,7 +86,7 @@ public class PluginCreator {
 			Resources mainRes = application.getResources();
 			Resources pluginRes = new Resources(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
 
-			Log.e(LOG_TAG, "create Plugin Resource from: " + assetPaths[0] + ", " + assetPaths[1]);
+			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
 
 			return pluginRes;
 		} catch (Exception e) {

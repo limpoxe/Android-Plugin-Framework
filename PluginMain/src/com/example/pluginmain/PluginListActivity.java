@@ -20,9 +20,9 @@ import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
-import com.plugin.core.PluginDescriptor;
+import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
-import com.plugin.util.ApkReader;
+import com.plugin.util.FileUtil;
 
 public class PluginListActivity extends Activity {
 
@@ -57,13 +57,28 @@ public class PluginListActivity extends Activity {
 						InputStream assestInput = getAssets().open("PluginTest-debug.apk");
 						String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath()
 								+ "/PluginTest-debug.apk";
-						if (ApkReader.copyFile(assestInput, sdcardDest)) {
+						if (FileUtil.copyFile(assestInput, sdcardDest)) {
 							PluginLoader.installPlugin(sdcardDest);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
 						Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
 					}
+					
+					try {
+						InputStream assestInput = getAssets().open("HelloWork.apk");
+						String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath()
+								+ "/HelloWork.apk";
+						if (FileUtil.copyFile(assestInput, sdcardDest)) {
+							PluginLoader.installPlugin(sdcardDest);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+						Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
+					}
+					
+				 
+					
 				}
 			}
 		});

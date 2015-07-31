@@ -4,19 +4,21 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+
+import com.plugin.core.PluginDispatcher;
 import com.plugin.core.PluginLoader;
+import com.plugin.util.LogUtil;
 /**
  * 一个非常普通的FragmentActivty， 用来展示一个fragment。
  * @author cailiming
  *
  */
-public class PluginNormalDisplayer extends FragmentActivity {
+public class PluginNormalFragmentActivity extends FragmentActivity {
 
-	private static final String LOG_TAG = PluginNormalDisplayer.class.getSimpleName();
+	private static final String LOG_TAG = PluginNormalFragmentActivity.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -31,8 +33,8 @@ public class PluginNormalDisplayer extends FragmentActivity {
 
 	private void loadPluginFragment() {
 		try {
-			String classId = getIntent().getStringExtra("classId");
-			Log.v(LOG_TAG, "loadPluginFragment, classId is " + classId);
+			String classId = getIntent().getStringExtra(PluginDispatcher.FRAGMENT_ID_IN_PLUGIN);
+			LogUtil.d(LOG_TAG, "loadPluginFragment, classId is " + classId);
 			@SuppressWarnings("rawtypes")
 			Class clazz = PluginLoader.loadPluginClassById(classId);
 			Fragment fragment = (Fragment) clazz.newInstance();

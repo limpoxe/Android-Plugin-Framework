@@ -1,14 +1,13 @@
-package com.plugin.core;
+package com.plugin.content;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.plugin.util.LogUtil;
+
 import android.app.Application;
 import android.content.Context;
-import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.util.Log;
 import dalvik.system.DexClassLoader;
 
 /**
@@ -26,13 +25,15 @@ public class PluginDescriptor implements Serializable {
 
 	private String description;
 
+	private boolean isStandalone;
+
 	private boolean isEnabled;
 
 	private String applicationName;
 	
 	private HashMap<String, String> fragments = new HashMap<String, String>();
 
-	private HashMap<String, ArrayList<IntentFilter>> components;
+	private HashMap<String, ArrayList<PluginIntentFilter>> components;
 
 	private String installedPath;
 
@@ -90,11 +91,11 @@ public class PluginDescriptor implements Serializable {
 		this.installedPath = installedPath;
 	}
 
-	public HashMap<String, ArrayList<IntentFilter>> getComponents() {
+	public HashMap<String, ArrayList<PluginIntentFilter>> getComponents() {
 		return components;
 	}
 
-	public void setComponents(HashMap<String, ArrayList<IntentFilter>> activities) {
+	public void setComponents(HashMap<String, ArrayList<PluginIntentFilter>> activities) {
 		this.components = activities;
 	}
 	
@@ -131,9 +132,9 @@ public class PluginDescriptor implements Serializable {
 		String clazzName = getFragments().get(clazzId);
 
 		if (clazzName == null) {
-			Log.d("PluginDescriptor", "clazzName not found for classId " + clazzId);
+			LogUtil.d("PluginDescriptor", "clazzName not found for classId ", clazzId);
 		} else {
-			Log.d("PluginDescriptor", "clazzName found: " + clazzName);
+			LogUtil.d("PluginDescriptor", "clazzName found ", clazzName);
 		}
 		return clazzName;
 	}
@@ -146,6 +147,14 @@ public class PluginDescriptor implements Serializable {
 		this.pluginApplication = pluginApplication;
 	}
 
+	public boolean isStandalone() {
+		return isStandalone;
+	}
+
+	public void setStandalone(boolean isStandalone) {
+		this.isStandalone = isStandalone;
+	}
+	
 	/**
 	 * 需要根据Id查询的只有fragment
 	 * @param clazzId

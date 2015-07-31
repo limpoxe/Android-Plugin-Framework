@@ -12,7 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.plugin.core.PluginLoader;
-import com.plugin.core.ui.PluginDispatcher;
+import com.plugin.core.PluginDispatcher;
 
 /**
  * 监听插件apk的安装广播， 并安装插件到宿主程序。
