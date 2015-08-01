@@ -11,8 +11,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginDispatcher;
+import com.plugin.core.PluginLoader;
 
 /**
  * 监听插件apk的安装广播， 并安装插件到宿主程序。

@@ -17,8 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginDispatcher;
+import com.plugin.core.PluginLoader;
 
 public class PluginDetailActivity extends Activity {
 	

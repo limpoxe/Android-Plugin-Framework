@@ -242,6 +242,9 @@ public class PluginLoader {
 		LogUtil.d("是否为独立插件", pluginDescriptor.isStandalone());
 		
 		Resources pluginRes = PluginCreator.createPluginResource(sApplication, pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone());
+		
+		checkPluginPublicXml(pluginRes);
+		
 		DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone());
 		Context pluginContext = PluginCreator
 				.createPluginApplicationContext(sApplication, pluginRes, pluginClassLoader);
@@ -277,6 +280,21 @@ public class PluginLoader {
 		}
 	}
 
+	private static boolean checkPluginPublicXml(Resources res) {
+		//"plugin_layout_1"资源id时由public.xml配置的
+		//如果没有检测到这个资源，说明编译时没有引入public.xml,
+		//这里直接抛个异常出去。
+		int publicStub = res.getIdentifier("plugin_layout_1", "layout", 
+				sApplication.getPackageName());
+		if (publicStub == 0) {
+			throw new IllegalStateException("\n插件工程没有使用public.xml给资源id分组！！！\n"
+					+ "插件工程没有使用public.xml给资源id分组！！！\n"
+					+ "插件工程没有使用public.xml给资源id分组！！！\n"
+					+ "重要的事情讲三遍！！！");
+		}
+		return true;
+	}
+	
 	private static synchronized boolean saveInstalledPlugins(Hashtable<String, PluginDescriptor> installedPlugins) {
 		
 		ObjectOutputStream objectOutputStream = null;
