@@ -82,7 +82,7 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 		if (v.getId() == R.id.plugin_test_btn1) {
 			View view = pluginInflater.inflate(R.layout.plugin_layout, null, false);
 			mRoot.addView(view);
-			Toast.makeText(this.getActivity(), getString(R.string.hello_world1), Toast.LENGTH_LONG).show();
+			Toast.makeText(this.getActivity(), pluginContext.getString(R.string.hello_world1), Toast.LENGTH_LONG).show();
 		} else if (v.getId() == R.id.plugin_test_btn2) {
 			View view = pluginInflater.inflate(com.example.pluginsharelib.R.layout.share_main, null, false);
 			mRoot.addView(view);
