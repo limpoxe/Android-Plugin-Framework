@@ -1,10 +1,6 @@
 package com.example.plugintest.activity;
 
-import com.example.plugintest.R;
-import com.plugin.core.PluginLoader;
-
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +11,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.example.plugintest.R;
 
 /**
  * 完整生命周期模式 不使用反射、也不使用代理，真真正证实现activity无需在Manifest中注册！
@@ -88,12 +86,5 @@ public class PluginNotInManifestActivity extends Activity implements OnClickList
 			((Button) v).setText(com.example.pluginsharelib.R.string.share_string_2);
 		}
 	}
-	
-	/**
-	 * 如果不用代理activity，而是要拥有完整生命周期，需重写如下方法
-	 */
-	@Override
-	protected void attachBaseContext(Context newBase) {
-		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
-	}
+
 }

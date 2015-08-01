@@ -1,10 +1,6 @@
 package com.example.plugintest.activity;
 
-import com.example.plugintest.R;
-import com.plugin.core.PluginLoader;
-
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +11,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.example.plugintest.R;
 
 /**
  * 插件中引用主程序资源文件需要显式的指定引用的R 因为主程序的资源id每次编译时都会变化 所以使用主程序资源id的时候必须使用引用
@@ -82,7 +80,7 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		Log.v("v.click 111", "" + v.getId());
+		Log.v("v.click 111", "" + v.getId() + " " + getResources().getClass().getName());
 		if (v.getId() == R.id.plugin_test_btn1) {
 			View view = mInflater.inflate(R.layout.plugin_layout, null, false);
 			mRoot.addView(view);
@@ -99,11 +97,4 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		}
 	}
 	
-	/**
-	 * 如果不用代理activity，而是要拥有完整生命周期，需重写如下方法
-	 */
-	@Override
-	protected void attachBaseContext(Context newBase) {
-		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
-	}
 }

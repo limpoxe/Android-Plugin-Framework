@@ -43,15 +43,24 @@ public class RefInvoker {
 
 	@SuppressWarnings("rawtypes")
 	public static Object getFieldObject(Object target, String className, String fieldName) {
+		Class clazz = null;
 		try {
-			Class clazz = Class.forName(className);
+			clazz = Class.forName(className);
 			Field field = clazz.getDeclaredField(fieldName);
 			field.setAccessible(true);
 			return field.get(target);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			//try supper for Miui, Miui has a class named MiuiPhoneWindow
+			try {
+				Field field = clazz.getSuperclass().getDeclaredField(fieldName);
+				field.setAccessible(true);
+				return field.get(target);
+			} catch (Exception superE) {
+				e.printStackTrace();
+				superE.printStackTrace();
+			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -70,15 +79,24 @@ public class RefInvoker {
 
 	@SuppressWarnings("rawtypes")
 	public static void setFieldObject(Object target, String className, String fieldName, Object fieldValue) {
+		Class clazz = null;
 		try {
-			Class clazz = Class.forName(className);
+			clazz = Class.forName(className);
 			Field field = clazz.getDeclaredField(fieldName);
 			field.setAccessible(true);
 			field.set(target, fieldValue);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			//try supper for Miui, Miui has a class named MiuiPhoneWindow
+			try {
+				Field field = clazz.getSuperclass().getDeclaredField(fieldName);
+				field.setAccessible(true);
+				field.set(target, fieldValue);
+			} catch (Exception superE) {
+				e.printStackTrace();
+				superE.printStackTrace();
+			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

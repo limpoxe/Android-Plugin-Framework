@@ -1,9 +1,6 @@
 package com.plugin.core;
 
-import com.plugin.core.ui.stub.PluginStubActivity;
-import com.plugin.util.LogUtil;
-import com.plugin.util.RefInvoker;
-
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -18,6 +15,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
+
+import com.plugin.core.ui.stub.PluginStubActivity;
+import com.plugin.util.LogUtil;
+import com.plugin.util.RefInvoker;
 
  /**
   * 插件Activity免注册的主要实现原理。
@@ -66,25 +68,45 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		return realInstrumention.newActivity(cl, className, intent);
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
 		
-		//先判断如果是插件Activity
-		//太可惜了，这里通过反射去attach总是失败
 		Intent intent = activity.getIntent();
-		if (false && intent.getComponent() != null) {
+		if (intent.getComponent() != null) {
 			if (intent.getComponent().getClassName().equals(PluginStubActivity.class.getName())) {
+				//为了不需要重写插件Activity的attachBaseContext方法为：
+				//@Override
+				//protected void attachBaseContext(Context newBase) {
+				//	super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
+				//}
+				//我们在activityoncreate之前去完成attachBaseContext的事情
 				
-				//attach base context已经被系统调用过了，所以这里需要通过反射的方式重置为插件Context
-				LogUtil.d("attach base context ", activity.getClass().getName());
+				//重设BaseContext
+				LogUtil.d("mBase attachBaseContext", activity.getClass().getName());
 				Context pluginContext = PluginLoader.getDefaultPluginContext(activity.getClass());
 				RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
 				RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext", 
 						new Class[]{Context.class}, 
 						new Object[]{pluginContext});
 
+				//重设LayoutInflater
+				LogUtil.d(activity.getWindow().getClass().getName());
+				RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(), 
+						"mLayoutInflater", LayoutInflater.from(pluginContext));
+				
+				//如果api>=11,还要重设factory2
+				if (Build.VERSION.SDK_INT >=11) {
+					RefInvoker.invokeMethod(activity.getWindow().getLayoutInflater(), LayoutInflater.class.getName(), "setPrivateFactory", 
+							new Class[]{LayoutInflater.Factory2.class}, 
+							new Object[]{activity});
+				}
+				
+				//由于在attach的时候Resource已经被初始化了，所以还需要重置Resource
+				RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), "mResources", null);
+                
+				//重设theme
 				ActivityInfo activityInfo = (ActivityInfo)RefInvoker.getFieldObject(activity, Activity.class.getName(), "mActivityInfo");
-				//重新设置theme
 				int theme = activityInfo.getThemeResource();
                 if (theme != 0) {
                 	RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), "mTheme", null);
