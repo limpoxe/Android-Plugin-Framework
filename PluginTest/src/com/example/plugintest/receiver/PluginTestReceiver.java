@@ -12,6 +12,9 @@ import android.widget.Toast;
  */
 public class PluginTestReceiver extends BroadcastReceiver {
 
+	/**
+	 * 这个context是主程序的Context，因此不能使用这个context去访问当前插件的资源
+	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
