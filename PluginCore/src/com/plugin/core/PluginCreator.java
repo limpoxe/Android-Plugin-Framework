@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 
 import com.plugin.util.LogUtil;
+import com.plugin.util.RefInvoker;
 
 import android.app.Activity;
 import android.app.Application;
@@ -33,7 +34,7 @@ public class PluginCreator {
 			return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(), null,
 					PluginLoader.class.getClassLoader().getParent());
 		}
-		
+
 	}
 
 	/**
@@ -45,22 +46,26 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static Resources createPluginResource(Application application, String absolutePluginApkPath, boolean isStandalone) {
+	public static Resources createPluginResource(Application application, String absolutePluginApkPath,
+			boolean isStandalone) {
 		try {
+			// 如果是独立插件的话，本来是可以不合并主程序资源的。
+			// 但是由于插件运行时可能会通过getActivityInfo等
+			// 会拿到到PluginStubActivity的ActivityInfo以及ApplicationInfo
+			// 这两个info里面有部分资源id是在宿主程序的Manifest中配置的，比如logo和icon
+			// 尝试通过插件Context获取这些资源会导致异常
+			// 所以这里强制合并资源。
+			// 强制合并资源，又需要另外一个前提条件，即id不重复。
+			// 所以不管是独立插件还是非独立插件，都需要在编译时引入public.xml文件来给资源id分组
+			String[] assetPaths = buildAssetPath(false, application.getApplicationInfo().sourceDir,
+					absolutePluginApkPath);
 			AssetManager assetMgr = AssetManager.class.newInstance();
-			Method addAssetPaths = AssetManager.class.getDeclaredMethod("addAssetPaths", String[].class);
-
-			//如果是独立插件的话，本来是可以不合并主程序资源的。
-			//但是由于插件运行时可能会通过getActivityInfo等
-			//会拿到到PluginStubActivity的ActivityInfo以及ApplicationInfo
-			//这两个info里面有部分资源id是在宿主程序的Manifest中配置的，比如logo和icon
-			//尝试通过插件Context获取这些资源会导致异常
-			//所以这里强制合并资源。
-			//强制合并资源，又需要另外一个前提条件，即id不重复。
-			//所以不管是独立插件还是非独立插件，都需要在编译时引入public.xml文件来给资源id分组
-			String[] assetPaths = buildAssetPath(false, application.getApplicationInfo().sourceDir, absolutePluginApkPath);
-					
-			addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
+			RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
+					new Class[] { String[].class }, new Object[] { assetPaths });
+			// Method addAssetPaths =
+			// AssetManager.class.getDeclaredMethod("addAssetPaths",
+			// String[].class);
+			// addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
 			Resources mainRes = application.getResources();
 			Resources pluginRes = new Resources(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
@@ -71,16 +76,17 @@ public class PluginCreator {
 		}
 		return null;
 	}
-	
+
 	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin) {
-		String[] assetPaths = new String[isStandalone?1:2];
-		
+		String[] assetPaths = new String[isStandalone ? 1 : 2];
+
 		if (!isStandalone) {
-			//不可更改顺序否则不能兼容4.x
+			// 不可更改顺序否则不能兼容4.x
 			assetPaths[0] = app;
 			assetPaths[1] = plugin;
-			if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND) || "Coolpad".equalsIgnoreCase(Build.BRAND)) {
-				//但是！！！如是OPPO或者vivo4.x系统的话 ，要吧这个顺序反过来，否则在混合模式下会找不到资源
+			if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)
+					|| "Coolpad".equalsIgnoreCase(Build.BRAND)) {
+				// 但是！！！如是OPPO或者vivo4.x系统的话 ，要吧这个顺序反过来，否则在混合模式下会找不到资源
 				assetPaths[0] = plugin;
 				assetPaths[1] = app;
 			}
@@ -89,19 +95,19 @@ public class PluginCreator {
 			assetPaths[0] = plugin;
 			LogUtil.d("create Plugin Resource from: ", assetPaths[0]);
 		}
-		
+
 		return assetPaths;
 
 	}
-	
-	/*package*/ static Resources createPluginResourceFor5(Application application, String absolutePluginApkPath) {
+
+	/* package */static Resources createPluginResourceFor5(Application application, String absolutePluginApkPath) {
 		try {
 			AssetManager assetMgr = AssetManager.class.newInstance();
 			Method addAssetPaths = AssetManager.class.getDeclaredMethod("addAssetPaths", String[].class);
 
 			String[] assetPaths = new String[2];
 
-			//不可更改顺序否则不能兼容4.x
+			// 不可更改顺序否则不能兼容4.x
 			assetPaths[0] = absolutePluginApkPath;
 			assetPaths[1] = application.getApplicationInfo().sourceDir;
 
