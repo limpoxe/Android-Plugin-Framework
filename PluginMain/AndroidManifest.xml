@@ -9,6 +9,7 @@
         android:targetSdkVersion="21" />
 
     <uses-permission  android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission  android:name="android.permission.INTERNET"/>
     
     <application
         android:name="com.plugin.core.PluginApplication"

@@ -29,7 +29,7 @@ public class PluginListActivity extends Activity {
 	private ViewGroup mList;
 	private Button install;
 	boolean isInstalled = false;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,12 +38,12 @@ public class PluginListActivity extends Activity {
 		// 这行代码应当在Application的onCreate中执行。
 		PluginLoader.initLoader(getApplication());
 
-		//监听插件安装  安装新插件后刷新当前页面 
+		// 监听插件安装 安装新插件后刷新当前页面
 		registerReceiver(pluginChange, new IntentFilter(PluginLoader.ACTION_PLUGIN_CHANGED));
 
 		initView();
 	}
-	
+
 	private void initView() {
 		install = (Button) findViewById(R.id.install);
 		install.setOnClickListener(new View.OnClickListener() {
@@ -52,33 +52,11 @@ public class PluginListActivity extends Activity {
 			public void onClick(View v) {
 				if (!isInstalled) {
 					isInstalled = true;
-					Toast.makeText(PluginListActivity.this, "开始安装", Toast.LENGTH_LONG).show();
-					try {
-						InputStream assestInput = getAssets().open("PluginTest-debug.apk");
-						String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath()
-								+ "/PluginTest-debug.apk";
-						if (FileUtil.copyFile(assestInput, sdcardDest)) {
-							PluginLoader.installPlugin(sdcardDest);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-						Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
-					}
-					
-					try {
-						InputStream assestInput = getAssets().open("HelloWork.apk");
-						String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath()
-								+ "/HelloWork.apk";
-						if (FileUtil.copyFile(assestInput, sdcardDest)) {
-							PluginLoader.installPlugin(sdcardDest);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-						Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
-					}
-					
-				 
-					
+
+					copyAndInstall("PluginTest-debug.apk");
+					copyAndInstall("HelloWork.apk");
+					// copyAndInstall("Game1-debug.apk");
+
 				}
 			}
 		});
@@ -86,7 +64,20 @@ public class PluginListActivity extends Activity {
 		mList = (ViewGroup) findViewById(R.id.list);
 		listAll(mList);
 	}
-	
+
+	private void copyAndInstall(String name) {
+		try {
+			InputStream assestInput = getAssets().open(name);
+			String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + name;
+			if (FileUtil.copyFile(assestInput, sdcardDest)) {
+				PluginLoader.installPlugin(sdcardDest);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			Toast.makeText(PluginListActivity.this, "安装失败", Toast.LENGTH_LONG).show();
+		}
+	}
+
 	private void listAll(ViewGroup root) {
 		root.removeAllViews();
 
@@ -107,7 +98,7 @@ public class PluginListActivity extends Activity {
 					startActivity(intent);
 				}
 			});
-			
+
 			LayoutParams layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 			layoutParam.topMargin = 10;
 			layoutParam.bottomMargin = 10;
@@ -115,7 +106,7 @@ public class PluginListActivity extends Activity {
 			root.addView(button, layoutParam);
 		}
 	}
-	
+
 	private final BroadcastReceiver pluginChange = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
