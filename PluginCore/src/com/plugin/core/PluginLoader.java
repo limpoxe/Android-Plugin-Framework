@@ -242,8 +242,6 @@ public class PluginLoader {
 		Resources pluginRes = PluginCreator.createPluginResource(sApplication, pluginDescriptor.getInstalledPath(),
 				pluginDescriptor.isStandalone());
 
-		checkPluginPublicXml(pluginRes, pluginDescriptor.getPackageName());
-
 		DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
 				pluginDescriptor.isStandalone());
 		Context pluginContext = PluginCreator
@@ -253,10 +251,17 @@ public class PluginLoader {
 		pluginDescriptor.setPluginContext(pluginContext);
 		pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 
-		if (pluginDescriptor.getApplicationName() != null && pluginDescriptor.getPluginApplication() == null) {
+		checkPluginPublicXml(pluginDescriptor, pluginRes);
+
+		callPluginApplicationOncreate(pluginDescriptor);
+	}
+
+	private static void callPluginApplicationOncreate(PluginDescriptor pluginDescriptor) {
+		if (pluginDescriptor.getApplicationName() != null && pluginDescriptor.getPluginApplication() == null
+				&& pluginDescriptor.getPluginClassLoader() != null) {
 			try {
-				Class pluginApplicationClass = ((ClassLoader) pluginClassLoader).loadClass(pluginDescriptor
-						.getApplicationName());
+				Class pluginApplicationClass = ((ClassLoader) pluginDescriptor.getPluginClassLoader())
+						.loadClass(pluginDescriptor.getApplicationName());
 				Application application = (Application) pluginApplicationClass.newInstance();
 
 				RefInvoker.invokeMethod(application, "android.app.Application", "attach",
@@ -280,18 +285,32 @@ public class PluginLoader {
 		}
 	}
 
-	private static boolean checkPluginPublicXml(Resources res, String pluginPackageName) {
+	private static boolean checkPluginPublicXml(PluginDescriptor pluginDescriptor, Resources res) {
 
 		// "plugin_layout_1"资源id时由public.xml配置的
 		// 如果没有检测到这个资源，说明编译时没有引入public.xml,
 		// 这里直接抛个异常出去。
 		// 不同的系统版本获取id的方式不同，
-		// 4.x系统适用???
-		int publicStub = res.getIdentifier("plugin_layout_1", "layout", pluginPackageName);
+		// 三星4.x等系统适用
+		int publicStub = res.getIdentifier("plugin_layout_1", "layout", pluginDescriptor.getPackageName());
 		if (publicStub == 0) {
-			// 5.x系统适用??
+			// 小米5.x等系统适用
 			publicStub = res.getIdentifier("plugin_layout_1", "layout", sApplication.getPackageName());
 		}
+		if (publicStub == 0) {
+			try {
+				// 如果以上两种方式都检测失败，最后尝试通过反射检测
+				Class layoutClass = ((ClassLoader) pluginDescriptor.getPluginClassLoader()).loadClass(pluginDescriptor
+						.getPackageName() + ".R$layout");
+				Integer layouId = (Integer) RefInvoker.getFieldObject(null, layoutClass, "plugin_layout_1");
+				if (layouId != null) {
+					publicStub = layouId;
+				}
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+
 		if (publicStub == 0) {
 			throw new IllegalStateException("\n插件工程没有使用public.xml给资源id分组！！！\n" + "插件工程没有使用public.xml给资源id分组！！！\n"
 					+ "插件工程没有使用public.xml给资源id分组！！！\n" + "重要的事情讲三遍！！！");
