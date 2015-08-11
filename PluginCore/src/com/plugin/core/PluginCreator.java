@@ -68,7 +68,7 @@ public class PluginCreator {
 			// addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
 			Resources mainRes = application.getResources();
-			Resources pluginRes = new Resources(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
+			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
 
 			return pluginRes;
 		} catch (Exception e) {
@@ -114,7 +114,7 @@ public class PluginCreator {
 			addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
 			Resources mainRes = application.getResources();
-			Resources pluginRes = new Resources(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
+			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
 
 			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
 
