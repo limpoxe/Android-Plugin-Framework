@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Service;
+import android.app.Instrumentation.ActivityMonitor;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -51,7 +52,6 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public Activity newActivity(ClassLoader cl, String className, Intent intent)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
-
 		//将PluginStubActivity替换成插件中的activity
 		if (className.equals(PluginStubActivity.class.getName())) {
 			LogUtil.d("className", className, intent.toUri(0));
@@ -68,9 +68,24 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		return realInstrumention.newActivity(cl, className, intent);
 	}
 
+	private static void checkInstrumetionFor360Safe(Activity activity) {
+		//检查mInstrumention是否已经替换成功。
+		//之所以要检查，是因为如果手机上安装了360手机卫士等app，它们可能会劫持用户app的ActivityThread对象，
+		//导致在PluginApplication的onCreate方法里面替换mInstrumention可能会失败
+		//所以这里再做一次检查
+		Instrumentation instrumention = (Instrumentation)RefInvoker.getFieldObject(activity, Activity.class.getName(), "mInstrumentation");
+		if (!(instrumention instanceof PluginInstrumentionWrapper)) {
+			//说明被360还原了，这里再次尝试替换
+			RefInvoker.setFieldObject(activity, Activity.class.getName(), "mInstrumentation",
+					new PluginInstrumentionWrapper(instrumention));
+		}
+	}
+	
 	@SuppressLint("NewApi")
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
+		
+		checkInstrumetionFor360Safe(activity);
 		
 		Intent intent = activity.getIntent();
 		if (intent.getComponent() != null) {
@@ -117,6 +132,72 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		
 		realInstrumention.callActivityOnCreate(activity, icicle);
 	}
+	
+	@Override
+    public void callActivityOnDestroy(Activity activity) {
+		checkInstrumetionFor360Safe(activity);
+		super.callActivityOnDestroy(activity);
+    }
+
+	@Override
+    public void callActivityOnRestoreInstanceState(Activity activity, Bundle savedInstanceState) {
+		checkInstrumetionFor360Safe(activity);
+    	super.callActivityOnRestoreInstanceState(activity, savedInstanceState);
+    }
+
+	@Override
+    public void callActivityOnPostCreate(Activity activity, Bundle icicle) {
+		checkInstrumetionFor360Safe(activity);
+    	super.callActivityOnPostCreate(activity, icicle);
+    }
+
+	@Override
+    public void callActivityOnNewIntent(Activity activity, Intent intent) {
+		checkInstrumetionFor360Safe(activity);
+        super.callActivityOnNewIntent(activity, intent);
+    }
+
+	@Override
+    public void callActivityOnStart(Activity activity) {
+		checkInstrumetionFor360Safe(activity);
+        super.callActivityOnStart(activity);
+    }
+
+	@Override
+    public void callActivityOnRestart(Activity activity) {
+		checkInstrumetionFor360Safe(activity);
+        super.callActivityOnRestart(activity);
+    }
+
+	@Override
+    public void callActivityOnResume(Activity activity) {
+		checkInstrumetionFor360Safe(activity);
+        super.callActivityOnResume(activity);
+    }
+
+	@Override
+    public void callActivityOnStop(Activity activity) {
+		checkInstrumetionFor360Safe(activity);
+    	super.callActivityOnStop(activity);
+    }
+
+	@Override
+    public void callActivityOnSaveInstanceState(Activity activity, Bundle outState) {
+		checkInstrumetionFor360Safe(activity);
+        super.callActivityOnSaveInstanceState(activity, outState);
+    }
+
+    @Override
+    public void callActivityOnPause(Activity activity) {
+    	checkInstrumetionFor360Safe(activity);
+        super.callActivityOnPause(activity);
+    }
+    
+    @Override
+    public void callActivityOnUserLeaving(Activity activity) {
+    	checkInstrumetionFor360Safe(activity);
+        super.callActivityOnUserLeaving(activity);
+    }
 	
 	public ActivityResult execStartActivity(
             Context who, IBinder contextThread, IBinder token, Activity target,
