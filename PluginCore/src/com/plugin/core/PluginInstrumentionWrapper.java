@@ -292,7 +292,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		return (ActivityResult)result;
     }
     
-    private static void resloveIntent(Intent intent) {
+    /*package*/ static void resloveIntent(Intent intent) {
     	//如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
     	String className = PluginLoader.isMatchPlugin(intent);
     	if (className != null) {

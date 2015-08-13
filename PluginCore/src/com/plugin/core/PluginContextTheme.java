@@ -1,9 +1,14 @@
 package com.plugin.core;
 
+import com.plugin.core.ui.stub.PluginStubReceiver;
+import com.plugin.core.ui.stub.PluginStubService;
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -89,5 +94,42 @@ public class PluginContextTheme extends ContextWrapper {
         }
         mTheme.applyStyle(mThemeResource, true);
     }
+    
+   @Override
+	public void sendBroadcast(Intent intent) {
+	    LogUtil.d("sendBroadcast", intent.toUri(0)); 
+	    Intent realIntent = intent;
+		if (PluginDispatcher.hackClassLoadForReceiverIfNeeded(intent)) {
+			realIntent = new Intent();
+			realIntent.setClass(PluginLoader.getApplicatoin(), PluginStubReceiver.class);
+			realIntent.putExtra(PluginDispatcher.RECEIVER_ID_IN_PLUGIN, intent);
+		}
+		super.sendBroadcast(realIntent);
+	}
+   
+   @Override
+   public ComponentName startService(Intent service) {
+	   LogUtil.d("startService", service.toUri(0));
+	   if (PluginDispatcher.hackClassLoadForServiceIfNeeded(service)) {
+		   service.setClass(PluginLoader.getApplicatoin(), PluginStubService.class);	
+		}
+	   return super.startService(service);
+   }
+   
+   @Override
+   public void startActivity(Intent intent) {
+	   LogUtil.d("startActivity", intent.toUri(0));
+	   PluginInstrumentionWrapper.resloveIntent(intent);
+	   super.startActivity(intent);
+   }
+   
+//   @Override
+//   public Context getApplicationContext() {
+//	   if (getBaseContext() instanceof Activity) {
+//		   return super.getApplicationContext();
+//	   } else {
+//		   return this;
+//	   }
+//   }
 }
 

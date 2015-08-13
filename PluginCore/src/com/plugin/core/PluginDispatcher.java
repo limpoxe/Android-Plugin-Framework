@@ -111,7 +111,7 @@ public class PluginDispatcher {
 	 * @param intent
 	 * @return
 	 */
-	private static boolean hackClassLoadForServiceIfNeeded(Intent intent) {
+	 /*package*/ static boolean hackClassLoadForServiceIfNeeded(Intent intent) {
 		String targetClassName = PluginLoader.isMatchPlugin(intent);
 		if (targetClassName != null) {
 			Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(), "mLoadedApk");
@@ -132,7 +132,7 @@ public class PluginDispatcher {
 		return false;
 	}
 	
-	private static boolean hackClassLoadForReceiverIfNeeded(Intent intent) {
+	 /*package*/ static boolean hackClassLoadForReceiverIfNeeded(Intent intent) {
 		//如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
 		//不需要在这里记录目标className，className将在Intent中传递
 		if (PluginLoader.isMatchPlugin(intent) != null) {
