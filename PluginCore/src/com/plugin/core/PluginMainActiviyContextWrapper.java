@@ -123,7 +123,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 	}
 
 	public int getThemeResId() {
-		return (int) RefInvoker.invokeMethod(mBase, Context.class.getName(), "getThemeResId", (Class[]) null,
+		return (Integer) RefInvoker.invokeMethod(mBase, Context.class.getName(), "getThemeResId", (Class[]) null,
 				(Object[]) null);
 	}
 
@@ -208,6 +208,9 @@ public class PluginMainActiviyContextWrapper extends Context {
 		return mBase.getFilesDir();
 	}
 
+	/**
+	 * API 21
+	 */
 	@Override
 	public File getNoBackupFilesDir() {
 		return mBase.getNoBackupFilesDir();
@@ -238,6 +241,9 @@ public class PluginMainActiviyContextWrapper extends Context {
 		return mBase.getCacheDir();
 	}
 
+	/**
+	 * API 21
+	 */
 	@Override
 	public File getCodeCacheDir() {
 		return mBase.getCodeCacheDir();
@@ -253,6 +259,9 @@ public class PluginMainActiviyContextWrapper extends Context {
 		return mBase.getExternalCacheDirs();
 	}
 
+	/**
+	 * API 21
+	 */
 	@Override
 	public File[] getExternalMediaDirs() {
 		return mBase.getExternalMediaDirs();
@@ -516,7 +525,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public boolean stopServiceAsUser(Intent name, UserHandle user) {
-		return (boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "stopServiceAsUser", new Class[] {
+		return (Boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "stopServiceAsUser", new Class[] {
 				Intent.class, UserHandle.class }, new Object[] { name, user });
 	}
 
@@ -527,7 +536,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public boolean bindServiceAsUser(Intent service, ServiceConnection conn, int flags, UserHandle user) {
-		return (boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "bindServiceAsUser", new Class[] {
+		return (Boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "bindServiceAsUser", new Class[] {
 				Intent.class, ServiceConnection.class, int.class, UserHandle.class }, new Object[] { service, conn,
 				flags, user });
 	}
@@ -648,7 +657,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 	}
 
 	public int getUserId() {
-		return (int) RefInvoker.invokeMethod(mBase, Context.class.getName(), "getUserId", (Class[]) null,
+		return (Integer) RefInvoker.invokeMethod(mBase, Context.class.getName(), "getUserId", (Class[]) null,
 				(Object[]) null);
 	}
 
