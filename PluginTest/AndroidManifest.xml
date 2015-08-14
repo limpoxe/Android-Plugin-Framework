@@ -78,6 +78,17 @@
             </intent-filter>
         </activity>
         
+        <activity
+            android:name="com.example.plugintest.activity.PluginTestOpenPluginActivity" >
+            <intent-filter>
+                <action
+                    android:name="test.zxc" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
         <!-- for classLoader -->
         <service android:name="com.example.plugintest.service.PluginTestService">
             <intent-filter>
