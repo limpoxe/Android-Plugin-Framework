@@ -87,46 +87,52 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		checkInstrumetionFor360Safe(activity);
 
 		Intent intent = activity.getIntent();
-		if (intent.getComponent() != null) {
-			if (intent.getComponent().getClassName().equals(PluginStubActivity.class.getName())) {
-				// 为了不需要重写插件Activity的attachBaseContext方法为：
-				// @Override
-				// protected void attachBaseContext(Context newBase) {
-				// super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
-				// }
-				// 我们在activityoncreate之前去完成attachBaseContext的事情
+		// 如果是打开插件中的activity
+		if (intent.getComponent() != null
+				&& intent.getComponent().getClassName().equals(PluginStubActivity.class.getName())) {
+			// 为了不需要重写插件Activity的attachBaseContext方法为：
+			// @Override
+			// protected void attachBaseContext(Context newBase) {
+			// super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginNotInManifestActivity.class));
+			// }
+			// 我们在activityoncreate之前去完成attachBaseContext的事情
 
-				// 重设BaseContext
-				LogUtil.d("mBase attachBaseContext", activity.getClass().getName());
-				Context pluginContext = PluginLoader.getDefaultPluginContext(activity.getClass());
-				RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
-				RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext",
-						new Class[] { Context.class }, new Object[] { pluginContext });
+			// 重设BaseContext
+			LogUtil.d("mBase attachBaseContext", activity.getClass().getName());
+			Context pluginContext = PluginLoader.getDefaultPluginContext(activity.getClass());
+			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
+			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext",
+					new Class[] { Context.class }, new Object[] { pluginContext });
 
-				// 重设LayoutInflater
-				LogUtil.d(activity.getWindow().getClass().getName());
-				RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
-						"mLayoutInflater", LayoutInflater.from(pluginContext));
+			// 重设LayoutInflater
+			LogUtil.d(activity.getWindow().getClass().getName());
+			RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
+					"mLayoutInflater", LayoutInflater.from(pluginContext));
 
-				// 如果api>=11,还要重设factory2
-				if (Build.VERSION.SDK_INT >= 11) {
-					RefInvoker.invokeMethod(activity.getWindow().getLayoutInflater(), LayoutInflater.class.getName(),
-							"setPrivateFactory", new Class[] { LayoutInflater.Factory2.class },
-							new Object[] { activity });
-				}
-
-				// 由于在attach的时候Resource已经被初始化了，所以还需要重置Resource
-				RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), "mResources", null);
-
-				// 重设theme
-				ActivityInfo activityInfo = (ActivityInfo) RefInvoker.getFieldObject(activity,
-						Activity.class.getName(), "mActivityInfo");
-				int theme = activityInfo.getThemeResource();
-				if (theme != 0) {
-					RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), "mTheme", null);
-					activity.setTheme(theme);
-				}
+			// 如果api>=11,还要重设factory2
+			if (Build.VERSION.SDK_INT >= 11) {
+				RefInvoker.invokeMethod(activity.getWindow().getLayoutInflater(), LayoutInflater.class.getName(),
+						"setPrivateFactory", new Class[] { LayoutInflater.Factory2.class }, new Object[] { activity });
 			}
+
+			// 由于在attach的时候Resource已经被初始化了，所以还需要重置Resource
+			RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), "mResources", null);
+
+			// 重设theme
+			ActivityInfo activityInfo = (ActivityInfo) RefInvoker.getFieldObject(activity, Activity.class.getName(),
+					"mActivityInfo");
+			int theme = activityInfo.getThemeResource();
+			if (theme != 0) {
+				RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), "mTheme", null);
+				activity.setTheme(theme);
+			}
+		} else {
+			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象
+			// 插入Context
+			Context mainContext = new PluginMainActiviyContextWrapper(activity.getBaseContext());
+			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
+			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext",
+					new Class[] { Context.class }, new Object[] { mainContext });
 		}
 
 		realInstrumention.callActivityOnCreate(activity, icicle);

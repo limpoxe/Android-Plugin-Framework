@@ -134,15 +134,18 @@ public class PluginDetailActivity extends Activity {
 							Intent intent = new Intent();
 							intent.setClassName(PluginDetailActivity.this, entry);
 							intent.putExtra("testParam", "testParam");
-							PluginDispatcher.startService(PluginDetailActivity.this, intent);
-
+							// PluginDispatcher.startService(PluginDetailActivity.this,
+							// intent);
+							startService(intent);
+							stopService(intent);
 						} else if (entry.contains("Receiver")) {// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
 
 							Intent intent = new Intent();
 							intent.setClassName(PluginDetailActivity.this, entry);
 							intent.putExtra("testParam", "testParam");
-							PluginDispatcher.sendBroadcast(PluginDetailActivity.this, intent);
-
+							// PluginDispatcher.sendBroadcast(PluginDetailActivity.this,
+							// intent);
+							sendBroadcast(intent);
 						} else {
 							// PluginDispatcher.startProxyActivity(PluginDetailActivity.this,
 							// entry.getKey());

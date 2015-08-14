@@ -51,12 +51,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.plugin.core.ui.stub.PluginStubReceiver;
+import com.plugin.core.ui.stub.PluginStubService;
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 /**
  * Proxying implementation of Context that simply delegates all of its calls to
  * another Context. Can be subclassed to modify behavior without changing the
  * original Context.
+ * 
+ * 目前只在startService 和 sendbroadcast中插入了Intent预处理的逻辑 如有必要，可以往更多的重载的方法中插入预处理
  */
 public class PluginMainActiviyContextWrapper extends Context {
 	Context mBase;
@@ -386,7 +391,14 @@ public class PluginMainActiviyContextWrapper extends Context {
 
 	@Override
 	public void sendBroadcast(Intent intent) {
-		mBase.sendBroadcast(intent);
+		LogUtil.d(intent);
+		Intent realIntent = intent;
+		if (PluginDispatcher.hackClassLoadForReceiverIfNeeded(intent)) {
+			realIntent = new Intent();
+			realIntent.setClass(PluginLoader.getApplicatoin(), PluginStubReceiver.class);
+			realIntent.putExtra(PluginDispatcher.RECEIVER_ID_IN_PLUGIN, intent);
+		}
+		mBase.sendBroadcast(realIntent);
 	}
 
 	@Override
@@ -509,22 +521,38 @@ public class PluginMainActiviyContextWrapper extends Context {
 
 	@Override
 	public ComponentName startService(Intent service) {
+		LogUtil.d(service);
+		if (PluginDispatcher.hackClassLoadForServiceIfNeeded(service)) {
+			service.setClass(this, PluginStubService.class);
+		}
 		return mBase.startService(service);
 	}
 
 	@Override
 	public boolean stopService(Intent name) {
+		LogUtil.d(name);
+		if (PluginDispatcher.hackClassLoadForServiceIfNeeded(name)) {
+			name.setClass(this, PluginStubService.class);
+		}
 		return mBase.stopService(name);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public ComponentName startServiceAsUser(Intent service, UserHandle user) {
+		LogUtil.d(service);
+		if (PluginDispatcher.hackClassLoadForServiceIfNeeded(service)) {
+			service.setClass(this, PluginStubService.class);
+		}
 		return (ComponentName) RefInvoker.invokeMethod(mBase, Context.class.getName(), "startServiceAsUser",
 				new Class[] { Intent.class, UserHandle.class }, new Object[] { service, user });
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public boolean stopServiceAsUser(Intent name, UserHandle user) {
+		LogUtil.d(name);
+		if (PluginDispatcher.hackClassLoadForServiceIfNeeded(name)) {
+			name.setClass(this, PluginStubService.class);
+		}
 		return (Boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "stopServiceAsUser", new Class[] {
 				Intent.class, UserHandle.class }, new Object[] { name, user });
 	}
