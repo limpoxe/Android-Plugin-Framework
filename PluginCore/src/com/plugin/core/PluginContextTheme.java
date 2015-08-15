@@ -128,6 +128,9 @@ public class PluginContextTheme extends ContextWrapper {
 		return super.stopService(name);
 	}
 
+	/**
+	 * startActivity有很多重载的方法，如有必要，可以相应的重写
+	 */
 	@Override
 	public void startActivity(Intent intent) {
 		LogUtil.d("startActivity", intent.toUri(0));

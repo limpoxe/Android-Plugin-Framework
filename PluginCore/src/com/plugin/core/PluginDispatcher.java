@@ -68,17 +68,17 @@ public class PluginDispatcher {
 	/**
 	 * 放弃代理模式了。采用Activity免注册方式
 	 */
-	@Deprecated
-	public static void startProxyActivity(Context context, String targetId) {
+	// @Deprecated
+	// public static void startProxyActivity(Context context, String targetId) {
 
-		// Intent pluginActivity = new Intent();
-		// pluginActivity.setClass(context, PluginProxyActivity.class);
-		// pluginActivity.putExtra(ACTIVITY_ID_IN_PLUGIN,
-		// resloveTarget(targetId));
-		// pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		// context.startActivity(pluginActivity);
+	// Intent pluginActivity = new Intent();
+	// pluginActivity.setClass(context, PluginProxyActivity.class);
+	// pluginActivity.putExtra(ACTIVITY_ID_IN_PLUGIN,
+	// resloveTarget(targetId));
+	// pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	// context.startActivity(pluginActivity);
 
-	}
+	// }
 
 	/**
 	 * 可以通过重写基类的startServie方法，会比较方便
