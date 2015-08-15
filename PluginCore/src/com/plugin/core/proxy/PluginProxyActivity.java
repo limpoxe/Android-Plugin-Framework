@@ -1,4 +1,4 @@
-package com.plugin.core.ui;
+package com.plugin.core.proxy;
 
 import android.app.Activity;
 import android.content.Context;

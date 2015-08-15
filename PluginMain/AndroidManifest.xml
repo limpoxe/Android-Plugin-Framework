@@ -28,7 +28,7 @@
         </activity>
         
         <activity
-            android:name="com.plugin.core.ui.PluginProxyActivity"
+            android:name="com.plugin.core.proxy.PluginProxyActivity"
             android:exported="true" >
         </activity>
         
