@@ -7,10 +7,10 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 
+import com.plugin.core.proxy.PluginProxyService;
 import com.plugin.core.ui.PluginNormalFragmentActivity;
 import com.plugin.core.ui.PluginSpecFragmentActivity;
 import com.plugin.core.ui.stub.PluginStubReceiver;
-import com.plugin.core.ui.stub.PluginStubService;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -118,7 +118,7 @@ public class PluginFragmentHelper {
 	 * @param intent
 	 * @return
 	 */
-	/* package */static boolean hackClassLoadForServiceIfNeeded(Intent intent) {
+	private static boolean hackClassLoadForServiceIfNeeded(Intent intent) {
 		String targetClassName = PluginLoader.isMatchPlugin(intent);
 		if (targetClassName != null) {
 			Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(),
@@ -137,6 +137,14 @@ public class PluginFragmentHelper {
 			return true;
 		}
 		return false;
+	}
+
+	public static void resolveService(Intent service) {
+		String targetClassName = PluginLoader.isMatchPlugin(service);
+		if (targetClassName != null) {
+			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
+			service.putExtra(PluginProxyService.SERVICE_NAME, targetClassName);
+		}
 	}
 
 	/* package */static boolean hackClassLoadForReceiverIfNeeded(Intent intent) {
@@ -173,17 +181,19 @@ public class PluginFragmentHelper {
 		@Override
 		protected Class<?> loadClass(String className, boolean resolve) throws ClassNotFoundException {
 
-			if (className.equals(PluginStubService.class.getName())) {
-				String target = mServiceClassQueue.poll();
-				LogUtil.d("PluginAppTrace", "className ", className, "target", target);
-				if (target != null) {
-					@SuppressWarnings("rawtypes")
-					Class clazz = PluginLoader.loadPluginClassByName(target);
-					if (clazz != null) {
-						return clazz;
-					}
-				}
-			} else if (className.startsWith(PluginStubReceiver.class.getName() + ".")) {
+			// if (className.equals(PluginStubService.class.getName())) {
+			// String target = mServiceClassQueue.poll();
+			// LogUtil.d("PluginAppTrace", "className ", className, "target",
+			// target);
+			// if (target != null) {
+			// @SuppressWarnings("rawtypes")
+			// Class clazz = PluginLoader.loadPluginClassByName(target);
+			// if (clazz != null) {
+			// return clazz;
+			// }
+			// }
+			// } else
+			if (className.startsWith(PluginStubReceiver.class.getName() + ".")) {
 				String realName = className.replace(PluginStubReceiver.class.getName() + ".", "");
 				LogUtil.d("PluginAppTrace", "className ", className, "target", realName);
 				Class clazz = PluginLoader.loadPluginClassByName(realName);

@@ -16,6 +16,13 @@
 
 package com.plugin.core;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -44,15 +51,8 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.view.Display;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
+import com.plugin.core.proxy.PluginProxyService;
 import com.plugin.core.ui.stub.PluginStubReceiver;
-import com.plugin.core.ui.stub.PluginStubService;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -522,17 +522,18 @@ public class PluginMainActiviyContextWrapper extends Context {
 	@Override
 	public ComponentName startService(Intent service) {
 		LogUtil.d(service);
-		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(service)) {
-			service.setClass(this, PluginStubService.class);
-		}
+		PluginFragmentHelper.resolveService(service);
 		return mBase.startService(service);
 	}
 
 	@Override
 	public boolean stopService(Intent name) {
 		LogUtil.d(name);
-		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(name)) {
-			name.setClass(this, PluginStubService.class);
+		if (PluginLoader.isMatchPlugin(name) != null) {
+			PluginFragmentHelper.resolveService(name);
+			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
+			mBase.startService(name);
+			return false;
 		}
 		return mBase.stopService(name);
 	}
@@ -540,9 +541,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public ComponentName startServiceAsUser(Intent service, UserHandle user) {
 		LogUtil.d(service);
-		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(service)) {
-			service.setClass(this, PluginStubService.class);
-		}
+		PluginFragmentHelper.resolveService(service);
 		return (ComponentName) RefInvoker.invokeMethod(mBase, Context.class.getName(), "startServiceAsUser",
 				new Class[] { Intent.class, UserHandle.class }, new Object[] { service, user });
 	}
@@ -550,8 +549,11 @@ public class PluginMainActiviyContextWrapper extends Context {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public boolean stopServiceAsUser(Intent name, UserHandle user) {
 		LogUtil.d(name);
-		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(name)) {
-			name.setClass(this, PluginStubService.class);
+		if (PluginLoader.isMatchPlugin(name) != null) {
+			PluginFragmentHelper.resolveService(name);
+			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
+			mBase.startService(name);
+			return false;
 		}
 		return (Boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "stopServiceAsUser", new Class[] {
 				Intent.class, UserHandle.class }, new Object[] { name, user });

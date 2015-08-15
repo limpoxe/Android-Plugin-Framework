@@ -1,10 +1,5 @@
 package com.plugin.core;
 
-import com.plugin.core.ui.stub.PluginStubReceiver;
-import com.plugin.core.ui.stub.PluginStubService;
-import com.plugin.util.LogUtil;
-import com.plugin.util.RefInvoker;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -12,6 +7,11 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
+
+import com.plugin.core.proxy.PluginProxyService;
+import com.plugin.core.ui.stub.PluginStubReceiver;
+import com.plugin.util.LogUtil;
+import com.plugin.util.RefInvoker;
 
 public class PluginContextTheme extends ContextWrapper {
 	private int mThemeResource;
@@ -113,17 +113,18 @@ public class PluginContextTheme extends ContextWrapper {
 	@Override
 	public ComponentName startService(Intent service) {
 		LogUtil.d("startService", service.toUri(0));
-		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(service)) {
-			service.setClass(PluginLoader.getApplicatoin(), PluginStubService.class);
-		}
+		PluginFragmentHelper.resolveService(service);
 		return super.startService(service);
 	}
 
 	@Override
 	public boolean stopService(Intent name) {
 		LogUtil.d("stopService", name.toUri(0));
-		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(name)) {
-			name.setClass(PluginLoader.getApplicatoin(), PluginStubService.class);
+		if (PluginLoader.isMatchPlugin(name) != null) {
+			PluginFragmentHelper.resolveService(name);
+			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
+			super.startService(name);
+			return false;
 		}
 		return super.stopService(name);
 	}
