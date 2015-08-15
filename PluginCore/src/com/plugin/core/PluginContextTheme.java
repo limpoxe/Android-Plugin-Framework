@@ -8,8 +8,6 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 
-import com.plugin.core.proxy.PluginProxyService;
-import com.plugin.core.ui.stub.PluginStubReceiver;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -101,32 +99,26 @@ public class PluginContextTheme extends ContextWrapper {
 	@Override
 	public void sendBroadcast(Intent intent) {
 		LogUtil.d("sendBroadcast", intent.toUri(0));
-		Intent realIntent = intent;
-		if (PluginFragmentHelper.hackClassLoadForReceiverIfNeeded(intent)) {
-			realIntent = new Intent();
-			realIntent.setClass(PluginLoader.getApplicatoin(), PluginStubReceiver.class);
-			realIntent.putExtra(PluginFragmentHelper.RECEIVER_ID_IN_PLUGIN, intent);
-		}
-		super.sendBroadcast(realIntent);
+		intent = PluginIntentResolver.resolveReceiver(intent);
+		super.sendBroadcast(intent);
 	}
 
 	@Override
 	public ComponentName startService(Intent service) {
 		LogUtil.d("startService", service.toUri(0));
-		PluginFragmentHelper.resolveService(service);
+		PluginIntentResolver.resolveService(service);
 		return super.startService(service);
 	}
 
 	@Override
 	public boolean stopService(Intent name) {
 		LogUtil.d("stopService", name.toUri(0));
-		if (PluginLoader.isMatchPlugin(name) != null) {
-			PluginFragmentHelper.resolveService(name);
-			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
+		if (PluginIntentResolver.resolveStopService(name)) {
 			super.startService(name);
 			return false;
+		} else {
+			return super.stopService(name);
 		}
-		return super.stopService(name);
 	}
 
 	/**
@@ -135,16 +127,8 @@ public class PluginContextTheme extends ContextWrapper {
 	@Override
 	public void startActivity(Intent intent) {
 		LogUtil.d("startActivity", intent.toUri(0));
-		PluginInstrumentionWrapper.resloveIntent(intent);
+		PluginIntentResolver.resloveActivity(intent);
 		super.startActivity(intent);
 	}
 
-	// @Override
-	// public Context getApplicationContext() {
-	// if (getBaseContext() instanceof Activity) {
-	// return super.getApplicationContext();
-	// } else {
-	// return this;
-	// }
-	// }
 }

@@ -26,7 +26,6 @@ import com.example.plugintest.R;
  * @author cailiming
  * 
  */
-@Deprecated
 public class PluginTestActivity extends Activity implements OnClickListener {
 
 	private ViewGroup mRoot;

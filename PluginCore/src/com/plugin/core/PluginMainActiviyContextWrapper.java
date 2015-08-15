@@ -51,8 +51,6 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.view.Display;
 
-import com.plugin.core.proxy.PluginProxyService;
-import com.plugin.core.ui.stub.PluginStubReceiver;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -392,13 +390,8 @@ public class PluginMainActiviyContextWrapper extends Context {
 	@Override
 	public void sendBroadcast(Intent intent) {
 		LogUtil.d(intent);
-		Intent realIntent = intent;
-		if (PluginFragmentHelper.hackClassLoadForReceiverIfNeeded(intent)) {
-			realIntent = new Intent();
-			realIntent.setClass(PluginLoader.getApplicatoin(), PluginStubReceiver.class);
-			realIntent.putExtra(PluginFragmentHelper.RECEIVER_ID_IN_PLUGIN, intent);
-		}
-		mBase.sendBroadcast(realIntent);
+		intent = PluginIntentResolver.resolveReceiver(intent);
+		mBase.sendBroadcast(intent);
 	}
 
 	@Override
@@ -522,26 +515,25 @@ public class PluginMainActiviyContextWrapper extends Context {
 	@Override
 	public ComponentName startService(Intent service) {
 		LogUtil.d(service);
-		PluginFragmentHelper.resolveService(service);
+		PluginIntentResolver.resolveService(service);
 		return mBase.startService(service);
 	}
 
 	@Override
 	public boolean stopService(Intent name) {
 		LogUtil.d(name);
-		if (PluginLoader.isMatchPlugin(name) != null) {
-			PluginFragmentHelper.resolveService(name);
-			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
+		if (PluginIntentResolver.resolveStopService(name)) {
 			mBase.startService(name);
 			return false;
+		} else {
+			return mBase.stopService(name);
 		}
-		return mBase.stopService(name);
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public ComponentName startServiceAsUser(Intent service, UserHandle user) {
 		LogUtil.d(service);
-		PluginFragmentHelper.resolveService(service);
+		PluginIntentResolver.resolveService(service);
 		return (ComponentName) RefInvoker.invokeMethod(mBase, Context.class.getName(), "startServiceAsUser",
 				new Class[] { Intent.class, UserHandle.class }, new Object[] { service, user });
 	}
@@ -549,14 +541,13 @@ public class PluginMainActiviyContextWrapper extends Context {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public boolean stopServiceAsUser(Intent name, UserHandle user) {
 		LogUtil.d(name);
-		if (PluginLoader.isMatchPlugin(name) != null) {
-			PluginFragmentHelper.resolveService(name);
-			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
+		if (PluginIntentResolver.resolveStopService(name)) {
 			mBase.startService(name);
 			return false;
+		} else {
+			return (Boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "stopServiceAsUser", new Class[] {
+					Intent.class, UserHandle.class }, new Object[] { name, user });
 		}
-		return (Boolean) RefInvoker.invokeMethod(mBase, Context.class.getName(), "stopServiceAsUser", new Class[] {
-				Intent.class, UserHandle.class }, new Object[] { name, user });
 	}
 
 	@Override

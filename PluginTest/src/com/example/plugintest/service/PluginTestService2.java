@@ -1,14 +1,12 @@
 package com.example.plugintest.service;
 
-import com.example.plugintest.R;
-import com.plugin.core.PluginLoader;
-
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.plugintest.R;
 
 /**
  * @author cailiming

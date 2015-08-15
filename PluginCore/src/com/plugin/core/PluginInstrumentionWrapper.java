@@ -1,12 +1,9 @@
 package com.plugin.core;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Service;
-import android.app.Instrumentation.ActivityMonitor;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -20,6 +17,7 @@ import android.view.LayoutInflater;
 
 import com.plugin.core.ui.PluginSpecFragmentActivity;
 import com.plugin.core.ui.stub.PluginStubActivity;
+import com.plugin.util.FragmentHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -31,7 +29,7 @@ import com.plugin.util.RefInvoker;
  */
 public class PluginInstrumentionWrapper extends Instrumentation {
 
-	private static final String ACTIVITY_NAME_IN_PLUGIN = "InstrumentationWrapper.className";
+	static final String ACTIVITY_NAME_IN_PLUGIN = "InstrumentationWrapper.className";
 
 	private final Instrumentation realInstrumention;
 
@@ -68,6 +66,16 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		return realInstrumention.newActivity(cl, className, intent);
 	}
 
+	@Override
+	public void callActivityOnCreate(Activity activity, Bundle icicle) {
+
+		checkInstrumetionFor360Safe(activity);
+
+		hackActivityContext(activity);
+
+		realInstrumention.callActivityOnCreate(activity, icicle);
+	}
+
 	private void checkInstrumetionFor360Safe(Activity activity) {
 		// 检查mInstrumention是否已经替换成功。
 		// 之所以要检查，是因为如果手机上安装了360手机卫士等app，它们可能会劫持用户app的ActivityThread对象，
@@ -81,12 +89,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		}
 	}
 
-	@SuppressLint("NewApi")
-	@Override
-	public void callActivityOnCreate(Activity activity, Bundle icicle) {
-
-		checkInstrumetionFor360Safe(activity);
-
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void hackActivityContext(Activity activity) {
 		Intent intent = activity.getIntent();
 		// 如果是打开插件中的activity
 		if (intent.getComponent() != null
@@ -104,7 +108,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			Context pluginContext = null;
 			if (activity.getClass().getName().equals(PluginSpecFragmentActivity.class.getName())) {
 				// 为了能够在宿主中的Activiy里面展示来自插件的普通Fragment，我们将宿主程序中用来展示插件普通Fragment的Activity的Context也替换掉
-				String classId = activity.getIntent().getStringExtra(PluginFragmentHelper.FRAGMENT_ID_IN_PLUGIN);
+				String classId = activity.getIntent().getStringExtra(FragmentHelper.FRAGMENT_ID_IN_PLUGIN);
 				LogUtil.d("findPluginContext ", classId);
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassById(classId);
@@ -147,8 +151,6 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext",
 					new Class[] { Context.class }, new Object[] { mainContext });
 		}
-
-		realInstrumention.callActivityOnCreate(activity, icicle);
 	}
 
 	@Override
@@ -220,7 +222,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent intent, int requestCode, Bundle options) {
 
-		resloveIntent(intent);
+		PluginIntentResolver.resloveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
@@ -233,7 +235,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void execStartActivities(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent[] intents, Bundle options) {
 
-		resloveIntent(intents);
+		PluginIntentResolver.resloveActivity(intents);
 
 		RefInvoker
 				.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(), "execStartActivities",
@@ -244,7 +246,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void execStartActivitiesAsUser(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent[] intents, Bundle options, int userId) {
 
-		resloveIntent(intents);
+		PluginIntentResolver.resloveActivity(intents);
 
 		RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivitiesAsUser", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
@@ -255,7 +257,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
 			android.support.v4.app.Fragment target, Intent intent, int requestCode, Bundle options) {
 
-		resloveIntent(intent);
+		PluginIntentResolver.resloveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class,
@@ -269,7 +271,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
 			android.app.Fragment target, Intent intent, int requestCode, Bundle options) {
 
-		resloveIntent(intent);
+		PluginIntentResolver.resloveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class,
@@ -283,7 +285,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent intent, int requestCode, Bundle options, UserHandle user) {
 
-		resloveIntent(intent);
+		PluginIntentResolver.resloveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
@@ -291,20 +293,6 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						token, target, intent, requestCode, options, user });
 
 		return (ActivityResult) result;
-	}
-
-	/* package */static void resloveIntent(Intent intent) {
-		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
-		String className = PluginLoader.isMatchPlugin(intent);
-		if (className != null) {
-			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
-					PluginStubActivity.class.getName()));
-			intent.putExtra(ACTIVITY_NAME_IN_PLUGIN, className);
-		}
-	}
-
-	private static void resloveIntent(Intent[] intent) {
-		// not needed
 	}
 
 }

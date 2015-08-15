@@ -11,8 +11,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.plugin.core.PluginFragmentHelper;
 import com.plugin.core.PluginLoader;
+import com.plugin.util.FragmentHelper;
 
 /**
  * 监听插件apk的安装广播， 并安装插件到宿主程序。
@@ -36,7 +36,7 @@ public class PluginDebugHelper extends BroadcastReceiver {
 		if (!TextUtils.isEmpty(pluginApkPath) && !TextUtils.isEmpty(defaultTarget)) {
 			boolean success = PluginLoader.installPlugin(pluginApkPath);
 			if (success) {
-				PluginFragmentHelper.startFragmentWithSimpleActivity(context, defaultTarget);
+				FragmentHelper.startFragmentWithSimpleActivity(context, defaultTarget);
 			}
 		}
 

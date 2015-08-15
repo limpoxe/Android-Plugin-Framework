@@ -6,8 +6,8 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.plugin.core.PluginContextTheme;
-import com.plugin.core.PluginFragmentHelper;
 import com.plugin.core.PluginLoader;
+import com.plugin.util.FragmentHelper;
 import com.plugin.util.LogUtil;
 
 /**
@@ -30,7 +30,7 @@ public class PluginSpecFragmentActivity extends PluginNormalFragmentActivity {
 	}
 
 	private Context findPluginContext() {
-		String classId = getIntent().getStringExtra(PluginFragmentHelper.FRAGMENT_ID_IN_PLUGIN);
+		String classId = getIntent().getStringExtra(FragmentHelper.FRAGMENT_ID_IN_PLUGIN);
 		LogUtil.d("findPluginContext ", classId);
 		@SuppressWarnings("rawtypes")
 		Class clazz = PluginLoader.loadPluginClassById(classId);
