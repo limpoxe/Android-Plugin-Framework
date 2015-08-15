@@ -104,11 +104,18 @@
             <intent-filter>
                 <action
                     android:name="test.rst" />
-
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            
+        </receiver>
+        
+        <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver2" >
+            <intent-filter>
+                <action
+                    android:name="test.rst2" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </receiver>
         
     </application>
