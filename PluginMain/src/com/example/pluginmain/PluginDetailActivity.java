@@ -73,23 +73,8 @@ public class PluginDetailActivity extends Activity {
 
 					@Override
 					public void onClick(View v) {
-						// if ("vivo".equalsIgnoreCase(Build.BRAND) ||
-						// "oppo".equalsIgnoreCase(Build.BRAND)) {
-						// 要想步步高手机也支持fragment模式,插件需要使用独立模式，即不通过R直接或者间接使用注宿主程序的资源
-						// 如果步步高手机也需要使用非独立插件，则要舍弃宿主主题
-						// Toast.makeText(PluginDetailActivity.this,
-						// "步步高手机暂时只支持Activity模式！", Toast.LENGTH_LONG).show();
-						// return;
-						// }
-						// 两种fragment模式,
-						// 一种是显示在内建的Fragment容器中，一种是可嵌入在任意支持fragment的页面
-						if (entry.getValue().equals("com.example.plugintest.fragment.PluginNormalFragment")) {
-							PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
-						} else {
-							PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
-							PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
-						}
-
+						// 将插件中的fragment嵌入在宿主程序内建的Fragment容器中展示
+						PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
 					}
 				});
 				pluginFragmentView.addView(btn);
