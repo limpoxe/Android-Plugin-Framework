@@ -14,24 +14,24 @@ import android.widget.Toast;
  * @author cailiming
  * 
  */
-public class PluginTestService extends Service {
+public class PluginTestService2 extends Service {
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d("PluginTestService", "PluginTestService onCreate");
+		Log.d("PluginTestService2", "PluginTestService2 onCreate2");
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
-		Log.d("PluginTestService", "PluginTestService onStartCommand " + (intent == null ? " null" : intent.toUri(0))
-				+ " " + getResources().getText(R.string.hello_world3));
+		Log.d("PluginTestService2", "PluginTestService2 onStartCommand2 "
+				+ (intent == null ? " null" : intent.toUri(0)) + " " + getResources().getText(R.string.hello_world3));
 
 		Toast.makeText(
 				this,
-				" PluginTestService "
-						+ (intent == null ? " null" : (getResources().getText(R.string.hello_world3) + ", " + intent
+				" PluginTestService2 "
+						+ (intent == null ? " null" : (getResources().getText(R.string.hello_world3) + "," + intent
 								.toUri(0))), Toast.LENGTH_LONG).show();
 
 		return super.onStartCommand(intent, flags, startId);
@@ -47,7 +47,7 @@ public class PluginTestService extends Service {
 	 */
 	@Override
 	protected void attachBaseContext(Context newBase) {
-		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginTestService.class));
+		super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginTestService2.class));
 	}
 
 }

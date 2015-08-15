@@ -99,6 +99,15 @@
             </intent-filter>
         </service>
         
+                <service android:name="com.example.plugintest.service.PluginTestService2">
+            <intent-filter>
+                <action
+                    android:name="test.lmn2" />
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
         
         <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver" >
             <intent-filter>
