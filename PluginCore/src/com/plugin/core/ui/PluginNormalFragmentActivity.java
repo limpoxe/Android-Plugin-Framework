@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 
-import com.plugin.core.PluginDispatcher;
+import com.plugin.core.PluginFragmentHelper;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
 
@@ -35,7 +35,7 @@ public class PluginNormalFragmentActivity extends FragmentActivity {
 
 	private void loadPluginFragment() {
 		try {
-			String classId = getIntent().getStringExtra(PluginDispatcher.FRAGMENT_ID_IN_PLUGIN);
+			String classId = getIntent().getStringExtra(PluginFragmentHelper.FRAGMENT_ID_IN_PLUGIN);
 			LogUtil.d(LOG_TAG, "loadPluginFragment, classId is " + classId);
 			@SuppressWarnings("rawtypes")
 			Class clazz = PluginLoader.loadPluginClassById(classId);

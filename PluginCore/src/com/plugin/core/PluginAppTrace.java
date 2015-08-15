@@ -40,7 +40,7 @@ public class PluginAppTrace implements Handler.Callback {
 	private static void hackReceiverIfNeed(Object msgObj) {
 		Intent intent = (Intent)RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
 		if (intent.getComponent().getClassName().equals(PluginStubReceiver.class.getName())) {
-			Intent realIntent = (Intent)(intent.getParcelableExtra(PluginDispatcher.RECEIVER_ID_IN_PLUGIN));
+			Intent realIntent = (Intent)(intent.getParcelableExtra(PluginFragmentHelper.RECEIVER_ID_IN_PLUGIN));
 			LogUtil.d("receiver", realIntent.toUri(0));
 			intent.putExtras(realIntent.getExtras());
 			String realClassName = PluginLoader.isMatchPlugin(realIntent);

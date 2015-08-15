@@ -22,7 +22,7 @@ import dalvik.system.DexClassLoader;
  * @author cailiming
  * 
  */
-public class PluginDispatcher {
+public class PluginFragmentHelper {
 
 	public static final String FRAGMENT_ID_IN_PLUGIN = "PluginDispatcher.fragmentId";
 	public static final String ACTIVITY_ID_IN_PLUGIN = "PluginDispatcher.proxy.activity";

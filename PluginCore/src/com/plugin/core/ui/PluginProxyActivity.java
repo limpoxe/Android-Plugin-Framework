@@ -13,7 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 
 import com.plugin.core.PluginContextTheme;
-import com.plugin.core.PluginDispatcher;
+import com.plugin.core.PluginFragmentHelper;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
@@ -56,7 +56,7 @@ public class PluginProxyActivity extends Activity {
     }
 	
 	private Context findPluginContext() {
-		String classId = getIntent().getStringExtra(PluginDispatcher.ACTIVITY_ID_IN_PLUGIN);
+		String classId = getIntent().getStringExtra(PluginFragmentHelper.ACTIVITY_ID_IN_PLUGIN);
 		LogUtil.d("findPluginContext ", classId);
 		@SuppressWarnings("rawtypes")
 		Class clazz = PluginLoader.loadPluginClassById(classId);
@@ -248,7 +248,7 @@ public class PluginProxyActivity extends Activity {
 
 	private void loadPluginActivity() {
 		try {
-			String classId = getIntent().getStringExtra(PluginDispatcher.ACTIVITY_ID_IN_PLUGIN);
+			String classId = getIntent().getStringExtra(PluginFragmentHelper.ACTIVITY_ID_IN_PLUGIN);
 			LogUtil.d("classId ", classId);
 			@SuppressWarnings("rawtypes")
 			Class clazz = PluginLoader.loadPluginClassById(classId);

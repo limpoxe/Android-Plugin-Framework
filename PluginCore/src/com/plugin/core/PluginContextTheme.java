@@ -102,10 +102,10 @@ public class PluginContextTheme extends ContextWrapper {
 	public void sendBroadcast(Intent intent) {
 		LogUtil.d("sendBroadcast", intent.toUri(0));
 		Intent realIntent = intent;
-		if (PluginDispatcher.hackClassLoadForReceiverIfNeeded(intent)) {
+		if (PluginFragmentHelper.hackClassLoadForReceiverIfNeeded(intent)) {
 			realIntent = new Intent();
 			realIntent.setClass(PluginLoader.getApplicatoin(), PluginStubReceiver.class);
-			realIntent.putExtra(PluginDispatcher.RECEIVER_ID_IN_PLUGIN, intent);
+			realIntent.putExtra(PluginFragmentHelper.RECEIVER_ID_IN_PLUGIN, intent);
 		}
 		super.sendBroadcast(realIntent);
 	}
@@ -113,7 +113,7 @@ public class PluginContextTheme extends ContextWrapper {
 	@Override
 	public ComponentName startService(Intent service) {
 		LogUtil.d("startService", service.toUri(0));
-		if (PluginDispatcher.hackClassLoadForServiceIfNeeded(service)) {
+		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(service)) {
 			service.setClass(PluginLoader.getApplicatoin(), PluginStubService.class);
 		}
 		return super.startService(service);
@@ -122,7 +122,7 @@ public class PluginContextTheme extends ContextWrapper {
 	@Override
 	public boolean stopService(Intent name) {
 		LogUtil.d("stopService", name.toUri(0));
-		if (PluginDispatcher.hackClassLoadForServiceIfNeeded(name)) {
+		if (PluginFragmentHelper.hackClassLoadForServiceIfNeeded(name)) {
 			name.setClass(PluginLoader.getApplicatoin(), PluginStubService.class);
 		}
 		return super.stopService(name);

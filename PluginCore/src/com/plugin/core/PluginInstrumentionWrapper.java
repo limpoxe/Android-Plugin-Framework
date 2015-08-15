@@ -104,7 +104,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			Context pluginContext = null;
 			if (activity.getClass().getName().equals(PluginSpecFragmentActivity.class.getName())) {
 				// 为了能够在宿主中的Activiy里面展示来自插件的普通Fragment，我们将宿主程序中用来展示插件普通Fragment的Activity的Context也替换掉
-				String classId = activity.getIntent().getStringExtra(PluginDispatcher.FRAGMENT_ID_IN_PLUGIN);
+				String classId = activity.getIntent().getStringExtra(PluginFragmentHelper.FRAGMENT_ID_IN_PLUGIN);
 				LogUtil.d("findPluginContext ", classId);
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassById(classId);

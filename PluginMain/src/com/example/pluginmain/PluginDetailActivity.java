@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginDispatcher;
+import com.plugin.core.PluginFragmentHelper;
 import com.plugin.core.PluginLoader;
 
 public class PluginDetailActivity extends Activity {
@@ -78,11 +78,13 @@ public class PluginDetailActivity extends Activity {
 						// 第二类是在宿主提供的Activity中展示，分为普通Fragment和特别处理过的fragment
 						// 下面演示第二类插件Fragment的两种情况
 						if (entry.getKey().equals("fragmentTest1")) {
-							PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
+							PluginFragmentHelper.startFragmentWithSimpleActivity(PluginDetailActivity.this,
+									entry.getKey());
 						}
 						if (entry.getKey().equals("fragmentTest2")) {
 							// 这种写法暂时还不兼容coolpad等手机
-							PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
+							PluginFragmentHelper.startFragmentWithBuildInActivity(PluginDetailActivity.this,
+									entry.getKey());
 						}
 					}
 				});
