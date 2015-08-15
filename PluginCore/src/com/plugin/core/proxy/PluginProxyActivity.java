@@ -19,7 +19,10 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 /**
- * activity代理, 不建议使用代理模式 建议使用stub模式
+ * activity代理, 不建议使用代理模式
+ * 
+ * 已放弃
+ * 
  * @author cailiming
  */
 @Deprecated
@@ -48,13 +51,14 @@ public class PluginProxyActivity extends Activity {
 		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onCreate", new Class[] { Bundle.class },
 				new Object[] { savedInstanceState });
 	}
-   
-    protected void onPostCreate(Bundle savedInstanceState) {
-    	super.onPostCreate(savedInstanceState);
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
 		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onPostCreate", new Class[] { Bundle.class },
 				new Object[] { savedInstanceState });
-    }
-	
+	}
+
 	private Context findPluginContext() {
 		String classId = getIntent().getStringExtra(PluginFragmentHelper.ACTIVITY_ID_IN_PLUGIN);
 		LogUtil.d("findPluginContext ", classId);
@@ -139,12 +143,12 @@ public class PluginProxyActivity extends Activity {
 		super.onResume();
 		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onResume", new Class[] {}, new Object[] {});
 	}
-	
-    @Override
-    protected void onPostResume() {
-    	super.onPostResume();
-    	RefInvoker.invokeMethod(activity, Activity.class.getName(), "onPostResume", new Class[] {}, new Object[] {});
-    }
+
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onPostResume", new Class[] {}, new Object[] {});
+	}
 
 	@Override
 	protected void onPause() {
@@ -205,7 +209,7 @@ public class PluginProxyActivity extends Activity {
 		RefInvoker.invokeMethod(activity, Activity.class.getName(), "onActivityResult", new Class[] { Integer.class,
 				Integer.class, Intent.class, }, new Object[] { requestCode, resultCode, data });
 	}
-    
+
 	/**
 	 * 这里需要attach的值 根据不同的android版本和厂商版本，可能会有所不同 需要实际测试后才能保证兼容
 	 * 
