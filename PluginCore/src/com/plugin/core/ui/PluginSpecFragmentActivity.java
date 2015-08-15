@@ -34,9 +34,8 @@ public class PluginSpecFragmentActivity extends PluginNormalFragmentActivity {
 		LogUtil.d("findPluginContext ", classId);
 		@SuppressWarnings("rawtypes")
 		Class clazz = PluginLoader.loadPluginClassById(classId);
-
 		if (clazz != null) {
-			return PluginLoader.getDefaultPluginContext(clazz);
+			return PluginLoader.getNewPluginContext(clazz);
 		}
 		return null;
 	}

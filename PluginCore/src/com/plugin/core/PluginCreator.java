@@ -68,7 +68,8 @@ public class PluginCreator {
 			// addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
 			Resources mainRes = application.getResources();
-			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
+			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
+					mainRes.getConfiguration());
 
 			return pluginRes;
 		} catch (Exception e) {
@@ -114,7 +115,8 @@ public class PluginCreator {
 			addAssetPaths.invoke(assetMgr, new Object[] { assetPaths });
 
 			Resources mainRes = application.getResources();
-			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(), mainRes.getConfiguration());
+			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
+					mainRes.getConfiguration());
 
 			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
 
@@ -134,22 +136,9 @@ public class PluginCreator {
 	 * @param pluginClassLoader
 	 * @return
 	 */
-	public static Context createPluginApplicationContext(Application application, Resources pluginRes,
+	static Context createPluginApplicationContext(Application application, Resources pluginRes,
 			DexClassLoader pluginClassLoader) {
 		return new PluginContextTheme(application, pluginRes, pluginClassLoader);
-	}
-
-	/**
-	 * 创建插件apk的Activity context，
-	 * 如果用此Context替换宿主程序的Activity的baseContext，那么插件中需要使用context的地方，和非插件开发时完全一致。
-	 * 即开发出来的插件代码，和普通的应用程序代码没有区别。 这个方法由于传入了Activity，为了避免泄漏，切记不可长久保持催此方法返回值的引用
-	 * 
-	 * @param activity
-	 * @param pluginContext
-	 * @return
-	 */
-	public static Context createPluginActivityContext(Activity activity, Context pluginContext) {
-		return new PluginContextTheme(activity, pluginContext.getResources(), pluginContext.getClassLoader());
 	}
 
 }

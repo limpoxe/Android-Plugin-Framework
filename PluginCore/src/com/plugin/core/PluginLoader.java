@@ -214,6 +214,7 @@ public class PluginLoader {
 
 	/**
 	 * 获取当前class所在插件的Context 为当前 插件class创建一个单独的context
+	 * 在插件Activity中，每个Activity都应当建立独立的Context，避免主题和样式互相影响
 	 * 
 	 * @param clazz
 	 * @return
