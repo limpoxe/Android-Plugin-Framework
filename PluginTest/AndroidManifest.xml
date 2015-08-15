@@ -17,6 +17,8 @@
         
         <!-- for fragment -->
         <meta-data android:name="fragmentTest1" android:value="com.example.plugintest.fragment.PluginSpecFragment"/>
+        <!-- for fragment -->
+        <meta-data android:name="fragmentTest2" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
         
         <!-- for proxy test -->
         <activity

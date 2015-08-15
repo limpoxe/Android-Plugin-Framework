@@ -11,10 +11,12 @@ import android.widget.FrameLayout.LayoutParams;
 import com.plugin.core.PluginDispatcher;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
+
 /**
- * 一个非常普通的FragmentActivty， 用来展示一个fragment。
+ * 一个非常普通的FragmentActivty， 用来展示一个来自插件中的fragment。
+ * 
  * @author cailiming
- *
+ * 
  */
 public class PluginNormalFragmentActivity extends FragmentActivity {
 

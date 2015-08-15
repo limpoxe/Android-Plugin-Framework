@@ -18,6 +18,7 @@ import android.os.UserHandle;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 
+import com.plugin.core.ui.PluginSpecFragmentActivity;
 import com.plugin.core.ui.stub.PluginStubActivity;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
@@ -89,7 +90,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		Intent intent = activity.getIntent();
 		// 如果是打开插件中的activity
 		if (intent.getComponent() != null
-				&& intent.getComponent().getClassName().equals(PluginStubActivity.class.getName())) {
+				&& (intent.getComponent().getClassName().equals(PluginStubActivity.class.getName()) || intent
+						.getComponent().getClassName().equals(PluginSpecFragmentActivity.class.getName()))) {
 			// 为了不需要重写插件Activity的attachBaseContext方法为：
 			// @Override
 			// protected void attachBaseContext(Context newBase) {
@@ -99,7 +101,18 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 			// 重设BaseContext
 			LogUtil.d("mBase attachBaseContext", activity.getClass().getName());
-			Context pluginContext = PluginLoader.getDefaultPluginContext(activity.getClass());
+			Context pluginContext = null;
+			if (activity.getClass().getName().equals(PluginSpecFragmentActivity.class.getName())) {
+				// 为了能够在宿主中的Activiy里面展示来自插件的普通Fragment，我们将宿主程序中用来展示插件普通Fragment的Activity的Context也替换掉
+				String classId = activity.getIntent().getStringExtra(PluginDispatcher.FRAGMENT_ID_IN_PLUGIN);
+				LogUtil.d("findPluginContext ", classId);
+				@SuppressWarnings("rawtypes")
+				Class clazz = PluginLoader.loadPluginClassById(classId);
+				pluginContext = PluginLoader.getDefaultPluginContext(clazz);
+			} else {
+				pluginContext = PluginLoader.getDefaultPluginContext(activity.getClass());
+			}
+
 			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
 			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext",
 					new Class[] { Context.class }, new Object[] { pluginContext });

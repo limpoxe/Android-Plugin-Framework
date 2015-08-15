@@ -73,8 +73,17 @@ public class PluginDetailActivity extends Activity {
 
 					@Override
 					public void onClick(View v) {
-						// 将插件中的fragment嵌入在宿主程序内建的Fragment容器中展示
-						PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
+						// 插件中的Fragment分两类
+						// 第一类是在插件提供的Activity中展示，就是一个普通的Fragment
+						// 第二类是在宿主提供的Activity中展示，分为普通Fragment和特别处理过的fragment
+						// 下面演示第二类插件Fragment的两种情况
+						if (entry.getKey().equals("fragmentTest1")) {
+							PluginDispatcher.startFragmentWithSimpleActivity(PluginDetailActivity.this, entry.getKey());
+						}
+						if (entry.getKey().equals("fragmentTest2")) {
+							// 这种写法暂时还不兼容coolpad等手机
+							PluginDispatcher.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
+						}
 					}
 				});
 				pluginFragmentView.addView(btn);

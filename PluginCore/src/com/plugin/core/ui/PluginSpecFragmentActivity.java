@@ -9,10 +9,12 @@ import com.plugin.core.PluginContextTheme;
 import com.plugin.core.PluginDispatcher;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
+
 /**
- * 重写过context的Activity 用来展示fragment
+ * 重写过context的Activity 用来展示一个来自插件中的fragment
+ * 
  * @author cailiming
- *
+ * 
  */
 public class PluginSpecFragmentActivity extends PluginNormalFragmentActivity {
 
