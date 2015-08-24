@@ -1,0 +1,3 @@
+include 'PluginCore', 'PluginShareLib'
+include 'PluginMain'
+include ':PluginTest'

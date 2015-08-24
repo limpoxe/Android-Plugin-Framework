@@ -1,0 +1,80 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    //compile 'com.android.support:appcompat-v7:23.0.0'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+def makeJar(String target, String classDir) {
+    println target + ',' + classDir
+}
+
+build.doLast {
+    task releaseJar(type:Jar) {
+        //指定生成的jar名
+        baseName 'abcd'
+        //从哪里打包class文件
+        from(getBuildDir().absolutePath + '/build/intermediates/classes/release/')
+        //打包到jar后的目录结构
+        into('')
+        //去掉不需要打包的目录和文件
+        exclude('test/', 'BuildConfig.class')
+        //去掉R文件
+        //exclude('R.class')
+        //去掉R$开头的文件
+        //exclude{ it.name.startsWith('R$');}
+        println '生成带R的abcd.jar' + getBuildDir()
+
+        makeJar("xxx.jar", "build/intermediates/classes/release/");
+    }
+
+    task copyJar(type: Copy) {
+        from('build/intermediates/bundles/release/classes.jar')
+        into('build/')
+        println 'copyJar'
+    }
+
+}

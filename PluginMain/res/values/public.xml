@@ -5,6 +5,9 @@
     	
     	注意：style属性需要特殊配置end="0x7f09000f"，不能分组，否则插件中定义的style不可用
      -->
+
+    <!-- 如果使用openAtlasExtention提供的BuildTools进行编译，可以注释掉下方的配置-->
+    <!--
     <public-padding type="attr" name="main_attr_"     start="0x7f010000" end="0x7f010000" />
     <public-padding type="drawable" name="main_drawable_" start="0x7f020000" end="0x7f020000" />
     <public-padding type="layout" name="main_layout_"   start="0x7f030000" end="0x7f030000" />
@@ -20,4 +23,5 @@
     <public-padding type="integer" name="main_int_"  start="0x7f0d0000" end="0x7f0d0000" />
     <public-padding type="array" name="main_array_"    start="0x7f0e0000" end="0x7f0e0000" />
     <public-padding type="menu" name="main_menu_"     start="0x7f0f0000" end="0x7f0f0000" />
+     -->
 </resources>
