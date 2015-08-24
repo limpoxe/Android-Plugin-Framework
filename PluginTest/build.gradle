@@ -14,7 +14,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0.0x8f"
+        versionName "1.0.1"
     }
 
     lintOptions {
@@ -48,8 +48,13 @@ android {
 
     buildTypes {
         release {
+            versionNameSuffix "0x8f"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            versionNameSuffix "0x8f"
         }
     }
 
@@ -74,8 +79,9 @@ android {
 dependencies {
     //compile 'com.android.support:appcompat-v7:23.0.0'
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided files('../PluginCore/build/intermediates/bundles/release/classes.jar')
-    provided files('../PluginShareLib/build/intermediates/bundles/release/classes.jar')
+
+    provided files(project(':PluginCore').getProjectDir().getAbsolutePath() + '/build/intermediates/bundles/release/classes.jar')
+    provided files(project(':PluginShareLib').getProjectDir().getAbsolutePath() + '/build/intermediates/bundles/release/classes.jar')
     //provided files('../PluginCore/build/intermediates/bundles/release/classes.jar')
     //provided project(':PluginShareLib')
     //compile project(':PluginShareLib')
