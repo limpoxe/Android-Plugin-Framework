@@ -82,6 +82,7 @@ public class PluginApplication extends Application {
 	public void startActivity(Intent intent) {
 		LogUtil.d("startActivity", intent.toUri(0));
 		PluginIntentResolver.resloveActivity(intent);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		super.startActivity(intent);
 	}
 
