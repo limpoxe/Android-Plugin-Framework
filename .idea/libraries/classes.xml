@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="classes">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/PluginCore/build/intermediates/bundles/release/classes.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
