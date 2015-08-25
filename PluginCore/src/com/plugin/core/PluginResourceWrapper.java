@@ -24,7 +24,7 @@ public class PluginResourceWrapper extends Resources {
 		} catch(NotFoundException e) {
 			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
 			//华为、三星、小米等手机不会到这里来。
-			if (PluginPublicXmlConst.resourceMap.indexOfKey(resid>>16) > 0) {
+			if (isMainResId(resid)) {
 				return PluginLoader.getApplicatoin().getPackageName();
 			}
 			throw new NotFoundException("Unable to find resource ID #0x"
@@ -39,12 +39,21 @@ public class PluginResourceWrapper extends Resources {
 		} catch(NotFoundException e) {
 			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
 			//华为、三星、小米等手机不会到这里来。
-			if (PluginPublicXmlConst.resourceMap.indexOfKey(resid>>16) > 0) {
+			if (isMainResId(resid)) {
 				return PluginLoader.getApplicatoin().getResources().getResourceName(resid);
 			}
 			throw new NotFoundException("Unable to find resource ID #0x"
 	                + Integer.toHexString(resid));
 		}
+	}
+
+
+	private static boolean isMainResId(int resid) {
+		//如果使的使public.xml
+		//return PluginPublicXmlConst.resourceMap.indexOfKey(resid>>16) > 0;
+
+		//如果使用的使openatlasextention
+		return resid>>24 == 0x7f;//默认宿主的资源id以0x7f开头
 	}
      
 }

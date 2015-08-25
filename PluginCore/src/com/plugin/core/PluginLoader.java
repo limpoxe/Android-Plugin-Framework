@@ -252,7 +252,8 @@ public class PluginLoader {
 		pluginDescriptor.setPluginContext(pluginContext);
 		pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 
-		checkPluginPublicXml(pluginDescriptor, pluginRes);
+		//使用了openAtlasExtention之后就不需要Public.xml文件了
+		//checkPluginPublicXml(pluginDescriptor, pluginRes);
 
 		callPluginApplicationOncreate(pluginDescriptor);
 	}
@@ -286,6 +287,14 @@ public class PluginLoader {
 		}
 	}
 
+	/**
+	 * for eclipse with public.xml
+	 *
+	 * unused
+	 * @param pluginDescriptor
+	 * @param res
+	 * @return
+	 */
 	private static boolean checkPluginPublicXml(PluginDescriptor pluginDescriptor, Resources res) {
 
 		// "plugin_layout_1"资源id时由public.xml配置的

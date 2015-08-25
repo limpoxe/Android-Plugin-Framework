@@ -2,6 +2,9 @@ package com.plugin.core;
 
 import android.util.SparseArray;
 
+/**
+ * For eclipse with public.xml
+ */
 public class PluginPublicXmlConst {
 	public static final int main_attr = 0x7f01;
 	public static final int main_drawable = 0x7f02;
@@ -19,7 +22,7 @@ public class PluginPublicXmlConst {
 	public static final int main_array = 0x7f0e;
 	public static final int main_menu = 0x7f0f;
 	
-	public static SparseArray<String> resourceMap= new SparseArray<String>(16);
+	public static SparseArray<String> resourceMap = new SparseArray<String>(16);
 	
 	static {
 		resourceMap.put(main_attr, "attr");

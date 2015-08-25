@@ -9,9 +9,10 @@ import android.os.Build;
 public class PluginCompat {
 	
 	/**
+	 * for eclipse with public.xml
 	 * “main_style_”是在pluglic.xml文件中定义的！
 	 */
-	private static final String MAIN_STYLE = "main_style_";
+	//private static final String MAIN_STYLE = "main_style_";
 	
 	/**
 	 * 
@@ -23,9 +24,15 @@ public class PluginCompat {
 		
 		boolean isThemeInHostResouce = false;
 		try {
-			String themeEntryName = PluginLoader.getApplicatoin().getResources().getResourceEntryName(resId);
-			LogUtil.d("themeEntryName", themeEntryName);
-			if (themeEntryName != null && !themeEntryName.startsWith(MAIN_STYLE)) {
+			//如果使用public.xml,采用下面的判断方式
+			//String themeEntryName = PluginLoader.getApplicatoin().getResources().getResourceEntryName(resId);
+			//LogUtil.d("themeEntryName", themeEntryName);
+			//if (themeEntryName != null && !themeEntryName.startsWith(MAIN_STYLE)) {
+			//	isThemeInHostResouce = true;
+			//}
+
+			//如果使用openatlasExtentoin，采用下面的判断方式
+			if (resId >> 24 != 0x7f) {
 				isThemeInHostResouce = true;
 			}
 		} catch (Exception e) {
