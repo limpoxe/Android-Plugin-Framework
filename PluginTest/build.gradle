@@ -14,7 +14,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0.0x8f"
+        versionName "1.0.1"
     }
 
     lintOptions {
@@ -48,35 +48,50 @@ android {
 
     buildTypes {
         release {
+            //表示插件的id分组为0x8f
+            versionNameSuffix '_' + getDate() + '_0x8f'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            //表示插件的id分组为0x8f
+            versionNameSuffix '_' + getDate() + '_0x8f'
         }
     }
 
 }
 
-//
-//configurations {
-//    provided
-//}
-//
-//sourceSets {
-//    main {
-//        compileClasspath += configurations.provided
-//        runtimeClasspath += configurations.provided
-//    }
-//}
-//
-//sourceSets.all {
-//    compileClasspath += configurations.provided
-//}
-
 dependencies {
     //compile 'com.android.support:appcompat-v7:23.0.0'
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided files('../PluginCore/build/intermediates/bundles/release/classes.jar')
-    provided files('../PluginShareLib/build/intermediates/bundles/release/classes.jar')
-    //provided files('../PluginCore/build/intermediates/bundles/release/classes.jar')
-    //provided project(':PluginShareLib')
-    //compile project(':PluginShareLib')
+
+    //依赖库的R
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
+    //依赖库的src
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/release/classes.jar')
+    //依赖库的src
+    provided files(project(':PluginCore').getBuildDir().absolutePath + '/intermediates/bundles/release/classes.jar')
+
+    //如果插件需要依赖一些私有库，可放开下面的注释，并修改为私有库的名称
+    //compile project(':PluginPrivateLib1')
+    //compile project(':PluginPrivateLib2')
+    //compile file('xxx/xxx.jar');
+}
+
+build.doLast {
+    //将编译好的插件apk复制到Main工程的assets目录下
+    copy {
+        println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginTest-debug.apk'
+        from(buildDir.absolutePath + '/outputs/apk/') {
+            include 'PluginTest-debug.apk'
+        }
+        into(project(':PluginMain').getProjectDir().absolutePath + '/assets/')
+    }
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
 }
