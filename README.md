@@ -1,3 +1,12 @@
+# 更新说明
+
+2015.08.26
+    1、项目已经迁到Android Studio ＋ Gradle，不再使用Eclipse ＋ Ant
+    2、资源Id分组的实现方式，从用public.xml的方式，变更为通过定制过的aapt在编译时进行分组处理，
+       因此需要使用 openAtlasExtention@github 项目提供的BuildTools替换Sdk中的BuildTools。
+    3、Eclispe＋Ant的代码在for-eclispe-ide分支上，不再更新。
+
+
 # Android-Plugin-Framework
 
 
@@ -29,10 +38,12 @@ demo安装说明：
   
      原因是Demo中引用了宿主程序的依赖库。需要在编译时对共享库进行排除，如果是独立插件不需要特定的编译脚本。
 
-  3、插件编译出来以后，可以将插件复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装
+  3、插件编译出来以后，可以将插件复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")
+  进行安装
 
-  4、简易安装方式，是使用编译命令为 “ant clean debug install” 直接将插件apk安装到系统中，PluginMain工程会监听系统的应用安装广播，监听到插件apk安装广播后，
-再自动调用PluginLoader.installPlugin("/data/app/插件apk文件.apk")进行插件安装。免去复制到sdcard的过程。
+  4、简易安装方式，是使用编译命令为 “ant clean debug install” 直接将插件apk安装到系统中，PluginMain工程会监听系
+  统的应用安装广播，监听到插件apk安装广播后，再自动调用PluginLoader.installPlugin("/data/app/插件apk文件.apk")
+  进行插件安装。免去复制到sdcard的过程。
 
   5、需要关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml文件，
   插件使用宿主程序共享库，以及共享库R引用，和编译时排除的功能，都在这3个配置文件中体现
@@ -45,7 +56,8 @@ demo安装说明：
   
   2、支持fragment、activity、service、receiver、application组件。
   
-  3、插件中的activity、service、receiver组件拥有真正生命周期（不是使用反射实现的伪生命周期）、同时也支持Activity反射代理。
+  3、插件中的activity、service、receiver组件拥有真正生命周期（不是使用反射实现的伪生命周期）、同时也支持Activity
+  反射代理。（实际中service欺骗不支持多service，采用代理方式比较靠谱）
      
   4、插件中的组件无需继承特定基类。
   
@@ -59,14 +71,12 @@ demo安装说明：
      
   7、插件中的各种资源、布局、R、以及宿主程序中的各种资源、布局、R等可随意使用。
   
-  8、支持插件使用宿主程序主题、系统主题、插件自身主题以及style(控件style暂不支持5.x)。
+  8、支持插件使用宿主程序主题、系统主题、插件自身主题以及style
   
   
 # 暂不支持的功能：
-
-  1、插件中定义的控件的style 暂不支持5.x
   
-  2、暂不支持插件资源文件中直接使用宿主程序中的资源。但是支持间接使用。
+  暂不支持插件资源文件中直接使用宿主程序中的资源。但是支持间接使用。
      例如在上述“已支持的功能”6中描述的,实际就是间接使用。
   
 # 实现原理简介：
@@ -97,8 +107,11 @@ demo安装说明：
     资源的layout的TT值固定为23,即可解决资源id重复的问题了。
     
     固定资源idTT值的版本也非常简单，提供一份public.xml，在public.xml中指定什么资源类型以
-    什么TT值开头即可。具体public.xml如何编写，可参考PluginMain/res/values/public.xml 以及 PluginTest/res/values/public.xml俩个文件，它们是分别用来固定宿主程序和插件程序资源id的范围的。
-  
+    什么TT值开头即可。具体public.xml如何编写，可参考PluginMain/res/values/public.xml 以及
+    PluginTest/res/values/public.xml俩个文件，它们是分别用来固定宿主程序和插件程序资源id的范围的。
+
+    （openAtlasExtention@github项目提供了重写过的aapt指定PP段来实现id分组）
+
   4、插件apk的Context和LayoutInfalter
   
     构造一个Context对象即可，具体的Context实现请参考PluginCore/src/com/plugin/core/PluginContextTheme.java
@@ -122,10 +135,11 @@ demo安装说明：
     a、替换classloader。适用于所有�组件。
      App安装时，系统会扫描app的Manifest并缓存到一个xml中，activity启动时，系统会现在查找缓存的xml，
      如果查到了，再通过classLoad去load这个class，并构造一个activity实例。那么我们只需要将classload
-     加载这个class的时候做一个简单的映射，让系统以为加载的是A class，而实际上加载的是B class，达到挂羊头买狗肉的效果，即可将预注册的Aclass替换为未注册的activity，从而实现插件中的Activity
-     完全被系统接管，而拥有完整生命周期。其他组件同理。
-    
-     在PluginMain和PluginTest已经添加了这种实现方式的测试实例。
+     加载这个class的时候做一个简单的映射，让系统以为加载的是A class，而实际上加载的是B class，达到挂羊头买狗肉的效果，
+     即可将预注册的Aclass替换为未注册的activity，从而实现插件中的Activity
+     完全被系统接管，而拥有完整生命周期。其他组件同理（经过实际测试发现，要支持多service，需要采用代理方式实现，
+     receiver通过classloader实现）。
+
     
     b、替换Instrumention。
      这种方式仅适用于Activity。通过修改Instrumentation进行拦截，可以很好的利益Intent传递参数。
@@ -140,13 +154,16 @@ demo安装说明：
      另外还需要在获得插件Activity对象后，通过反射给Activity的attach()方法中attach的成员变量赋值。
      
      activity代理方式不建议使用，完全可以用上述第7点替代。
+
+     （更新：activity代理方式已放弃，不再支持）
   
   9、插件编译问题。
   
      如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
      包括共享库的代码以及R文件，只需在编译时添加到classpath中，且插件中如果要使用共享依赖库中的资源，
      需要使用共享库的R文件来进行引用。这几点在PluginTest示例工程中有体现。
-     
+
+     （更新：已接入gradle）
   
   10、插件Fragment
     插件UI可通过fragment或者activity来实现
@@ -160,14 +177,21 @@ demo安装说明：
     由于其运行容器PluginSpecDisplayer的Context已经被PluginLoader.getPluginContext获取的context替换，
     因此这种fragment的代码和普通非插件开发时开发的fragment的代码没有任何区别。
     
-    
+    （更新：两种fragment的Activity容器实际上并没有任何区别、已合并为同一个容器）
+
+
   11、插件主题
     轻松支持插件主题，重要实现原理仍然基于上述第2点。
   
 # 需要注意的问题
-  1、项目插件开发后，特别需要注意的是宿主程序混淆问题。宿主程序混淆后，可能会导致插件程序运行时出现classnotfound
-  2、android gradle插件不支持public.xml中使用padding，在android Studio可能无法编译。可以使用eclipse。
-  3、android sdk中的build tools版本较低时也午饭编译public.xml 文件。
+
+   1、项目插件开发后，特别需要注意的是宿主程序混淆问题。宿主程序混淆后，可能会导致插件程序运行时出现classnotfound
+
+   2、android gradle插件不支持public.xml中使用padding，在android Studio可能无法编译。可以使用eclipse。
+
+   3、android sdk中的build tools版本较低时也午饭编译public.xml 文件。
+
+  （更新：已支持android studio，gradle，eclispe ＋ ant ＋public的方式不再更新）
   
 联系作者：
   QQ：15871365851， 添加时请注明插件开发。
