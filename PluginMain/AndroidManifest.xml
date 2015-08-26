@@ -21,17 +21,7 @@
             android:name="com.plugin.core.ui.PluginNormalFragmentActivity"
             android:exported="true" >
         </activity>
-        
-        <activity
-            android:name="com.plugin.core.ui.PluginSpecFragmentActivity"
-            android:exported="true" >
-        </activity>
-        
-        <activity
-            android:name="com.plugin.core.proxy.PluginProxyActivity"
-            android:exported="true" >
-        </activity>
-        
+
         <activity
             android:name="com.plugin.core.ui.stub.PluginStubActivity"
             android:exported="true" >

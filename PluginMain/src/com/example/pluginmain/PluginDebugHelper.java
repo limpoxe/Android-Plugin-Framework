@@ -36,7 +36,7 @@ public class PluginDebugHelper extends BroadcastReceiver {
 		if (!TextUtils.isEmpty(pluginApkPath) && !TextUtils.isEmpty(defaultTarget)) {
 			boolean success = PluginLoader.installPlugin(pluginApkPath);
 			if (success) {
-				FragmentHelper.startFragmentWithSimpleActivity(context, defaultTarget);
+				FragmentHelper.startFragmentWithBuildInActivity(context, defaultTarget);
 			}
 		}
 
