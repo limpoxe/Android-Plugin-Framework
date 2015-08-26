@@ -85,14 +85,14 @@ public class PluginSpecFragmentActivity extends PluginNormalFragmentActivity {
 
 	@Override
 	public Resources getResources() {
-		if (Build.VERSION.SDK_INT < 14) {
+		//if (Build.VERSION.SDK_INT < 14) {
 			if (getBaseContext() == null) {
 				return mOrignalContext.getResources();
 			} else {
 				return super.getResources();
 			}
-		} else {
-			return super.getResources();
-		}
+		//} else {
+		//	return super.getResources();
+		//}
 	}
 }
