@@ -48,15 +48,15 @@ android {
 
     buildTypes {
         release {
-            //表示插件的id分组为0x8f
-            versionNameSuffix '_' + getDate() + '_0x8f'
+            //表示插件的id分组为0x3f, 必须设置为0x1f到0x7f之间，不可超出这个范围
+            versionNameSuffix '_' + getDate() + '_0x3f'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         debug {
-            //表示插件的id分组为0x8f
-            versionNameSuffix '_' + getDate() + '_0x8f'
+            //表示插件的id分组为0x3f, 必须设置为0x1f到0x7f之间，不可超出这个范围
+            versionNameSuffix '_' + getDate() + '_0x3f'
         }
     }
 
