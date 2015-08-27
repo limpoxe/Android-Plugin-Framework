@@ -51,15 +51,15 @@ public class PluginCreator {
 	public static Resources createPluginResource(Application application, String absolutePluginApkPath,
 			boolean isStandalone) {
 		try {
-			// 如果是独立插件的话，本来是可以不合并主程序资源的。
+			// 如果是独立插件的话，是可以不合并主程序资源的。
 			// 但是由于插件运行时可能会通过getActivityInfo等
 			// 会拿到到PluginStubActivity的ActivityInfo以及ApplicationInfo
 			// 这两个info里面有部分资源id是在宿主程序的Manifest中配置的，比如logo和icon
 			// 尝试通过插件Context获取这些资源会导致异常
-			// 所以这里强制合并资源。
-			// 强制合并资源，又需要另外一个前提条件，即id不重复。
-			// 所以不管是独立插件还是非独立插件，都需要在编译时引入public.xml文件来给资源id分组
-			String[] assetPaths = buildAssetPath(false, application.getApplicationInfo().sourceDir,
+
+			//isStandalone = false;
+
+			String[] assetPaths = buildAssetPath(isStandalone, application.getApplicationInfo().sourceDir,
 					absolutePluginApkPath);
 			AssetManager assetMgr = AssetManager.class.newInstance();
 			RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",

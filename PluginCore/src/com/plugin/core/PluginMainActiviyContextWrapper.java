@@ -214,6 +214,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 	/**
 	 * API 21
 	 */
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	@Override
 	public File getNoBackupFilesDir() {
 		return mBase.getNoBackupFilesDir();
@@ -224,16 +225,19 @@ public class PluginMainActiviyContextWrapper extends Context {
 		return mBase.getExternalFilesDir(type);
 	}
 
+	@TargetApi(Build.VERSION_CODES.KITKAT)
 	@Override
 	public File[] getExternalFilesDirs(String type) {
 		return mBase.getExternalFilesDirs(type);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public File getObbDir() {
 		return mBase.getObbDir();
 	}
 
+	@TargetApi(Build.VERSION_CODES.KITKAT)
 	@Override
 	public File[] getObbDirs() {
 		return mBase.getObbDirs();
@@ -247,6 +251,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 	/**
 	 * API 21
 	 */
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	@Override
 	public File getCodeCacheDir() {
 		return mBase.getCodeCacheDir();
@@ -257,6 +262,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 		return mBase.getExternalCacheDir();
 	}
 
+	@TargetApi(Build.VERSION_CODES.KITKAT)
 	@Override
 	public File[] getExternalCacheDirs() {
 		return mBase.getExternalCacheDirs();
@@ -265,6 +271,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 	/**
 	 * API 21
 	 */
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	@Override
 	public File[] getExternalMediaDirs() {
 		return mBase.getExternalMediaDirs();
@@ -280,6 +287,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 		return mBase.openOrCreateDatabase(name, mode, factory);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public SQLiteDatabase openOrCreateDatabase(String name, int mode, CursorFactory factory,
 			DatabaseErrorHandler errorHandler) {
@@ -347,6 +355,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 				UserHandle.class }, new Object[] { intent, user });
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void startActivity(Intent intent, Bundle options) {
 		mBase.startActivity(intent, options);
@@ -359,11 +368,13 @@ public class PluginMainActiviyContextWrapper extends Context {
 
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public void startActivities(Intent[] intents) {
 		mBase.startActivities(intents);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void startActivities(Intent[] intents, Bundle options) {
 		mBase.startActivities(intents, options);
@@ -381,6 +392,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 		mBase.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public void startIntentSender(IntentSender intent, Intent fillInIntent, int flagsMask, int flagsValues,
 			int extraFlags, Bundle options) throws IntentSender.SendIntentException {
@@ -427,16 +439,19 @@ public class PluginMainActiviyContextWrapper extends Context {
 						scheduler, initialCode, initialData, initialExtras });
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendBroadcastAsUser(Intent intent, UserHandle user) {
 		mBase.sendBroadcastAsUser(intent, user);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission) {
 		mBase.sendBroadcastAsUser(intent, user, receiverPermission);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendOrderedBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
 			BroadcastReceiver resultReceiver, Handler scheduler, int initialCode, String initialData,
@@ -471,11 +486,13 @@ public class PluginMainActiviyContextWrapper extends Context {
 		mBase.removeStickyBroadcast(intent);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendStickyBroadcastAsUser(Intent intent, UserHandle user) {
 		mBase.sendStickyBroadcastAsUser(intent, user);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendStickyOrderedBroadcastAsUser(Intent intent, UserHandle user, BroadcastReceiver resultReceiver,
 			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
@@ -483,6 +500,7 @@ public class PluginMainActiviyContextWrapper extends Context {
 				initialExtras);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void removeStickyBroadcastAsUser(Intent intent, UserHandle user) {
 		mBase.removeStickyBroadcastAsUser(intent, user);
@@ -682,11 +700,13 @@ public class PluginMainActiviyContextWrapper extends Context {
 				(Object[]) null);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public Context createConfigurationContext(Configuration overrideConfiguration) {
 		return mBase.createConfigurationContext(overrideConfiguration);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public Context createDisplayContext(Display display) {
 		return mBase.createDisplayContext(display);
