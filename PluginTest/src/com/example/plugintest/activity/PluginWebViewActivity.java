@@ -17,6 +17,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.hellojni.HelloJni;
 import com.example.plugintest.R;
 
 public class PluginWebViewActivity extends Activity implements OnClickListener {
@@ -34,6 +35,8 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		web = (WebView) findViewById(R.id.webview);
 		setUpWebViewSetting();
 		setClient();
+
+		Toast.makeText(this, "Test Jni so libaray 4 + 7 = "+  HelloJni.calculate(4, 7), Toast.LENGTH_LONG).show();
 	}
 
 	@Override

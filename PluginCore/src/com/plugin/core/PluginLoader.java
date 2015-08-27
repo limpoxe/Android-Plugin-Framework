@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import android.app.Application;
 import android.content.Context;
@@ -94,9 +95,18 @@ public class PluginLoader {
 
 			String destPluginFile = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destPluginFile);
-
-			// 第四步 添加到已安装插件列表
 			if (isCopySuccess) {
+
+				//第四步，复制插件so到插件so目录, 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
+				File tempDir = new File(new File(destPluginFile).getParentFile(), "temp");
+				Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempDir);
+				if (soList != null) {
+					for (String soName : soList) {
+						FileUtil.copySo(tempDir, soName, new File(destPluginFile).getParent() + File.separator + "lib");
+					}
+				}
+
+				// 第五步 添加到已安装插件列表
 				pluginDescriptor.setInstalledPath(destPluginFile);
 				PluginDescriptor previous = sInstalledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
 				isInstallSuccess = saveInstalledPlugins(sInstalledPlugins);
@@ -232,7 +242,7 @@ public class PluginLoader {
 	/**
 	 * 构造插件信息
 	 * 
-	 * @param pluginClassBean
+	 * @param
 	 */
 	private static void initPlugin(PluginDescriptor pluginDescriptor) {
 
@@ -384,7 +394,9 @@ public class PluginLoader {
 
 			boolean isSuccess = saveInstalledPlugins(sInstalledPlugins);
 
-			new File(old.getInstalledPath()).delete();
+			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
+
+			LogUtil.d("delete old", isSuccess, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 
 			if (isSuccess) {
 				Intent intent = new Intent(ACTION_PLUGIN_CHANGED);

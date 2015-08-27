@@ -28,10 +28,12 @@ public class PluginCreator {
 	 */
 	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone) {
 		if (!isStandalone) {
-			return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(), null,
+			return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
+					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
 					PluginLoader.class.getClassLoader());
 		} else {
-			return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(), null,
+			return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
+					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
 					PluginLoader.class.getClassLoader().getParent());
 		}
 
