@@ -33,9 +33,9 @@ public class PluginDescriptor implements Serializable {
 	
 	private HashMap<String, String> fragments = new HashMap<String, String>();
 
-	private HashMap<String, ArrayList<PluginIntentFilter>> components;
+	private HashMap<String, ArrayList<PluginIntentFilter>> components = new HashMap<String, ArrayList<PluginIntentFilter>>();
 
-	private HashMap<String, PluginProviderInfo> providerInfos;
+	private HashMap<String, PluginProviderInfo> providerInfos = new HashMap<String, PluginProviderInfo>();
 
 	private String installedPath;
 
@@ -44,6 +44,10 @@ public class PluginDescriptor implements Serializable {
 	private transient DexClassLoader pluginClassLoader;
 
 	private transient Context pluginContext;
+
+
+	//=============getter and setter======================
+
 
 	public Context getPluginContext() {
 		return pluginContext;
@@ -124,23 +128,7 @@ public class PluginDescriptor implements Serializable {
 	public void setEnabled(boolean isEnabled) {
 		this.isEnabled = isEnabled;
 	}
-	
-	/**
-	 * 需要根据id查询的只有fragment
-	 * @param clazzId
-	 * @return
-	 */
-	public String getPluginClassNameById(String clazzId) {
-		String clazzName = getFragments().get(clazzId);
 
-		if (clazzName == null) {
-			LogUtil.d("PluginDescriptor", "clazzName not found for classId ", clazzId);
-		} else {
-			LogUtil.d("PluginDescriptor", "clazzName found ", clazzName);
-		}
-		return clazzName;
-	}
-	
 	public Application getPluginApplication() {
 		return pluginApplication;
 	}
@@ -163,6 +151,22 @@ public class PluginDescriptor implements Serializable {
 
 	public void setProviderInfos(HashMap<String, PluginProviderInfo> providerInfos) {
 		this.providerInfos = providerInfos;
+	}
+
+	/**
+	 * 需要根据id查询的只有fragment
+	 * @param clazzId
+	 * @return
+	 */
+	public String getPluginClassNameById(String clazzId) {
+		String clazzName = getFragments().get(clazzId);
+
+		if (clazzName == null) {
+			LogUtil.d("PluginDescriptor", "clazzName not found for classId ", clazzId);
+		} else {
+			LogUtil.d("PluginDescriptor", "clazzName found ", clazzName);
+		}
+		return clazzName;
 	}
 
 	/**
