@@ -48,7 +48,9 @@ public class PluginApplication extends Application {
 				new PluginInstrumentionWrapper(originalInstrumentation));
 
 		// getHandler
-		Handler handler = (Handler) RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sMainThreadHandler");
+		Handler handler = (Handler) RefInvoker.invokeMethod(activityThread, "android.app.ActivityThread", "getHandler", (Class[])null, (Object[])null);
+		//下面的方法再api16及一下会失败，成员变量名称错误。
+		//Handler handler = (Handler) RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sMainThreadHandler");
 
 		// 给handler添加一个callback
 		RefInvoker.setFieldObject(handler, Handler.class.getName(), "mCallback", new PluginAppTrace(handler));
