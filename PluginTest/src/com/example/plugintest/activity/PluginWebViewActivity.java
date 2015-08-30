@@ -30,7 +30,9 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		Button bn = (Button) findViewById(R.id.btn);
 		bn.setOnClickListener(this);
 
-		bn = (Button) findViewById(R.id.db);
+		bn = (Button) findViewById(R.id.db_insert);
+		bn.setOnClickListener(this);
+		bn = (Button) findViewById(R.id.db_read);
 		bn.setOnClickListener(this);
 
 		web = (WebView) findViewById(R.id.webview);
@@ -44,14 +46,18 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		if (v.getId() == R.id.btn) {
 			web.loadUrl("http://www.baidu.com/");
+		} else if (v.getId() == R.id.db_insert) {
+
+			//插件ContentProvider是在插件首次被唤起时安装的, 属于动态安装。
+			//因此需要在插件被唤起后才可以使用相应的ContentProvider
+			//若要静态安装，需要更改PluginLoader的安装策略～
 
 			ContentValues values = new ContentValues();
 			values.put(PluginDbTables.PluginFirstTable.MY_FIRST_PLUGIN_NAME, "test web" + System.currentTimeMillis());
 			getContentResolver().insert(PluginDbTables.PluginFirstTable.CONTENT_URI, values);
 
-		}
 
-		if (v.getId() == R.id.db) {
+		} else if (v.getId() == R.id.db_read) {
 			Cursor cursor = getContentResolver().query(PluginDbTables.PluginFirstTable.CONTENT_URI, null, null, null, null);
 			if (cursor != null) {
 				if (cursor.moveToFirst()) {
@@ -59,9 +65,10 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 					if (index != -1) {
 						String pluginName = cursor.getString(index);
 						LogUtil.d(pluginName);
-						Toast.makeText(this, "Plugin ContentResolver =" + pluginName, Toast.LENGTH_LONG).show();
+						Toast.makeText(this, "ContentResolver " + pluginName + " count=" + cursor.getCount(), Toast.LENGTH_LONG).show();
 					}
 				}
+				cursor.close();
 			}
 		}
 	}

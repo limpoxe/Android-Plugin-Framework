@@ -16,11 +16,16 @@
         android:text="点击加载百度首页" />
 
     <Button
-        style="@style/MyButton"
-        android:id="@+id/db"
+        android:id="@+id/db_insert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="点击测试ContentProvider" />
+        android:text="点击通过ContentProvider插入数据" />
+
+    <Button
+        android:id="@+id/db_read"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击通过ContentProvider读取数据" />
 
     <WebView
         android:id="@+id/webview"
