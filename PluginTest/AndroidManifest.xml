@@ -20,7 +20,6 @@
         <!-- for fragment -->
         <meta-data android:name="fragmentTest2" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
         
-        <!-- for proxy test -->
         <activity
             android:name="com.example.plugintest.activity.PluginTestActivity" >
             <intent-filter>
@@ -32,7 +31,6 @@
             </intent-filter>
         </activity>
 
-        <!-- for proxy test -->
         <activity
             android:name="com.example.plugintest.activity.PluginFragmentTestActivity" >
             <intent-filter>
@@ -44,7 +42,6 @@
             </intent-filter>
         </activity>
         
-        <!-- for instrumentation -->
         <activity
             android:name="com.example.plugintest.activity.PluginNotInManifestActivity" >
             <intent-filter>
@@ -65,7 +62,6 @@
             
         </activity>
         
-        <!-- for instrumentation -->
         <activity
             android:name="com.example.plugintest.activity.PluginForOppoAndVivoActivity" >
             <intent-filter>
@@ -97,7 +93,7 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <!-- for classLoader -->
+
         <service android:name="com.example.plugintest.service.PluginTestService">
             <intent-filter>
                 <action
@@ -107,8 +103,8 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        
-                <service android:name="com.example.plugintest.service.PluginTestService2">
+
+        <service android:name="com.example.plugintest.service.PluginTestService2">
             <intent-filter>
                 <action
                     android:name="test.lmn2" />
@@ -135,7 +131,11 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-        
+
+        <provider
+            android:exported="true"
+            android:authorities="com.example.plugintest.provider"
+            android:name="com.example.plugintest.provider.PluginContentProvider"/>
     </application>
 
 </manifest>

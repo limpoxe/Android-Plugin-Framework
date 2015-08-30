@@ -35,6 +35,8 @@ public class PluginDescriptor implements Serializable {
 
 	private HashMap<String, ArrayList<PluginIntentFilter>> components;
 
+	private HashMap<String, PluginProviderInfo> providerInfos;
+
 	private String installedPath;
 
 	private transient Application pluginApplication;
@@ -154,7 +156,15 @@ public class PluginDescriptor implements Serializable {
 	public void setStandalone(boolean isStandalone) {
 		this.isStandalone = isStandalone;
 	}
-	
+
+	public HashMap<String, PluginProviderInfo> getProviderInfos() {
+		return providerInfos;
+	}
+
+	public void setProviderInfos(HashMap<String, PluginProviderInfo> providerInfos) {
+		this.providerInfos = providerInfos;
+	}
+
 	/**
 	 * 需要根据Id查询的只有fragment
 	 * @param clazzId
@@ -176,6 +186,8 @@ public class PluginDescriptor implements Serializable {
 		if (getFragments().containsValue(clazzName) && isEnabled()) {
 			return true;
 		} else if (getComponents().containsKey(clazzName) && isEnabled()) {
+			return true;
+		} else if (getProviderInfos().containsKey(clazzName) && isEnabled()) {
 			return true;
 		}
 		return false;

@@ -7,6 +7,7 @@ import android.content.Intent;
 import com.plugin.core.proxy.PluginProxyService;
 import com.plugin.core.ui.stub.PluginStubActivity;
 import com.plugin.core.ui.stub.PluginStubReceiver;
+import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -23,7 +24,10 @@ public class PluginIntentResolver {
 
 	/* package */static Intent resolveReceiver(final Intent intent) {
 		Intent realIntent = intent;
-		if (hackClassLoadForReceiverIfNeeded(intent)) {
+		// 如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
+		// 不需要在这里记录目标className，className将在Intent中传递
+		if (PluginLoader.isMatchPlugin(intent) != null) {
+			ClassLoaderUtil.hackClassLoaderIfNeeded();
 			realIntent = new Intent();
 			realIntent.setClass(PluginLoader.getApplicatoin(), PluginStubReceiver.class);
 			realIntent.putExtra(RECEIVER_ID_IN_PLUGIN, intent);
@@ -48,25 +52,6 @@ public class PluginIntentResolver {
 		if (PluginLoader.isMatchPlugin(name) != null) {
 			resolveService(name);
 			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean hackClassLoadForReceiverIfNeeded(Intent intent) {
-		// 如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
-		// 不需要在这里记录目标className，className将在Intent中传递
-		if (PluginLoader.isMatchPlugin(intent) != null) {
-			Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(),
-					"mLoadedApk");
-			ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(mLoadedApk, "android.app.LoadedApk",
-					"mClassLoader");
-			if (!(originalLoader instanceof PluginReceiverClassLoader)) {
-				PluginReceiverClassLoader newLoader = new PluginReceiverClassLoader("", PluginLoader.getApplicatoin()
-						.getCacheDir().getAbsolutePath(),
-						PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(), originalLoader);
-				RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk", "mClassLoader", newLoader);
-			}
 			return true;
 		}
 		return false;

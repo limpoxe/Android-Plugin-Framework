@@ -15,6 +15,13 @@
         android:layout_height="wrap_content"
         android:text="点击加载百度首页" />
 
+    <Button
+        style="@style/MyButton"
+        android:id="@+id/db"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击测试ContentProvider" />
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="fill_parent"

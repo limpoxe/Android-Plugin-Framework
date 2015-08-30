@@ -279,6 +279,8 @@ public class PluginLoader {
 				RefInvoker.invokeMethod(application, "android.app.Application", "attach",
 						new Class[] { Context.class }, new Object[] { sApplication });
 
+				PluginContentProviderInstaller.installContentProviders(sApplication, pluginDescriptor.getProviderInfos().values());
+
 				LogUtil.d("初始化插件apk的application对象", pluginDescriptor.getApplicationName());
 				pluginDescriptor.setPluginApplication(application);
 				application.onCreate();

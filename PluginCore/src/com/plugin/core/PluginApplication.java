@@ -11,10 +11,15 @@ import com.plugin.util.RefInvoker;
 
 public class PluginApplication extends Application {
 
+	private static Object activityThread;
 	private String mProcessName;
 
 	public String getProcessName() {
 		return mProcessName;
+	}
+
+	public static Object getActivityThread() {
+		return activityThread;
 	}
 
 	@Override
@@ -30,7 +35,7 @@ public class PluginApplication extends Application {
 		LogUtil.d("injectInstrumentation");
 
 		// 从ThreadLocal中取出来的
-		Object activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
+		activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
 				(Class[]) null, (Object[]) null);
 
 		mProcessName = (String) RefInvoker.invokeMethod(activityThread, "android.app.ActivityThread", "getProcessName",

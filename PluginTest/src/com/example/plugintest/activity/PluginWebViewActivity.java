@@ -1,14 +1,11 @@
 package com.example.plugintest.activity;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -19,6 +16,8 @@ import android.widget.Toast;
 
 import com.example.hellojni.HelloJni;
 import com.example.plugintest.R;
+import com.example.plugintest.provider.PluginDbTables;
+import com.plugin.util.LogUtil;
 
 public class PluginWebViewActivity extends Activity implements OnClickListener {
 	WebView web;
@@ -29,7 +28,9 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.plugin_webview);
 
 		Button bn = (Button) findViewById(R.id.btn);
+		bn.setOnClickListener(this);
 
+		bn = (Button) findViewById(R.id.db);
 		bn.setOnClickListener(this);
 
 		web = (WebView) findViewById(R.id.webview);
@@ -41,7 +42,28 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		web.loadUrl("http://www.baidu.com/");
+		if (v.getId() == R.id.btn) {
+			web.loadUrl("http://www.baidu.com/");
+
+			ContentValues values = new ContentValues();
+			values.put(PluginDbTables.PluginFirstTable.MY_FIRST_PLUGIN_NAME, "test web" + System.currentTimeMillis());
+			getContentResolver().insert(PluginDbTables.PluginFirstTable.CONTENT_URI, values);
+
+		}
+
+		if (v.getId() == R.id.db) {
+			Cursor cursor = getContentResolver().query(PluginDbTables.PluginFirstTable.CONTENT_URI, null, null, null, null);
+			if (cursor != null) {
+				if (cursor.moveToFirst()) {
+					int index = cursor.getColumnIndex(PluginDbTables.PluginFirstTable.MY_FIRST_PLUGIN_NAME);
+					if (index != -1) {
+						String pluginName = cursor.getString(index);
+						LogUtil.d(pluginName);
+						Toast.makeText(this, "Plugin ContentResolver =" + pluginName, Toast.LENGTH_LONG).show();
+					}
+				}
+			}
+		}
 	}
 
 	private void setUpWebViewSetting() {

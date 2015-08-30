@@ -118,6 +118,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				pluginContext = PluginLoader.getNewPluginContext(activity.getClass());
 			}
 
+			LogUtil.d("pluginContext", pluginContext);
+
 			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
 			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext",
 					new Class[] { Context.class }, new Object[] { pluginContext });

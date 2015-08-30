@@ -14,6 +14,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginIntentFilter;
+import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.PluginLoader;
 
 public class ManifestParser {
@@ -88,6 +89,22 @@ public class ManifestParser {
                         	addIntentFilter(desciptor, packageName, namespaceAndroid, parser, "receiver");
                         } else if ("service".equals(parser.getName())) {
                         	addIntentFilter(desciptor, packageName, namespaceAndroid, parser, "service");
+                        } else if ("provider".equals(parser.getName())) {
+                            String name = parser.getAttributeValue(namespaceAndroid, "name");
+                            String author = parser.getAttributeValue(namespaceAndroid, "authorities");
+                            String exported = parser.getAttributeValue(namespaceAndroid, "exported");
+                            HashMap<String, PluginProviderInfo> providers = desciptor.getProviderInfos();
+                            if (providers == null) {
+                                providers = new HashMap<String, PluginProviderInfo>();
+                                desciptor.setProviderInfos(providers);
+                            }
+
+                            PluginProviderInfo info = new PluginProviderInfo();
+                            info.setName(PluginProviderInfo.prefix + name);//name做上标记，表示是来自插件，方便classloader进行判断
+                            info.setExported(Boolean.getBoolean(exported));
+                            info.setAuthority(author);
+
+                            providers.put(name, info);
                         }
                         break;
                     }
