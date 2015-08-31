@@ -11,6 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/PluginCore" />
+            <option value="$PROJECT_DIR$/PluginHelloWorld" />
             <option value="$PROJECT_DIR$/PluginMain" />
             <option value="$PROJECT_DIR$/PluginShareLib" />
             <option value="$PROJECT_DIR$/PluginTest" />

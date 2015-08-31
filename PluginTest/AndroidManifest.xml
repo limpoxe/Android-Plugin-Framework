@@ -16,9 +16,9 @@
  	    android:label="包含UI的插件demo, 代表5中开发方式，UIclassName要求是唯一的，宿主程序需要根据和className来进行查找">
         
         <!-- for fragment -->
-        <meta-data android:name="fragmentTest1" android:value="com.example.plugintest.fragment.PluginSpecFragment"/>
+        <meta-data android:name="fragment_id_fragmentTest1" android:value="com.example.plugintest.fragment.PluginSpecFragment"/>
         <!-- for fragment -->
-        <meta-data android:name="fragmentTest2" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
+        <meta-data android:name="fragment_id_fragmentTest2" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
         
         <activity
             android:name="com.example.plugintest.activity.PluginTestActivity" >

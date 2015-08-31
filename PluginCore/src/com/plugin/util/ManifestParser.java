@@ -69,10 +69,12 @@ public class ManifestParser {
                         	
                         	String fragmentId = parser.getAttributeValue(namespaceAndroid, "name");
                         	String fragmentClassName = parser.getAttributeValue(namespaceAndroid, "value");
-                        	
-                        	hashMap.put(fragmentId, fragmentClassName);
-                        	
-                        	LogUtil.d(fragmentId, fragmentClassName);
+
+                            if (fragmentId != null && fragmentId.startsWith("fragment_id_")) {
+                                hashMap.put(fragmentId, fragmentClassName);
+                                LogUtil.d(fragmentId, fragmentClassName);
+                            }
+
                         } else if ("application".equals(parser.getName())) {
                         	
                         	String applicationName = parser.getAttributeValue(namespaceAndroid, "name");

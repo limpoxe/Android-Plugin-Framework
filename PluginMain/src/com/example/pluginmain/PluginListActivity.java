@@ -54,8 +54,7 @@ public class PluginListActivity extends Activity {
 					isInstalled = true;
 
 					copyAndInstall("PluginTest-debug.apk");
-					//copyAndInstall("HelloWork.apk");
-					// copyAndInstall("Game1-debug.apk");
+					copyAndInstall("PluginHelloWorld-debug.apk");
 
 				}
 			}
