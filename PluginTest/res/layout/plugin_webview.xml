@@ -10,7 +10,7 @@
 
     <Button
         style="@style/MyButton"
-        android:id="@+id/btn"
+        android:id="@+id/load"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="点击加载百度首页" />
@@ -26,6 +26,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="点击通过ContentProvider读取数据" />
+
+    <Button
+        android:id="@+id/db_so"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击测试Jni so" />
+
+    <Button
+        android:id="@+id/db_assert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击测试assert" />
 
     <WebView
         android:id="@+id/webview"

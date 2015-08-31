@@ -237,4 +237,19 @@ public class FileUtil {
 		return file.delete();
 	}
 
+	public static String streamToString(InputStream input) throws IOException {
+
+		InputStreamReader isr = new InputStreamReader(input);
+		BufferedReader reader = new BufferedReader(isr);
+
+		String line;
+		StringBuffer sb = new StringBuffer();
+		while ((line = reader.readLine()) != null) {
+			sb.append(line);
+		}
+		reader.close();
+		isr.close();
+		return sb.toString();
+	}
+
 }

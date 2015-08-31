@@ -17,7 +17,10 @@ import android.widget.Toast;
 import com.example.hellojni.HelloJni;
 import com.example.plugintest.R;
 import com.example.plugintest.provider.PluginDbTables;
+import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
+
+import java.io.InputStream;
 
 public class PluginWebViewActivity extends Activity implements OnClickListener {
 	WebView web;
@@ -27,24 +30,26 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.plugin_webview);
 
-		Button bn = (Button) findViewById(R.id.btn);
+		Button bn = (Button) findViewById(R.id.load);
 		bn.setOnClickListener(this);
-
 		bn = (Button) findViewById(R.id.db_insert);
 		bn.setOnClickListener(this);
 		bn = (Button) findViewById(R.id.db_read);
+		bn.setOnClickListener(this);
+		bn = (Button) findViewById(R.id.db_so);
+		bn.setOnClickListener(this);
+		bn = (Button) findViewById(R.id.db_assert);
 		bn.setOnClickListener(this);
 
 		web = (WebView) findViewById(R.id.webview);
 		setUpWebViewSetting();
 		setClient();
 
-		Toast.makeText(this, "Test Jni so libaray 4 + 7 = "+  HelloJni.calculate(4, 7), Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.btn) {
+		if (v.getId() == R.id.load) {
 			web.loadUrl("http://www.baidu.com/");
 		} else if (v.getId() == R.id.db_insert) {
 
@@ -70,7 +75,25 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 				}
 				cursor.close();
 			}
+		} else if (v.getId() == R.id.db_so) {
+
+			Toast.makeText(this, "Test Jni so libaray 4 + 7 = "+  HelloJni.calculate(4, 7), Toast.LENGTH_LONG).show();
+
+		} else if (v.getId() == R.id.db_assert) {
+
+			testReadAssert();
 		}
+	}
+
+	private void testReadAssert() {
+		try {
+			InputStream assestInput = getAssets().open("test.json");
+			String text = FileUtil.streamToString(assestInput);
+			Toast.makeText(this, "read assets from plugin" + text, Toast.LENGTH_LONG).show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private void setUpWebViewSetting() {
