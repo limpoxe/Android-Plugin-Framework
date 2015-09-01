@@ -56,8 +56,11 @@ public class PluginCreator {
 			// 会拿到到PluginStubActivity的ActivityInfo以及ApplicationInfo
 			// 这两个info里面有部分资源id是在宿主程序的Manifest中配置的，比如logo和icon
 			// 尝试通过插件Context获取这些资源会导致异常
-
-			//isStandalone = false;
+            // 所以这里强制合并宿主和插件资源。
+			// 这里又引发另外一个问题，是独立插件是第三方编译的，因此插件的id通常是0x7f开头的
+			// 那么这里要保证独立插件和宿主的id不重复，要指定宿主的id不是以0x7f开头。
+			// 所以需要再宿主的build.gralde指定id起始值
+			isStandalone = false;
 
 			String[] assetPaths = buildAssetPath(isStandalone, application.getApplicationInfo().sourceDir,
 					absolutePluginApkPath);
