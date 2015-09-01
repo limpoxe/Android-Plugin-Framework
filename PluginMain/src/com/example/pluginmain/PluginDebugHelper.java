@@ -78,15 +78,16 @@ public class PluginDebugHelper extends BroadcastReceiver {
 			try {
 				ApplicationInfo pinfo = context.getPackageManager().getApplicationInfo(
 						intent.getData().getSchemeSpecificPart(), PackageManager.GET_META_DATA);
-				Iterator<String> iterator = pinfo.metaData.keySet().iterator();
-				while (iterator.hasNext()) {
-					String key = iterator.next();
-					String value = pinfo.metaData.getString(key);
-					if (key.equals("launcher")) {
-						return value;
+				if (pinfo != null && pinfo.metaData != null) {
+					Iterator<String> iterator = pinfo.metaData.keySet().iterator();
+					while (iterator.hasNext()) {
+						String key = iterator.next();
+						String value = pinfo.metaData.getString(key);
+						if (key.equals("launcher")) {
+							return value;
+						}
 					}
 				}
-
 			} catch (NameNotFoundException e) {
 				e.printStackTrace();
 			}

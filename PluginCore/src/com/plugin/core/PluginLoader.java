@@ -496,7 +496,7 @@ public class PluginLoader {
 							int result = filter.match(intent.getAction(), intent.getType(), intent.getScheme(),
 									intent.getData(), intent.getCategories());
 
-							LogUtil.d("PluginLoader", "result ", result, filter.getAction(0), intent.getAction(),
+							LogUtil.d("PluginLoader", "result ", result, intent.getAction(),
 									intent.getType(), intent.getScheme(), intent.getData());
 
 							if (result != PluginIntentFilter.NO_MATCH_ACTION
