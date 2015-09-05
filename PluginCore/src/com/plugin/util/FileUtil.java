@@ -95,6 +95,16 @@ public class FileUtil {
 			if (sourceFile.exists()) {
 				copyFile(sourceFile.getAbsolutePath(), dest + File.separator + so);
 			} else {
+				LogUtil.d(Build.CPU_ABI, Build.CPU_ABI2);
+				if (Build.VERSION.SDK_INT >= 21) {
+					String[] abis = Build.SUPPORTED_ABIS;
+					if (abis != null) {
+						for (String abi:
+								abis) {
+							LogUtil.d(abi);
+						}
+					}
+				}
 				Toast.makeText(PluginLoader.getApplicatoin(), "安装" + so + "失败:NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 			}
 		} catch(Exception e) {
