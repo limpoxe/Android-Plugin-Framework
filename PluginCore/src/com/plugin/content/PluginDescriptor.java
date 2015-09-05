@@ -195,7 +195,7 @@ public class PluginDescriptor implements Serializable {
 
 	public String getDescription() {
 		if (description != null && description.startsWith("@") && description.length() == 9) {
-			String idHex = description.replace("@", "0x");
+			String idHex = description.replace("@", "");
 			try {
 				int id = Integer.parseInt(idHex, 16);
 				//此时context可能还没有初始化
@@ -204,6 +204,7 @@ public class PluginDescriptor implements Serializable {
 					return des;
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		return description;
