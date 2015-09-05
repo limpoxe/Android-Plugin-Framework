@@ -12,11 +12,6 @@ import com.plugin.util.RefInvoker;
 public class PluginApplication extends Application {
 
 	private static Object activityThread;
-	private String mProcessName;
-
-	public String getProcessName() {
-		return mProcessName;
-	}
 
 	public static Object getActivityThread() {
 		return activityThread;
@@ -25,27 +20,31 @@ public class PluginApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		initActivityThread();
 		injectInstrumentation();
+		injectHandlerCallback();
+	}
+
+	private void initActivityThread() {
+
+		// 从ThreadLocal中取出来的
+		activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
+				(Class[]) null, (Object[]) null);
 	}
 
 	/**
 	 * 注入Instrumentation主要是为了支持Activity
 	 */
 	private void injectInstrumentation() {
-		LogUtil.d("injectInstrumentation");
-
-		// 从ThreadLocal中取出来的
-		activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
-				(Class[]) null, (Object[]) null);
-
-		mProcessName = (String) RefInvoker.invokeMethod(activityThread, "android.app.ActivityThread", "getProcessName",
-				(Class[]) null, (Object[]) null);
-
 		// 给Instrumentation添加一层代理，用来实现隐藏api的调用
 		Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getFieldObject(activityThread,
 				"android.app.ActivityThread", "mInstrumentation");
 		RefInvoker.setFieldObject(activityThread, "android.app.ActivityThread", "mInstrumentation",
 				new PluginInstrumentionWrapper(originalInstrumentation));
+	}
+
+	private void injectHandlerCallback() {
 
 		// getHandler
 		Handler handler = (Handler) RefInvoker.invokeMethod(activityThread, "android.app.ActivityThread", "getHandler", (Class[])null, (Object[])null);
@@ -54,9 +53,16 @@ public class PluginApplication extends Application {
 
 		// 给handler添加一个callback
 		RefInvoker.setFieldObject(handler, Handler.class.getName(), "mCallback", new PluginAppTrace(handler));
-
 	}
 
+	@Override
+	public Object getSystemService(String name) {
+		return super.getSystemService(name);
+	}
+
+	/**
+	 * sendBroadcast有很多重载的方法，如有必要，可以相应的进行重写
+	 */
 	@Override
 	public void sendBroadcast(Intent intent) {
 		LogUtil.d("sendBroadcast", intent.toUri(0));
@@ -88,7 +94,7 @@ public class PluginApplication extends Application {
 	@Override
 	public void startActivity(Intent intent) {
 		LogUtil.d("startActivity", intent.toUri(0));
-		PluginIntentResolver.resloveActivity(intent);
+		PluginIntentResolver.resolveActivity(intent);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		super.startActivity(intent);
 	}

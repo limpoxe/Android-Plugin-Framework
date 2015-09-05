@@ -1,5 +1,7 @@
 package com.example.pluginmain;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -13,10 +15,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.content.PluginIntentFilter;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.FragmentHelper;
+import com.plugin.util.LogUtil;
 
 public class PluginDetailActivity extends Activity {
 
@@ -28,7 +33,13 @@ public class PluginDetailActivity extends Activity {
 		setContentView(R.layout.detail_activity);
 		mRoot = (ViewGroup) findViewById(R.id.root);
 
+		LogUtil.d(getIntent().toUri(0));
+
 		String pluginId = getIntent().getStringExtra("plugin_id");
+		if (pluginId == null) {
+			Toast.makeText(this, "缺少plugin_id参数", Toast.LENGTH_LONG).show();
+			return;
+		}
 		PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(pluginId);
 
 		initViews(pluginDescriptor);
@@ -66,7 +77,7 @@ public class PluginDetailActivity extends Activity {
 				pluginFragmentView.addView(tv);
 
 				Button btn = new Button(this);
-				btn.append("点击打开");
+				btn.setText("点击打开");
 				btn.setOnClickListener(new OnClickListener() {
 
 					@Override
@@ -80,79 +91,86 @@ public class PluginDetailActivity extends Activity {
 				pluginFragmentView.addView(btn);
 			}
 
-			LinearLayout pluginActivitysView = (LinearLayout) mRoot.findViewById(R.id.plugin_activities);
-			Iterator<String> components = pluginDescriptor.getComponents().keySet().iterator();
-			while (components.hasNext()) {
+			LinearLayout pluginView = (LinearLayout) mRoot.findViewById(R.id.plugin_activities);
 
-				final String entry = components.next();
+			addButton(pluginView, pluginDescriptor.getActivitys(), "Activity");
 
-				TextView tv = new TextView(this);
-				// tv.setText("插件ClassId：" + entry.getKey());
-				// pluginActivitysView.addView(tv);
+			addButton(pluginView, pluginDescriptor.getServices(), "Service");
 
-				tv = new TextView(this);
-				tv.append("插件ClassName ： " + entry);
-				pluginActivitysView.addView(tv);
+			addButton(pluginView, pluginDescriptor.getReceivers(), "Receiver");
+		}
+	}
 
-				tv = new TextView(this);
-				// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
-				tv.append("插件类型："
-						+ (entry.contains("Service") ? "service" : (entry.contains("Receiver") ? "Receiver"
-								: "activity")));
-				pluginActivitysView.addView(tv);
+	private void addButton(LinearLayout pluginView, HashMap<String, ArrayList<PluginIntentFilter>> map, final String type) {
+		Iterator<String> components = map.keySet().iterator();
+		while (components.hasNext()) {
 
-				Button btn = new Button(this);
-				btn.append("点击打开");
-				btn.setOnClickListener(new OnClickListener() {
+			final String entry = components.next();
 
-					@Override
-					public void onClick(View v) {
+			TextView tv = new TextView(this);
+			// tv.setText("插件ClassId：" + entry.getKey());
+			// pluginActivitysView.addView(tv);
 
-						// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
-						if (entry.contains("Service")) {
+			tv = new TextView(this);
+			tv.append("插件ClassName ： " + entry);
+			pluginView.addView(tv);
 
-							Intent intent = new Intent();
-							intent.setClassName(PluginDetailActivity.this, entry);
-							intent.putExtra("testParam", "testParam");
-							startService(intent);
-							// stopService(intent);
-						} else if (entry.contains("Receiver")) {// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
+			tv = new TextView(this);
+			// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
+			tv.append("插件类型：" + type);
+			pluginView.addView(tv);
 
-							Intent intent = new Intent();
-							intent.setClassName(PluginDetailActivity.this, entry);
-							intent.putExtra("testParam", "testParam");
-							sendBroadcast(intent);
-						} else {
+			Button btn = new Button(this);
+			btn.setText("点击打开");
+			btn.setOnClickListener(new OnClickListener() {
 
-							// 测试通过ClassName匹配
-							Intent intent = new Intent();
-							intent.setClassName(PluginDetailActivity.this, entry);
+				@Override
+				public void onClick(View v) {
+
+					// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
+					if (type.equals("Service")) {
+
+						Intent intent = new Intent();
+						intent.setClassName(PluginDetailActivity.this, entry);
+						intent.putExtra("testParam", "testParam");
+						startService(intent);
+						// stopService(intent);
+
+					} else if (type.equals("Receiver")) {// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
+
+						Intent intent = new Intent();
+						intent.setClassName(PluginDetailActivity.this, entry);
+						intent.putExtra("testParam", "testParam");
+						sendBroadcast(intent);
+					} else if (type.equals("Activity")) {
+
+						// 测试通过ClassName匹配
+						Intent intent = new Intent();
+						intent.setClassName(PluginDetailActivity.this, entry);
+						intent.putExtra("testParam", "testParam");
+						startActivity(intent);
+
+						// 测试通过action进行匹配的方式
+						if (entry.equals("com.example.plugintest.activity.PluginNotInManifestActivity")) {
+							intent = new Intent("test.xyz1");
 							intent.putExtra("testParam", "testParam");
 							startActivity(intent);
-
-							// 测试通过action进行匹配的方式
-							if (entry.equals("com.example.plugintest.activity.PluginNotInManifestActivity")) {
-								intent = new Intent("test.xyz1");
-								intent.putExtra("testParam", "testParam");
-								startActivity(intent);
-							}
-
-							// 测试通过url进行匹配的方式
-							if (entry.equals("com.example.plugintest.activity.PluginNotInManifestActivity")) {
-								intent = new Intent(Intent.ACTION_VIEW);
-								intent.addCategory(Intent.CATEGORY_DEFAULT);
-								intent.addCategory(Intent.CATEGORY_BROWSABLE);
-								intent.setData(Uri.parse("testscheme://testhost"));
-								intent.putExtra("testParam", "testParam");
-								startActivity(intent);
-							}
-
 						}
-					}
-				});
-				pluginActivitysView.addView(btn);
 
-			}
+						// 测试通过url进行匹配的方式
+						if (entry.equals("com.example.plugintest.activity.PluginNotInManifestActivity")) {
+							intent = new Intent(Intent.ACTION_VIEW);
+							intent.addCategory(Intent.CATEGORY_DEFAULT);
+							intent.addCategory(Intent.CATEGORY_BROWSABLE);
+							intent.setData(Uri.parse("testscheme://testhost"));
+							intent.putExtra("testParam", "testParam");
+							startActivity(intent);
+						}
+
+					}
+				}
+			});
+			pluginView.addView(btn);
 		}
 	}
 }

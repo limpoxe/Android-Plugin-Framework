@@ -225,7 +225,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent intent, int requestCode, Bundle options) {
 
-		PluginIntentResolver.resloveActivity(intent);
+		PluginIntentResolver.resolveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
@@ -238,7 +238,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void execStartActivities(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent[] intents, Bundle options) {
 
-		PluginIntentResolver.resloveActivity(intents);
+		PluginIntentResolver.resolveActivity(intents);
 
 		RefInvoker
 				.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(), "execStartActivities",
@@ -249,7 +249,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void execStartActivitiesAsUser(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent[] intents, Bundle options, int userId) {
 
-		PluginIntentResolver.resloveActivity(intents);
+		PluginIntentResolver.resolveActivity(intents);
 
 		RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivitiesAsUser", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
@@ -260,7 +260,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
 			android.support.v4.app.Fragment target, Intent intent, int requestCode, Bundle options) {
 
-		PluginIntentResolver.resloveActivity(intent);
+		PluginIntentResolver.resolveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class,
@@ -274,7 +274,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
 			android.app.Fragment target, Intent intent, int requestCode, Bundle options) {
 
-		PluginIntentResolver.resloveActivity(intent);
+		PluginIntentResolver.resolveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class,
@@ -288,7 +288,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
 			Intent intent, int requestCode, Bundle options, UserHandle user) {
 
-		PluginIntentResolver.resloveActivity(intent);
+		PluginIntentResolver.resolveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,

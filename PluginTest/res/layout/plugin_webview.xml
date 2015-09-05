@@ -39,6 +39,12 @@
         android:layout_height="wrap_content"
         android:text="点击测试assert" />
 
+    <Button
+        android:id="@+id/db_notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击测试notification" />
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="fill_parent"

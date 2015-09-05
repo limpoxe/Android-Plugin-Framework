@@ -61,6 +61,7 @@ public class ManifestParser {
                             
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
                         } else if (tag.equals("meta-data")) {
+
                         	HashMap<String, String> hashMap = desciptor.getFragments();
                         	if (hashMap == null) {
                         		hashMap = new HashMap<String, String>();
@@ -70,6 +71,9 @@ public class ManifestParser {
                         	String fragmentId = parser.getAttributeValue(namespaceAndroid, "name");
                         	String fragmentClassName = parser.getAttributeValue(namespaceAndroid, "value");
 
+                            /**
+                             * fragmentId 约定以fragment_id_开头，避免把其他普通metadata信息读出来了
+                             */
                             if (fragmentId != null && fragmentId.startsWith("fragment_id_")) {
                                 hashMap.put(fragmentId, fragmentClassName);
                                 LogUtil.d(fragmentId, fragmentClassName);
@@ -85,13 +89,36 @@ public class ManifestParser {
                     		desciptor.setDescription(parser.getAttributeValue(namespaceAndroid, "label"));
                     		
                     		LogUtil.d(" applicationName " + applicationName + " Description " + desciptor.getDescription());
+
                         } else if ("activity".equals(parser.getName())) {
-                        	addIntentFilter(desciptor, packageName, namespaceAndroid, parser, "activity");
+
+                            HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getActivitys();
+                            if (map == null) {
+                                map = new HashMap<String, ArrayList<PluginIntentFilter>>();
+                                desciptor.setActivitys(map);
+                            }
+                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "activity");
+
                         } else if ("receiver".equals(parser.getName())) {
-                        	addIntentFilter(desciptor, packageName, namespaceAndroid, parser, "receiver");
+
+                            HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getReceivers();
+                            if (map == null) {
+                                map = new HashMap<String, ArrayList<PluginIntentFilter>>();
+                                desciptor.setReceivers(map);
+                            }
+                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "receiver");
+
                         } else if ("service".equals(parser.getName())) {
-                        	addIntentFilter(desciptor, packageName, namespaceAndroid, parser, "service");
+
+                            HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getServices();
+                            if (map == null) {
+                                map = new HashMap<String, ArrayList<PluginIntentFilter>>();
+                                desciptor.setServices(map);
+                            }
+                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "service");
+
                         } else if ("provider".equals(parser.getName())) {
+
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             String author = parser.getAttributeValue(namespaceAndroid, "authorities");
                             String exported = parser.getAttributeValue(namespaceAndroid, "exported");
@@ -129,22 +156,16 @@ public class ManifestParser {
         return null;
     }
     
-	private static void addIntentFilter(PluginDescriptor pluginDescription, String packageName, String namespace,
+	private static void addIntentFilter(HashMap<String, ArrayList<PluginIntentFilter>> map, String packageName, String namespace,
 			XmlPullParser parser, String endTagName) throws XmlPullParserException, IOException {
 		int eventType = parser.getEventType();
 		String activityName = parser.getAttributeValue(namespace, "name");
 		activityName = getName(activityName, packageName);
-		
-		HashMap<String, ArrayList<PluginIntentFilter>> activitys = pluginDescription.getComponents();
-		if (activitys == null) {
-			activitys = new HashMap<String, ArrayList<PluginIntentFilter>>();
-			pluginDescription.setComponents(activitys);
-		}
-		
-		ArrayList<PluginIntentFilter> filters = activitys.get(activityName);
+
+		ArrayList<PluginIntentFilter> filters = map.get(activityName);
 		if (filters == null) {
 			filters = new ArrayList<PluginIntentFilter>();
-			activitys.put(activityName, filters);
+            map.put(activityName, filters);
 		}
 		
 		PluginIntentFilter intentFilter = new PluginIntentFilter();
@@ -161,7 +182,7 @@ public class ManifestParser {
 				}
 			}
 			eventType = parser.next();
-		} while (!endTagName.equals(parser.getName()));//再次到达activity，表示一个activity标签结束了
+		} while (!endTagName.equals(parser.getName()));//再次到达，表示一个标签结束了
 
 	}
 	

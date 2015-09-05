@@ -56,6 +56,8 @@ public class PluginListActivity extends Activity {
 					copyAndInstall("PluginTest-debug.apk");
 					copyAndInstall("PluginHelloWorld-debug.apk");
 
+				} else {
+					Toast.makeText(PluginListActivity.this, "已经安装过了", Toast.LENGTH_LONG).show();
 				}
 			}
 		});
@@ -67,9 +69,17 @@ public class PluginListActivity extends Activity {
 	private void copyAndInstall(String name) {
 		try {
 			InputStream assestInput = getAssets().open(name);
-			String sdcardDest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + name;
-			if (FileUtil.copyFile(assestInput, sdcardDest)) {
-				PluginLoader.installPlugin(sdcardDest);
+			String dest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + name;
+			if (FileUtil.copyFile(assestInput, dest)) {
+				PluginLoader.installPlugin(dest);
+			} else {
+				assestInput = getAssets().open(name);
+				dest = getCacheDir().getAbsolutePath() + "/" + name;
+				if (FileUtil.copyFile(assestInput, dest)) {
+					PluginLoader.installPlugin(dest);
+				} else {
+					Toast.makeText(PluginListActivity.this, "解压Apk失败" + dest, Toast.LENGTH_LONG).show();
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

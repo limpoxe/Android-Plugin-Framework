@@ -1,9 +1,10 @@
 package com.plugin.core;
 
-import android.app.Application;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 
+import com.plugin.content.PluginDescriptor;
 import com.plugin.core.proxy.PluginProxyService;
 import com.plugin.core.ui.stub.PluginStubActivity;
 import com.plugin.core.ui.stub.PluginStubReceiver;
@@ -12,6 +13,7 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 public class PluginIntentResolver {
+
 	private static final String RECEIVER_ID_IN_PLUGIN = "PluginDispatcher.receiver";
 
 	/* package */static void resolveService(Intent service) {
@@ -57,7 +59,7 @@ public class PluginIntentResolver {
 		return false;
 	}
 
-	/* package */static void resloveActivity(Intent intent) {
+	/* package */static void resolveActivity(Intent intent) {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
 		String className = PluginLoader.isMatchPlugin(intent);
 		if (className != null) {
@@ -67,7 +69,68 @@ public class PluginIntentResolver {
 		}
 	}
 
-	static void resloveActivity(Intent[] intent) {
+	/* package */static void resolveActivity(Intent[] intent) {
 		// not needed
+	}
+
+	public static Intent resolveNotificationIntent(Intent intent) {
+		int type = PluginLoader.getTargetType(intent);
+
+		LogUtil.d("notification type", type);
+
+		if (type == PluginDescriptor.BROADCAST) {
+
+			Intent newIntent = PluginIntentResolver.resolveReceiver(intent);
+			return newIntent;
+
+		} else if (type == PluginDescriptor.ACTIVITY) {
+
+			PluginIntentResolver.resolveActivity(intent);
+			return intent;
+
+		} else if (type == PluginDescriptor.SERVICE) {
+
+			PluginIntentResolver.resolveService(intent);
+			return intent;
+
+		}
+		return intent;
+	}
+
+	public static PendingIntent resolvePendingIntent(PendingIntent origin) {
+		if (origin != null) {
+			Intent originIntent = (Intent)RefInvoker.invokeMethod(origin,
+					PendingIntent.class.getName(), "getIntent",
+					(Class[])null, (Object[])null);
+			if (originIntent != null) {
+				//如果目标是插件中的组件，需要额外提供2个参数, 默认为0、Update_Current。
+				String className = PluginLoader.isMatchPlugin(originIntent);
+				if (className != null) {
+
+					int type = PluginLoader.getTargetType(originIntent);
+
+					int requestCode = originIntent.getIntExtra("pending_requestCode", 0);
+					int flags = originIntent.getIntExtra("pending_flag", PendingIntent.FLAG_UPDATE_CURRENT);
+
+					if (type == PluginDescriptor.BROADCAST) {
+
+						Intent newIntent = PluginIntentResolver.resolveReceiver(originIntent);
+						return PendingIntent.getBroadcast(PluginLoader.getApplicatoin(), requestCode, newIntent, flags);
+
+					} else if (type == PluginDescriptor.ACTIVITY) {
+
+						PluginIntentResolver.resolveActivity(originIntent);
+						return PendingIntent.getActivity(PluginLoader.getApplicatoin(), requestCode, originIntent, flags);
+
+					} else if (type == PluginDescriptor.SERVICE) {
+
+						PluginIntentResolver.resolveService(originIntent);
+						return PendingIntent.getService(PluginLoader.getApplicatoin(), requestCode, originIntent, flags);
+
+					}
+				}
+			}
+		}
+		return origin;
 	}
 }

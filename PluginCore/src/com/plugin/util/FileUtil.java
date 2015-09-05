@@ -1,6 +1,9 @@
 package com.plugin.util;
 
 import android.os.Build;
+import android.widget.Toast;
+
+import com.plugin.core.PluginLoader;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -91,6 +94,8 @@ public class FileUtil {
 
 			if (sourceFile.exists()) {
 				copyFile(sourceFile.getAbsolutePath(), dest + File.separator + so);
+			} else {
+				Toast.makeText(PluginLoader.getApplicatoin(), "安装" + so + "失败:NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();

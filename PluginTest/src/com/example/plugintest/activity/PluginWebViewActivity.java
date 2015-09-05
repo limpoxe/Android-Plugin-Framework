@@ -1,8 +1,14 @@
 package com.example.plugintest.activity;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,6 +23,7 @@ import android.widget.Toast;
 import com.example.hellojni.HelloJni;
 import com.example.plugintest.R;
 import com.example.plugintest.provider.PluginDbTables;
+import com.plugin.core.PluginIntentResolver;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 
@@ -39,6 +46,8 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		bn = (Button) findViewById(R.id.db_so);
 		bn.setOnClickListener(this);
 		bn = (Button) findViewById(R.id.db_assert);
+		bn.setOnClickListener(this);
+		bn = (Button) findViewById(R.id.db_notification);
 		bn.setOnClickListener(this);
 
 		web = (WebView) findViewById(R.id.webview);
@@ -82,7 +91,41 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		} else if (v.getId() == R.id.db_assert) {
 
 			testReadAssert();
+		} else if (v.getId() == R.id.db_notification) {
+
+			testNotification();
 		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private void testNotification() {
+
+		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		Notification.Builder builder = new Notification.Builder(this);
+
+		Intent intent =  new Intent();
+
+		//唤起宿主Activity
+		//intent.setClassName(getPackageName(), "com.example.pluginmain.PluginDetailActivity");
+		//唤起插件Activity
+		intent.setClassName(getPackageName(), PluginTestActivity.class.getName());
+		//还可以支持唤起service、receiver等等。
+
+		intent.putExtra("param1", "这是来自通知栏的参数");
+		intent = PluginIntentResolver.resolveNotificationIntent(intent);
+
+		PendingIntent contentIndent = PendingIntent.getActivity(this, 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+		builder.setContentIntent(contentIndent)
+				.setSmallIcon(com.example.pluginsharelib.R.drawable.ic_launcher)//设置状态栏里面的图标（小图标） 　　　　　　　　　　　　　　　　　　　　.setLargeIcon(BitmapFactory.decodeResource(res, R.drawable.i5))//下拉下拉列表里面的图标（大图标） 　　　　　　　.setTicker("this is bitch!") //设置状态栏的显示的信息
+				.setWhen(System.currentTimeMillis())//设置时间发生时间
+				.setAutoCancel(true)//设置可以清除
+				.setContentTitle("来自插件ContentTitle")//设置下拉列表里的标题
+				.setDefaults(Notification.DEFAULT_SOUND)//设置为默认的声音
+				.setContentText("来自插件ContentText");//设置上下文内容
+		Notification notification = builder.getNotification();
+		notificationManager.notify(R.drawable.ic_launcher, notification);
+
 	}
 
 	private void testReadAssert() {

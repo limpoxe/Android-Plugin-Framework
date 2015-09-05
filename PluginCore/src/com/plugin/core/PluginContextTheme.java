@@ -127,7 +127,7 @@ public class PluginContextTheme extends ContextWrapper {
 	@Override
 	public void startActivity(Intent intent) {
 		LogUtil.d("startActivity", intent.toUri(0));
-		PluginIntentResolver.resloveActivity(intent);
+		PluginIntentResolver.resolveActivity(intent);
 		super.startActivity(intent);
 	}
 

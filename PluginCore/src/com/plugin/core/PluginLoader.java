@@ -479,39 +479,86 @@ public class PluginLoader {
 			// 如果是通过组件进行匹配的
 			if (intent.getComponent() != null) {
 				if (plugin.containsName(intent.getComponent().getClassName())) {
-					LogUtil.d("PluginLoader", "通过Component进行匹配成功，", intent.getComponent().getClassName());
 					return intent.getComponent().getClassName();
 				}
 			} else {
 				// 如果是通过IntentFilter进行匹配的
-				HashMap<String, ArrayList<PluginIntentFilter>> intentFilter = plugin.getComponents();
-				if (intentFilter != null) {
+				String clazzName = findClassNameByIntent(intent, plugin.getActivitys());
 
-					Iterator<Entry<String, ArrayList<PluginIntentFilter>>> entry = intentFilter.entrySet().iterator();
-					while (entry.hasNext()) {
-						Entry<String, ArrayList<PluginIntentFilter>> item = entry.next();
-						Iterator<PluginIntentFilter> values = item.getValue().iterator();
-						while (values.hasNext()) {
-							PluginIntentFilter filter = values.next();
-							int result = filter.match(intent.getAction(), intent.getType(), intent.getScheme(),
-									intent.getData(), intent.getCategories());
-
-							LogUtil.d("PluginLoader", "result ", result, intent.getAction(),
-									intent.getType(), intent.getScheme(), intent.getData());
-
-							if (result != PluginIntentFilter.NO_MATCH_ACTION
-									&& result != PluginIntentFilter.NO_MATCH_CATEGORY
-									&& result != PluginIntentFilter.NO_MATCH_DATA
-									&& result != PluginIntentFilter.NO_MATCH_TYPE) {
-								LogUtil.d("PluginLoader", "通过IntentFilter进行匹配的成功");
-								return item.getKey();
-							}
-						}
-					}
+				if (clazzName == null) {
+					clazzName = findClassNameByIntent(intent, plugin.getServices());
 				}
 
+				if (clazzName == null) {
+					clazzName = findClassNameByIntent(intent, plugin.getReceivers());
+				}
+
+				if (clazzName != null) {
+					return clazzName;
+				}
 			}
 
+		}
+		return null;
+	}
+
+	/**
+	 * 获取目标类型，activity or service or broadcast
+	 * @param intent
+	 * @return
+	 */
+	public static int getTargetType(Intent intent) {
+
+		Hashtable<String, PluginDescriptor> plugins = listAll();
+
+		Iterator<PluginDescriptor> itr = plugins.values().iterator();
+
+		while (itr.hasNext()) {
+			PluginDescriptor plugin = itr.next();
+			// 如果是通过组件进行匹配的
+			if (intent.getComponent() != null) {
+				if (plugin.containsName(intent.getComponent().getClassName())) {
+					return plugin.getType(intent.getComponent().getClassName());
+				}
+			} else {
+				String clazzName = findClassNameByIntent(intent, plugin.getActivitys());
+
+				if (clazzName == null) {
+					clazzName = findClassNameByIntent(intent, plugin.getServices());
+				}
+
+				if (clazzName == null) {
+					clazzName = findClassNameByIntent(intent, plugin.getReceivers());
+				}
+
+				if (clazzName != null) {
+					return plugin.getType(clazzName);
+				}
+			}
+		}
+		return PluginDescriptor.UNKOWN;
+	}
+
+	private static String findClassNameByIntent(Intent intent, HashMap<String, ArrayList<PluginIntentFilter>> intentFilter) {
+		if (intentFilter != null) {
+
+			Iterator<Entry<String, ArrayList<PluginIntentFilter>>> entry = intentFilter.entrySet().iterator();
+			while (entry.hasNext()) {
+				Entry<String, ArrayList<PluginIntentFilter>> item = entry.next();
+				Iterator<PluginIntentFilter> values = item.getValue().iterator();
+				while (values.hasNext()) {
+					PluginIntentFilter filter = values.next();
+					int result = filter.match(intent.getAction(), intent.getType(), intent.getScheme(),
+							intent.getData(), intent.getCategories());
+
+					if (result != PluginIntentFilter.NO_MATCH_ACTION
+							&& result != PluginIntentFilter.NO_MATCH_CATEGORY
+							&& result != PluginIntentFilter.NO_MATCH_DATA
+							&& result != PluginIntentFilter.NO_MATCH_TYPE) {
+						return item.getKey();
+					}
+				}
+			}
 		}
 		return null;
 	}
