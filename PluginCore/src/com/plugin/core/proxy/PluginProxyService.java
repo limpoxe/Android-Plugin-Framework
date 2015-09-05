@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 
 import com.plugin.core.PluginLoader;
@@ -103,12 +104,14 @@ public class PluginProxyService extends Service {
 
 	@Override
 	public void onTrimMemory(int level) {
-		Iterator<Service> itr = serviceMap.values().iterator();
-		while (itr.hasNext()) {
-			try {
-				itr.next().onTrimMemory(level);
-			} catch (Exception e) {
-				e.printStackTrace();
+		if (Build.VERSION.SDK_INT >= 14) {
+			Iterator<Service> itr = serviceMap.values().iterator();
+			while (itr.hasNext()) {
+				try {
+					itr.next().onTrimMemory(level);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
