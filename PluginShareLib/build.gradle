@@ -60,7 +60,7 @@ def packageName = new XmlParser().parse(manifestFile).attribute('package')
 def jarTask(String outputJarPath, String packageNamePath) {
 
     final String buildDirPath = buildDir.absolutePath;
-    final String intermediate = 'intermediates/classes/release/';
+    final String intermediate = 'intermediates' + File.separator + 'classes' + File.separator + 'release' + File.separator;
     final String filter1 = 'R.class';
     final String filter2 = 'R$';
 
@@ -91,7 +91,8 @@ def jarTask(String outputJarPath, String packageNamePath) {
 
         for(int i=0; i< file.length; i++) {
             bis = new BufferedInputStream(new FileInputStream(file[i]), 1024);
-            jos.putNextEntry(new JarEntry(file[i].getAbsolutePath().replace(buildDirPath + "/" + intermediate, "")));
+            println file[i].getAbsolutePath().replace(buildDirPath + File.separator + intermediate, "")
+            jos.putNextEntry(new JarEntry(file[i].getAbsolutePath().replace(buildDirPath + File.separator + intermediate, "")));
             int count;
             while((count = bis.read(cache, 0, 1024)) != -1) {
                 jos.write(cache, 0, count);
@@ -114,7 +115,7 @@ build.doLast {
     helloTask.execute()
 
     //生成R的jar包
-    jarTask(buildDir.absolutePath + '/outputs/rClasses.jar', packageName.replace('.', '/'))
+    jarTask(buildDir.absolutePath + File.separator + 'outputs' + File.separator + 'rClasses.jar', packageName.replace('.', File.separator))
 
 }
 
