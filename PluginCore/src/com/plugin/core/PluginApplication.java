@@ -24,6 +24,8 @@ public class PluginApplication extends Application {
 		initActivityThread();
 		injectInstrumentation();
 		injectHandlerCallback();
+
+		PluginLoader.initLoader(this);
 	}
 
 	private void initActivityThread() {

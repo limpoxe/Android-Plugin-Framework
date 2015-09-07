@@ -35,9 +35,6 @@ public class PluginListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
 
-		// 这行代码应当在Application的onCreate中执行。
-		PluginLoader.initLoader(getApplication());
-
 		// 监听插件安装 安装新插件后刷新当前页面
 		registerReceiver(pluginChange, new IntentFilter(PluginLoader.ACTION_PLUGIN_CHANGED));
 
