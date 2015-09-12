@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-public class PluginContextTheme extends ContextWrapper {
+public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
 	Resources.Theme mTheme;
 	private LayoutInflater mInflater;
@@ -94,41 +94,6 @@ public class PluginContextTheme extends ContextWrapper {
 			}
 		}
 		mTheme.applyStyle(mThemeResource, true);
-	}
-
-	@Override
-	public void sendBroadcast(Intent intent) {
-		LogUtil.d("sendBroadcast", intent.toUri(0));
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendBroadcast(intent);
-	}
-
-	@Override
-	public ComponentName startService(Intent service) {
-		LogUtil.d("startService", service.toUri(0));
-		PluginIntentResolver.resolveService(service);
-		return super.startService(service);
-	}
-
-	@Override
-	public boolean stopService(Intent name) {
-		LogUtil.d("stopService", name.toUri(0));
-		if (PluginIntentResolver.resolveStopService(name)) {
-			super.startService(name);
-			return false;
-		} else {
-			return super.stopService(name);
-		}
-	}
-
-	/**
-	 * startActivity有很多重载的方法，如有必要，可以相应的重写
-	 */
-	@Override
-	public void startActivity(Intent intent) {
-		LogUtil.d("startActivity", intent.toUri(0));
-		PluginIntentResolver.resolveActivity(intent);
-		super.startActivity(intent);
 	}
 
 }

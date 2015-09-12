@@ -149,7 +149,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		} else {
 			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象
 			// 插入Context
-			Context mainContext = new PluginMainActiviyContextWrapper(activity.getBaseContext());
+			Context mainContext = new PluginBaseContextWrapper(activity.getBaseContext());
 			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), "mBase", null);
 			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), "attachBaseContext",
 					new Class[] { Context.class }, new Object[] { mainContext });
