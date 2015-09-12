@@ -15,7 +15,7 @@ public class PluginApplication extends Application {
 	}
 
 	/**
-	 * 重写这个方法是为了支持Receiver
+	 * 重写这个方法是为了支持Receiver,否则会出现ClassCast错误
 	 *
 	 * @return
 	 */

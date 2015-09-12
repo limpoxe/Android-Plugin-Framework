@@ -16,6 +16,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.plugin.util.LogUtil;
 
+/**
+ * Copy from Android SDK
+ */
 public class PluginIntentFilter implements Serializable {
     /**
 	 * 

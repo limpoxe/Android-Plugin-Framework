@@ -162,7 +162,7 @@ public class PluginAppTrace implements Handler.Callback {
 			case TRIM_MEMORY:
 				return "TRIM_MEMORY";
 			}
-			return "(unknown)";
+			return "(unknown: " + code +")";
 		}
 	}
 

@@ -6,6 +6,11 @@ import java.io.Serializable;
  * A simple pattern matcher, which is safe to use on untrusted data: it does
  * not provide full reg-exp support, only simple globbing that can not be
  * used maliciously.
+ *
+ *
+ *
+ * Copy from Android SDK
+ *
  */
 public class PluginPatternMatcher implements Serializable {
     /**

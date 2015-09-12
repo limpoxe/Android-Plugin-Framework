@@ -5,6 +5,9 @@ import java.io.Serializable;
  * <Pre>
  * @author cailiming
  * </Pre>
+ *
+ * Copy from Android SDK
+ *
  */
 public class PluginProviderInfo implements Serializable {
 

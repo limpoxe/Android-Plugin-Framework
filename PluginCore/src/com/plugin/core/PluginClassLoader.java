@@ -39,7 +39,7 @@ public class PluginClassLoader extends DexClassLoader {
 		// for Receiver
 		if (className.startsWith(PluginStubReceiver.class.getName() + ".")) {
 			String realName = className.replace(PluginStubReceiver.class.getName() + ".", "");
-			LogUtil.d("PluginClassLoader", "className ", className, "target", realName);
+			LogUtil.d("className ", className, "target", realName);
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			if (clazz != null) {
 				return clazz;
@@ -47,7 +47,7 @@ public class PluginClassLoader extends DexClassLoader {
 		} else if (className.startsWith(PluginProviderInfo.prefix)) {
 			//for contentprovider
 			String realName = className.replace(PluginProviderInfo.prefix, "");
-			LogUtil.d("PluginClassLoader", "className ", className, "target", realName);
+			LogUtil.d("className ", className, "target", realName);
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			if (clazz != null) {
 				return clazz;
