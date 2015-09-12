@@ -14,7 +14,7 @@ import java.util.List;
 public class PluginContentProviderInstaller {
 
 	public static void installContentProviders(Context context, Collection<PluginProviderInfo> pluginProviderInfos) {
-		if (PluginApplication.getActivityThread() != null) {
+		if (PluginLoader.getActivityThread() != null) {
 			ClassLoaderUtil.hackClassLoaderIfNeeded();
 			List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 			for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
@@ -26,7 +26,7 @@ public class PluginContentProviderInstaller {
 				p.packageName = context.getApplicationInfo().packageName;
 				providers.add(p);
 			}
-			RefInvoker.invokeMethod(PluginApplication.getActivityThread(),
+			RefInvoker.invokeMethod(PluginLoader.getActivityThread(),
 					"android.app.ActivityThread", "installContentProviders",
 					new Class[]{Context.class, List.class}, new Object[]{context, providers});
 		}

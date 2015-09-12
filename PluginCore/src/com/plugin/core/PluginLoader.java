@@ -15,11 +15,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import android.app.Application;
+import android.app.Instrumentation;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -37,6 +40,8 @@ public class PluginLoader {
 	public static final String EXTRA_TYPE = "com.plugin.core.EXTRA_TYPE";
 
 	private static Application sApplication;
+	private static Object activityThread;
+
 	private static boolean isInited = false;
 	private static final Hashtable<String, PluginDescriptor> sInstalledPlugins = new Hashtable<String, PluginDescriptor>();
 
@@ -51,10 +56,58 @@ public class PluginLoader {
 	public static synchronized void initLoader(Application app) {
 		if (!isInited) {
 			sApplication = app;
+
+			initApplicationBaseContext();
+			initActivityThread();
+			injectInstrumentation();
+			injectHandlerCallback();
+
 			readInstalledPlugins();
 			isInited = true;
 		}
 	}
+
+	/**
+	 * 替换Application的mBase是为了重载它的几个startactivity、startservice和sendbroadcast方法
+	 */
+	private static void initApplicationBaseContext() {
+		Context base = (Context)RefInvoker.getFieldObject(sApplication, ContextWrapper.class.getName(), "mBase");
+		Context newBase = new PluginBaseContextWrapper(base);
+		RefInvoker.setFieldObject(sApplication, ContextWrapper.class.getName(), "mBase", newBase);
+	}
+
+	private static void initActivityThread() {
+		// 从ThreadLocal中取出来的
+		activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
+				(Class[]) null, (Object[]) null);
+	}
+
+	public static Object getActivityThread() {
+		return activityThread;
+	}
+
+	/**
+	 * 注入Instrumentation主要是为了支持Activity
+	 */
+	private static void injectInstrumentation() {
+		// 给Instrumentation添加一层代理，用来实现隐藏api的调用
+		Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getFieldObject(activityThread,
+				"android.app.ActivityThread", "mInstrumentation");
+		RefInvoker.setFieldObject(activityThread, "android.app.ActivityThread", "mInstrumentation",
+				new PluginInstrumentionWrapper(originalInstrumentation));
+	}
+
+	private static void injectHandlerCallback() {
+
+		// getHandler
+		Handler handler = (Handler) RefInvoker.invokeMethod(activityThread, "android.app.ActivityThread", "getHandler", (Class[])null, (Object[])null);
+		//下面的方法再api16及一下会失败，成员变量名称错误。
+		//Handler handler = (Handler) RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sMainThreadHandler");
+
+		// 给handler添加一个callback
+		RefInvoker.setFieldObject(handler, Handler.class.getName(), "mCallback", new PluginAppTrace(handler));
+	}
+
 
 	public static Application getApplicatoin() {
 		return sApplication;
@@ -276,12 +329,13 @@ public class PluginLoader {
 						.loadClass(pluginDescriptor.getApplicationName());
 				Application application = (Application) pluginApplicationClass.newInstance();
 
+				LogUtil.d("初始化插件apk的application对象", pluginDescriptor.getApplicationName());
 				RefInvoker.invokeMethod(application, "android.app.Application", "attach",
-						new Class[] { Context.class }, new Object[] { sApplication });
+						new Class[]{Context.class}, new Object[]{sApplication});
 
+				LogUtil.d("安装插件ContextProvider", pluginDescriptor.getApplicationName());
 				PluginContentProviderInstaller.installContentProviders(sApplication, pluginDescriptor.getProviderInfos().values());
 
-				LogUtil.d("初始化插件apk的application对象", pluginDescriptor.getApplicationName());
 				pluginDescriptor.setPluginApplication(application);
 				application.onCreate();
 
