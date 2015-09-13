@@ -1,15 +1,9 @@
 package com.plugin.core;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -19,15 +13,16 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginIntentFilter;
+import com.plugin.core.manager.PluginCallbackImpl;
+import com.plugin.core.manager.PluginManagerImpl;
+import com.plugin.core.manager.PluginCallback;
+import com.plugin.core.manager.PluginManager;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ManifestParser;
 import com.plugin.util.FileUtil;
@@ -36,14 +31,12 @@ import com.plugin.util.RefInvoker;
 import dalvik.system.DexClassLoader;
 
 public class PluginLoader {
-	public static final String ACTION_PLUGIN_CHANGED = "com.plugin.core.action_plugin_changed";
-	public static final String EXTRA_TYPE = "com.plugin.core.EXTRA_TYPE";
-
 	private static Application sApplication;
 	private static Object activityThread;
+	private static PluginManager pluginManager;
+	private static PluginCallback changeListener;
 
 	private static boolean isInited = false;
-	private static final Hashtable<String, PluginDescriptor> sInstalledPlugins = new Hashtable<String, PluginDescriptor>();
 
 	private PluginLoader() {
 	}
@@ -53,8 +46,10 @@ public class PluginLoader {
 	 * 
 	 * @param app
 	 */
-	public static synchronized void initLoader(Application app) {
+	public static synchronized void initLoader(Application app, PluginManager manager) {
 		if (!isInited) {
+			isInited = true;
+
 			sApplication = app;
 
 			initApplicationBaseContext();
@@ -62,9 +57,20 @@ public class PluginLoader {
 			injectInstrumentation();
 			injectHandlerCallback();
 
-			readInstalledPlugins();
-			isInited = true;
+			pluginManager = manager;
+			pluginManager.loadInstalledPlugins();
+
+			changeListener = new PluginCallbackImpl();
+			changeListener.onPluginLoaderInited();
 		}
+	}
+
+	public static synchronized void initLoader(Application app) {
+		initLoader(app, new PluginManagerImpl());
+	}
+
+	public static Application getApplicatoin() {
+		return sApplication;
 	}
 
 	/**
@@ -82,7 +88,7 @@ public class PluginLoader {
 				(Class[]) null, (Object[]) null);
 	}
 
-	public static Object getActivityThread() {
+	/*package*/ static Object getActivityThread() {
 		return activityThread;
 	}
 
@@ -108,12 +114,7 @@ public class PluginLoader {
 		RefInvoker.setFieldObject(handler, Handler.class.getName(), "mCallback", new PluginAppTrace(handler));
 	}
 
-
-	public static Application getApplicatoin() {
-		return sApplication;
-	}
-
-	public boolean isInstalled(String pluginId, String pluginVersion) {
+	public static boolean isInstalled(String pluginId, String pluginVersion) {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
 		if (pluginDescriptor != null) {
 			return pluginDescriptor.getVersion().equals(pluginVersion);
@@ -161,19 +162,10 @@ public class PluginLoader {
 
 				// 第五步 添加到已安装插件列表
 				pluginDescriptor.setInstalledPath(destPluginFile);
-				PluginDescriptor previous = sInstalledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-				isInstallSuccess = saveInstalledPlugins(sInstalledPlugins);
+				isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
 
 				if (isInstallSuccess) {
-					Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-					if (previous == null) {
-						intent.putExtra(EXTRA_TYPE, "add");
-					} else {
-						intent.putExtra(EXTRA_TYPE, "replace");
-					}
-					intent.putExtra("id", pluginDescriptor.getPackageName());
-					intent.putExtra("version", pluginDescriptor.getVersion());
-					sApplication.sendBroadcast(intent);
+					changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 				}
 			}
 		}
@@ -339,10 +331,6 @@ public class PluginLoader {
 				pluginDescriptor.setPluginApplication(application);
 				application.onCreate();
 
-				Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-				intent.putExtra(EXTRA_TYPE, "inited");
-				sApplication.sendBroadcast(intent);
-
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (InstantiationException e) {
@@ -351,6 +339,7 @@ public class PluginLoader {
 				e.printStackTrace();
 			}
 		}
+		changeListener.onPluginStarted(pluginDescriptor.getPackageName());
 	}
 
 	/**
@@ -394,77 +383,27 @@ public class PluginLoader {
 		return true;
 	}
 
-	private static synchronized boolean saveInstalledPlugins(Hashtable<String, PluginDescriptor> installedPlugins) {
-
-		ObjectOutputStream objectOutputStream = null;
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		try {
-			objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-			objectOutputStream.writeObject(installedPlugins);
-			objectOutputStream.flush();
-
-			byte[] data = byteArrayOutputStream.toByteArray();
-			String list = Base64.encodeToString(data, Base64.DEFAULT);
-
-			getSharedPreference().edit().putString("plugins.list", list).commit();
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (objectOutputStream != null) {
-				try {
-					objectOutputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (byteArrayOutputStream != null) {
-				try {
-					byteArrayOutputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return false;
-	}
 
 	/**
 	 * 清除列表并不能清除已经加载到内存当中的class,因为class一旦加载后后无法卸载
 	 */
 	public static synchronized void removeAll() {
-		sInstalledPlugins.entrySet().iterator();
-
-		sInstalledPlugins.clear();
-		boolean isSuccess = saveInstalledPlugins(sInstalledPlugins);
+		boolean isSuccess = pluginManager.removeAll();
 		if (isSuccess) {
-			Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-			intent.putExtra(EXTRA_TYPE, "remove");
-			sApplication.sendBroadcast(intent);
+			changeListener.onPluginRemoveAll();
 		}
 	}
 
 	public static synchronized void remove(String pluginId) {
-		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
-		if (old != null) {
-
-			boolean isSuccess = saveInstalledPlugins(sInstalledPlugins);
-
-			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
-
-			LogUtil.d("delete old", isSuccess, deleteSuccess, old.getInstalledPath(), old.getPackageName());
-
-			if (isSuccess) {
-				Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-				intent.putExtra(EXTRA_TYPE, "remove");
-				sApplication.sendBroadcast(intent);
-			}
+		boolean isSuccess = pluginManager.remove(pluginId);
+		if (isSuccess) {
+			changeListener.onPluginRemoved(pluginId);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Hashtable<String, PluginDescriptor> listAll() {
-		return (Hashtable<String, PluginDescriptor>) sInstalledPlugins.clone();
+	public static Collection<PluginDescriptor> getPlugins() {
+		return pluginManager.getPlugins();
 	}
 
 	/**
@@ -474,41 +413,19 @@ public class PluginLoader {
 	 * @return
 	 */
 	public static PluginDescriptor getPluginDescriptorByFragmenetId(String clazzId) {
-		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
-		while (itr.hasNext()) {
-			PluginDescriptor descriptor = itr.next();
-			if (descriptor.containsFragment(clazzId)) {
-				return descriptor;
-			}
-		}
-		return null;
+		return pluginManager.getPluginDescriptorByFragmenetId(clazzId);
 	}
 
 	public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
-		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
-		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
-			return pluginDescriptor;
-		}
-		return null;
+		return pluginManager.getPluginDescriptorByPluginId(pluginId);
 	}
 
 	public static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
-		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
-		while (itr.hasNext()) {
-			PluginDescriptor descriptor = itr.next();
-			if (descriptor.containsName(clazzName)) {
-				return descriptor;
-			}
-		}
-		return null;
+		return pluginManager.getPluginDescriptorByClassName(clazzName);
 	}
 
 	public static synchronized void enablePlugin(String pluginId, boolean enable) {
-		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
-		if (pluginDescriptor != null && !pluginDescriptor.isEnabled()) {
-			pluginDescriptor.setEnabled(enable);
-			saveInstalledPlugins(sInstalledPlugins);
-		}
+		pluginManager.enablePlugin(pluginId, enable);
 	}
 
 	/**
@@ -524,9 +441,7 @@ public class PluginLoader {
 	 */
 	public static String isMatchPlugin(Intent intent) {
 
-		Hashtable<String, PluginDescriptor> plugins = listAll();
-
-		Iterator<PluginDescriptor> itr = plugins.values().iterator();
+		Iterator<PluginDescriptor> itr = getPlugins().iterator();
 
 		while (itr.hasNext()) {
 			PluginDescriptor plugin = itr.next();
@@ -563,9 +478,7 @@ public class PluginLoader {
 	 */
 	public static int getTargetType(Intent intent) {
 
-		Hashtable<String, PluginDescriptor> plugins = listAll();
-
-		Iterator<PluginDescriptor> itr = plugins.values().iterator();
+		Iterator<PluginDescriptor> itr = getPlugins().iterator();
 
 		while (itr.hasNext()) {
 			PluginDescriptor plugin = itr.next();
@@ -617,46 +530,6 @@ public class PluginLoader {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static synchronized Hashtable<String, PluginDescriptor> readInstalledPlugins() {
-		if (sInstalledPlugins.size() == 0) {
-			// 读取已经安装的插件列表
-			String list = getSharedPreference().getString("plugins.list", "");
-			Serializable object = null;
-			if (!TextUtils.isEmpty(list)) {
-				ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-						Base64.decode(list, Base64.DEFAULT));
-				ObjectInputStream objectInputStream = null;
-				try {
-					objectInputStream = new ObjectInputStream(byteArrayInputStream);
-					object = (Serializable) objectInputStream.readObject();
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					if (objectInputStream != null) {
-						try {
-							objectInputStream.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					if (byteArrayInputStream != null) {
-						try {
-							byteArrayInputStream.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-			if (object != null) {
-
-				Hashtable<String, PluginDescriptor> installedPlugin = (Hashtable<String, PluginDescriptor>) object;
-				sInstalledPlugins.putAll(installedPlugin);
-			}
-		}
-		return sInstalledPlugins;
-	}
 
 	/**
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
@@ -664,12 +537,6 @@ public class PluginLoader {
 	private static String genInstallPath(String pluginId, String pluginVersoin) {
 		return sApplication.getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath() + "/" + pluginId + "/"
 				+ pluginVersoin + ".apk";
-	}
-
-	private static SharedPreferences getSharedPreference() {
-		SharedPreferences sp = sApplication.getSharedPreferences("plugins.installed",
-				Build.VERSION.SDK_INT < 11 ? Context.MODE_PRIVATE : Context.MODE_PRIVATE | 0x0004);
-		return sp;
 	}
 
 }

@@ -2,6 +2,7 @@ package com.example.pluginmain;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -36,7 +37,7 @@ public class PluginListActivity extends Activity {
 		setContentView(R.layout.main_activity);
 
 		// 监听插件安装 安装新插件后刷新当前页面
-		registerReceiver(pluginChange, new IntentFilter(PluginLoader.ACTION_PLUGIN_CHANGED));
+		registerReceiver(pluginChange, new IntentFilter("com.plugin.core.action_plugin_changed"));
 
 		initView();
 	}
@@ -88,19 +89,19 @@ public class PluginListActivity extends Activity {
 		root.removeAllViews();
 
 		// 列出所有已经安装的插件
-		Hashtable<String, PluginDescriptor> plugins = PluginLoader.listAll();
-		Iterator<Entry<String, PluginDescriptor>> itr = plugins.entrySet().iterator();
+		Collection<PluginDescriptor> plugins = PluginLoader.getPlugins();
+		Iterator<PluginDescriptor> itr = plugins.iterator();
 		while (itr.hasNext()) {
-			final Entry<String, PluginDescriptor> entry = itr.next();
+			final PluginDescriptor pluginDescriptor = itr.next();
 			Button button = new Button(this);
 			button.setPadding(10, 10, 10, 10);
-			button.setText("插件id：" + entry.getKey() + "，点击查看");
+			button.setText("插件id：" + pluginDescriptor.getPackageName() + "，点击查看");
 			button.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent(PluginListActivity.this, PluginDetailActivity.class);
-					intent.putExtra("plugin_id", entry.getKey());
+					intent.putExtra("plugin_id", pluginDescriptor.getPackageName());
 					startActivity(intent);
 				}
 			});
@@ -116,7 +117,7 @@ public class PluginListActivity extends Activity {
 	private final BroadcastReceiver pluginChange = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Toast.makeText(PluginListActivity.this, "插件" + intent.getStringExtra(PluginLoader.EXTRA_TYPE) + "成功",
+			Toast.makeText(PluginListActivity.this, "插件" + intent.getStringExtra("type") + "成功",
 					Toast.LENGTH_LONG).show();
 			listAll(mList);
 		};
