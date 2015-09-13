@@ -53,7 +53,8 @@ public class PluginResourceWrapper extends Resources {
 		//return PluginPublicXmlConst.resourceMap.indexOfKey(resid>>16) > 0;
 
 		//如果使用的使openatlasextention
-		return resid>>24 == 0x7f;//默认宿主的资源id以0x7f开头
+		//默认宿主的资源id以0x7f开头，不过为了支持独立插件，将宿主资源id约定为0x2f
+		return resid>>24 == 0x2f;
 	}
      
 }
