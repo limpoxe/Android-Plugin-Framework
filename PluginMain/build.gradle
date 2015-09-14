@@ -48,17 +48,10 @@ android {
 
     buildTypes {
         release {
-            //表示宿主的id分组为0x2f, 必须设置为0x1f到0x7f之间，不可超出这个范围
-            //如果需要将0x2f指定为其他的值，需要同步修改Core里面的PluginResourceWrapper类的isMainResId方法
-            versionNameSuffix '_'  + '_0x2f'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
-        debug {
-            //表示宿主的id分组为0x2f, 必须设置为0x1f到0x7f之间，不可超出这个范围
-            versionNameSuffix '_'  + '_0x2f'
-        }
     }
 }
 
