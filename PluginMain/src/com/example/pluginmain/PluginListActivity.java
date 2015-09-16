@@ -117,7 +117,7 @@ public class PluginListActivity extends Activity {
 	private final BroadcastReceiver pluginChange = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Toast.makeText(PluginListActivity.this, "插件" + intent.getStringExtra("type") + "成功",
+			Toast.makeText(PluginListActivity.this, "插件"  + intent.getStringExtra("id") + " "+ intent.getStringExtra("type") + "成功",
 					Toast.LENGTH_LONG).show();
 			listAll(mList);
 		};

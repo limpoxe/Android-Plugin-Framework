@@ -3,10 +3,10 @@ package com.plugin.core;
 import java.io.File;
 import java.lang.reflect.Method;
 
+import com.plugin.content.PluginDescriptor;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -136,9 +136,9 @@ public class PluginCreator {
 	 * @param pluginClassLoader
 	 * @return
 	 */
-	static Context createPluginApplicationContext(Application application, Resources pluginRes,
+	static Context createPluginApplicationContext(PluginDescriptor pluginDescriptor, Application application, Resources pluginRes,
 			DexClassLoader pluginClassLoader) {
-		return new PluginContextTheme(application, pluginRes, pluginClassLoader);
+		return new PluginContextTheme(pluginDescriptor, application, pluginRes, pluginClassLoader);
 	}
 
 }

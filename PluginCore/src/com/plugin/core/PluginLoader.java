@@ -277,7 +277,8 @@ public class PluginLoader {
 	public static Context getNewPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
 		Context pluginContext = getDefaultPluginContext(clazz);
 		if (pluginContext != null) {
-			pluginContext = PluginCreator.createPluginApplicationContext(sApplication, pluginContext.getResources(),
+			pluginContext = PluginCreator.createPluginApplicationContext(((PluginContextTheme)pluginContext).getPluginDescriptor(),
+					sApplication, pluginContext.getResources(),
 					(DexClassLoader) pluginContext.getClassLoader());
 			pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		}
@@ -301,7 +302,7 @@ public class PluginLoader {
 		DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
 				pluginDescriptor.isStandalone());
 		Context pluginContext = PluginCreator
-				.createPluginApplicationContext(sApplication, pluginRes, pluginClassLoader);
+				.createPluginApplicationContext(pluginDescriptor, sApplication, pluginRes, pluginClassLoader);
 
 		pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		pluginDescriptor.setPluginContext(pluginContext);

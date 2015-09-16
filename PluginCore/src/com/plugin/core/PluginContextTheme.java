@@ -1,14 +1,11 @@
 package com.plugin.core;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 
-import com.plugin.util.LogUtil;
+import com.plugin.content.PluginDescriptor;
 import com.plugin.util.RefInvoker;
 
 public class PluginContextTheme extends PluginBaseContextWrapper {
@@ -19,8 +16,11 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	Resources mResources;
 	private final ClassLoader mClassLoader;
 
-	public PluginContextTheme(Context base, Resources resources, ClassLoader classLoader) {
+	private final PluginDescriptor mPluginDescriptor;
+
+	public PluginContextTheme(PluginDescriptor pluginDescriptor, Context base, Resources resources, ClassLoader classLoader) {
 		super(base);
+		mPluginDescriptor = pluginDescriptor;
 		mResources = resources;
 		mClassLoader = classLoader;
 	}
@@ -96,4 +96,26 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		mTheme.applyStyle(mThemeResource, true);
 	}
 
+	@Override
+	public String getPackageName() {
+		//如果是独立插件 返回插件本身的packageName
+		if (mPluginDescriptor.isStandalone()) {
+			return mPluginDescriptor.getPackageName();
+		} else {
+			return super.getPackageName();
+		}
+	}
+
+	@Override
+	public String getPackageCodePath() {
+		if (mPluginDescriptor.isStandalone()) {
+			return mPluginDescriptor.getInstalledPath();
+		} else {
+			return super.getPackageCodePath();
+		}
+	}
+
+	public PluginDescriptor getPluginDescriptor() {
+		return mPluginDescriptor;
+	}
 }
