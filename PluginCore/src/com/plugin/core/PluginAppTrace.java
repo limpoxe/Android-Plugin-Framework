@@ -21,16 +21,16 @@ public class PluginAppTrace implements Handler.Callback {
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		try {
+		//try {
 			LogUtil.d(">>> handling: ", CodeConst.codeToString(msg.what));
 			if (msg.what == CodeConst.RECEIVER) {
 				PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
 			}
 			mHandler.handleMessage(msg);
 			LogUtil.d(">>> done: " + CodeConst.codeToString(msg.what));
-		} catch (Throwable e) {
-			LogUtil.printException(CodeConst.codeToString(msg.what), e);
-		}
+		//} catch (Throwable e) {
+		//	LogUtil.printException(CodeConst.codeToString(msg.what), e);
+		//}
 		return true;
 	}
 
