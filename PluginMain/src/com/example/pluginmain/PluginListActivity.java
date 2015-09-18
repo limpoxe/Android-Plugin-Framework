@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,8 +23,10 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginInstrumentionWrapper;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.FileUtil;
+import com.plugin.util.RefInvoker;
 
 public class PluginListActivity extends Activity {
 
@@ -43,6 +46,42 @@ public class PluginListActivity extends Activity {
 	}
 
 	private void initView() {
+
+		Button check = (Button) findViewById(R.id.check);
+		check.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				//ActivityThread检查Instrumentation是否已经替换成功了
+				Object activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
+						(Class[]) null, (Object[]) null);
+				Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getFieldObject(activityThread,
+						"android.app.ActivityThread", "mInstrumentation");
+
+				Toast.makeText(PluginListActivity.this,
+						originalInstrumentation == null?"activityThread null":(originalInstrumentation.getClass().getName() + ", " + (originalInstrumentation instanceof PluginInstrumentionWrapper)),
+						Toast.LENGTH_LONG ).show();
+
+				//如果发现没有被替换，再次尝试替换一下
+				if (originalInstrumentation != null && !(originalInstrumentation instanceof PluginInstrumentionWrapper)) {
+					RefInvoker.setFieldObject(activityThread, "android.app.ActivityThread", "mInstrumentation",
+							new PluginInstrumentionWrapper(originalInstrumentation));
+				}
+
+
+				//Activity检查Instrumentation是否已经替换成功了
+				Instrumentation activityInstrumentation = (Instrumentation) RefInvoker.getFieldObject(PluginListActivity.this,
+						Activity.class.getName(), "mInstrumentation");
+
+				Toast.makeText(PluginListActivity.this,
+						activityInstrumentation == null?"Activity null":(activityInstrumentation.getClass().getName() + ", " + (activityInstrumentation instanceof PluginInstrumentionWrapper)),
+						Toast.LENGTH_LONG ).show();
+
+
+			}
+		});
+
+
 		install = (Button) findViewById(R.id.install);
 		install.setOnClickListener(new View.OnClickListener() {
 
