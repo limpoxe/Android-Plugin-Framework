@@ -315,23 +315,14 @@ public class PluginLoader {
 	}
 
 	private static void callPluginApplicationOncreate(PluginDescriptor pluginDescriptor) {
+
+		Application application = null;
+
 		if (pluginDescriptor.getApplicationName() != null && pluginDescriptor.getPluginApplication() == null
 				&& pluginDescriptor.getPluginClassLoader() != null) {
 			try {
-				Class pluginApplicationClass = ((ClassLoader) pluginDescriptor.getPluginClassLoader())
-						.loadClass(pluginDescriptor.getApplicationName());
-				Application application = (Application) pluginApplicationClass.newInstance();
-
-				LogUtil.d("初始化插件apk的application对象", pluginDescriptor.getApplicationName());
-				RefInvoker.invokeMethod(application, "android.app.Application", "attach",
-						new Class[]{Context.class}, new Object[]{sApplication});
-
-				LogUtil.d("安装插件ContextProvider", pluginDescriptor.getApplicationName());
-				PluginContentProviderInstaller.installContentProviders(sApplication, pluginDescriptor.getProviderInfos().values());
-
+				application = new Instrumentation().newApplication(pluginDescriptor.getPluginClassLoader(), pluginDescriptor.getApplicationName(), sApplication);
 				pluginDescriptor.setPluginApplication(application);
-				application.onCreate();
-
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (InstantiationException e) {
@@ -340,6 +331,14 @@ public class PluginLoader {
 				e.printStackTrace();
 			}
 		}
+
+		LogUtil.d("安装插件ContextProvider", pluginDescriptor.getProviderInfos().size());
+		PluginContentProviderInstaller.installContentProviders(sApplication, pluginDescriptor.getProviderInfos().values());
+
+		if (application != null) {
+			application.onCreate();
+		}
+
 		changeListener.onPluginStarted(pluginDescriptor.getPackageName());
 	}
 
