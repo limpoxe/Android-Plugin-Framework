@@ -48,6 +48,9 @@ public class PluginLoader {
 	 */
 	public static synchronized void initLoader(Application app, PluginManager manager) {
 		if (!isInited) {
+
+			LogUtil.d("插件框架初始化中...");
+
 			isInited = true;
 
 			sApplication = app;
@@ -62,6 +65,8 @@ public class PluginLoader {
 
 			changeListener = new PluginCallbackImpl();
 			changeListener.onPluginLoaderInited();
+
+			LogUtil.d("插件框架初始化完成");
 		}
 	}
 
@@ -77,6 +82,9 @@ public class PluginLoader {
 	 * 替换Application的mBase是为了重载它的几个startactivity、startservice和sendbroadcast方法
 	 */
 	private static void initApplicationBaseContext() {
+
+		LogUtil.d("替换宿主程序Application baseContext");
+
 		Context base = (Context)RefInvoker.getFieldObject(sApplication, ContextWrapper.class.getName(), "mBase");
 		Context newBase = new PluginBaseContextWrapper(base);
 		RefInvoker.setFieldObject(sApplication, ContextWrapper.class.getName(), "mBase", newBase);
@@ -84,6 +92,7 @@ public class PluginLoader {
 
 	private static void initActivityThread() {
 		// 从ThreadLocal中取出来的
+		LogUtil.d("获取宿主程序ActivityThread对象");
 		activityThread = RefInvoker.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread",
 				(Class[]) null, (Object[]) null);
 	}
@@ -97,6 +106,7 @@ public class PluginLoader {
 	 */
 	private static void injectInstrumentation() {
 		// 给Instrumentation添加一层代理，用来实现隐藏api的调用
+		LogUtil.d("替换宿主程序Intstrumentation");
 		Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getFieldObject(activityThread,
 				"android.app.ActivityThread", "mInstrumentation");
 		RefInvoker.setFieldObject(activityThread, "android.app.ActivityThread", "mInstrumentation",
@@ -104,6 +114,8 @@ public class PluginLoader {
 	}
 
 	private static void injectHandlerCallback() {
+
+		LogUtil.d("向插入宿主程序消息循环插入回调器");
 
 		// getHandler
 		Handler handler = (Handler) RefInvoker.invokeMethod(activityThread, "android.app.ActivityThread", "getHandler", (Class[])null, (Object[])null);
@@ -292,7 +304,7 @@ public class PluginLoader {
 	 */
 	private static void initPlugin(PluginDescriptor pluginDescriptor) {
 
-		LogUtil.d("initPlugin, Resources, DexClassLoader, Context, Application ", pluginDescriptor.getApplicationName());
+		LogUtil.d("正在初始化插件Resources, DexClassLoader, Context, Application ");
 
 		LogUtil.d("是否为独立插件", pluginDescriptor.isStandalone());
 
@@ -312,6 +324,8 @@ public class PluginLoader {
 		//checkPluginPublicXml(pluginDescriptor, pluginRes);
 
 		callPluginApplicationOncreate(pluginDescriptor);
+
+		LogUtil.d("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}
 
 	private static void callPluginApplicationOncreate(PluginDescriptor pluginDescriptor) {
