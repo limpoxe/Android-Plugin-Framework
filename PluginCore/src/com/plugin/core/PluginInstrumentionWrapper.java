@@ -259,27 +259,13 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	}
 
 	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
-			android.support.v4.app.Fragment target, Intent intent, int requestCode, Bundle options) {
+			Fragment target, Intent intent, int requestCode, Bundle options) {
 
 		PluginIntentResolver.resolveActivity(intent);
 
 		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
 				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class,
-						android.support.v4.app.Fragment.class, Intent.class, int.class, Bundle.class }, new Object[] {
-						who, contextThread, token, target, intent, requestCode, options });
-
-		return (ActivityResult) result;
-	}
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
-			android.app.Fragment target, Intent intent, int requestCode, Bundle options) {
-
-		PluginIntentResolver.resolveActivity(intent);
-
-		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
-				"execStartActivity", new Class[] { Context.class, IBinder.class, IBinder.class,
-						android.app.Fragment.class, Intent.class, int.class, Bundle.class }, new Object[] { who,
+						Fragment.class, Intent.class, int.class, Bundle.class }, new Object[] { who,
 						contextThread, token, target, intent, requestCode, options });
 
 		return (ActivityResult) result;
@@ -340,4 +326,33 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		return (ActivityResult) result;
 	}
 
+	/////// For Android 5.1
+	public ActivityResult execStartActivityAsCaller(
+			            Context who, IBinder contextThread, IBinder token, Activity target,
+			            Intent intent, int requestCode, Bundle options, int userId) {
+		PluginIntentResolver.resolveActivity(intent);
+
+		Object result = RefInvoker.invokeMethod(realInstrumention, android.app.Instrumentation.class.getName(),
+				"execStartActivityAsCaller", new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
+						Intent.class, int.class, Bundle.class, int.class}, new Object[] { who, contextThread,
+						token, target, intent, requestCode, options, userId});
+		return (ActivityResult)result;
+	}
+
+	public void execStartActivityFromAppTask(
+			            Context who, IBinder contextThread, Object appTask,
+			            Intent intent, Bundle options) {
+
+		PluginIntentResolver.resolveActivity(intent);
+
+		Object result = null;
+		try {
+			result = RefInvoker.invokeMethod(realInstrumention, Instrumentation.class.getName(),
+					"execStartActivityFromAppTask", new Class[]{Context.class, IBinder.class,
+							Class.forName("android.app.IAppTask"), Intent.class, Bundle.class,},
+					new Object[]{who, contextThread, appTask, intent, options});
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 }
