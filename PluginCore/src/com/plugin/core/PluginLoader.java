@@ -13,9 +13,13 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginIntentFilter;
@@ -26,11 +30,14 @@ import com.plugin.core.manager.PluginManager;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ManifestParser;
 import com.plugin.util.FileUtil;
+import com.plugin.util.PackageVerifyer;
 import com.plugin.util.RefInvoker;
 
 import dalvik.system.DexClassLoader;
 
 public class PluginLoader {
+
+	private static final boolean needVefifyCert = true;
 	private static Application sApplication;
 	private static Object activityThread;
 	private static PluginManager pluginManager;
@@ -141,48 +148,76 @@ public class PluginLoader {
 	 * @return
 	 */
 	public static synchronized boolean installPlugin(String srcPluginFile) {
-		LogUtil.d("Install plugin ", srcPluginFile);
+		LogUtil.d("开始安装插件", srcPluginFile);
 
-		boolean isInstallSuccess = false;
-		// 第一步，读取插件描述文件
-		PluginDescriptor pluginDescriptor = ManifestParser.parseManifest(srcPluginFile);
-		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
-			return isInstallSuccess;
+		//第0步，先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
+		//TODO XXX
+
+		// 第1步，验证插件APK签名，如果被篡改过，将获取不到证书
+		//sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
+		Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
+		if (pluginSignatures == null) {
+			LogUtil.e("插件签名验证失败", srcPluginFile);
+			return false;
+		} else if (needVefifyCert) {
+			//可选步骤，验证插件APK证书是否和宿主程序证书相同。
+			//证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
+			//公钥相同意味着是同一个作者发布的程序
+			Signature[] mainSignatures = null;
+			try {
+				PackageInfo pkgInfo = sApplication.getPackageManager().getPackageInfo(sApplication.getPackageName(), PackageManager.GET_SIGNATURES);
+				mainSignatures = pkgInfo.signatures;
+			} catch (PackageManager.NameNotFoundException e) {
+				e.printStackTrace();
+			}
+			if (!PackageVerifyer.isSignaturesSame(mainSignatures, pluginSignatures)) {
+				LogUtil.d("插件证书和宿主证书不一致", srcPluginFile);
+				return false;
+			}
 		}
 
-		// 第二步，检查插件是否已经存在,若存在删除旧的
+		// 第2步，解析Manifest，获得插件详情
+		PluginDescriptor pluginDescriptor = ManifestParser.parseManifest(srcPluginFile);
+		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
+			LogUtil.d("解析插件Manifest文件失败", srcPluginFile);
+			return false;
+		}
+
+		// 第2步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
 			remove(pluginDescriptor.getPackageName());
 		}
 
-		// 第三步骤，复制插件到插件目录
-		if (pluginDescriptor != null) {
+		// 第4步骤，复制插件到插件目录
+		String destPluginFile = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+		boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destPluginFile);
+		if (isCopySuccess) {
 
-			String destPluginFile = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-			boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destPluginFile);
-			if (isCopySuccess) {
-
-				//第四步，复制插件so到插件so目录, 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
-				File tempDir = new File(new File(destPluginFile).getParentFile(), "temp");
-				Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempDir);
-				if (soList != null) {
-					for (String soName : soList) {
-						FileUtil.copySo(tempDir, soName, new File(destPluginFile).getParent() + File.separator + "lib");
-					}
-				}
-
-				// 第五步 添加到已安装插件列表
-				pluginDescriptor.setInstalledPath(destPluginFile);
-				isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
-
-				if (isInstallSuccess) {
-					changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+			//第5步，复制插件so到插件so目录, 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
+			File tempDir = new File(new File(destPluginFile).getParentFile(), "temp");
+			Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempDir);
+			if (soList != null) {
+				for (String soName : soList) {
+					FileUtil.copySo(tempDir, soName, new File(destPluginFile).getParent() + File.separator + "lib");
 				}
 			}
+
+			// 第6步 添加到已安装插件列表
+			pluginDescriptor.setInstalledPath(destPluginFile);
+			boolean isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
+
+			if (isInstallSuccess) {
+				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+				LogUtil.d("安装插件成功", srcPluginFile);
+				return true;
+			}
+		} else {
+			LogUtil.d("复制插件到安装目录失败", srcPluginFile);
 		}
 
-		return isInstallSuccess;
+		LogUtil.d("安装插件失败", srcPluginFile);
+		return false;
 	}
 
 	/**
