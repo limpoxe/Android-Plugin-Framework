@@ -13,6 +13,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -156,10 +157,11 @@ public class PluginLoader {
 		// 第1步，验证插件APK签名，如果被篡改过，将获取不到证书
 		//sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
 		Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
+		boolean isDebugable = (0 != (sApplication.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 		if (pluginSignatures == null) {
 			LogUtil.e("插件签名验证失败", srcPluginFile);
 			return false;
-		} else if (needVefifyCert) {
+		} else if (needVefifyCert && isDebugable) {
 			//可选步骤，验证插件APK证书是否和宿主程序证书相同。
 			//证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
 			//公钥相同意味着是同一个作者发布的程序
