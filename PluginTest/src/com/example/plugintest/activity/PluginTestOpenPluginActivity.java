@@ -9,6 +9,7 @@ import android.widget.Button;
 
 import com.example.plugintest.receiver.PluginTestReceiver;
 import com.example.plugintest.service.PluginTestService;
+import com.example.plugintest.vo.ParamVO;
 
 public class PluginTestOpenPluginActivity extends Activity implements OnClickListener {
 
@@ -23,7 +24,12 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 
 	@Override
 	public void onClick(View v) {
-		startActivity(new Intent(this, PluginTestActivity.class));
+		Intent testIntent = new Intent(this, PluginTestActivity.class);
+		ParamVO pvo = new ParamVO();
+		pvo.name = "呵呵2";
+		testIntent.putExtra("paramvo", pvo);
+		testIntent.putExtra("str1", "呵呵1");
+		startActivity(testIntent);
 
 		Intent service = new Intent();
 		service.setClassName(this, PluginTestService.class.getName());

@@ -30,8 +30,6 @@ import com.plugin.util.RefInvoker;
  */
 public class PluginInstrumentionWrapper extends Instrumentation {
 
-	static final String ACTIVITY_NAME_IN_PLUGIN = "InstrumentationWrapper.className";
-
 	private final Instrumentation realInstrumention;
 
 	public PluginInstrumentionWrapper(Instrumentation instrumentation) {
@@ -53,12 +51,13 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			IllegalAccessException, ClassNotFoundException {
 		// 将PluginStubActivity替换成插件中的activity
 		if (className.equals(PluginStubActivity.class.getName())) {
-			LogUtil.d("className", className, intent.toUri(0));
-			String targetClassName = intent.getStringExtra(ACTIVITY_NAME_IN_PLUGIN);
+			String targetClassName = intent.getAction();
+			LogUtil.d("className", className, targetClassName);
 			if (targetClassName != null) {
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassByName(targetClassName);
 				if (clazz != null) {
+					intent.setExtrasClassLoader(PluginLoader.getPluginDescriptorByClassName(targetClassName).getPluginClassLoader());
 					return (Activity) clazz.newInstance();
 				}
 			}

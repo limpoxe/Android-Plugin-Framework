@@ -65,7 +65,8 @@ public class PluginIntentResolver {
 		if (className != null) {
 			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
 					PluginStubActivity.class.getName()));
-			intent.putExtra(PluginInstrumentionWrapper.ACTIVITY_NAME_IN_PLUGIN, className);
+			intent.setAction(className);
+			//intent.putExtra(PluginInstrumentionWrapper.ACTIVITY_NAME_IN_PLUGIN, className);
 		}
 	}
 

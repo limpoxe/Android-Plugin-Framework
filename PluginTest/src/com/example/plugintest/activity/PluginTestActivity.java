@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.plugintest.R;
+import com.example.plugintest.vo.ParamVO;
 import com.plugin.util.LogUtil;
 
 /**
@@ -38,6 +39,9 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 
 		setTitle("测试插件中的Activity");
 		Log.d("xx", getIntent().toUri(0));
+		Log.d("xx", getIntent().getStringExtra("str1") + "");
+		Log.d("xx", ((ParamVO)getIntent().getSerializableExtra("paramvo")) + "");
+
 		mInflater = getLayoutInflater();
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
 

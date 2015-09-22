@@ -335,7 +335,8 @@ public class PluginLoader {
 		if (pluginDescriptor.getApplicationName() != null && pluginDescriptor.getPluginApplication() == null
 				&& pluginDescriptor.getPluginClassLoader() != null) {
 			try {
-				application = new Instrumentation().newApplication(pluginDescriptor.getPluginClassLoader(), pluginDescriptor.getApplicationName(), sApplication);
+				LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
+				application = Instrumentation.newApplication(pluginDescriptor.getPluginClassLoader().loadClass(pluginDescriptor.getApplicationName()) , sApplication);
 				pluginDescriptor.setPluginApplication(application);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
