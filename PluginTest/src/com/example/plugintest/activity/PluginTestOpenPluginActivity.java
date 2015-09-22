@@ -31,6 +31,16 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 		testIntent.putExtra("str1", "呵呵1");
 		startActivity(testIntent);
 
+
+		testIntent = new Intent("test.abc");
+		pvo = new ParamVO();
+		pvo.name = "呵呵4";
+		testIntent.putExtra("paramvo", pvo);
+		testIntent.putExtra("str1", "呵呵3");
+		startActivity(testIntent);
+
+
+
 		Intent service = new Intent();
 		service.setClassName(this, PluginTestService.class.getName());
 		service.putExtra("testParam", "testParam");
