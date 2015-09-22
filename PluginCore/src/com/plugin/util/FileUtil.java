@@ -123,7 +123,7 @@ public class FileUtil {
 			tempDir.mkdirs();
 		}
 
-		LogUtil.d("开始解压到", tempDir.getAbsolutePath());
+		LogUtil.d("开始so文件", tempDir.getAbsolutePath());
 
 		ZipFile zfile = null;
 		boolean isSuccess = false;
@@ -156,7 +156,7 @@ public class FileUtil {
 					}
 
 					File targetFile = new File(tempDir, relativePath);
-					LogUtil.d("正在解压文件", targetFile.getAbsolutePath());
+					LogUtil.d("正在解压so文件", targetFile.getAbsolutePath());
 					if (!targetFile.getParentFile().exists()) {
 						targetFile.getParentFile().mkdirs();
 					}
@@ -205,7 +205,7 @@ public class FileUtil {
 			}
 		}
 
-		LogUtil.d("解压结束", isSuccess);
+		LogUtil.d("解压so文件结束", isSuccess);
 		return result;
 	}
 

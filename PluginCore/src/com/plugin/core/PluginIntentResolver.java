@@ -39,9 +39,12 @@ public class PluginIntentResolver {
 
 	/* package */static void hackReceiverForClassLoader(Object msgObj) {
 		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
+		LogUtil.d("receiver", intent.toUri(0));
 		if (intent.getComponent().getClassName().equals(PluginStubReceiver.class.getName())) {
 			Intent realIntent = (Intent) (intent.getParcelableExtra(RECEIVER_ID_IN_PLUGIN));
-			LogUtil.d("receiver", realIntent.toUri(0));
+			if (realIntent == null) {
+				return;
+			}
 			intent.putExtras(realIntent.getExtras());
 			String realClassName = PluginLoader.isMatchPlugin(realIntent);
 			// PluginReceiverClassLoader检测到这个特殊标记后会进行替换
@@ -98,6 +101,7 @@ public class PluginIntentResolver {
 		return intent;
 	}
 
+	@SuppressWarnings("ResourceType")
 	public static PendingIntent resolvePendingIntent(PendingIntent origin) {
 		if (origin != null) {
 			Intent originIntent = (Intent)RefInvoker.invokeMethod(origin,
