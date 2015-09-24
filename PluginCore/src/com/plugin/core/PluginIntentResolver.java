@@ -14,8 +14,6 @@ import com.plugin.util.RefInvoker;
 
 public class PluginIntentResolver {
 
-	private static final String RECEIVER_ID_IN_PLUGIN = "PluginDispatcher.receiver";
-
 	/* package */static void resolveService(Intent service) {
 		String targetClassName = PluginLoader.isMatchPlugin(service);
 		if (targetClassName != null) {
@@ -25,31 +23,41 @@ public class PluginIntentResolver {
 	}
 
 	/* package */static Intent resolveReceiver(final Intent intent) {
-		Intent realIntent = intent;
 		// 如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
 		// 不需要在这里记录目标className，className将在Intent中传递
-		if (PluginLoader.isMatchPlugin(intent) != null) {
+		String className = PluginLoader.isMatchPlugin(intent);
+		if (className != null) {
 			ClassLoaderUtil.hackClassLoaderIfNeeded();
-			realIntent = new Intent();
-			realIntent.setClass(PluginLoader.getApplicatoin(), PluginStubReceiver.class);
-			realIntent.putExtra(RECEIVER_ID_IN_PLUGIN, intent);
+			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
+					PluginStubReceiver.class.getName()));
+			//hackReceiverForClassLoader检测到这个标记后会进行替换
+			intent.setAction(className + PluginInstrumentionWrapper.ACTIVITY_ACTION_IN_PLUGIN + (intent.getAction() == null ? "" : intent.getAction()));
 		}
-		return realIntent;
+		return intent;
 	}
 
 	/* package */static void hackReceiverForClassLoader(Object msgObj) {
 		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
-		LogUtil.d("receiver", intent.toUri(0));
 		if (intent.getComponent().getClassName().equals(PluginStubReceiver.class.getName())) {
-			Intent realIntent = (Intent) (intent.getParcelableExtra(RECEIVER_ID_IN_PLUGIN));
-			if (realIntent == null) {
-				return;
+			String action = intent.getAction();
+			LogUtil.d("action", action);
+			if (action != null) {
+				String[] targetClassName = action.split(PluginInstrumentionWrapper.ACTIVITY_ACTION_IN_PLUGIN);
+				@SuppressWarnings("rawtypes")
+				Class clazz = PluginLoader.loadPluginClassByName(targetClassName[0]);
+				if (clazz != null) {
+					intent.setExtrasClassLoader(clazz.getClassLoader());
+					//由于之前intent被修改过 这里再吧Intent还原到原始的intent
+					if (targetClassName.length > 1) {
+						intent.setAction(targetClassName[1]);
+					} else {
+						intent.setAction(null);
+					}
+				}
+				// PluginClassLoader检测到这个特殊标记后会进行替换
+				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), PluginStubReceiver.class
+						.getName() + "." + targetClassName[0]));
 			}
-			intent.putExtras(realIntent.getExtras());
-			String realClassName = PluginLoader.isMatchPlugin(realIntent);
-			// PluginReceiverClassLoader检测到这个特殊标记后会进行替换
-			intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), PluginStubReceiver.class
-					.getName() + "." + realClassName));
 		}
 	}
 
@@ -68,7 +76,8 @@ public class PluginIntentResolver {
 		if (className != null) {
 			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
 					PluginStubActivity.class.getName()));
-			intent.setAction(className + PluginInstrumentionWrapper.ACTIVITY_ACTION_IN_PLUGIN + intent.getAction());
+			//PluginInstrumentationWrapper检测到这个标记后会进行替换
+			intent.setAction(className + PluginInstrumentionWrapper.ACTIVITY_ACTION_IN_PLUGIN + (intent.getAction()==null?"":intent.getAction()));
 		}
 	}
 
@@ -76,6 +85,11 @@ public class PluginIntentResolver {
 		// not needed
 	}
 
+	/**
+	 * used before send notification
+	 * @param intent
+	 * @return
+	 */
 	public static Intent resolveNotificationIntent(Intent intent) {
 		int type = PluginLoader.getTargetType(intent);
 

@@ -49,6 +49,9 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 		Intent intent = new Intent();
 		intent.setClassName(this, PluginTestReceiver.class.getName());
 		intent.putExtra("testParam", "testParam");
+		pvo = new ParamVO();
+		pvo.name = "呵呵0";
+		intent.putExtra("paramvo", pvo);
 		sendBroadcast(intent);
 	}
 

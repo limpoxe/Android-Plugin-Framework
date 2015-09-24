@@ -64,6 +64,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					//由于之前intent被修改过 这里再吧Intent还原到原始的intent
 					if (targetClassName.length >1) {
 						intent.setAction(targetClassName[1]);
+					} else {
+						intent.setAction(null);
 					}
 					return (Activity) clazz.newInstance();
 				}
