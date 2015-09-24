@@ -37,8 +37,8 @@ public class PluginClassLoader extends DexClassLoader {
 	protected Class<?> loadClass(String className, boolean resolve) throws ClassNotFoundException {
 
 		// for Receiver
-		if (className.startsWith(PluginStubReceiver.class.getName() + ".")) {
-			String realName = className.replace(PluginStubReceiver.class.getName() + ".", "");
+		if (className.startsWith(PluginIntentResolver.prefix)) {
+			String realName = className.replace(PluginIntentResolver.prefix, "");
 			LogUtil.d("className ", className, "target", realName);
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			if (clazz != null) {

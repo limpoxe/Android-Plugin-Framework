@@ -14,6 +14,10 @@ import com.plugin.util.RefInvoker;
 
 public class PluginIntentResolver {
 
+	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
+
+	static String prefix = "plugin_receiver_prefix.";
+
 	/* package */static void resolveService(Intent service) {
 		String targetClassName = PluginLoader.isMatchPlugin(service);
 		if (targetClassName != null) {
@@ -31,7 +35,7 @@ public class PluginIntentResolver {
 			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
 					PluginStubReceiver.class.getName()));
 			//hackReceiverForClassLoader检测到这个标记后会进行替换
-			intent.setAction(className + PluginInstrumentionWrapper.ACTIVITY_ACTION_IN_PLUGIN + (intent.getAction() == null ? "" : intent.getAction()));
+			intent.setAction(className + RECEIVER_ACTION_IN_PLUGIN + (intent.getAction() == null ? "" : intent.getAction()));
 		}
 		return intent;
 	}
@@ -42,7 +46,7 @@ public class PluginIntentResolver {
 			String action = intent.getAction();
 			LogUtil.d("action", action);
 			if (action != null) {
-				String[] targetClassName = action.split(PluginInstrumentionWrapper.ACTIVITY_ACTION_IN_PLUGIN);
+				String[] targetClassName = action.split(RECEIVER_ACTION_IN_PLUGIN);
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassByName(targetClassName[0]);
 				if (clazz != null) {
@@ -55,8 +59,8 @@ public class PluginIntentResolver {
 					}
 				}
 				// PluginClassLoader检测到这个特殊标记后会进行替换
-				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), PluginStubReceiver.class
-						.getName() + "." + targetClassName[0]));
+				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(),
+						prefix + targetClassName[0]));
 			}
 		}
 	}
