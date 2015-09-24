@@ -30,8 +30,6 @@ import com.plugin.util.RefInvoker;
  */
 public class PluginInstrumentionWrapper extends Instrumentation {
 
-	static final String ACTIVITY_ACTION_IN_PLUGIN = "_ACTIVITY_ACTION_IN_PLUGIN_";
-
 	private final Instrumentation realInstrumention;
 
 	public PluginInstrumentionWrapper(Instrumentation instrumentation) {
@@ -56,7 +54,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			String action = intent.getAction();
 			LogUtil.d("className", className, action);
 			if (action != null) {
-				String[] targetClassName  = action.split(ACTIVITY_ACTION_IN_PLUGIN);
+				String[] targetClassName  = action.split(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN);
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassByName(targetClassName[0]);
 				if (clazz != null) {
@@ -353,9 +351,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginIntentResolver.resolveActivity(intent);
 
-		Object result = null;
 		try {
-			result = RefInvoker.invokeMethod(realInstrumention, Instrumentation.class.getName(),
+			RefInvoker.invokeMethod(realInstrumention, Instrumentation.class.getName(),
 					"execStartActivityFromAppTask", new Class[]{Context.class, IBinder.class,
 							Class.forName("android.app.IAppTask"), Intent.class, Bundle.class,},
 					new Object[]{who, contextThread, appTask, intent, options});

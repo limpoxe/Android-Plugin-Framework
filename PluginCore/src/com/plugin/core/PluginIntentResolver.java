@@ -16,6 +16,8 @@ public class PluginIntentResolver {
 
 	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
 
+	static final String ACTIVITY_ACTION_IN_PLUGIN = "_ACTIVITY_ACTION_IN_PLUGIN_";
+
 	static String prefix = "plugin_receiver_prefix.";
 
 	/* package */static void resolveService(Intent service) {
@@ -81,7 +83,7 @@ public class PluginIntentResolver {
 			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
 					PluginStubActivity.class.getName()));
 			//PluginInstrumentationWrapper检测到这个标记后会进行替换
-			intent.setAction(className + PluginInstrumentionWrapper.ACTIVITY_ACTION_IN_PLUGIN + (intent.getAction()==null?"":intent.getAction()));
+			intent.setAction(className + ACTIVITY_ACTION_IN_PLUGIN + (intent.getAction()==null?"":intent.getAction()));
 		}
 	}
 
