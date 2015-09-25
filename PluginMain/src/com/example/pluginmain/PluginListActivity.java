@@ -59,7 +59,7 @@ public class PluginListActivity extends Activity {
 					copyAndInstall("PluginHelloWorld-debug.apk");
 
 				} else {
-					Toast.makeText(PluginListActivity.this, "已经安装过了", Toast.LENGTH_LONG).show();
+					Toast.makeText(PluginListActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
 				}
 			}
 		});

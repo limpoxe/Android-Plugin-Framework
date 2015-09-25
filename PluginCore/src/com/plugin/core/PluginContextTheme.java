@@ -99,20 +99,23 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public String getPackageName() {
 		//如果是独立插件 返回插件本身的packageName
-		if (mPluginDescriptor.isStandalone()) {
-			return mPluginDescriptor.getPackageName();
-		} else {
+		//但是只返回插件本身的packageName可能会引起其他问题
+		//例如1、会导致toast无法弹出，原因是toast弹出时会检查packageName是否时当前用户的
+		//   2、导致宿主的Application获取的sharepreference和插件Activity获取的shareperference不在同一个xml里面
+		//if (mPluginDescriptor.isStandalone()) {
+		//	return mPluginDescriptor.getPackageName();
+		//} else {
 			return super.getPackageName();
-		}
+		//}
 	}
 
 	@Override
 	public String getPackageCodePath() {
-		if (mPluginDescriptor.isStandalone()) {
-			return mPluginDescriptor.getInstalledPath();
-		} else {
+		//if (mPluginDescriptor.isStandalone()) {
+		//	return mPluginDescriptor.getInstalledPath();
+		//} else {
 			return super.getPackageCodePath();
-		}
+		//}
 	}
 
 	public PluginDescriptor getPluginDescriptor() {

@@ -14,17 +14,18 @@ import com.plugin.util.RefInvoker;
 
 public class PluginIntentResolver {
 
-	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
-
+	public static final String SERVICE_START_ACTION_IN_PLUGIN = "_SERVICE_START_ACTION_IN_PLUGIN_";
+	public static final String SERVICE_STOP_ACTION_IN_PLUGIN = "_SERVICE_STOP_ACTION_IN_PLUGIN_";
 	static final String ACTIVITY_ACTION_IN_PLUGIN = "_ACTIVITY_ACTION_IN_PLUGIN_";
+	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
 
 	static String prefix = "plugin_receiver_prefix.";
 
 	/* package */static void resolveService(Intent service) {
-		String targetClassName = PluginLoader.isMatchPlugin(service);
-		if (targetClassName != null) {
+		String className = PluginLoader.isMatchPlugin(service);
+		if (className != null) {
 			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
-			service.putExtra(PluginProxyService.SERVICE_NAME, targetClassName);
+			service.setAction(className + SERVICE_START_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
 		}
 	}
 
@@ -67,10 +68,11 @@ public class PluginIntentResolver {
 		}
 	}
 
-	/* package */static boolean resolveStopService(final Intent name) {
-		if (PluginLoader.isMatchPlugin(name) != null) {
-			resolveService(name);
-			name.putExtra(PluginProxyService.DESTORY_SERVICE, true);
+	/* package */static boolean resolveStopService(final Intent service) {
+		String className = PluginLoader.isMatchPlugin(service);
+		if (className != null) {
+			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
+			service.setAction(className + SERVICE_STOP_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
 			return true;
 		}
 		return false;

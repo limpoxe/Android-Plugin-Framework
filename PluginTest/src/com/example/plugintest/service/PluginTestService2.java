@@ -40,12 +40,4 @@ public class PluginTestService2 extends Service {
 		return null;
 	}
 
-	// /**
-	// * 为了能在Service中正常访问插件中的资源。
-	// */
-	// @Override
-	// protected void attachBaseContext(Context newBase) {
-	// super.attachBaseContext(PluginLoader.getDefaultPluginContext(PluginTestService2.class));
-	// }
-
 }

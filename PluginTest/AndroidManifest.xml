@@ -13,7 +13,7 @@
 
  	<application 
  	    android:name="com.example.plugintest.PluginTestApplication"
- 	    android:label="包含UI的插件demo, 代表5中开发方式，UIclassName要求是唯一的，宿主程序需要根据和className来进行查找">
+ 	    android:label="包含UI的插件demo">
         
         <!-- for fragment -->
         <meta-data android:name="fragment_id_fragmentTest1" android:value="com.example.plugintest.fragment.PluginSpecFragment"/>

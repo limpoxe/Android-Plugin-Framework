@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pluginsharelib.SharePOJO;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginIntentFilter;
 import com.plugin.core.PluginLoader;
@@ -148,6 +149,7 @@ public class PluginDetailActivity extends Activity {
 						Intent intent = new Intent();
 						intent.setClassName(PluginDetailActivity.this, entry);
 						intent.putExtra("testParam", "testParam");
+						intent.putExtra("paramVO", new SharePOJO("测试VO"));
 						startActivity(intent);
 
 						// 测试通过action进行匹配的方式

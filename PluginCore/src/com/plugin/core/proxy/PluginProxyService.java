@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 
+import com.plugin.core.PluginIntentResolver;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
@@ -24,62 +25,69 @@ import com.plugin.util.RefInvoker;
  */
 public class PluginProxyService extends Service {
 
-	public static final String SERVICE_NAME = "PluginProxyService.service_name";
-	public static final String DESTORY_SERVICE = "PluginProxyService.destory_service";
-
 	private final HashMap<String, Service> serviceMap = new HashMap<String, Service>();
 
 	@Override
-	public void onCreate() {
-		super.onCreate();
-	}
-
-	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null) {
-			Service service = null;
-			String tagertServiceClass = intent.getStringExtra(SERVICE_NAME);
-			boolean isDestroy = intent.getBooleanExtra(DESTORY_SERVICE, false);
+		if (intent != null && intent.getAction() != null) {
 
-			LogUtil.d("tagertServiceClass ", tagertServiceClass, intent);
-			if (tagertServiceClass != null) {
-				service = serviceMap.get(tagertServiceClass);
-				if (service == null) {
-					if (isDestroy) {
-						return super.onStartCommand(intent, flags, startId);
-					}
-					@SuppressWarnings("rawtypes")
-					Class clazz = PluginLoader.loadPluginClassByName(tagertServiceClass);
-					try {
-						service = (Service) clazz.newInstance();
-						attach(service);
-						service.onCreate();
-						serviceMap.put(tagertServiceClass, service);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				if (isDestroy) {
-					service.onDestroy();
-					serviceMap.remove(tagertServiceClass);
+			String action = intent.getAction();
+			LogUtil.d("onStartCommand action", action);
+
+			if (action != null) {
+
+				final boolean isDestoryCommond = action.contains(PluginIntentResolver.SERVICE_STOP_ACTION_IN_PLUGIN);
+				String[] targetClassName;
+				if (isDestoryCommond) {
+					targetClassName = action.split(PluginIntentResolver.SERVICE_STOP_ACTION_IN_PLUGIN);
 				} else {
-					service.onStartCommand(intent, flags, startId);
+					targetClassName = action.split(PluginIntentResolver.SERVICE_START_ACTION_IN_PLUGIN);
+				}
+
+				String clazzName = targetClassName[0];
+
+				LogUtil.d("tagertServiceClass ", clazzName);
+
+				if (clazzName != null) {
+
+					Service service = serviceMap.get(clazzName);
+					Class clazz = null;
+					if (service == null) {
+						if (isDestoryCommond) {
+							return super.onStartCommand(intent, flags, startId);
+						} else {
+							clazz = PluginLoader.loadPluginClassByName(clazzName);
+							intent.setExtrasClassLoader(clazz.getClassLoader());
+							try {
+								service = (Service) clazz.newInstance();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+							attach(service);
+							service.onCreate();
+							serviceMap.put(clazzName, service);
+						}
+					} else {
+						clazz = service.getClass();
+						intent.setExtrasClassLoader(clazz.getClassLoader());
+					}
+
+					if (isDestoryCommond) {
+						service.onDestroy();
+						serviceMap.remove(clazzName);
+					} else {
+						//由于之前intent被修改过 这里再吧Intent还原到原始的intent
+						if (targetClassName.length > 1) {
+							intent.setAction(targetClassName[1]);
+						} else {
+							intent.setAction(null);
+						}
+						service.onStartCommand(intent, flags, startId);
+					}
 				}
 			}
 		}
 		return super.onStartCommand(intent, flags, startId);
-	}
-
-	private void attach(Service service) {
-		RefInvoker.invokeMethod(service, ContextWrapper.class.getName(), "attachBaseContext",
-				new Class[] { Context.class },
-				new Object[] { PluginLoader.getDefaultPluginContext(service.getClass()) });
-
-		set(service, "mClassName");
-		set(service, "mToken");
-		set(service, "mApplication");
-		set(service, "mActivityManager");
-		set(service, "mStartCompatibility");
 	}
 
 	/**
@@ -127,6 +135,18 @@ public class PluginProxyService extends Service {
 			}
 		}
 		serviceMap.clear();
+	}
+
+	private void attach(Service service) {
+		RefInvoker.invokeMethod(service, ContextWrapper.class.getName(), "attachBaseContext",
+				new Class[] { Context.class },
+				new Object[] { PluginLoader.getDefaultPluginContext(service.getClass()) });
+
+		set(service, "mClassName");
+		set(service, "mToken");
+		set(service, "mApplication");
+		set(service, "mActivityManager");
+		set(service, "mStartCompatibility");
 	}
 
 	private void set(Service service, String name) {

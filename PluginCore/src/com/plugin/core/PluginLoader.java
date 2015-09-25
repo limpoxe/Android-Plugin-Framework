@@ -161,7 +161,7 @@ public class PluginLoader {
 		if (pluginSignatures == null) {
 			LogUtil.e("插件签名验证失败", srcPluginFile);
 			return false;
-		} else if (needVefifyCert && isDebugable) {
+		} else if (needVefifyCert && !isDebugable) {
 			//可选步骤，验证插件APK证书是否和宿主程序证书相同。
 			//证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
 			//公钥相同意味着是同一个作者发布的程序
@@ -173,7 +173,7 @@ public class PluginLoader {
 				e.printStackTrace();
 			}
 			if (!PackageVerifyer.isSignaturesSame(mainSignatures, pluginSignatures)) {
-				LogUtil.d("插件证书和宿主证书不一致", srcPluginFile);
+				LogUtil.e("插件证书和宿主证书不一致", srcPluginFile);
 				return false;
 			}
 		}
@@ -181,7 +181,7 @@ public class PluginLoader {
 		// 第2步，解析Manifest，获得插件详情
 		PluginDescriptor pluginDescriptor = ManifestParser.parseManifest(srcPluginFile);
 		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
-			LogUtil.d("解析插件Manifest文件失败", srcPluginFile);
+			LogUtil.e("解析插件Manifest文件失败", srcPluginFile);
 			return false;
 		}
 
@@ -218,7 +218,7 @@ public class PluginLoader {
 			LogUtil.d("复制插件到安装目录失败", srcPluginFile);
 		}
 
-		LogUtil.d("安装插件失败", srcPluginFile);
+		LogUtil.e("安装插件失败", srcPluginFile);
 		return false;
 	}
 
