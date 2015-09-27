@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -180,9 +181,12 @@ public class PluginDetailActivity extends Activity {
 			});
 			pluginView.addView(btn);
 
-			Space space = new Space(this);
-			space.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 25));
-			pluginView.addView(space);
+			if (Build.VERSION.SDK_INT >=14) {
+				Space space = new Space(this);
+				space.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 25));
+				pluginView.addView(space);
+			}
+
 		}
 	}
 }
