@@ -1,7 +1,6 @@
 package com.plugin.core;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.util.LogUtil;
 
 import android.content.Context;
 import android.os.Build;

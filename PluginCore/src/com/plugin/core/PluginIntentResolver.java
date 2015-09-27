@@ -22,7 +22,7 @@ public class PluginIntentResolver {
 	static String prefix = "plugin_receiver_prefix.";
 
 	/* package */static void resolveService(Intent service) {
-		String className = PluginLoader.isMatchPlugin(service);
+		String className = PluginLoader.matchPlugin(service);
 		if (className != null) {
 			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
 			service.setAction(className + SERVICE_START_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
@@ -32,7 +32,7 @@ public class PluginIntentResolver {
 	/* package */static Intent resolveReceiver(final Intent intent) {
 		// 如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
 		// 不需要在这里记录目标className，className将在Intent中传递
-		String className = PluginLoader.isMatchPlugin(intent);
+		String className = PluginLoader.matchPlugin(intent);
 		if (className != null) {
 			ClassLoaderUtil.hackClassLoaderIfNeeded();
 			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
@@ -69,7 +69,7 @@ public class PluginIntentResolver {
 	}
 
 	/* package */static boolean resolveStopService(final Intent service) {
-		String className = PluginLoader.isMatchPlugin(service);
+		String className = PluginLoader.matchPlugin(service);
 		if (className != null) {
 			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
 			service.setAction(className + SERVICE_STOP_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
@@ -80,7 +80,7 @@ public class PluginIntentResolver {
 
 	/* package */static void resolveActivity(Intent intent) {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
-		String className = PluginLoader.isMatchPlugin(intent);
+		String className = PluginLoader.matchPlugin(intent);
 		if (className != null) {
 			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
 					PluginStubActivity.class.getName()));
@@ -130,7 +130,7 @@ public class PluginIntentResolver {
 					(Class[])null, (Object[])null);
 			if (originIntent != null) {
 				//如果目标是插件中的组件，需要额外提供2个参数, 默认为0、Update_Current。
-				String className = PluginLoader.isMatchPlugin(originIntent);
+				String className = PluginLoader.matchPlugin(originIntent);
 				if (className != null) {
 
 					int type = PluginLoader.getTargetType(originIntent);

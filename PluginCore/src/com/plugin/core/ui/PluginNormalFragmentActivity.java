@@ -38,7 +38,7 @@ public class PluginNormalFragmentActivity extends FragmentActivity {
 			String classId = getIntent().getStringExtra(FragmentHelper.FRAGMENT_ID_IN_PLUGIN);
 			LogUtil.d(LOG_TAG, "loadPluginFragment, classId is " + classId);
 			@SuppressWarnings("rawtypes")
-			Class clazz = PluginLoader.loadPluginClassById(classId);
+			Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
 			Fragment fragment = (Fragment) clazz.newInstance();
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 			ft.replace(android.R.id.primary, fragment).commit();

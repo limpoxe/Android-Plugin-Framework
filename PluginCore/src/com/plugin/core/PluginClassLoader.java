@@ -4,7 +4,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.plugin.content.PluginProviderInfo;
-import com.plugin.core.ui.stub.PluginStubReceiver;
 import com.plugin.util.LogUtil;
 
 import dalvik.system.DexClassLoader;
@@ -31,6 +30,12 @@ public class PluginClassLoader extends DexClassLoader {
 
 	public PluginClassLoader(String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent) {
 		super(dexPath, optimizedDirectory, libraryPath, parent);
+	}
+
+	@Override
+	public String findLibrary(String name) {
+		LogUtil.d("findLibrary", name);
+		return super.findLibrary(name);
 	}
 
 	@Override

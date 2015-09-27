@@ -26,6 +26,15 @@ public class PluginManagerImpl implements PluginManager {
 
 	private final Hashtable<String, PluginDescriptor> sInstalledPlugins = new Hashtable<String, PluginDescriptor>();
 
+	/**
+	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
+	 */
+	@Override
+	public String genInstallPath(String pluginId, String pluginVersoin) {
+		return PluginLoader.getApplicatoin().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath() + "/" + pluginId + "/"
+				+ pluginVersoin + "/" + pluginId + ".apk";
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized void loadInstalledPlugins() {
