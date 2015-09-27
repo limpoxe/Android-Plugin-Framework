@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,15 +33,17 @@ public class PluginDetailActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.detail_activity);
-		mRoot = (ViewGroup) findViewById(R.id.root);
 
-		LogUtil.d(getIntent().toUri(0));
+		setTitle("插件详情");
+
+		mRoot = (ViewGroup) findViewById(R.id.root);
 
 		String pluginId = getIntent().getStringExtra("plugin_id");
 		if (pluginId == null) {
 			Toast.makeText(this, "缺少plugin_id参数", Toast.LENGTH_LONG).show();
 			return;
 		}
+
 		PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(pluginId);
 
 		initViews(pluginDescriptor);
@@ -48,6 +51,7 @@ public class PluginDetailActivity extends Activity {
 
 	private void initViews(PluginDescriptor pluginDescriptor) {
 		if (pluginDescriptor != null) {
+
 			TextView pluginIdView = (TextView) mRoot.findViewById(R.id.plugin_id);
 			pluginIdView.setText("插件Id：" + pluginDescriptor.getPackageName());
 
@@ -60,22 +64,26 @@ public class PluginDetailActivity extends Activity {
 			TextView pluginInstalled = (TextView) mRoot.findViewById(R.id.plugin_installedPath);
 			pluginInstalled.setText("插件安装路径：" + pluginDescriptor.getInstalledPath());
 
-			LinearLayout pluginFragmentView = (LinearLayout) mRoot.findViewById(R.id.plugin_fragments);
+			TextView pluginStandalone = (TextView) mRoot.findViewById(R.id.isstandalone);
+			pluginStandalone.setText("独立插件：" + (pluginDescriptor.isStandalone()?"是":"否"));
+
+
+			LinearLayout pluginView = (LinearLayout) mRoot.findViewById(R.id.plugin_items);
 			Iterator<Entry<String, String>> fragment = pluginDescriptor.getFragments().entrySet().iterator();
 			while (fragment.hasNext()) {
 				final Entry<String, String> entry = fragment.next();
 
 				TextView tv = new TextView(this);
+				tv.append("插件类型：Fragment");
+				pluginView.addView(tv);
+
+				tv = new TextView(this);
 				tv.setText("插件ClassId：" + entry.getKey());
-				pluginFragmentView.addView(tv);
+				pluginView.addView(tv);
 
 				tv = new TextView(this);
 				tv.append("插件ClassName ： " + entry.getValue());
-				pluginFragmentView.addView(tv);
-
-				tv = new TextView(this);
-				tv.append("插件类型：Fragment");
-				pluginFragmentView.addView(tv);
+				pluginView.addView(tv);
 
 				Button btn = new Button(this);
 				btn.setText("点击打开");
@@ -89,10 +97,12 @@ public class PluginDetailActivity extends Activity {
 						FragmentHelper.startFragmentWithBuildInActivity(PluginDetailActivity.this, entry.getKey());
 					}
 				});
-				pluginFragmentView.addView(btn);
-			}
+				pluginView.addView(btn);
 
-			LinearLayout pluginView = (LinearLayout) mRoot.findViewById(R.id.plugin_activities);
+				Space space = new Space(this);
+				space.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 25));
+				pluginView.addView(space);
+			}
 
 			addButton(pluginView, pluginDescriptor.getActivitys(), "Activity");
 
@@ -109,16 +119,12 @@ public class PluginDetailActivity extends Activity {
 			final String entry = components.next();
 
 			TextView tv = new TextView(this);
-			// tv.setText("插件ClassId：" + entry.getKey());
-			// pluginActivitysView.addView(tv);
-
-			tv = new TextView(this);
-			tv.append("插件ClassName ： " + entry);
+			// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
+			tv.append("插件类型：" + type);
 			pluginView.addView(tv);
 
 			tv = new TextView(this);
-			// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
-			tv.append("插件类型：" + type);
+			tv.append("插件ClassName ： " + entry);
 			pluginView.addView(tv);
 
 			Button btn = new Button(this);
@@ -173,6 +179,10 @@ public class PluginDetailActivity extends Activity {
 				}
 			});
 			pluginView.addView(btn);
+
+			Space space = new Space(this);
+			space.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 25));
+			pluginView.addView(space);
 		}
 	}
 }

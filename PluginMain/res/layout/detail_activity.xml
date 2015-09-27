@@ -1,69 +1,64 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
 
     <LinearLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:background="#ff33b5e5"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/plugin_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:background="@android:color/black"
+            android:padding="5dp"
             android:textColor="@android:color/white" />
 
         <TextView
             android:id="@+id/plugin_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:background="@android:color/black"
+            android:padding="5dp"
             android:textColor="@android:color/white" />
-        
+
         <TextView
             android:id="@+id/plugin_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:background="@android:color/black"
+            android:padding="5dp"
             android:textColor="@android:color/white" />
-        
-         <TextView
+
+        <TextView
             android:id="@+id/plugin_installedPath"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:background="@android:color/black"
+            android:padding="5dp"
             android:textColor="@android:color/white" />
-                
-        <LinearLayout
-            android:id="@+id/plugin_fragments"
-            android:layout_width="match_parent"
+
+        <TextView
+            android:id="@+id/isstandalone"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:orientation="vertical" >
-        </LinearLayout>
+            android:background="@android:color/black"
+            android:padding="5dp"
+            android:textColor="@android:color/white" />
 
         <LinearLayout
-            android:id="@+id/plugin_activities"
+            android:id="@+id/plugin_items"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:orientation="vertical" >
-        </LinearLayout>
-        
-        <LinearLayout
-            android:id="@+id/plugin_services"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:orientation="vertical" >
-        </LinearLayout>
+            android:orientation="vertical"></LinearLayout>
+
     </LinearLayout>
 
 </ScrollView>

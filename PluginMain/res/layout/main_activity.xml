@@ -1,28 +1,31 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
 
     <LinearLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ff33b5e5"
+        android:padding="16dp"
         android:orientation="vertical" >
 
         <Button
             android:id="@+id/install"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="点击安装内置插件\n assets/PluginTest-debug.apk"
-            android:padding="10dp"
+            android:text="点击安装内置插件assets/PluginTest-debug.apk"
+            android:padding="5dp"
             android:textSize="16sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             android:text="已安装的插件列表："
+            android:padding="5dp"
             android:textSize="16sp" />
 
         <LinearLayout
@@ -30,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:minHeight="100dp"
-            android:background="#ff33b5e5"
+            android:layout_marginTop="16dp"
             android:orientation="vertical" >
         </LinearLayout>
  

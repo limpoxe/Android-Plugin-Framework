@@ -39,15 +39,21 @@ public class PluginListActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
 
+		setTitle("插件列表");
+
 		// 监听插件安装 安装新插件后刷新当前页面
 		registerReceiver(pluginChange, new IntentFilter("com.plugin.core.action_plugin_changed"));
 
 		initView();
+
+		listAll();
 	}
 
 	private void initView() {
 
+		mList = (ViewGroup) findViewById(R.id.list);
 		install = (Button) findViewById(R.id.install);
+
 		install.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -64,8 +70,6 @@ public class PluginListActivity extends Activity {
 			}
 		});
 
-		mList = (ViewGroup) findViewById(R.id.list);
-		listAll(mList);
 	}
 
 	private void copyAndInstall(String name) {
@@ -89,7 +93,8 @@ public class PluginListActivity extends Activity {
 		}
 	}
 
-	private void listAll(ViewGroup root) {
+	private void listAll() {
+		ViewGroup root = mList;
 		root.removeAllViews();
 
 		// 列出所有已经安装的插件
@@ -121,9 +126,10 @@ public class PluginListActivity extends Activity {
 	private final BroadcastReceiver pluginChange = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Toast.makeText(PluginListActivity.this, "插件"  + intent.getStringExtra("id") + " "+ intent.getStringExtra("type") + "成功",
-					Toast.LENGTH_LONG).show();
-			listAll(mList);
+			Toast.makeText(PluginListActivity.this,
+					"插件"  + intent.getStringExtra("id") + " "+ intent.getStringExtra("type") + "完成",
+					Toast.LENGTH_SHORT).show();
+			listAll();
 		};
 	};
 
