@@ -1,9 +1,12 @@
 package com.plugin.core;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.Handler;
 import android.os.Message;
 
 import com.plugin.util.LogUtil;
+import com.plugin.util.RefInvoker;
 
 /**
  * 插件Receiver免注册的主要实现原理
@@ -21,16 +24,29 @@ public class PluginAppTrace implements Handler.Callback {
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		//try {
-			LogUtil.d(">>> handling: ", CodeConst.codeToString(msg.what));
-			if (msg.what == CodeConst.RECEIVER) {
-				PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
+
+		LogUtil.d(">>> handling: ", CodeConst.codeToString(msg.what));
+		Context baseContext = null;
+		if (msg.what == CodeConst.RECEIVER) {
+			Class clazz = PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
+			if (clazz != null) {
+				baseContext = PluginLoader.getApplicatoin().getBaseContext();
+				if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
+					ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext, "android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
+					RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", PluginLoader.getDefaultPluginContext(clazz));
+				} else {
+					baseContext = null;
+				}
 			}
+		}
+		try {
 			mHandler.handleMessage(msg);
 			LogUtil.d(">>> done: " + CodeConst.codeToString(msg.what));
-		//} catch (Throwable e) {
-		//	LogUtil.printException(CodeConst.codeToString(msg.what), e);
-		//}
+		} finally {
+			if (msg.what == CodeConst.RECEIVER && baseContext != null) {
+				RefInvoker.setFieldObject(baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+			}
+		}
 		return true;
 	}
 

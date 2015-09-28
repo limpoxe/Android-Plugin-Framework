@@ -46,7 +46,7 @@ public class PluginIntentResolver {
 		return intent;
 	}
 
-	/* package */static void hackReceiverForClassLoader(Object msgObj) {
+	/* package */static Class hackReceiverForClassLoader(Object msgObj) {
 		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
 		if (intent.getComponent().getClassName().equals(PluginStubReceiver.class.getName())) {
 			String action = intent.getAction();
@@ -75,8 +75,10 @@ public class PluginIntentResolver {
 					}
 				}
 
+				return clazz;
 			}
 		}
+		return null;
 	}
 
 	/* package */static boolean resolveStopService(final Intent service) {
