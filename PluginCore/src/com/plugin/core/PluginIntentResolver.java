@@ -1,10 +1,13 @@
 package com.plugin.core;
 
+import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Build;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.content.PluginReceiverIntent;
 import com.plugin.core.proxy.PluginProxyService;
 import com.plugin.core.ui.stub.PluginStubActivity;
 import com.plugin.core.ui.stub.PluginStubReceiver;
@@ -64,6 +67,14 @@ public class PluginIntentResolver {
 				// PluginClassLoader检测到这个特殊标记后会进行替换
 				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(),
 						prefix + targetClassName[0]));
+
+				if (Build.VERSION.SDK_INT >= 21) {
+					if (intent.getExtras() != null) {
+						PluginReceiverIntent newIntent = new PluginReceiverIntent(intent);
+						RefInvoker.setFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent", newIntent);
+					}
+				}
+
 			}
 		}
 	}
