@@ -29,44 +29,44 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 	@Override
 	public void onClick(View v) {
 		Intent testIntent = new Intent(this, PluginTestActivity.class);
+		testIntent.putExtra("str1", "打开PluginTestActivity——————");
 		ParamVO pvo = new ParamVO();
-		pvo.name = "呵呵1";
+		pvo.name = "打开PluginTestActivity";
 		testIntent.putExtra("paramvo", pvo);
-		testIntent.putExtra("str1", "呵呵11");
 		startActivity(testIntent);
 
 
 		testIntent = new Intent("test.abc");
+		testIntent.putExtra("str1", "打开test.abc——————");
 		pvo = new ParamVO();
-		pvo.name = "呵呵2";
+		pvo.name = "打开test.abc";
 		testIntent.putExtra("paramvo", pvo);
-		testIntent.putExtra("str1", "呵呵22");
 		startActivity(testIntent);
 
 		//启动服务
 		Intent service = new Intent();
 		service.setClassName(this, PluginTestService.class.getName());
-		service.putExtra("str1", "呵呵33");
+		service.putExtra("str1", "打开PluginTestService——————");
 		pvo = new ParamVO();
-		pvo.name = "呵呵3";
+		pvo.name = "打开PluginTestService";
 		service.putExtra("paramvo", pvo);
 		startService(service);
 
 		//停止服务
 		service = new Intent();
 		service.setClassName(this, PluginTestService.class.getName());
-		service.putExtra("str1", "呵呵33");
+		service.putExtra("str1", "停止PluginTestService——————");
 		pvo = new ParamVO();
-		pvo.name = "呵呵3";
+		pvo.name = "停止PluginTestService";
 		service.putExtra("paramvo", pvo);
 		stopService(service);
 
 
 		Intent intent = new Intent();
 		intent.setClassName(this, PluginTestReceiver.class.getName());
-		intent.putExtra("str1", "呵呵44");
+		intent.putExtra("str1", "打开PluginTestReceiver——————");
 		pvo = new ParamVO();
-		pvo.name = "呵呵4";
+		pvo.name = "打开PluginTestReceiver";
 		intent.putExtra("paramvo", pvo);
 		sendBroadcast(intent);
 	}

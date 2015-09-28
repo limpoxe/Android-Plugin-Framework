@@ -35,7 +35,7 @@
             android:name="com.example.plugintest.activity.PluginFragmentTestActivity" >
             <intent-filter>
                 <action
-                    android:name="test.abc" />
+                    android:name="test.def" />
 
                 <category
                     android:name="android.intent.category.DEFAULT" />

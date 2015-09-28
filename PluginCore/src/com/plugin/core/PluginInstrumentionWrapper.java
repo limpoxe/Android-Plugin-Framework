@@ -75,6 +75,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		PluginInjector.injectActivityContext(activity);
 
+		Intent intent = activity.getIntent();
+
+		if (intent != null) {
+			intent.setExtrasClassLoader(activity.getClassLoader());
+		}
+
 		super.callActivityOnCreate(activity, icicle);
 	}
 
@@ -88,18 +94,33 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	@Override
 	public void callActivityOnRestoreInstanceState(Activity activity, Bundle savedInstanceState) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
+
+		if (savedInstanceState != null) {
+			savedInstanceState.setClassLoader(activity.getClassLoader());
+		}
+
 		super.callActivityOnRestoreInstanceState(activity, savedInstanceState);
 	}
 
 	@Override
 	public void callActivityOnPostCreate(Activity activity, Bundle icicle) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
+
+		if (icicle != null) {
+			icicle.setClassLoader(activity.getClassLoader());
+		}
+
 		super.callActivityOnPostCreate(activity, icicle);
 	}
 
 	@Override
 	public void callActivityOnNewIntent(Activity activity, Intent intent) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
+
+		if (intent != null) {
+			intent.setExtrasClassLoader(activity.getClassLoader());
+		}
+
 		super.callActivityOnNewIntent(activity, intent);
 	}
 
@@ -130,6 +151,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	@Override
 	public void callActivityOnSaveInstanceState(Activity activity, Bundle outState) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
+
+		if (outState != null) {
+			outState.setClassLoader(activity.getClassLoader());
+		}
+
 		super.callActivityOnSaveInstanceState(activity, outState);
 	}
 
