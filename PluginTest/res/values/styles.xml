@@ -4,6 +4,13 @@
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
+
+    <style name="MyButton2">
+        <item name="android:background">#00ffA3</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">#e3a438</item>
+    </style>
+
     <!--
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
@@ -20,6 +27,11 @@
     <!-- Application theme. -->
     <style name="PluginTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="PluginTheme2" parent="AppBaseTheme">
+        <item name="android:buttonStyle">@style/MyButton2</item>
     </style>
 
 </resources>

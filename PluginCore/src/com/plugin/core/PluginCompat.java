@@ -3,7 +3,6 @@ package com.plugin.core;
 import com.plugin.content.PluginDescriptor;
 
 import android.content.Context;
-import android.os.Build;
 
 public class PluginCompat {
 	
@@ -20,7 +19,12 @@ public class PluginCompat {
 	 * @param clazz
 	 */
 	public static void setTheme(Context pluginContext, int resId, @SuppressWarnings("rawtypes") Class clazz) {
-		
+		setTheme(pluginContext, resId, PluginLoader.getPluginDescriptorByClassName(clazz.getName()));
+	}
+
+	public static void setTheme(Context pluginContext, int resId, PluginDescriptor pd) {
+
+		/**
 		boolean isThemeInHostResouce = false;
 		try {
 			//如果使用public.xml,采用下面的判断方式
@@ -36,7 +40,7 @@ public class PluginCompat {
 			}
 		} catch (Exception e) {
 		}
-		
+
 		if (isThemeInHostResouce) {
 			//使用主程序资源Id不需要区分版本
 			pluginContext.setTheme(resId);
@@ -45,12 +49,14 @@ public class PluginCompat {
 			if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT <= 20) {
 				pluginContext.setTheme(resId);
 			} else {
-				PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
 				((PluginContextTheme)pluginContext).mResources = PluginCreator.createPluginResourceFor5(PluginLoader.getApplicatoin(), pd.getInstalledPath());
 				((PluginContextTheme)pluginContext).mTheme = null;
 				pluginContext.setTheme(resId);
 			}
-		}
+		}*/
+
+		((PluginContextTheme)pluginContext).mTheme = null;
+		pluginContext.setTheme(resId);
 	}
 	
 }

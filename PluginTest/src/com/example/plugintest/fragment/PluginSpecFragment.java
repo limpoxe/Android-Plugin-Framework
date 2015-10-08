@@ -16,8 +16,10 @@ import com.plugin.core.PluginCompat;
 import com.plugin.core.PluginLoader;
 
 /**
- * 这个fragment会被嵌在 宿主程序 提供的activity中展示
+ * 此fragment使用了特定的context,因此可以在在插件中的activity，或者宿主中的特定activity、
+ * 或者宿主中的非特定activity中展示
  */
+
 public class PluginSpecFragment extends Fragment implements OnClickListener {
 
 	private ViewGroup mRoot;
@@ -28,7 +30,7 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		getActivity().setTitle("测试插件自由模式的Fragment");
+		getActivity().setTitle("测试插件中的Fragment，使用插件中指定的PluginTheme主题");
 
 		// 默认是宿主程序Application主题
 		pluginContext = PluginLoader.getNewPluginContext(PluginSpecFragment.class);

@@ -163,18 +163,7 @@ public class PluginInjector {
 			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_attachBaseContext,
 					new Class[]{Context.class }, new Object[] { pluginContext });
 
-			// 重设LayoutInflater
-			LogUtil.d(activity.getWindow().getClass().getName());
-			RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
-					"mLayoutInflater", LayoutInflater.from(pluginContext));
-
-			// 如果api>=11,还要重设factory2
-			if (Build.VERSION.SDK_INT >= 11) {
-				RefInvoker.invokeMethod(activity.getWindow().getLayoutInflater(), LayoutInflater.class.getName(),
-						"setPrivateFactory", new Class[] { LayoutInflater.Factory2.class }, new Object[] { activity });
-			}
-
-			// 由于在attach的时候Resource已经被初始化了，所以还需要重置Resource
+			// 由于在attach的时候Resource已经被初始化了，所以需要重置Resource
 			RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_mResources, null);
 
 			// 重设theme
@@ -187,6 +176,21 @@ public class PluginInjector {
 			if (pluginAppTheme != 0) {
 				RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_mTheme, null);
 				activity.setTheme(pluginAppTheme);
+			}
+
+			// 重设theme
+			((PluginContextTheme)pluginContext).mTheme = null;
+			pluginContext.setTheme(pluginAppTheme);
+
+			// 重设LayoutInflater
+			LogUtil.d(activity.getWindow().getClass().getName());
+			RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
+					"mLayoutInflater", LayoutInflater.from(pluginContext));
+
+			// 如果api>=11,还要重设factory2
+			if (Build.VERSION.SDK_INT >= 11) {
+				RefInvoker.invokeMethod(activity.getWindow().getLayoutInflater(), LayoutInflater.class.getName(),
+						"setPrivateFactory", new Class[]{LayoutInflater.Factory2.class}, new Object[]{activity});
 			}
 
 			//如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo， 避免activity试图通过ActivityInfo中的资源id来读取资源时失败

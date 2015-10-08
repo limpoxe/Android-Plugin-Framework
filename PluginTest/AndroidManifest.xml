@@ -13,13 +13,15 @@
 
  	<application 
  	    android:name="com.example.plugintest.PluginTestApplication"
- 	    android:label="包含UI的插件demo">
+        android:theme="@style/PluginTheme2">
         
         <!-- for fragment -->
         <meta-data android:name="fragment_id_fragmentTest1" android:value="com.example.plugintest.fragment.PluginSpecFragment"/>
         <!-- for fragment -->
         <meta-data android:name="fragment_id_fragmentTest2" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
-        
+
+        <meta-data android:name="test_meta_1" android:value="123"/>
+
         <activity
             android:name="com.example.plugintest.activity.PluginTestActivity" >
             <intent-filter>

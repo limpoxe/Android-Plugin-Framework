@@ -14,29 +14,23 @@ import android.widget.Toast;
 
 import com.example.plugintest.R;
 
-/**
- * 完整生命周期模式 不使用反射、也不使用代理，真真正证实现activity无需在Manifest中注册！
- * 
- * @author cailiming
- *
- */
 public class PluginForOppoAndVivoActivity extends Activity implements OnClickListener {
 
 	private ViewGroup mRoot;
+
 	private LayoutInflater mInflater;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTitle("测试插件中拥有真正生命周期的Activity");
-		mInflater = getLayoutInflater();
-		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
+		setTitle("测试插件主题");
 
-		mRoot = (ViewGroup) scrollview.findViewById(R.id.content);
+		setContentView(R.layout.plugin_layout);
 
 		initViews();
 
-		setContentView(scrollview);
+		mInflater = getLayoutInflater();
+
 	}
 
 	@Override
@@ -53,6 +47,7 @@ public class PluginForOppoAndVivoActivity extends Activity implements OnClickLis
 	}
 	
 	public void initViews() {
+		mRoot = (ViewGroup) findViewById(R.id.content);
 
 		Button btn1 = (Button) mRoot.findViewById(R.id.plugin_test_btn1);
 		btn1.setOnClickListener(this);

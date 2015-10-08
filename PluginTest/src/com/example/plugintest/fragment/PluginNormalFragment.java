@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 /**
- * 这个fragment会被嵌在 插件 提供的Activity中展示
+ * 此fragment没有使用特定的context,因此只能在插件中的activity，或者宿主中的特定activity中展示
  */
 public class PluginNormalFragment extends Fragment implements OnClickListener {
 
@@ -28,7 +28,7 @@ public class PluginNormalFragment extends Fragment implements OnClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		getActivity().setTitle("测试插件中非自由模式的Fragment");
+		getActivity().setTitle("测试插件中的Fragment，使用插件默认主题");
 
 		mInflater = inflater;
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);

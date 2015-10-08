@@ -101,6 +101,9 @@ public class PluginCreator {
 
 	}
 
+	/**
+	 * 未使用
+	 */
 	/* package */static Resources createPluginResourceFor5(Application application, String absolutePluginApkPath) {
 		try {
 			AssetManager assetMgr = AssetManager.class.newInstance();
