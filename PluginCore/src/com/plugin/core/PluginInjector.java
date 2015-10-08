@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 
+import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.ui.PluginNormalFragmentActivity;
@@ -22,6 +23,7 @@ import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.FragmentHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
+import com.plugin.util.ResourceUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -169,10 +171,18 @@ public class PluginInjector {
 			// 重设theme
 			ActivityInfo activityInfo = (ActivityInfo) RefInvoker.getFieldObject(activity, Activity.class.getName(),
 					android_app_Activity_mActivityInfo);
-			int pluginAppTheme = activityInfo.getThemeResource();
-			//if (pd.isStandalone()) {
-				pluginAppTheme = pd.getApplicationTheme() != 0 ? pd.getApplicationTheme():pluginAppTheme;
-			//}
+
+			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(activity.getClass().getName());
+			int pluginAppTheme = 0;
+			if (pluginActivityInfo != null ) {
+				pluginAppTheme = ResourceUtil.getResourceId(pluginActivityInfo.getTheme());
+			}
+			if (pluginAppTheme == 0) {
+				pluginAppTheme = pd.getApplicationTheme();
+			}
+			if (pluginAppTheme == 0) {
+				pluginAppTheme = activityInfo.getThemeResource();
+			}
 			if (pluginAppTheme != 0) {
 				RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_mTheme, null);
 				activity.setTheme(pluginAppTheme);
@@ -193,6 +203,26 @@ public class PluginInjector {
 						"setPrivateFactory", new Class[]{LayoutInflater.Factory2.class}, new Object[]{activity});
 			}
 
+			if (pluginActivityInfo != null) {
+				if (null != pluginActivityInfo.getScreenOrientation()) {
+					int orientation = Integer.parseInt(pluginActivityInfo.getScreenOrientation());
+					//noinspection ResourceType
+					//activity.setRequestedOrientation(orientation);
+				}
+				if (Build.VERSION.SDK_INT >= 18) {
+					Boolean isImmersive = ResourceUtil.getBoolean(pluginActivityInfo.getImmersive(), pluginContext);
+					if (isImmersive != null) {
+						activity.setImmersive(isImmersive);
+					}
+				}
+
+				LogUtil.d(activity.getClass().getName(), "immersive", pluginActivityInfo.getImmersive());
+				LogUtil.d(activity.getClass().getName(), "screenOrientation", pluginActivityInfo.getScreenOrientation());
+				LogUtil.d(activity.getClass().getName(), "launchMode", pluginActivityInfo.getLaunchMode());
+				LogUtil.d(activity.getClass().getName(), "windowSoftInputMode", pluginActivityInfo.getWindowSoftInputMode());
+
+			}
+
 			//如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo， 避免activity试图通过ActivityInfo中的资源id来读取资源时失败
 			activityInfo.icon = pd.getApplicationIcon();
 			activityInfo.logo = pd.getApplicationLogo();
@@ -200,7 +230,7 @@ public class PluginInjector {
 				activity.getWindow().setIcon(activityInfo.icon);
 				activity.getWindow().setLogo(activityInfo.logo);
 			}
-			activity.setTitle(pd.getPackageName());
+			activity.setTitle(activity.getClass().getName());
 
 		} else {
 			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象
@@ -208,7 +238,7 @@ public class PluginInjector {
 			Context mainContext = new PluginBaseContextWrapper(activity.getBaseContext());
 			RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase, null);
 			RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_attachBaseContext,
-					new Class[]{Context.class }, new Object[] { mainContext });
+					new Class[]{Context.class}, new Object[]{mainContext });
 		}
 	}
 

@@ -12,6 +12,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginIntentFilter;
 import com.plugin.content.PluginProviderInfo;
@@ -108,12 +109,38 @@ public class ManifestParser {
 
                         } else if ("activity".equals(parser.getName())) {
 
+                            String windowSoftInputMode = parser.getAttributeValue(namespaceAndroid, "windowSoftInputMode");//strin
+                            String hardwareAccelerated = parser.getAttributeValue(namespaceAndroid, "hardwareAccelerated");//int string
+                            String launchMode = parser.getAttributeValue(namespaceAndroid, "launchMode");//string
+                            String screenOrientation = parser.getAttributeValue(namespaceAndroid, "screenOrientation");//string
+                            String theme = parser.getAttributeValue(namespaceAndroid, "theme");//int
+                            String immersive = parser.getAttributeValue(namespaceAndroid, "immersive");//int string
+
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getActivitys();
                             if (map == null) {
                                 map = new HashMap<String, ArrayList<PluginIntentFilter>>();
                                 desciptor.setActivitys(map);
                             }
-                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "activity");
+                            String name = addIntentFilter(map, packageName, namespaceAndroid, parser, "activity");
+
+                            HashMap<String, PluginActivityInfo> infos = desciptor.getActivityInfos();
+                            if (infos == null) {
+                                infos = new HashMap<String, PluginActivityInfo>();
+                                desciptor.setActivityInfos(infos);
+                            }
+
+                            PluginActivityInfo pluginActivityInfo = infos.get(name);
+                            if (pluginActivityInfo == null) {
+                                pluginActivityInfo = new PluginActivityInfo();
+                                infos.put(name, pluginActivityInfo);
+                            }
+                            pluginActivityInfo.setHardwareAccelerated(hardwareAccelerated);
+                            pluginActivityInfo.setImmersive(immersive);
+                            pluginActivityInfo.setLaunchMode(launchMode);
+                            pluginActivityInfo.setName(name);
+                            pluginActivityInfo.setScreenOrientation(screenOrientation);
+                            pluginActivityInfo.setTheme(theme);
+                            pluginActivityInfo.setWindowSoftInputMode(windowSoftInputMode);
 
                         } else if ("receiver".equals(parser.getName())) {
 
@@ -172,7 +199,7 @@ public class ManifestParser {
         return null;
     }
     
-	private static void addIntentFilter(HashMap<String, ArrayList<PluginIntentFilter>> map, String packageName, String namespace,
+	private static String addIntentFilter(HashMap<String, ArrayList<PluginIntentFilter>> map, String packageName, String namespace,
 			XmlPullParser parser, String endTagName) throws XmlPullParserException, IOException {
 		int eventType = parser.getEventType();
 		String activityName = parser.getAttributeValue(namespace, "name");
@@ -200,6 +227,7 @@ public class ManifestParser {
 			eventType = parser.next();
 		} while (!endTagName.equals(parser.getName()));//再次到达，表示一个标签结束了
 
+        return activityName;
 	}
 	
 	private static String getName(String nameOrig, String pkgName) {
