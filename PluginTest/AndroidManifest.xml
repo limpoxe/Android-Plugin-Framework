@@ -45,7 +45,12 @@
         </activity>
         
         <activity
-            android:name="com.example.plugintest.activity.PluginNotInManifestActivity" >
+            android:name="com.example.plugintest.activity.PluginNotInManifestActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:launchMode="singleTop"
+            android:immersive="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/PluginTheme">
             <intent-filter>
                 <action
                     android:name="test.xyz1" />
