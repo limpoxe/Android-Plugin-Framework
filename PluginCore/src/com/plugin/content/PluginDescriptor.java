@@ -39,6 +39,17 @@ public class PluginDescriptor implements Serializable {
 
 	private String applicationName;
 
+	private int applicationIcon;
+
+	private int applicationLogo;
+
+	private int applicationTheme;
+
+	/**
+	 * 定义在插件Manifest中的meta-data标签
+	 */
+	private HashMap<String, String> metaData;
+
 	private HashMap<String, PluginProviderInfo> providerInfos = new HashMap<String, PluginProviderInfo>();
 
 	/**
@@ -107,6 +118,38 @@ public class PluginDescriptor implements Serializable {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public int getApplicationIcon() {
+		return applicationIcon;
+	}
+
+	public void setApplicationIcon(int icon) {
+		this.applicationIcon = icon;
+	}
+
+	public int getApplicationLogo() {
+		return applicationLogo;
+	}
+
+	public void setApplicationLogo(int logo) {
+		this.applicationLogo = logo;
+	}
+
+	public int getApplicationTheme() {
+		return applicationTheme;
+	}
+
+	public void setApplicationTheme(int theme) {
+		this.applicationTheme = theme;
+	}
+
+	public HashMap<String, String> getMetaData() {
+		return metaData;
+	}
+
+	public void setMetaData(HashMap<String, String> metaData) {
+		this.metaData = metaData;
 	}
 
 	public HashMap<String, String> getFragments() {

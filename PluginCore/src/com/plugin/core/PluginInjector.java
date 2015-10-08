@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 
+import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.ui.PluginNormalFragmentActivity;
 import com.plugin.core.ui.stub.PluginStubActivity;
@@ -140,14 +141,20 @@ public class PluginInjector {
 
 
 			Context pluginContext = null;
+			PluginDescriptor pd = null;
 			if (activity.getClass().getName().equals(PluginNormalFragmentActivity.class.getName())) {
 				// 为了能够在宿主中的Activiy里面展示来自插件的普通Fragment，
 				// 我们将宿主程序中用来展示插件普通Fragment的Activity的Context也替换掉
 				String classId = activity.getIntent().getStringExtra(FragmentHelper.FRAGMENT_ID_IN_PLUGIN);
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
+
+				pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
+
 				pluginContext = PluginLoader.getNewPluginContext(clazz);
 			} else {
+				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
+
 				pluginContext = PluginLoader.getNewPluginContext(activity.getClass());
 			}
 
@@ -173,11 +180,24 @@ public class PluginInjector {
 			// 重设theme
 			ActivityInfo activityInfo = (ActivityInfo) RefInvoker.getFieldObject(activity, Activity.class.getName(),
 					android_app_Activity_mActivityInfo);
-			int theme = activityInfo.getThemeResource();
-			if (theme != 0) {
+			int pluginAppTheme = activityInfo.getThemeResource();
+			//if (pd.isStandalone()) {
+				pluginAppTheme = pd.getApplicationTheme() != 0 ? pd.getApplicationTheme():pluginAppTheme;
+			//}
+			if (pluginAppTheme != 0) {
 				RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_mTheme, null);
-				activity.setTheme(theme);
+				activity.setTheme(pluginAppTheme);
 			}
+
+			//如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo， 避免activity试图通过ActivityInfo中的资源id来读取资源时失败
+			activityInfo.icon = pd.getApplicationIcon();
+			activityInfo.logo = pd.getApplicationLogo();
+			if (Build.VERSION.SDK_INT >= 19) {
+				activity.getWindow().setIcon(activityInfo.icon);
+				activity.getWindow().setLogo(activityInfo.logo);
+			}
+			activity.setTitle(pd.getPackageName());
+
 		} else {
 			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象
 			// 插入Context

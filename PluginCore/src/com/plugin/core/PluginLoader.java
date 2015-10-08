@@ -107,6 +107,7 @@ public class PluginLoader {
 			if (FileUtil.copyFile(srcPluginFile, tempFilePath)) {
 				srcPluginFile = tempFilePath;
 			} else {
+				LogUtil.e("复制插件文件失败失败", srcPluginFile, tempFilePath);
 				return COPY_FILE_FAIL;
 			}
 		}
@@ -144,6 +145,11 @@ public class PluginLoader {
 			new File(srcPluginFile).delete();
 			return PARSE_MANIFEST_FAIL;
 		}
+
+		PackageInfo packageInfo = sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
+		pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
+		pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
+		pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
 
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
@@ -241,6 +247,8 @@ public class PluginLoader {
 				return pluginClazz;
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+			} catch (java.lang.IllegalAccessError illegalAccessError) {
+				illegalAccessError.printStackTrace();
 			}
 
 		}

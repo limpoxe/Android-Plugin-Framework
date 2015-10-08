@@ -16,8 +16,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle(getPackageName());
-
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.test_close_btn).setOnClickListener(new View.OnClickListener() {

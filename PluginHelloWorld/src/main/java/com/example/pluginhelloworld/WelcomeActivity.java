@@ -18,8 +18,6 @@ public class WelcomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle(getPackageName());
-
         Log.e("xxx", "activity_welcome ID= " + R.layout.activity_welcome);
         Log.e("xxx", getResources().getResourceEntryName(R.layout.activity_welcome));
         Log.e("xxx", getResources().getString(R.string.app_name));

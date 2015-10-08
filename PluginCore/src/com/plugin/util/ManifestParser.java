@@ -57,7 +57,7 @@ public class ManifestParser {
                             desciptor.setPackageName(packageName);
                             desciptor.setVersion(versionName + "_" + versionCode);
                             
-                            desciptor.setStandalone(sharedUserId==null || !PluginLoader.getApplicatoin().getPackageName().equals(sharedUserId));
+                            desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplicatoin().getPackageName().equals(sharedUserId));
                             
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
                         } else if (tag.equals("meta-data")) {
@@ -68,15 +68,31 @@ public class ManifestParser {
                         		desciptor.setfragments(hashMap);
                         	}
                         	
-                        	String fragmentId = parser.getAttributeValue(namespaceAndroid, "name");
-                        	String fragmentClassName = parser.getAttributeValue(namespaceAndroid, "value");
+                        	String name = parser.getAttributeValue(namespaceAndroid, "name");
+                        	String value = parser.getAttributeValue(namespaceAndroid, "value");
 
                             /**
                              * fragmentId 约定以fragment_id_开头，避免把其他普通metadata信息读出来了
                              */
-                            if (fragmentId != null && fragmentId.startsWith("fragment_id_")) {
-                                hashMap.put(fragmentId, fragmentClassName);
-                                LogUtil.d(fragmentId, fragmentClassName);
+                            if (name != null && name.startsWith("fragment_id_")) {
+                                hashMap.put(name, value);
+                                LogUtil.d(name, value);
+                            } else {
+                                HashMap<String, String> metaData = desciptor.getMetaData();
+                                if (metaData == null) {
+                                    metaData = new HashMap<String, String>();
+                                    desciptor.setMetaData(metaData);
+                                }
+                                if (value != null && value.startsWith("@") && value.length() == 9) {
+                                    String idHex = value.replace("@", "");
+                                    try {
+                                        int id = Integer.parseInt(idHex, 16);
+                                        value = Integer.toString(id);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                metaData.put(name, value);
                             }
 
                         } else if ("application".equals(parser.getName())) {
