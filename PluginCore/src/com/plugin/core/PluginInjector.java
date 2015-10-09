@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
+import android.view.Window;
 
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
@@ -192,6 +193,14 @@ public class PluginInjector {
 			((PluginContextTheme)pluginContext).mTheme = null;
 			pluginContext.setTheme(pluginAppTheme);
 
+			//重设mContext
+			RefInvoker.setFieldObject(activity.getWindow(), Window.class.getName(),
+					"mContext", pluginContext);
+
+			//重设mWindowStyle
+			RefInvoker.setFieldObject(activity.getWindow(), Window.class.getName(),
+					"mWindowStyle", null);
+
 			// 重设LayoutInflater
 			LogUtil.d(activity.getWindow().getClass().getName());
 			RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
@@ -204,10 +213,19 @@ public class PluginInjector {
 			}
 
 			if (pluginActivityInfo != null) {
+
+				if (null != pluginActivityInfo.getWindowSoftInputMode()) {
+					activity.getWindow().setSoftInputMode(Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
+				}
+				if (Build.VERSION.SDK_INT >= 14) {
+					if (null != pluginActivityInfo.getUiOptions()) {
+						activity.getWindow().setUiOptions(Integer.parseInt(pluginActivityInfo.getUiOptions().replace("0x", ""), 16));
+					}
+				}
 				if (null != pluginActivityInfo.getScreenOrientation()) {
 					int orientation = Integer.parseInt(pluginActivityInfo.getScreenOrientation());
 					//noinspection ResourceType
-					//activity.setRequestedOrientation(orientation);
+					activity.setRequestedOrientation(orientation);
 				}
 				if (Build.VERSION.SDK_INT >= 18) {
 					Boolean isImmersive = ResourceUtil.getBoolean(pluginActivityInfo.getImmersive(), pluginContext);
@@ -220,7 +238,7 @@ public class PluginInjector {
 				LogUtil.d(activity.getClass().getName(), "screenOrientation", pluginActivityInfo.getScreenOrientation());
 				LogUtil.d(activity.getClass().getName(), "launchMode", pluginActivityInfo.getLaunchMode());
 				LogUtil.d(activity.getClass().getName(), "windowSoftInputMode", pluginActivityInfo.getWindowSoftInputMode());
-
+				LogUtil.d(activity.getClass().getName(), "uiOptions", pluginActivityInfo.getUiOptions());
 			}
 
 			//如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo， 避免activity试图通过ActivityInfo中的资源id来读取资源时失败

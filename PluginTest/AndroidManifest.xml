@@ -50,6 +50,7 @@
             android:launchMode="singleTop"
             android:immersive="true"
             android:screenOrientation="landscape"
+            android:uiOptions="splitActionBarWhenNarrow"
             android:theme="@style/PluginTheme">
             <intent-filter>
                 <action

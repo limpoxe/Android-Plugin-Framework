@@ -45,23 +45,35 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			IllegalAccessException, ClassNotFoundException {
 		// 将PluginStubActivity替换成插件中的activity
 		if (className.equals(PluginStubActivity.class.getName())) {
+
 			String action = intent.getAction();
-			if (action != null) {
+
+			//
+			if (action != null && action.contains(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN)) {
 
 				String[] targetClassName  = action.split(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN);
 
 				LogUtil.d(className, action, targetClassName[0]);
-				Class clazz = PluginLoader.loadPluginClassByName(targetClassName[0]);
-				cl = clazz.getClassLoader();
+
 				className = targetClassName[0];
+				Class clazz = PluginLoader.loadPluginClassByName(className);
+				cl = clazz.getClassLoader();
 
 				intent.setExtrasClassLoader(cl);
+				intent.putExtra(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN, className);
 				//由于之前intent被修改过 这里再吧Intent还原到原始的intent
 				if (targetClassName.length >1) {
 					intent.setAction(targetClassName[1]);
 				} else {
 					intent.setAction(null);
 				}
+
+			} else {
+				//进入这个分支可能是activity重启了，比如横竖屏切换
+				className = intent.getStringExtra(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN);
+				Class clazz = PluginLoader.loadPluginClassByName(className);
+
+				cl = clazz.getClassLoader();
 			}
 		}
 

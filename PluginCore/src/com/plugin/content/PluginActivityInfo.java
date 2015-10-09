@@ -17,6 +17,15 @@ public class PluginActivityInfo implements Serializable {
 	private String screenOrientation;//string
 	private String theme;//int
 	private String immersive;//int string
+	private String uiOptions;
+
+	public String getUiOptions() {
+		return uiOptions;
+	}
+
+	public void setUiOptions(String uiOptions) {
+		this.uiOptions = uiOptions;
+	}
 
 	public String getImmersive() {
 		return immersive;

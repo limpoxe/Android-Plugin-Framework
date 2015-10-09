@@ -115,6 +115,7 @@ public class ManifestParser {
                             String screenOrientation = parser.getAttributeValue(namespaceAndroid, "screenOrientation");//string
                             String theme = parser.getAttributeValue(namespaceAndroid, "theme");//int
                             String immersive = parser.getAttributeValue(namespaceAndroid, "immersive");//int string
+                            String uiOptions = parser.getAttributeValue(namespaceAndroid, "uiOptions");//int string
 
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getActivitys();
                             if (map == null) {
@@ -141,6 +142,7 @@ public class ManifestParser {
                             pluginActivityInfo.setScreenOrientation(screenOrientation);
                             pluginActivityInfo.setTheme(theme);
                             pluginActivityInfo.setWindowSoftInputMode(windowSoftInputMode);
+                            pluginActivityInfo.setUiOptions(uiOptions);
 
                         } else if ("receiver".equals(parser.getName())) {
 
