@@ -23,7 +23,8 @@
         <meta-data android:name="test_meta_1" android:value="123"/>
 
         <activity
-            android:name="com.example.plugintest.activity.PluginTestActivity" >
+            android:name="com.example.plugintest.activity.PluginTestActivity"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action
                     android:name="test.abc" />
@@ -34,7 +35,8 @@
         </activity>
 
         <activity
-            android:name="com.example.plugintest.activity.PluginFragmentTestActivity" >
+            android:name="com.example.plugintest.activity.PluginFragmentTestActivity"
+            android:windowSoftInputMode="stateAlwaysVisible">
             <intent-filter>
                 <action
                     android:name="test.def" />
@@ -46,12 +48,11 @@
         
         <activity
             android:name="com.example.plugintest.activity.PluginNotInManifestActivity"
-            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/PluginTheme"
             android:launchMode="singleTop"
             android:immersive="true"
-            android:screenOrientation="landscape"
             android:uiOptions="splitActionBarWhenNarrow"
-            android:theme="@style/PluginTheme">
+            android:hardwareAccelerated="true">
             <intent-filter>
                 <action
                     android:name="test.xyz1" />
