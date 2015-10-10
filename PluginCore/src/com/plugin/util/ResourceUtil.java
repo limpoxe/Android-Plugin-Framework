@@ -8,8 +8,15 @@ import android.content.Context;
 public class ResourceUtil {
 
     public static String getString(String value, Context pluginContext) {
+        String idHex = null;
         if (value != null && value.startsWith("@") && value.length() == 9) {
-            String idHex = value.replace("@", "");
+            idHex = value.replace("@", "");
+
+        } else if (value != null && value.startsWith("@android:") && value.length() == 17) {
+            idHex = value.replace("@android:", "");
+        }
+
+        if (idHex != null) {
             try {
                 int id = Integer.parseInt(idHex, 16);
                 //此时context可能还没有初始化
@@ -21,12 +28,20 @@ public class ResourceUtil {
                 e.printStackTrace();
             }
         }
+
         return value;
     }
 
     public static Boolean getBoolean(String value, Context pluginContext) {
+        String idHex = null;
         if (value != null && value.startsWith("@") && value.length() == 9) {
-            String idHex = value.replace("@", "");
+            idHex = value.replace("@", "");
+
+        } else if (value != null && value.startsWith("@android:") && value.length() == 17) {
+            idHex = value.replace("@android:", "");
+        }
+
+        if (idHex != null) {
             try {
                 int id = Integer.parseInt(idHex, 16);
                 //此时context可能还没有初始化
@@ -39,12 +54,19 @@ public class ResourceUtil {
         } else if (value != null) {
             return Boolean.parseBoolean(value);
         }
+
         return null;
     }
 
     public static int getResourceId(String value) {
+        String idHex = null;
         if (value != null && value.startsWith("@") && value.length() == 9) {
-            String idHex = value.replace("@", "");
+            idHex = value.replace("@", "");
+
+        } else if (value != null && value.startsWith("@android:") && value.length() == 17) {
+            idHex = value.replace("@android:", "");
+        }
+        if (idHex != null) {
             try {
                 int id = Integer.parseInt(idHex, 16);
                 return id;

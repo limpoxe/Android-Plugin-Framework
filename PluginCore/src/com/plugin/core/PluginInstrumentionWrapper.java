@@ -16,6 +16,9 @@ import com.plugin.core.ui.stub.PluginStubActivity;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
+import java.util.Iterator;
+import java.util.Set;
+
 /**
  * 插件Activity免注册的主要实现原理。 如有必要，可以增加被代理的方法数量。
  * 
@@ -23,6 +26,8 @@ import com.plugin.util.RefInvoker;
  * 
  */
 public class PluginInstrumentionWrapper extends Instrumentation {
+
+	private static final String RELAUNCH_FLAG = "relaunch.category.";
 
 	private final Instrumentation realInstrumention;
 
@@ -60,25 +65,34 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				cl = clazz.getClassLoader();
 
 				intent.setExtrasClassLoader(cl);
-				try {
-					intent.putExtra(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN, className);
-				} catch (Exception e) {
-					//尝试启动独立插件的activity时，如果在intent里面传递了一个来自宿主程序的复杂对象，这里会抛错。
-					//实际情况中应该出现这种case，仅测试时存在。
-				}
-				//由于之前intent被修改过 这里再吧Intent还原到原始的intent
+
+				//之前为了传递classNae，intent的action被修改过 这里再把Action还原到原始的Action
 				if (targetClassName.length >1) {
 					intent.setAction(targetClassName[1]);
 				} else {
 					intent.setAction(null);
 				}
+				//添加一个标记符
+				intent.addCategory(RELAUNCH_FLAG + className);
 
 			} else {
-				//进入这个分支可能是activity重启了，比如横竖屏切换
-				className = intent.getStringExtra(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN);
-				Class clazz = PluginLoader.loadPluginClassByName(className);
+				//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了
+				//这里只能通过之前添加的标记符来查找className
+				Set<String> category = intent.getCategories();
+				if (category != null) {
+					Iterator<String> itr = category.iterator();
+					while (itr.hasNext()) {
+						String cate = itr.next();
 
-				cl = clazz.getClassLoader();
+						if (cate.startsWith(RELAUNCH_FLAG)) {
+							className = cate.replace(RELAUNCH_FLAG, "");
+
+							Class clazz = PluginLoader.loadPluginClassByName(className);
+							cl = clazz.getClassLoader();
+							break;
+						}
+					}
+				}
 			}
 		}
 
