@@ -60,7 +60,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				cl = clazz.getClassLoader();
 
 				intent.setExtrasClassLoader(cl);
-				intent.putExtra(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN, className);
+				try {
+					intent.putExtra(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN, className);
+				} catch (Exception e) {
+					//尝试启动独立插件的activity时，如果在intent里面传递了一个来自宿主程序的复杂对象，这里会抛错。
+					//实际情况中应该出现这种case，仅测试时存在。
+				}
 				//由于之前intent被修改过 这里再吧Intent还原到原始的intent
 				if (targetClassName.length >1) {
 					intent.setAction(targetClassName[1]);
