@@ -8,7 +8,7 @@
     android:sharedUserId="com.example.pluginmain" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="11"
         android:targetSdkVersion="22" />
 
  	<application 
@@ -24,6 +24,7 @@
 
         <activity
             android:name="com.example.plugintest.activity.PluginTestActivity"
+            android:theme="@style/PluginTheme3"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action
