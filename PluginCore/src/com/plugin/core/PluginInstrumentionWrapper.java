@@ -60,21 +60,23 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 				LogUtil.d(className, action, targetClassName[0]);
 
-				className = targetClassName[0];
-				Class clazz = PluginLoader.loadPluginClassByName(className);
-				cl = clazz.getClassLoader();
+				String tempclassName = targetClassName[0];
+				Class clazz = PluginLoader.loadPluginClassByName(tempclassName);
+				if (clazz != null) {
+					className = tempclassName;
+					cl = clazz.getClassLoader();
 
-				intent.setExtrasClassLoader(cl);
+					intent.setExtrasClassLoader(cl);
 
-				//之前为了传递classNae，intent的action被修改过 这里再把Action还原到原始的Action
-				if (targetClassName.length >1) {
-					intent.setAction(targetClassName[1]);
-				} else {
-					intent.setAction(null);
+					//之前为了传递classNae，intent的action被修改过 这里再把Action还原到原始的Action
+					if (targetClassName.length >1) {
+						intent.setAction(targetClassName[1]);
+					} else {
+						intent.setAction(null);
+					}
+					//添加一个标记符
+					intent.addCategory(RELAUNCH_FLAG + className);
 				}
-				//添加一个标记符
-				intent.addCategory(RELAUNCH_FLAG + className);
-
 			} else {
 				//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了
 				//这里只能通过之前添加的标记符来查找className
