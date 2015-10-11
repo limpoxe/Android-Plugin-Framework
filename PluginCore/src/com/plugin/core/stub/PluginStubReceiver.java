@@ -1,4 +1,4 @@
-package com.plugin.core.ui.stub;
+package com.plugin.core.stub;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

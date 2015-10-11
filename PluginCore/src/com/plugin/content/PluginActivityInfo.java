@@ -1,5 +1,7 @@
 package com.plugin.content;
 
+import android.content.pm.ActivityInfo;
+
 import java.io.Serializable;
 
 /**
@@ -13,7 +15,7 @@ public class PluginActivityInfo implements Serializable {
 	private String name;//string
 	private String windowSoftInputMode;//strin
 	private String hardwareAccelerated;//int string
-	private String launchMode;//string
+	private String launchMode = String.valueOf(ActivityInfo.LAUNCH_MULTIPLE);//string
 	private String screenOrientation;//string
 	private String theme;//int
 	private String immersive;//int string

@@ -15,23 +15,7 @@
         android:name="com.plugin.core.PluginApplication"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/ShareTheme" >
-        
-        <!-- plugin Begin -->
-        <activity
-            android:name="com.plugin.core.ui.PluginNormalFragmentActivity" >
-        </activity>
 
-        <activity
-            android:name="com.plugin.core.ui.stub.PluginStubActivity">
-        </activity>
-        
-        <service android:name="com.plugin.core.proxy.PluginProxyService">
-        </service>
-        
-        <receiver android:name="com.plugin.core.ui.stub.PluginStubReceiver">
-        </receiver>
-        <!-- plugin End -->
-        
         <activity
             android:name="com.example.pluginmain.PluginListActivity" >
             <intent-filter>

@@ -1,4 +1,4 @@
-package com.plugin.core.ui.stub;
+package com.plugin.core.stub.ui;
 
 import android.app.Activity;
 import android.os.Bundle;

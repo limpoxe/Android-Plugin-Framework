@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 
-import com.plugin.core.ui.stub.PluginStubActivity;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -49,7 +48,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		// 将PluginStubActivity替换成插件中的activity
-		if (className.equals(PluginStubActivity.class.getName())) {
+		if (className.startsWith(PluginStubBinding.STUB_ACTIVITY_PRE)) {
 
 			String action = intent.getAction();
 

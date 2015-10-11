@@ -1,5 +1,7 @@
 package com.plugin.util;
 
+import android.content.pm.ActivityInfo;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -137,6 +139,9 @@ public class ManifestParser {
                             }
                             pluginActivityInfo.setHardwareAccelerated(hardwareAccelerated);
                             pluginActivityInfo.setImmersive(immersive);
+                            if (launchMode == null) {
+                                launchMode = String.valueOf(ActivityInfo.LAUNCH_MULTIPLE);
+                            }
                             pluginActivityInfo.setLaunchMode(launchMode);
                             pluginActivityInfo.setName(name);
                             pluginActivityInfo.setScreenOrientation(screenOrientation);

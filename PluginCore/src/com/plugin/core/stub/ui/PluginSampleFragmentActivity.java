@@ -1,4 +1,4 @@
-package com.plugin.core.ui;
+package com.plugin.core.stub.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,9 +18,9 @@ import com.plugin.util.LogUtil;
  * @author cailiming
  * 
  */
-public class PluginNormalFragmentActivity extends FragmentActivity {
+public class PluginSampleFragmentActivity extends FragmentActivity {
 
-	private static final String LOG_TAG = PluginNormalFragmentActivity.class.getSimpleName();
+	private static final String LOG_TAG = PluginSampleFragmentActivity.class.getSimpleName();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

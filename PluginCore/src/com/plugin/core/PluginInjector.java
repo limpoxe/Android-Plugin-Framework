@@ -18,8 +18,7 @@ import android.view.Window;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
-import com.plugin.core.ui.PluginNormalFragmentActivity;
-import com.plugin.core.ui.stub.PluginStubActivity;
+import com.plugin.core.stub.ui.PluginSampleFragmentActivity;
 import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.FragmentHelper;
 import com.plugin.util.LogUtil;
@@ -133,8 +132,7 @@ public class PluginInjector {
 		Intent intent = activity.getIntent();
 		// 如果是打开插件中的activity
 		if (intent.getComponent() != null
-				&& (intent.getComponent().getClassName().equals(PluginStubActivity.class.getName()) || intent
-				.getComponent().getClassName().equals(PluginNormalFragmentActivity.class.getName()))) {
+				&& (intent.getComponent().getClassName().startsWith(PluginStubBinding.STUB_ACTIVITY_PRE))) {
 			// 为了不需要重写插件Activity的attachBaseContext方法为：
 			// @Override
 			// protected void attachBaseContext(Context newBase) {
@@ -145,7 +143,7 @@ public class PluginInjector {
 
 			Context pluginContext = null;
 			PluginDescriptor pd = null;
-			if (activity.getClass().getName().equals(PluginNormalFragmentActivity.class.getName())) {
+			if (activity.getClass().getName().equals(PluginSampleFragmentActivity.class.getName())) {
 				// 为了能够在宿主中的Activiy里面展示来自插件的普通Fragment，
 				// 我们将宿主程序中用来展示插件普通Fragment的Activity的Context也替换掉
 				String classId = activity.getIntent().getStringExtra(FragmentHelper.FRAGMENT_ID_IN_PLUGIN);

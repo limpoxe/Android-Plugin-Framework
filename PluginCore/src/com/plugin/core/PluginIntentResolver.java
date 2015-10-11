@@ -1,16 +1,15 @@
 package com.plugin.core;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 
+import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginReceiverIntent;
 import com.plugin.core.proxy.PluginProxyService;
-import com.plugin.core.ui.stub.PluginStubActivity;
-import com.plugin.core.ui.stub.PluginStubReceiver;
+import com.plugin.core.stub.PluginStubReceiver;
 import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
@@ -95,8 +94,15 @@ public class PluginIntentResolver {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
 		String className = PluginLoader.matchPlugin(intent);
 		if (className != null) {
-			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
-					PluginStubActivity.class.getName()));
+
+			PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(className);
+
+			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
+
+			String stubActivityName = PluginStubBinding.getLaunchModeStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
+
+			intent.setComponent(
+					new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubActivityName));
 			//PluginInstrumentationWrapper检测到这个标记后会进行替换
 			intent.setAction(className + ACTIVITY_ACTION_IN_PLUGIN + (intent.getAction()==null?"":intent.getAction()));
 		}

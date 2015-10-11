@@ -8,6 +8,63 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="22" />
 
-    <application />
+    <application>
+
+        <activity
+            android:name="com.plugin.core.stub.ui.PluginSampleFragmentActivity" >
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.ui.PluginStubActivity">
+        </activity>
+
+        <service android:name="com.plugin.core.proxy.PluginProxyService">
+        </service>
+
+        <receiver android:name="com.plugin.core.stub.PluginStubReceiver">
+        </receiver>
+
+        <!--///////////////////////////////////////////////////////////////////-->
+        <!--///////////////////////////////////////////////////////////////////-->
+        <!--所有的插件中有多少个SingleTask的Activity，就在这里注册多少个虚拟的Activity，
+            这虚Activity并不需要真实存在，
+            只需遵守约定的命名规范即可-->
+        <activity
+            android:name="com.plugin.core.stub.ui.singletask.PluginStubActivity1"
+            android:exported="false"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.LAUNCH_MODE" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.ui.singletask.PluginStubActivity2"
+            android:exported="false"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.LAUNCH_MODE" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.ui.singletask.PluginStubActivity3"
+            android:exported="false"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.LAUNCH_MODE" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+    </application>
 
 </manifest>
