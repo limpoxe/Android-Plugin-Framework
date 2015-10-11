@@ -249,6 +249,9 @@ public class PluginLoader {
 				e.printStackTrace();
 			} catch (java.lang.IllegalAccessError illegalAccessError) {
 				illegalAccessError.printStackTrace();
+				throw new IllegalAccessError("出现这个异常最大的可能是插件dex和" +
+						"宿主dex包含了相同的class导致冲突, " +
+						"请检查插件的编译脚本，确保排除了所有公共依赖库的jar");
 			}
 
 		}

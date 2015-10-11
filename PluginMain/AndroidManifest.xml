@@ -18,13 +18,11 @@
         
         <!-- plugin Begin -->
         <activity
-            android:name="com.plugin.core.ui.PluginNormalFragmentActivity"
-            android:exported="true" >
+            android:name="com.plugin.core.ui.PluginNormalFragmentActivity" >
         </activity>
 
         <activity
-            android:name="com.plugin.core.ui.stub.PluginStubActivity"
-            android:exported="true" >
+            android:name="com.plugin.core.ui.stub.PluginStubActivity">
         </activity>
         
         <service android:name="com.plugin.core.proxy.PluginProxyService">
