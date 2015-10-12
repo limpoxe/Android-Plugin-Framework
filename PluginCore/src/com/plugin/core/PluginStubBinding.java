@@ -1,5 +1,6 @@
 package com.plugin.core;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -21,13 +22,17 @@ public class PluginStubBinding {
 
 	private static final String ACTION_LAUNCH_MODE = "com.plugin.core.LAUNCH_MODE";
 
+	/**
+	 * key:stub Activity Name
+	 * value:plugin Activity Name
+	 */
 	private static HashMap<String, String> singleTaskMapping = new HashMap<String, String>();
 	private static HashMap<String, String> singleTopMapping = new HashMap<String, String>();
 	private static HashMap<String, String> singleInstanceMapping = new HashMap<String, String>();
 
 	private static boolean isPoolInited = false;
 
-	public static String getLaunchModeStubActivity(String pluginActivityClassName, int launchMode) {
+	public static String bindLaunchModeStubActivity(String pluginActivityClassName, int launchMode) {
 
 		initPool();
 
@@ -107,5 +112,23 @@ public class PluginStubBinding {
 		}
 
 		isPoolInited = true;
+	}
+
+	public static void unBindLaunchModeStubActivity(String activityName, Intent intent) {
+		if (activityName.startsWith(PluginStubBinding.STUB_ACTIVITY_PRE)) {
+			if (intent != null) {
+				ComponentName cn = intent.getComponent();
+				if (cn != null) {
+					String pluginActivityName = cn.getClassName();
+					if (pluginActivityName.equals(singleTaskMapping.get(activityName))) {
+						singleTaskMapping.put(activityName, null);
+					} else if (pluginActivityName.equals(singleInstanceMapping.get(activityName))) {
+						singleInstanceMapping.put(activityName, null);
+					} else {
+						//对于standard和singleTop的launchmode，不做处理。
+					}
+				}
+			}
+		}
 	}
 }

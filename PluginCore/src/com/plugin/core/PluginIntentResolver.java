@@ -99,7 +99,7 @@ public class PluginIntentResolver {
 
 			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
 
-			String stubActivityName = PluginStubBinding.getLaunchModeStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
+			String stubActivityName = PluginStubBinding.bindLaunchModeStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
 
 			intent.setComponent(
 					new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubActivityName));
