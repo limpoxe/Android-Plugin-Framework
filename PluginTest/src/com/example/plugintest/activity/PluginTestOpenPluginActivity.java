@@ -1,7 +1,10 @@
 package com.example.plugintest.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +18,8 @@ import com.example.plugintest.vo.ParamVO;
 
 public class PluginTestOpenPluginActivity extends Activity implements OnClickListener {
 
+	NestReceiver nestReceiver;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -23,7 +28,19 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 		setContentView(btn);
 		btn.setOnClickListener(this);
 
-		Log.d("paramVO", ((SharePOJO)getIntent().getSerializableExtra("paramVO")).name);
+		Log.d("paramVO", ((SharePOJO) getIntent().getSerializableExtra("paramVO")).name);
+
+		IntentFilter testFiler = new IntentFilter();
+		testFiler.addAction("xx.nest");
+		nestReceiver = new NestReceiver();
+		registerReceiver(nestReceiver, testFiler);
+	}
+
+	class NestReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.d("xx", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+		}
 	}
 
 	@Override
@@ -69,6 +86,19 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 		pvo.name = "打开PluginTestReceiver";
 		intent.putExtra("paramvo", pvo);
 		sendBroadcast(intent);
+
+		//测试动态注册的插件广播
+		intent = new Intent("xx.nest");
+		intent.putExtra("str1", "打开动态注册的NestReceiver——————");
+		pvo = new ParamVO();
+		pvo.name = "打开动态注册的NestReceiver";
+		intent.putExtra("paramvo", pvo);
+		sendBroadcast(intent);
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(nestReceiver);
+	}
 }

@@ -11,7 +11,8 @@ import com.example.plugintest.vo.ParamVO;
 import com.plugin.util.LogUtil;
 
 /**
- * 插件receiver不能监听系统广播
+ * 静态注册的插件receiver不能监听系统广播
+ *
  * @author cailiming
  *
  */
