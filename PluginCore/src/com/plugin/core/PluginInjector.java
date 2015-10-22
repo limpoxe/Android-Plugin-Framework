@@ -11,6 +11,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Window;
@@ -18,9 +19,9 @@ import android.view.Window;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
-import com.plugin.core.stub.ui.PluginSampleFragmentActivity;
+import com.plugin.core.annotation.AnnotationProcessor;
+import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.util.ClassLoaderUtil;
-import com.plugin.util.FragmentHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
@@ -130,9 +131,10 @@ public class PluginInjector {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	static void injectActivityContext(Activity activity) {
 		Intent intent = activity.getIntent();
-		// 如果是打开插件中的activity
-		if (intent.getComponent() != null
-				&& (intent.getComponent().getClassName().startsWith(PluginStubBinding.STUB_ACTIVITY_PRE))) {
+		FragmentContainer fragmentContainer = AnnotationProcessor.getFragmentContainer(activity.getClass());
+		// 如果是打开插件中的activity, 或者是打开的用来显示插件fragment的宿主activity
+		if ((intent.getComponent() != null
+				&& (intent.getComponent().getClassName().startsWith(PluginStubBinding.STUB_ACTIVITY_PRE))) || fragmentContainer != null) {
 			// 为了不需要重写插件Activity的attachBaseContext方法为：
 			// @Override
 			// protected void attachBaseContext(Context newBase) {
@@ -140,20 +142,34 @@ public class PluginInjector {
 			// }
 			// 我们在activityoncreate之前去完成attachBaseContext的事情
 
-
 			Context pluginContext = null;
 			PluginDescriptor pd = null;
-			if (activity.getClass().getName().equals(PluginSampleFragmentActivity.class.getName())) {
+
+			//是打开的用来显示插件fragment的宿主activity
+			if (fragmentContainer != null) {
 				// 为了能够在宿主中的Activiy里面展示来自插件的普通Fragment，
 				// 我们将宿主程序中用来展示插件普通Fragment的Activity的Context也替换掉
-				String classId = activity.getIntent().getStringExtra(FragmentHelper.FRAGMENT_ID_IN_PLUGIN);
-				@SuppressWarnings("rawtypes")
-				Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
 
-				pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
+				if (!TextUtils.isEmpty(fragmentContainer.pluginId())) {
 
-				pluginContext = PluginLoader.getNewPluginContext(clazz);
+					pd = PluginLoader.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
+					pluginContext = PluginLoader.getNewPluginContext(pd.getPluginContext());
+
+				} else if (!TextUtils.isEmpty(fragmentContainer.fragmentId())) {
+
+					String classId = activity.getIntent().getStringExtra(fragmentContainer.fragmentId());
+					@SuppressWarnings("rawtypes")
+					Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
+
+					pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
+
+					pluginContext = PluginLoader.getNewPluginContext(clazz);
+				} else {
+					LogUtil.e("FragmentContainer注解至少配置一个参数：pluginId, fragmentId");
+				}
+
 			} else {
+				//是打开插件中的activity
 				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
 
 				pluginContext = PluginLoader.getNewPluginContext(activity.getClass());

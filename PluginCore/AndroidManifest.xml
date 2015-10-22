@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.plugincore"
+    package="com.plugin.core"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -10,27 +10,29 @@
 
     <application>
 
-        <activity
-            android:name="com.plugin.core.stub.ui.PluginSampleFragmentActivity" >
-        </activity>
-
-        <activity
-            android:name="com.plugin.core.stub.ui.PluginStubActivity">
-        </activity>
-
         <service android:name="com.plugin.core.proxy.PluginProxyService">
         </service>
 
         <receiver android:name="com.plugin.core.stub.PluginStubReceiver">
         </receiver>
 
-        <!--///////////////////////////////////////////////////////////////////-->
-        <!--///////////////////////////////////////////////////////////////////-->
-        <!--所有的插件中有多少个SingleTask的Activity，就在这里注册多少个虚拟的Activity，
-            这虚Activity并不需要真实存在，
-            只需遵守约定的命名规范即可-->
         <activity
-            android:name="com.plugin.core.stub.ui.singletask.PluginStubActivity1"
+            android:name="com.plugin.core.stub.ui.PluginStubActivity">
+        </activity>
+
+        <!--///////////////////////////////////////////////////////////////////-->
+        <!--///////////////////////////////////////////////////////////////////-->
+        <!--为了支持非standard的launchMode，
+            所有的插件中共有多少个非standard模式的Activity，就在这里注册多少个对应的虚拟的Activity，这些虚拟Activity并不需要真实存在，
+            （实际情况中注册的虚拟activity个数可以比插件中的非standard的activity个数少。因为不太可能所有的插件activity逗同时被唤起）
+
+            虚Activity的命名需遵守如下约定：和PluginStubActivity再同一个包下。
+
+            原因是插件框架会通过PluginStubActivity这个类所在的包名进行判断
+
+            -->
+        <activity
+            android:name="com.plugin.core.stub.ui.PluginStubActivity1"
             android:exported="false"
             android:launchMode="singleTask">
             <intent-filter>
@@ -42,7 +44,7 @@
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.ui.singletask.PluginStubActivity2"
+            android:name="com.plugin.core.stub.ui.PluginStubActivity2"
             android:exported="false"
             android:launchMode="singleTask">
             <intent-filter>
@@ -54,9 +56,21 @@
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.ui.singletask.PluginStubActivity3"
+            android:name="com.plugin.core.stub.ui.PluginStubActivity3"
             android:exported="false"
-            android:launchMode="singleTask">
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.LAUNCH_MODE" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.ui.PluginStubActivity4"
+            android:exported="false"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action
                     android:name="com.plugin.core.LAUNCH_MODE" />

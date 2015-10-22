@@ -12,7 +12,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.plugin.core.PluginLoader;
-import com.plugin.util.FragmentHelper;
 
 /**
  * 监听插件apk的安装广播， 并安装插件到宿主程序。

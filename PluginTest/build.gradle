@@ -67,18 +67,14 @@ dependencies {
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
+    //依赖库的src
+    provided files(project(':PluginCore').getBuildDir().absolutePath + '/intermediates/bundles/release/classes.jar')
     //依赖库的R
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
     //依赖库的src
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/release/classes.jar')
     //依赖库的依赖裤
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/release/libs/android-support-v4.jar')
-
-    //依赖库的src
-    provided files(project(':PluginCore').getBuildDir().absolutePath + '/intermediates/bundles/release/classes.jar')
-
-    //compile 'com.android.support:appcompat-v7:23.0.0'
-    //provided('com.android.support:appcompat-v7:23.0.0')
 
     //如果插件需要依赖一些私有库，可放开下面的注释，并修改为私有库的名称
     //compile project(':PluginPrivateLib1')

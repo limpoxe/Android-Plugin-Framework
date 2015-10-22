@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class PluginStubBinding {
 
-	public static final String STUB_ACTIVITY_PRE = "com.plugin.core.stub.ui.";
+	public static final String STUB_ACTIVITY_PRE = PluginStubActivity.class.getPackage().getName();
 
 	private static final String ACTION_LAUNCH_MODE = "com.plugin.core.LAUNCH_MODE";
 
@@ -95,17 +95,21 @@ public class PluginStubBinding {
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
 					list) {
-				if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
+				if (resolveInfo.activityInfo.name.startsWith(STUB_ACTIVITY_PRE)) {
 
-					singleTaskMapping.put(resolveInfo.activityInfo.name, null);
+					if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
 
-				} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
+						singleTaskMapping.put(resolveInfo.activityInfo.name, null);
 
-					singleTopMapping.put(resolveInfo.activityInfo.name, null);
+					} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
 
-				} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+						singleTopMapping.put(resolveInfo.activityInfo.name, null);
 
-					singleInstanceMapping.put(resolveInfo.activityInfo.name, null);
+					} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+
+						singleInstanceMapping.put(resolveInfo.activityInfo.name, null);
+
+					}
 
 				}
 			}

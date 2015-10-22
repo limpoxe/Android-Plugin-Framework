@@ -31,7 +31,11 @@
         <activity
             android:name="com.example.pluginmain.PluginDetailActivity" >
         </activity>
-        
+
+        <activity
+            android:name="com.example.pluginmain.PluginSampleFragmentActivity" >
+        </activity>
+
         <receiver
             android:name="com.example.pluginmain.PluginDebugHelper" >
             <intent-filter>

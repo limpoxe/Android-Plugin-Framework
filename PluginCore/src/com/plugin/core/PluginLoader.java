@@ -339,6 +339,11 @@ public class PluginLoader {
 	 */
 	public static Context getNewPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
 		Context pluginContext = getDefaultPluginContext(clazz);
+
+		return getNewPluginContext(pluginContext);
+	}
+
+	public static Context getNewPluginContext(Context pluginContext) {
 		if (pluginContext != null) {
 			pluginContext = PluginCreator.createPluginApplicationContext(((PluginContextTheme)pluginContext).getPluginDescriptor(),
 					sApplication, pluginContext.getResources(),

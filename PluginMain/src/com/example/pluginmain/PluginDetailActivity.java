@@ -23,7 +23,6 @@ import com.example.pluginsharelib.SharePOJO;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginIntentFilter;
 import com.plugin.core.PluginLoader;
-import com.plugin.util.FragmentHelper;
 import com.plugin.util.LogUtil;
 
 public class PluginDetailActivity extends Activity {
