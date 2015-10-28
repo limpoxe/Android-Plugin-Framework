@@ -3,30 +3,38 @@ package com.example.pluginmain;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginInstrumentionWrapper;
 import com.plugin.core.PluginLoader;
+import com.plugin.core.PluginThemeHelper;
 import com.plugin.util.FileUtil;
 import com.plugin.util.RefInvoker;
+import com.plugin.util.ResourceUtil;
 
 public class PluginListActivity extends Activity {
 
@@ -36,7 +44,17 @@ public class PluginListActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
+		int skin = PreferenceManager.getDefaultSharedPreferences(this).getInt("shinId", 0);
+
+		if (skin != 0) {
+			//两个参数：1、插件id，插件主题id
+			String pluginId = "com.example.plugintest";
+			PluginThemeHelper.applyPluginTheme(this, pluginId, skin);
+		}
+
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.main_activity);
 
 		setTitle("插件列表");
@@ -66,6 +84,77 @@ public class PluginListActivity extends Activity {
 
 				} else {
 					Toast.makeText(PluginListActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
+				}
+			}
+		});
+
+		findViewById(R.id.allThemes).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String pluginId = "com.example.plugintest";
+				HashMap<String, Integer> themes = PluginThemeHelper.getAllPluginThemes(pluginId);
+				Iterator<Map.Entry<String, Integer>> itr = themes.entrySet().iterator();
+				String text = "";
+				while (itr.hasNext()) {
+					Map.Entry<String, Integer> entry = itr.next();
+					text = text + entry.getKey() + ":" + entry.getValue() + "\n";
+				}
+
+				AlertDialog.Builder builder = new AlertDialog.Builder(PluginListActivity.this);
+				TextView tv = new TextView(PluginListActivity.this);
+				builder.setView(tv);
+				tv.setText(text);
+				builder.setTitle("插件可选主题列表");
+
+				AlertDialog dialog = builder.create();
+				dialog.setCanceledOnTouchOutside(true);
+				dialog.show();
+			}
+		});
+
+		findViewById(R.id.blue).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//需要先从插件中获取插件提供的可选主题列表
+				String pluginId = "com.example.plugintest";
+
+				int themeId = PluginThemeHelper.getPluginThemeIdByName(pluginId, "PluginTheme2");
+
+				PreferenceManager.getDefaultSharedPreferences(PluginListActivity.this)
+						.edit().putInt("shinId", themeId).commit();
+
+				if (Build.VERSION.SDK_INT >= 11) {
+					//重启使主题生效
+					PluginListActivity.this.recreate();
+				}
+			}
+		});
+
+		findViewById(R.id.red).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//需要先从插件中获取插件提供的可选主题列表
+				String pluginId = "com.example.plugintest";
+
+				int themeId = PluginThemeHelper.getPluginThemeIdByName(pluginId, "PluginTheme4");
+
+				PreferenceManager.getDefaultSharedPreferences(PluginListActivity.this)
+						.edit().putInt("shinId", themeId).commit();
+
+				if (Build.VERSION.SDK_INT >= 11) {
+					//重启使主题生效
+					PluginListActivity.this.recreate();
+				}
+			}
+		});
+
+		findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				PreferenceManager.getDefaultSharedPreferences(PluginListActivity.this).edit().remove("shinId").commit();
+				if (Build.VERSION.SDK_INT >= 11) {
+					//重启使主题生效
+					PluginListActivity.this.recreate();
 				}
 			}
 		});

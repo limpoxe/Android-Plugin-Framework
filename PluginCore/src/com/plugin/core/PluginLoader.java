@@ -358,7 +358,7 @@ public class PluginLoader {
 	 * 
 	 * @param
 	 */
-	private static void ensurePluginInited(PluginDescriptor pluginDescriptor) {
+	static void ensurePluginInited(PluginDescriptor pluginDescriptor) {
 		if (pluginDescriptor != null) {
 			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
 			if (pluginClassLoader == null) {
