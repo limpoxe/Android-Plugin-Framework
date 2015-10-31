@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             style="@style/MyButton"
             android:text="测试插件style" />
-        
+
         <Button
             android:id="@+id/plugin_test_btn1"
             android:layout_width="wrap_content"
@@ -29,6 +29,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/hello_world2" />
+
+       <!--
+        <Button
+            android:id="@+id/plugin_test_btn1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@*com.example.pluginmain:string/share_string_2" />
+
+        <Button
+            android:id="@+id/plugin_test_btn2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@*com.example.pluginmain:string/share_string_1" />
+        -->
 
         <Button
             android:id="@+id/plugin_test_btn3"

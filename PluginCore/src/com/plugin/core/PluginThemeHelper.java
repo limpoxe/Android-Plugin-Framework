@@ -26,27 +26,29 @@ public class PluginThemeHelper {
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
 			PluginLoader.ensurePluginInited(pd);
-		}
 
-		try {
-			Class pluginRstyle = pd.getPluginClassLoader().loadClass(pluginId + ".R$style");
-			if (pluginRstyle != null) {
-				Field[] fields = pluginRstyle.getDeclaredFields();
-				if (fields != null) {
-					for (Field field :
-							fields) {
-						field.setAccessible(true);
-						int themeResId = field.getInt(null);
-						themes.put(field.getName(), themeResId);
+			try {
+				Class pluginRstyle = pd.getPluginClassLoader().loadClass(pluginId + ".R$style");
+				if (pluginRstyle != null) {
+					Field[] fields = pluginRstyle.getDeclaredFields();
+					if (fields != null) {
+						for (Field field :
+								fields) {
+							field.setAccessible(true);
+							int themeResId = field.getInt(null);
+							themes.put(field.getName(), themeResId);
+						}
 					}
 				}
-			}
 
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
+
+
 		return themes;
 	}
 

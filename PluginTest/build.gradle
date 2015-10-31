@@ -5,7 +5,7 @@ android {
     buildToolsVersion "22.0.1"
 
     aaptOptions {
-        //additionalParameters '-I', "resources-debug.ap_"
+        additionalParameters '-I', "../PluginMain/build/intermediates/res/resources-debug.ap_"
     }
 
     packagingOptions {
