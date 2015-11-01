@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebChromeClient;
@@ -18,15 +19,19 @@ import android.webkit.WebView;
 import android.webkit.WebSettings.PluginState;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.hellojni.HelloJni;
 import com.example.plugintest.R;
 import com.example.plugintest.provider.PluginDbTables;
 import com.plugin.core.PluginIntentResolver;
+import com.plugin.core.PluginLoader;
+import com.plugin.core.PluginRemoteViewHelper;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 
+import java.io.File;
 import java.io.InputStream;
 
 public class PluginWebViewActivity extends Activity implements OnClickListener {
@@ -123,6 +128,15 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 				.setContentTitle("来自插件ContentTitle")//设置下拉列表里的标题
 				.setDefaults(Notification.DEFAULT_SOUND)//设置为默认的声音
 				.setContentText("来自插件ContentText");//设置上下文内容
+
+		if (Build.VERSION.SDK_INT >=21) {
+			RemoteViews remoteViews = PluginRemoteViewHelper.createRemoteViews(
+					R.layout.plugin_notification,
+					new File(Environment.getExternalStorageDirectory(), "tempNotificationRes.apk").getAbsolutePath(),
+					PluginLoader.getPluginDescriptorByClassName(PluginWebViewActivity.class.getName()).getPackageName());
+			builder.setContent(remoteViews);
+		}
+
 		Notification notification = builder.getNotification();
 		notificationManager.notify(R.drawable.ic_launcher, notification);
 

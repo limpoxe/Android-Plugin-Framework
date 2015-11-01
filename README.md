@@ -9,16 +9,16 @@
   
   2、支持fragment、activity、service、receiver、contentprovider、jni so、application、组件。
   
-  3、支持插件自定义控件、宿主自定控件、插件资源、宿主资源。
+  3、支持插件自定义控件、宿主自定控件。
   
   4、开发插件apk和开发普通apk时代码编写方式无区别。对插件apk和宿主程序来说，插件框架完全透明，开发插件apk时无约定、无规范约束。无复杂打包脚本。
   
   5、插件中的fragment、activity、receiver、contentprovider组件拥有真正生命周期，完全交由系统管理、无反射无代理（插件service
   也可交由系统管理，但是不支持多实例，因此插件service仍然通过代理方式实现。）
   
-  6、支持插件引用宿主程序的依赖库。
+  6、支持插件引用宿主程序的依赖库、插件资源、宿主资源。
   
-  7、支持插件使用宿主程序主题、系统主题、插件自身主题以及style
+  7、支持插件使用宿主程序主题、系统主题、插件自身主题以及style（插件主题不支持透明）
   
   8、支持非独立插件和独立插件（非独立插件指自己编译的需要依赖宿主中的公共类和资源的插件，不可独立安装运行。独立插件又分为两种：一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装运行，这种只做了简单支持。）
   
@@ -26,22 +26,22 @@
 
   10、支持插件资源文件中直接引用共享依赖库中的资源(目前粗略测试结果只支持5.x及以上)
 
+  11、支持插件发送notification时在RemoteViews使用插件自定义的布局资源（只支持5.x及以上）
+
 # 暂不支持的功能：
 
-  1、插件中发送notification时，不支持使用插件自己的资源。
+  1、插件Activity切换动画不支持使用插件自己的资源。
   
-  2、插件Activity切换动画不支持使用插件自己的资源。
+  2、不支持插件申请权限，权限必须预埋到宿主中。
   
-  3、不支持插件申请权限，权限必须预埋到宿主中。
-  
-  4、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接。
+  3、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接。
 
 # 开发说明
 
     1、项目已迁到AndroidStudio ＋ Gradle ＋ openAtlasExtention@github，不再使用Eclipse ＋ Ant ＋ public.xml
     因此需要使用 openAtlasExtention@github 项目提供的BuildTools替换Sdk中相应版本的BuildTools。
     
-    2、Eclispe＋Ant的代码在for-eclispe-ide分支上，不再更新。
+    2、Eclispe＋Ant＋public.xml的代码在for-eclispe-ide分支上，不再更新。
 
     3、非独立插件中的class不能同时存在于宿主程序中，因此其引用的公共库在gradle中需以provided的方式提供，参考demo
     
@@ -116,7 +116,7 @@ demo安装说明：
 
 
     更新：openAtlasExtention@github项目提供了重写过的aapt指定PP段来实现id分组，不再使用public.xml来实现分组
-        原因是android studio 的gradle插件不能识别public.xml文件中的public-padding节点。
+        原因是android gradle插件1.3.0以上版本不支持public.xml文件
     
 
   4、插件apk的Context和LayoutInfalter
