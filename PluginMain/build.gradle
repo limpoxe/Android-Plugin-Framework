@@ -65,3 +65,16 @@ dependencies {
     compile project(':PluginCore')
     compile project(':PluginShareLib')
 }
+
+
+//http://unclechen.github.io/2015/10/25/Gradle%E5%AE%9E%E8%B7%B5%E4%B9%8B%E6%89%93%E5%8C%85jar+Log%E5%BC%80%E5%85%B3%E8%87%AA%E5%8A%A8%E5%85%B3%E9%97%AD/
+//自定义混淆配置
+//def androidSDKDir = plugins.getPlugin('com.android.library').sdkHandler.getSdkFolder()
+//def androidJarDir = androidSDKDir.toString() + '/platforms/' + "${android.compileSdkVersion}" + '/android.jar'
+
+//task proguardMyLib(type: proguard.gradle.ProGuardTask, dependsOn: ['jarMyLib']) {
+//    injars('build/libs/my-lib.jar')
+//    outjars('build/libs/my-pro-lib.jar')
+//    libraryjars(androidJarDir)
+//    configuration 'proguard-rules.pro'
+//}
