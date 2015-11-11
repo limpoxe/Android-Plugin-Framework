@@ -18,7 +18,7 @@
   
   6、支持插件引用宿主程序的依赖库、插件资源、宿主资源。
   
-  7、支持插件使用宿主程序主题、系统主题、插件自身主题以及style（插件主题不支持透明）
+  7、支持插件使用宿主程序主题（部分系统暂不支持，如MX5）、系统主题、插件自身主题以及style（插件主题不支持透明）
   
   8、支持非独立插件和独立插件（非独立插件指自己编译的需要依赖宿主中的公共类和资源的插件，不可独立安装运行。独立插件又分为两种：一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装运行，这种只做了简单支持。）
   
@@ -36,14 +36,18 @@
   
   3、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接。
 
-# 开发说明
+# 开发注意事项
 
-    1、项目已迁到AndroidStudio ＋ Gradle ＋ openAtlasExtention@github，不再使用Eclipse ＋ Ant ＋ public.xml
-    因此需要使用 openAtlasExtention@github 项目提供的BuildTools替换Sdk中相应版本的BuildTools。
-    
-    2、Eclispe＋Ant＋public.xml的代码在for-eclispe-ide分支上，不再更新。
+    1、若仅需支持独立插件，无任何要求，与常规开发无异。
 
-    3、非独立插件中的class不能同时存在于宿主程序中，因此其引用的公共库在gradle中需以provided的方式提供，参考demo
+    2、若需要支持非独立插件，必须解决资源id冲突的问题，解决冲突的方式有如下两种：
+
+        a）通过public.xml文件来解决资源id冲突，优点是纯天然，缺点是不支持gradle编译（因此也不支持Android Studio），且编译脚本稍显复杂（只能用Ant或maven编译），代码在for-eclispe-ide分支上，不再更新。
+
+        b）通过定制过的aapt编译，优点是支持gradle编译，因此支持Android Studio，对主题资源id分组支持较好，缺点是非纯天然，需要替换sdk原生的aapt，且要区分多平台，buildTools版本更新后需同步升级aapt。
+            定制的aapt由 openAtlasExtention@github 项目提供，目前的版本是基于22.0.1，将项目中的BuildTools替换到本地Android Sdk中相应版本的BuildTools中，并指定gradle的buildTools version为对应版本即可。
+
+        另：非独立插件中的class不能同时存在于宿主程序中，因此其引用的公共库仅参与编译，不参与打包，具体可关注下相应脚本，参看demo。
     
     
 目录结构说明：
@@ -63,14 +67,12 @@ demo安装说明：
 
   1、宿主程序demo工程的assets目录下已包含了编译好的独立插件demo apk和非独立插件demo apk。
 
-  2、宿主程序demo工程可直接安装运行。
+  2、宿主程序demo工程可直接编译安装运行。
   
-  3、编译插件demo：
-    将openAtlasExtention@github项目提供的BuildTools替换自己的Sdk中相应版本的BuildTools。剩下的步骤照常即可，
+  3、插件demo工程：
+    将openAtlasExtention@github项目提供的BuildTools替换自己的Sdk中相应版本的BuildTools。剩下的步骤照常即可。
     
-    编译完成后，编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下。
-    
-    然后重新安装PluginMain即可。
+    待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（参看插件工程的build.gradle）,然后重新打包安装PluginMain即可。
     
     或者也可将插件复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")
   进行安装。
@@ -80,7 +82,7 @@ demo安装说明：
         统的应用安装广播，监听到插件demo安装广播后，再自动调用PluginLoader.installPlugin("/data/app/[插件demo].apk")
         进行插件安装。免去复制到sdcard的过程。
 
-  5、如果使用eclipse ＋ ant＋public.xml需要关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,r弱编译失败，请升级androidSDK
+  5、如果使用eclipse ＋ ant ＋ public.xml需要关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,若编译失败，请升级androidSDK。
 
 
 # 实现原理简介：
@@ -88,13 +90,13 @@ demo安装说明：
   
      通过构造插件apk的Dexclassloader来加载插件apk中的类。
      DexClassLoader的parent设置为宿主程序的classloader，即可将主程序和插件程序的class贯通。
-     若是独立插件，将parent设置为宿主程序的classloader的parent，可隔离宿主class和插件class。
+     若是独立插件，将parent设置为宿主程序的classloader的parent，可隔离宿主class和插件class，此时宿主和插件可包含同名的class。
   
   2、插件apk的Resource
   
      直接构造插件apk的AssetManager和Resouce对象即可，需要注意的是，
      通过addAssetsPath方法添加资源的时候，需要同时添加插件程序的资源文件和宿主程序的资源，
-     以及其依赖的资源。这样可以将Resource合并到一个Context里面去，解决资源访问的问题。
+     以及其依赖的资源。这样可以将Resource合并到一个Context里面去，解决资源访问时需要切换上下文的问题。
   
   3、插件apk中的资源id冲突
   
@@ -116,7 +118,7 @@ demo安装说明：
 
 
     更新：openAtlasExtention@github项目提供了重写过的aapt指定PP段来实现id分组，不再使用public.xml来实现分组
-        原因是android gradle插件1.3.0以上版本不支持public.xml文件
+        原因是android gradle插件1.3.0以上版本不支持public.xml文件，也无法识别public-padding节点
     
 
   4、插件apk的Context和LayoutInfalter
@@ -193,14 +195,13 @@ demo安装说明：
   
 # 需要注意的问题
 
-   1、项目插件化后，特别需要注意的是宿主程序混淆问题。宿主程序混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
+   1、项目插件化后，特别需要注意的是宿主程序混淆问题。公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
+   所以公共库一定要排除混淆。
 
-   2、android gradle插件不支持public.xml中使用padding，在android Studio可能无法编译。可以使用eclipse。
+   2、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用Ant + public.xml的方式编译，应采用较新版本的buildtools。
 
-   3、android sdk中的build tools版本较低时也无法编译public.xml 文件。
-
-  更新：已支持android studio ＋gradle，eclispe ＋ ant ＋public.xml的方式不再更新
+  更新：已迁移至android studio ＋gradle + aapt，eclispe ＋ ant ＋public.xml的方式不再更新
   
 联系作者：
   Q：15871365851， 添加时请注明插件开发。
-  Q群：207397154。
+  Q群：207397154
