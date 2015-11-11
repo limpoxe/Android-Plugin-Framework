@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 public class PluginContextTheme extends PluginBaseContextWrapper {
@@ -119,7 +120,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	 */
 	@Override
 	public SharedPreferences getSharedPreferences(String name, int mode) {
-		return super.getSharedPreferences(mPluginDescriptor.getPackageName() + "_" + name, mode);
+		String realName = mPluginDescriptor.getPackageName() + "_" + name;
+		LogUtil.d(realName);
+		return super.getSharedPreferences(realName, mode);
 	}
 
 	/**
@@ -131,7 +134,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	 */
 	@Override
 	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory) {
-		return super.openOrCreateDatabase(mPluginDescriptor.getPackageName() + "_" + name, mode, factory);
+		String realName = mPluginDescriptor.getPackageName() + "_" + name;
+		LogUtil.d(realName);
+		return super.openOrCreateDatabase(realName, mode, factory);
 	}
 
 	/**
@@ -143,7 +148,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	 */
 	@Override
 	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory, DatabaseErrorHandler errorHandler) {
-		return super.openOrCreateDatabase(mPluginDescriptor.getPackageName() + "_" + name, mode, factory, errorHandler);
+		String realName = mPluginDescriptor.getPackageName() + "_" + name;
+		LogUtil.d(realName);
+		return super.openOrCreateDatabase(realName, mode, factory, errorHandler);
 	}
 
 	@Override
