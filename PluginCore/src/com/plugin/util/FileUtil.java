@@ -79,33 +79,43 @@ public class FileUtil {
 
 		try {
 
-			String name = "lib" + File.separator + Build.CPU_ABI + File.separator + so;
-			File sourceFile = new File(sourceDir, name);
+			boolean isSuccess = false;
 
-			if (!sourceFile.exists() && Build.CPU_ABI2 != null) {
-				name = "lib" + File.separator + Build.CPU_ABI2 + File.separator + so;
-				sourceFile = new File(sourceDir, name);
-
-				if (!sourceFile.exists()) {
-					name = "lib" + File.separator + "armeabi" + File.separator + so;
-					sourceFile = new File(sourceDir, name);
-				}
-			}
-
-			if (sourceFile.exists()) {
-				copyFile(sourceFile.getAbsolutePath(), dest + File.separator + so);
-			} else {
-				LogUtil.d(Build.CPU_ABI, Build.CPU_ABI2);
-				if (Build.VERSION.SDK_INT >= 21) {
-					String[] abis = Build.SUPPORTED_ABIS;
-					if (abis != null) {
-						for (String abi:
-								abis) {
-							LogUtil.d(abi);
+			if (Build.VERSION.SDK_INT >= 21) {
+				String[] abis = Build.SUPPORTED_ABIS;
+				if (abis != null) {
+					for (String abi: abis) {
+						LogUtil.d(abi);
+						String name = "lib" + File.separator + abi + File.separator + so;
+						File sourceFile = new File(sourceDir, name);
+						if (sourceFile.exists()) {
+							isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator + so);
+							break;
 						}
 					}
 				}
-				Toast.makeText(PluginLoader.getApplicatoin(), "安装" + so + "失败:NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+			} else {
+				LogUtil.d(Build.CPU_ABI, Build.CPU_ABI2);
+
+				String name = "lib" + File.separator + Build.CPU_ABI + File.separator + so;
+				File sourceFile = new File(sourceDir, name);
+
+				if (!sourceFile.exists() && Build.CPU_ABI2 != null) {
+					name = "lib" + File.separator + Build.CPU_ABI2 + File.separator + so;
+					sourceFile = new File(sourceDir, name);
+
+					if (!sourceFile.exists()) {
+						name = "lib" + File.separator + "armeabi" + File.separator + so;
+						sourceFile = new File(sourceDir, name);
+					}
+				}
+				if (sourceFile.exists()) {
+					isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator + so);
+				}
+			}
+
+			if (!isSuccess) {
+				Toast.makeText(PluginLoader.getApplicatoin(), "安装" + so + "失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();

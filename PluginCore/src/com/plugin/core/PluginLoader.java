@@ -191,7 +191,7 @@ public class PluginLoader {
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
-			LogUtil.e("已安装过，先删除旧版本", srcPluginFile);
+			LogUtil.e("已安装过，先删除旧版本", pluginDescriptor.getInstalledPath());
 			remove(pluginDescriptor.getPackageName());
 		}
 
@@ -220,13 +220,14 @@ public class PluginLoader {
 			pluginDescriptor.setInstalledPath(destPluginFile);
 			boolean isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
 
+			new File(srcPluginFile).delete();
+
 			if (!isInstallSuccess) {
-				new File(srcPluginFile).delete();
 				LogUtil.d("安装插件失败", srcPluginFile);
 				return INSTALL_FAIL;
 			} else {
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-				LogUtil.d("安装插件成功", srcPluginFile);
+				LogUtil.d("安装插件成功", destPluginFile);
 				return SUCCESS;
 			}
 		}
