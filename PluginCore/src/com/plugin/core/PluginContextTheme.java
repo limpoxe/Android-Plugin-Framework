@@ -1,8 +1,11 @@
 package com.plugin.core;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
@@ -101,7 +104,6 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		//如果是独立插件 返回插件本身的packageName
 		//但是只返回插件本身的packageName可能会引起其他问题
 		//例如1、会导致toast无法弹出，原因是toast弹出时会检查packageName是否时当前用户的
-		//   2、导致宿主的Application获取的sharepreference和插件Activity获取的shareperference不在同一个xml里面
 		//if (mPluginDescriptor.isStandalone()) {
 		//	return mPluginDescriptor.getPackageName();
 		//} else {
@@ -109,13 +111,54 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		//}
 	}
 
+	/**
+	 * 隔离插件间的SharedPreferences
+	 * @param name
+	 * @param mode
+	 * @return
+	 */
+	@Override
+	public SharedPreferences getSharedPreferences(String name, int mode) {
+		return super.getSharedPreferences(mPluginDescriptor.getPackageName() + "_" + name, mode);
+	}
+
+	/**
+	 * 隔离插件间的Database
+	 * @param name
+	 * @param mode
+	 * @param factory
+	 * @return
+	 */
+	@Override
+	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory) {
+		return super.openOrCreateDatabase(mPluginDescriptor.getPackageName() + "_" + name, mode, factory);
+	}
+
+	/**
+	 * 隔离插件间的Database
+	 * @param name
+	 * @param mode
+	 * @param factory
+	 * @return
+	 */
+	@Override
+	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory, DatabaseErrorHandler errorHandler) {
+		return super.openOrCreateDatabase(mPluginDescriptor.getPackageName() + "_" + name, mode, factory, errorHandler);
+	}
+
+	@Override
+	public Context getApplicationContext() {
+		return super.getApplicationContext();
+	}
+
 	@Override
 	public String getPackageCodePath() {
-		//if (mPluginDescriptor.isStandalone()) {
-		//	return mPluginDescriptor.getInstalledPath();
-		//} else {
-			return super.getPackageCodePath();
-		//}
+		return mPluginDescriptor.getInstalledPath();
+	}
+
+	@Override
+	public String getPackageResourcePath() {
+		return mPluginDescriptor.getInstalledPath();
 	}
 
 	public PluginDescriptor getPluginDescriptor() {

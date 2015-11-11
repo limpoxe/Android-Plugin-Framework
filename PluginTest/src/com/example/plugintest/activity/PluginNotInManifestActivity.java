@@ -1,6 +1,7 @@
 package com.example.plugintest.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.plugintest.PluginTestApplication;
 import com.example.plugintest.R;
+import com.example.plugintest.receiver.PluginTestReceiver;
+import com.example.plugintest.vo.ParamVO;
 
 /**
  * 完整生命周期模式 不使用反射、也不使用代理，真真正证实现activity无需在Manifest中注册！
@@ -37,6 +41,17 @@ public class PluginNotInManifestActivity extends Activity implements OnClickList
 		initViews();
 
 		setContentView(scrollview);
+
+		Toast.makeText(this, ""+ ((PluginTestApplication) getApplication()).getApplicationContext().toString(), Toast.LENGTH_LONG).show();
+
+		//测试动态注册的插件广播
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginTestReceiver.class.getName());
+		intent.putExtra("str1", "打开PluginTestReceiver——————");
+		ParamVO pvo = new ParamVO();
+		pvo.name = "打开PluginTestReceiver";
+		intent.putExtra("paramvo", pvo);
+		getApplication().sendBroadcast(intent);
 	}
 
 	@Override

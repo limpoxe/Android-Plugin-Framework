@@ -154,7 +154,8 @@ public class PluginInjector {
 				} else if (!TextUtils.isEmpty(fragmentContainer.fragmentId())) {
 					String classId = null;
 					try {
-						classId = activity.getIntent().getStringExtra(fragmentContainer.fragmentId());
+						//TODO
+						classId = intent.getStringExtra(fragmentContainer.fragmentId());
 					} catch (Exception e) {
 						LogUtil.printException("这里的Intent如果包含来自插件的VO对象实例，" +
 								"会产生ClassNotFound异常", e);
@@ -175,10 +176,17 @@ public class PluginInjector {
 				}
 
 			} else {
-
 				//是打开插件中的activity
 				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
 				pluginContext = PluginLoader.getNewPluginContext(activity.getClass());
+
+				//获取插件Application对象
+				Application pluginApp = pd.getPluginApplication();
+				if (pluginApp != null) {
+					//重设mApplication
+					RefInvoker.setFieldObject(activity, Activity.class.getName(),
+							"mApplication", pluginApp);
+				}
 
 			}
 
