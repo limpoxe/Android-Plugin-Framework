@@ -1,12 +1,19 @@
 package com.plugin.core;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 
+import com.plugin.content.PluginDescriptor;
+import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 插件Receiver免注册的主要实现原理
@@ -26,28 +33,80 @@ public class PluginAppTrace implements Handler.Callback {
 	public boolean handleMessage(Message msg) {
 
 		LogUtil.d(">>> handling: ", CodeConst.codeToString(msg.what));
+
+		String serviceName = null;
 		Context baseContext = null;
+
 		if (msg.what == CodeConst.RECEIVER) {
+
 			Class clazz = PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
-			if (clazz != null) {
-				baseContext = PluginLoader.getApplicatoin().getBaseContext();
-				if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
-					ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext, "android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
-					RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", PluginLoader.getDefaultPluginContext(clazz));
-				} else {
-					baseContext = null;
-				}
+
+			baseContext = replaceReceiverContext(clazz);
+
+		} else if (msg.what == CodeConst.CREATE_SERVICE) {
+
+			serviceName = PluginIntentResolver.hackServiceName(msg.obj);
+
+			if (serviceName != null) {
+				ClassLoaderUtil.hackClassLoaderIfNeeded();
 			}
 		}
+
 		try {
 			mHandler.handleMessage(msg);
 			LogUtil.d(">>> done: " + CodeConst.codeToString(msg.what));
 		} finally {
 			if (msg.what == CodeConst.RECEIVER && baseContext != null) {
+
 				RefInvoker.setFieldObject(baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+
+			} else if (msg.what == CodeConst.CREATE_SERVICE) {
+				//拿到创建好的service，重新 设置mBase和mApplicaiton
+				//由于这步操作是再service得oncreate之后执行，所以再插件service得oncreate中不应尝试通过此service的context执行操作
+				replaceServiceContext(serviceName);
 			}
 		}
+
 		return true;
+	}
+
+	private static Context replaceReceiverContext(Class clazz) {
+		if (clazz == null) {
+			return null;
+		}
+		Context baseContext = PluginLoader.getApplicatoin().getBaseContext();
+		if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
+			ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext, "android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
+			RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", PluginLoader.getDefaultPluginContext(clazz));
+		} else {
+			baseContext = null;
+		}
+		return baseContext;
+	}
+
+	private static void replaceServiceContext(String serviceName) {
+		Object activityThread = PluginInjector.getActivityThread();
+		if (activityThread != null) {
+			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
+			if (services != null) {
+				Iterator<Service> itr = services.values().iterator();
+				while(itr.hasNext()) {
+					Service service = itr.next();
+					if (service != null && service.getClass().getName().equals(serviceName) ) {
+
+						PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
+
+						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase", PluginLoader.getNewPluginContext(pd.getPluginContext()));
+
+						if (pd.getPluginApplication() != null) {
+							RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());
+						}
+					}
+
+				}
+			}
+
+		}
 	}
 
 	private static class CodeConst {

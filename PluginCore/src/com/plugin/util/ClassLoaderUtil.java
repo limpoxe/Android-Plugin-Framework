@@ -9,7 +9,7 @@ import com.plugin.core.PluginClassLoader;
 public class ClassLoaderUtil {
 
 	/**
-	 * 如果插件中不包含receiver和contentprovider，是不需要替换classloader的
+	 * 如果插件中不包含service、receiver和contentprovider，是不需要替换classloader的
 	 */
 	public static void hackClassLoaderIfNeeded() {
 		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(),

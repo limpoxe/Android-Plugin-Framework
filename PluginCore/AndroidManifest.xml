@@ -10,11 +10,40 @@
 
     <application>
 
-        <service android:name="com.plugin.core.proxy.PluginProxyService">
-        </service>
-
         <receiver android:name="com.plugin.core.stub.PluginStubReceiver">
         </receiver>
+
+        <!--
+            所有的插件中共有多少个Service, 这里就注册多少个对应的虚拟Service，这里的虚拟Service并不需要真实存在，
+            只是占个位置，运行实动态绑定到实际的插件Service
+            对service的类全名没有要求，可随意指定，框架中是通过action来查询。
+        -->
+        <service android:name="com.plugin.core.stub.PluginProxyService1">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_SERVICE" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.plugin.core.stub.PluginProxyService2">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_SERVICE" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.plugin.core.stub.PluginProxyService3">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_SERVICE" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name="com.plugin.core.stub.ui.PluginStubActivity">
@@ -26,9 +55,9 @@
             所有的插件中共有多少个非standard模式的Activity，就在这里注册多少个对应的虚拟的Activity，这些虚拟Activity并不需要真实存在，
             （实际情况中注册的虚拟activity个数可以比插件中的非standard的activity个数少。因为不太可能所有的插件activity逗同时被唤起）
 
-            虚Activity的命名需遵守如下约定：和PluginStubActivity再同一个包下。
+            虚Activity的命名需遵守如下约定：和PluginStubActivity在同一个包下。
 
-            原因是插件框架会通过PluginStubActivity这个类所在的包名进行判断
+            原因是插件框架会先通过action进行查询，再通过PluginStubActivity这个类所在的包名进行判断
 
             -->
         <activity

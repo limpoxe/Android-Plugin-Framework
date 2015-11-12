@@ -41,7 +41,7 @@ public class PluginClassLoader extends DexClassLoader {
 	@Override
 	protected Class<?> loadClass(String className, boolean resolve) throws ClassNotFoundException {
 
-		// for Receiver
+		// for Receiver and service
 		if (className.startsWith(PluginIntentResolver.prefix)) {
 			String realName = className.replace(PluginIntentResolver.prefix, "");
 			LogUtil.d("className ", className, "target", realName);

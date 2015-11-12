@@ -3,12 +3,12 @@ package com.plugin.core;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginReceiverIntent;
-import com.plugin.core.proxy.PluginProxyService;
 import com.plugin.core.stub.PluginStubReceiver;
 import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
@@ -16,18 +16,20 @@ import com.plugin.util.RefInvoker;
 
 public class PluginIntentResolver {
 
-	public static final String SERVICE_START_ACTION_IN_PLUGIN = "_SERVICE_START_ACTION_IN_PLUGIN_";
-	public static final String SERVICE_STOP_ACTION_IN_PLUGIN = "_SERVICE_STOP_ACTION_IN_PLUGIN_";
 	static final String ACTIVITY_ACTION_IN_PLUGIN = "_ACTIVITY_ACTION_IN_PLUGIN_";
-	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
 
-	static String prefix = "plugin_receiver_prefix.";
+	static final String prefix = "plugin_receiver_or_service_prefix.";
+
+	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
 
 	/* package */static void resolveService(Intent service) {
 		String className = PluginLoader.matchPlugin(service);
 		if (className != null) {
-			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
-			service.setAction(className + SERVICE_START_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
+			ClassLoaderUtil.hackClassLoaderIfNeeded();
+			String stubActivityName = PluginStubBinding.bindStubService(className);
+			if (stubActivityName != null) {
+				service.setClassName(PluginLoader.getApplicatoin(), stubActivityName);
+			}
 		}
 	}
 
@@ -80,14 +82,17 @@ public class PluginIntentResolver {
 		return null;
 	}
 
-	/* package */static boolean resolveStopService(final Intent service) {
-		String className = PluginLoader.matchPlugin(service);
-		if (className != null) {
-			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
-			service.setAction(className + SERVICE_STOP_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
-			return true;
+	/* package */static String hackServiceName(Object msgObj) {
+		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
+		//通过映射反向查找
+		String targetClassName = PluginStubBinding.getBindedPluginServiceName(info.name);
+
+		LogUtil.d("hackServiceName", info.name,info.packageName, info.processName, "targetClassName", targetClassName);
+
+		if (targetClassName != null) {
+			info.name =  prefix + targetClassName;
 		}
-		return false;
+		return targetClassName;
 	}
 
 	/* package */static void resolveActivity(Intent intent) {
