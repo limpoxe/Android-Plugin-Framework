@@ -10,9 +10,6 @@
 
     <application>
 
-        <service android:name="com.plugin.core.proxy.PluginProxyService">
-        </service>
-
         <receiver android:name="com.plugin.core.stub.PluginStubReceiver">
         </receiver>
 
@@ -78,6 +75,78 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- 为了支持Service多实例，扩展Bind，预注册多个代理，使对应插件的Service与预注册的代理Service 一一对应，可以根据需求自行添加删除-->
+        <service android:name="com.plugin.core.proxy.PluginProxyService" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService1" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService2" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService3" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService4" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService5" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService6" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService7" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyService8" >
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <!-- 支持Service独立进程 预注册多个代理-->
+        <service android:name="com.plugin.core.proxy.PluginProxyServiceRemote1"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.plugin.core.proxy.PluginProxyServiceRemote2"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="com.plugin.core.BIND_SERVICE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
 
     </application>
 

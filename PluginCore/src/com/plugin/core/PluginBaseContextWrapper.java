@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -154,19 +155,22 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@Override
 	public ComponentName startService(Intent service) {
 		LogUtil.d(service);
-		PluginIntentResolver.resolveService(service);
+		PluginIntentResolver.resolveStartService(service);
 		return super.startService(service);
+	}
+
+	@Override
+	public boolean bindService(Intent service, ServiceConnection conn, int flags) {
+		LogUtil.d(service);
+		PluginIntentResolver.resolveBindervice(service);
+		return super.bindService(service, conn, flags);
 	}
 
 	@Override
 	public boolean stopService(Intent name) {
 		LogUtil.d(name);
-		if (PluginIntentResolver.resolveStopService(name)) {
-			super.startService(name);
-			return false;
-		} else {
-			return super.stopService(name);
-		}
+		PluginIntentResolver.resolveStopService(name);
+		return super.stopService(name);
 	}
 
 }
