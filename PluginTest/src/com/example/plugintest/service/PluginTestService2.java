@@ -17,20 +17,22 @@ public class PluginTestService2 extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d("PluginTestService2", "PluginTestService2 onCreate2");
+		Log.d("xx", "PluginTestService2 onCreate2");
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
-		Log.d("PluginTestService2", "PluginTestService2 onStartCommand2 "
-				+ (intent == null ? " null" : intent.toUri(0)) + " " + getResources().getText(R.string.hello_world3));
+		if (intent != null) {
+			Log.d("xx", "PluginTestService2 onStartCommand2 "
+					+ (intent == null ? " null" : intent.toUri(0)) + " " + getResources().getText(R.string.hello_world3));
 
-		Toast.makeText(
-				this,
-				" PluginTestService2 "
-						+ (intent == null ? " null" : (getResources().getText(R.string.hello_world3) + "," + intent
-								.toUri(0))), Toast.LENGTH_LONG).show();
+			Toast.makeText(
+					this,
+					" PluginTestService2 "
+							+ (intent == null ? " null" : (getResources().getText(R.string.hello_world3) + "," + intent
+							.toUri(0))), Toast.LENGTH_LONG).show();
+		}
 
 		return super.onStartCommand(intent, flags, startId);
 	}
@@ -40,4 +42,9 @@ public class PluginTestService2 extends Service {
 		return null;
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Log.d("xx", "PluginTestService2 onDestroy");
+	}
 }

@@ -18,13 +18,14 @@ public class PluginTestService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d("PluginTestService", "PluginTestService onCreate");
+		Log.d("xx", "PluginTestService onCreate");
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-
-		Log.d("xx", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+		if (intent != null) {
+			Log.d("xx", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+		}
 
 		Log.d("PluginTestService", "PluginTestService onStartCommand "
 				+ " " + getResources().getText(R.string.hello_world3));
@@ -39,6 +40,7 @@ public class PluginTestService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		Log.d("xx", "PluginTestService onDestroy");
 		Toast.makeText(
 				this,
 				"停止PluginTestService", Toast.LENGTH_LONG).show();
