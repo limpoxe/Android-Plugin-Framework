@@ -1,6 +1,17 @@
 package com.plugin.util;
 
 import android.content.pm.ActivityInfo;
+import android.text.TextUtils;
+
+import com.plugin.content.PluginActivityInfo;
+import com.plugin.content.PluginDescriptor;
+import com.plugin.content.PluginIntentFilter;
+import com.plugin.content.PluginProviderInfo;
+import com.plugin.core.PluginLoader;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,16 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import com.plugin.content.PluginActivityInfo;
-import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginIntentFilter;
-import com.plugin.content.PluginProviderInfo;
-import com.plugin.core.PluginLoader;
 
 public class ManifestParser {
 
@@ -124,7 +125,7 @@ public class ManifestParser {
                                 map = new HashMap<String, ArrayList<PluginIntentFilter>>();
                                 desciptor.setActivitys(map);
                             }
-                            String name = addIntentFilter(map, packageName, namespaceAndroid, parser, "activity");
+                            String name = addIntentFilter(desciptor, map, packageName, namespaceAndroid, parser, "activity");
 
                             HashMap<String, PluginActivityInfo> infos = desciptor.getActivityInfos();
                             if (infos == null) {
@@ -156,7 +157,7 @@ public class ManifestParser {
                                 map = new HashMap<String, ArrayList<PluginIntentFilter>>();
                                 desciptor.setReceivers(map);
                             }
-                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "receiver");
+                        	addIntentFilter(desciptor, map, packageName, namespaceAndroid, parser, "receiver");
 
                         } else if ("service".equals(parser.getName())) {
 
@@ -165,7 +166,7 @@ public class ManifestParser {
                                 map = new HashMap<String, ArrayList<PluginIntentFilter>>();
                                 desciptor.setServices(map);
                             }
-                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "service");
+                        	addIntentFilter(desciptor, map, packageName, namespaceAndroid, parser, "service");
 
                         } else if ("provider".equals(parser.getName())) {
 
@@ -206,11 +207,23 @@ public class ManifestParser {
         return null;
     }
     
-	private static String addIntentFilter(HashMap<String, ArrayList<PluginIntentFilter>> map, String packageName, String namespace,
+	private static String addIntentFilter(PluginDescriptor desciptor, HashMap<String, ArrayList<PluginIntentFilter>> map, String packageName, String namespace,
 			XmlPullParser parser, String endTagName) throws XmlPullParserException, IOException {
 		int eventType = parser.getEventType();
 		String activityName = parser.getAttributeValue(namespace, "name");
+        String processName = parser.getAttributeValue(namespace, "process");
 		activityName = getName(activityName, packageName);
+
+        HashMap<String, String> processNames = desciptor.getProcessNames();
+        if (processNames == null) {
+            processNames = new HashMap<>();
+            desciptor.setProcessNames(processNames);
+        }
+
+        //判断是否为独立进程
+        if (!TextUtils.isEmpty(processName) && !PluginLoader.getApplicatoin().getPackageName().equals(processName)) {
+            processNames.put(activityName, processName);
+        }
 
 		ArrayList<PluginIntentFilter> filters = map.get(activityName);
 		if (filters == null) {

@@ -17,6 +17,11 @@
         <item name="android:textColor">#00ffA3</item>
     </style>
 
+    <style name="PluginButton">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+    </style>
+
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <item name="android:buttonStyle">@style/MyButton</item>
     </style>

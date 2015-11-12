@@ -116,6 +116,9 @@
         </activity>
 
         <activity
+            android:name="com.example.plugintest.activity.PluginServiceActivity" />
+
+        <activity
             android:name="com.example.plugintest.activity.PluginSingleTaskActivity"
             android:launchMode="singleTask">
         </activity>
@@ -139,6 +142,14 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+
+        <service android:name=".service.PluginServiceOne" />
+        <service android:name=".service.PluginServiceTwo" />
+        <service android:name=".service.PluginServiceThree" />
+        <service android:name=".service.PluginServiceBindOne" />
+        <service android:name=".service.PluginServiceBindTwo" />
+        <service android:name=".service.PluginServiceProcessBindOne"
+            android:process=":remote"/>
         
         <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver" >
             <intent-filter>
@@ -149,7 +160,8 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver2" >
+        <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver2"
+            android:process="">
             <intent-filter>
                 <action
                     android:name="test.rst2" />

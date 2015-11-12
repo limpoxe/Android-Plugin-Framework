@@ -9,6 +9,7 @@ import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginReceiverIntent;
 import com.plugin.core.proxy.PluginProxyService;
+import com.plugin.core.proxy.PluginProxyServiceBinding;
 import com.plugin.core.stub.PluginStubReceiver;
 import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
@@ -17,17 +18,30 @@ import com.plugin.util.RefInvoker;
 public class PluginIntentResolver {
 
 	public static final String SERVICE_START_ACTION_IN_PLUGIN = "_SERVICE_START_ACTION_IN_PLUGIN_";
+	public static final String SERVICE_BIND_ACTION_IN_PLUGIN = "_SERVICE_BIND_ACTION_IN_PLUGIN_";
 	public static final String SERVICE_STOP_ACTION_IN_PLUGIN = "_SERVICE_STOP_ACTION_IN_PLUGIN_";
 	static final String ACTIVITY_ACTION_IN_PLUGIN = "_ACTIVITY_ACTION_IN_PLUGIN_";
 	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
 
 	static String prefix = "plugin_receiver_prefix.";
 
-	/* package */static void resolveService(Intent service) {
+	/* package */static void resolveStartService(Intent service) {
 		String className = PluginLoader.matchPlugin(service);
 		if (className != null) {
-			service.setClass(PluginLoader.getApplicatoin(), PluginProxyService.class);
+			String serviceName = PluginProxyServiceBinding.bindProxyService(className);
+			service.setComponent(
+					new ComponentName(PluginLoader.getApplicatoin().getPackageName(), serviceName));
 			service.setAction(className + SERVICE_START_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
+		}
+	}
+
+	/* package */static void resolveBindervice(Intent service) {
+		String className = PluginLoader.matchPlugin(service);
+		if (className != null) {
+			String serviceName = PluginProxyServiceBinding.bindProxyService(className);
+			service.setComponent(
+					new ComponentName(PluginLoader.getApplicatoin().getPackageName(), serviceName));
+			service.setAction(className + SERVICE_BIND_ACTION_IN_PLUGIN + (service.getAction() == null ? "" : service.getAction()));
 		}
 	}
 
@@ -134,7 +148,7 @@ public class PluginIntentResolver {
 
 		} else if (type == PluginDescriptor.SERVICE) {
 
-			PluginIntentResolver.resolveService(intent);
+			PluginIntentResolver.resolveStartService(intent);
 			return intent;
 
 		}
@@ -144,9 +158,9 @@ public class PluginIntentResolver {
 	@SuppressWarnings("ResourceType")
 	public static PendingIntent resolvePendingIntent(PendingIntent origin) {
 		if (origin != null) {
-			Intent originIntent = (Intent)RefInvoker.invokeMethod(origin,
+			Intent originIntent = (Intent) RefInvoker.invokeMethod(origin,
 					PendingIntent.class.getName(), "getIntent",
-					(Class[])null, (Object[])null);
+					(Class[]) null, (Object[]) null);
 			if (originIntent != null) {
 				//如果目标是插件中的组件，需要额外提供2个参数, 默认为0、Update_Current。
 				String className = PluginLoader.matchPlugin(originIntent);
@@ -169,7 +183,7 @@ public class PluginIntentResolver {
 
 					} else if (type == PluginDescriptor.SERVICE) {
 
-						PluginIntentResolver.resolveService(originIntent);
+						PluginIntentResolver.resolveStartService(originIntent);
 						return PendingIntent.getService(PluginLoader.getApplicatoin(), requestCode, originIntent, flags);
 
 					}

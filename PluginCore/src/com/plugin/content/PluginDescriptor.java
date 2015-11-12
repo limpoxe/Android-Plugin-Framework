@@ -1,13 +1,14 @@
 package com.plugin.content;
 
+import android.app.Application;
+import android.content.Context;
+
+import com.plugin.util.LogUtil;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.plugin.util.LogUtil;
-
-import android.app.Application;
-import android.content.Context;
 import dalvik.system.DexClassLoader;
 
 /**
@@ -81,6 +82,12 @@ public class PluginDescriptor implements Serializable {
 	 * value: intentfilter list
 	 */
 	private HashMap<String, ArrayList<PluginIntentFilter>> receivers = new HashMap<String, ArrayList<PluginIntentFilter>>();
+
+	/**
+	 * key: Component class name
+	 * value: processName
+	 */
+	private HashMap<String,String> processNames = new HashMap<>();
 
 	private String installedPath;
 
@@ -248,6 +255,14 @@ public class PluginDescriptor implements Serializable {
 
 	public void setProviderInfos(HashMap<String, PluginProviderInfo> providerInfos) {
 		this.providerInfos = providerInfos;
+	}
+
+	public HashMap<String, String> getProcessNames() {
+		return processNames;
+	}
+
+	public void setProcessNames(HashMap<String, String> processNames) {
+		this.processNames = processNames;
 	}
 
 	public String getDescription() {
