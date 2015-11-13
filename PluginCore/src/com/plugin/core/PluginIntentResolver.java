@@ -84,7 +84,7 @@ public class PluginIntentResolver {
 
 	/* package */static String hackServiceName(Object msgObj) {
 		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
-		//通过映射反向查找
+		//通过映射查找
 		String targetClassName = PluginStubBinding.getBindedPluginServiceName(info.name);
 
 		LogUtil.d("hackServiceName", info.name,info.packageName, info.processName, "targetClassName", targetClassName);

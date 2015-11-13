@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.plugin.core.stub.ui.PluginStubActivity;
+import com.plugin.util.LogUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,7 +41,10 @@ public class PluginStubBinding {
 	private static HashMap<String, String> singleTaskMapping = new HashMap<String, String>();
 	private static HashMap<String, String> singleTopMapping = new HashMap<String, String>();
 	private static HashMap<String, String> singleInstanceMapping = new HashMap<String, String>();
-
+	/**
+	 * key:stub Service Name
+	 * value:plugin Service Name
+	 */
 	private static HashMap<String, String> serviceMapping = new HashMap<String, String>();
 
 	private static boolean isPoolInited = false;
@@ -174,14 +178,14 @@ public class PluginStubBinding {
 		}
 	}
 
-	public static String getBindedPluginServiceName(String StubServiceName) {
+	public static String getBindedPluginServiceName(String stubServiceName) {
 
 		Iterator<Map.Entry<String, String>> itr = serviceMapping.entrySet().iterator();
 
 		while (itr.hasNext()) {
 			Map.Entry<String, String> entry = itr.next();
 
-			if (entry.getKey().equals(StubServiceName)) {
+			if (entry.getKey().equals(stubServiceName)) {
 				return entry.getValue();
 			}
 		}
@@ -193,8 +197,8 @@ public class PluginStubBinding {
 			while (itr.hasNext()) {
 				Map.Entry<String, String> entry = itr.next();
 
-				if (entry.getKey().equals(StubServiceName)) {
-					serviceMapping.put(StubServiceName, entry.getValue());
+				if (entry.getKey().equals(stubServiceName)) {
+					serviceMapping.put(stubServiceName, entry.getValue());
 					save(serviceMapping);
 					return entry.getValue();
 				}
@@ -220,12 +224,15 @@ public class PluginStubBinding {
 					//这里找到空闲的idleStubServiceName以后，还需继续遍历，用来检查是否pluginActivityClassName已经绑定过了
 				}
 			} else if (pluginServiceClassName.equals(entry.getValue())) {
+				//已经绑定过，直接返回
+				LogUtil.d("已经绑定过", entry.getKey(), pluginServiceClassName);
 				return entry.getKey();
 			}
 		}
 
 		//没有绑定到StubService，而且还有空余的StubService，进行绑定
 		if (idleStubServiceName != null) {
+			LogUtil.d("添加绑定", idleStubServiceName, pluginServiceClassName);
 			serviceMapping.put(idleStubServiceName, pluginServiceClassName);
 			//对serviceMapping持久化是因为如果service处于运行状态时app发生了crash，系统会自动恢复之前的service，此时插件映射信息查不到的话会再次crash
 			save(serviceMapping);
@@ -236,17 +243,16 @@ public class PluginStubBinding {
 		return null;
 	}
 
-	public static void unBindStubService(String serviceName, Intent intent) {
-		if (intent != null) {
-			ComponentName cn = intent.getComponent();
-			if (cn != null) {
-				String pluginServiceName = cn.getClassName();
-				//如果存在绑定关系
-				if (pluginServiceName.equals(serviceMapping.get(serviceName))) {
-					//解绑
-					serviceMapping.put(serviceName, null);
-					save(serviceMapping);
-				}
+	public static void unBindStubService(String pluginServiceName) {
+		Iterator<Map.Entry<String, String>> itr = serviceMapping.entrySet().iterator();
+		while (itr.hasNext()) {
+			Map.Entry<String, String> entry = itr.next();
+			if (pluginServiceName.equals(entry.getValue())) {
+				//如果存在绑定关系，解绑
+				LogUtil.d("回收绑定", entry.getKey(), entry.getValue());
+				serviceMapping.put(entry.getKey(), null);
+				save(serviceMapping);
+				entry.getKey();
 			}
 		}
 	}

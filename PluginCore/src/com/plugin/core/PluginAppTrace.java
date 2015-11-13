@@ -50,6 +50,20 @@ public class PluginAppTrace implements Handler.Callback {
 			if (serviceName != null) {
 				ClassLoaderUtil.hackClassLoaderIfNeeded();
 			}
+		} else if (msg.what == CodeConst.STOP_SERVICE) {
+			//销毁service时回收映射关系
+			Object activityThread = PluginInjector.getActivityThread();
+			if (activityThread != null) {
+				Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
+				if (services != null) {
+					Service service = services.get(msg.obj);
+					if (service != null) {
+						String pluginServiceClassName = service.getClass().getName();
+						LogUtil.d("STOP_SERVICE", pluginServiceClassName);
+						PluginStubBinding.unBindStubService(pluginServiceClassName);
+					}
+				}
+			}
 		}
 
 		try {
