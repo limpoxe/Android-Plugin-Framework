@@ -1,5 +1,6 @@
 package com.plugin.util;
 
+import android.app.Application;
 import android.content.pm.ActivityInfo;
 
 import java.io.File;
@@ -101,13 +102,15 @@ public class ManifestParser {
                         } else if ("application".equals(parser.getName())) {
                         	
                         	String applicationName = parser.getAttributeValue(namespaceAndroid, "name");
-                    		if (applicationName != null) {
-                    			applicationName = getName(applicationName, packageName);
-                    			desciptor.setApplicationName(applicationName);
-                    		}
+                            if (applicationName == null) {
+                                applicationName = Application.class.getName();
+                            }
+                            applicationName = getName(applicationName, packageName);
+                            desciptor.setApplicationName(applicationName);
+
                     		desciptor.setDescription(parser.getAttributeValue(namespaceAndroid, "label"));
                     		
-                    		LogUtil.d(" applicationName " + applicationName + " Description " + desciptor.getDescription());
+                    		LogUtil.d("applicationName" + applicationName + " Description " + desciptor.getDescription());
 
                         } else if ("activity".equals(parser.getName())) {
 

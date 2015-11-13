@@ -149,7 +149,7 @@ public class PluginInjector {
 				if (!TextUtils.isEmpty(fragmentContainer.pluginId())) {
 
 					pd = PluginLoader.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
-					pluginContext = PluginLoader.getNewPluginContext(pd.getPluginContext());
+					pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext());
 
 				} else if (!TextUtils.isEmpty(fragmentContainer.fragmentId())) {
 					String classId = null;
@@ -165,7 +165,7 @@ public class PluginInjector {
 						Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
 
 						pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
-						pluginContext = PluginLoader.getNewPluginContext(clazz);
+						pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext());
 
 					} else {
 						return;
@@ -178,7 +178,7 @@ public class PluginInjector {
 			} else {
 				//是打开插件中的activity
 				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
-				pluginContext = PluginLoader.getNewPluginContext(activity.getClass());
+				pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext());
 
 				//获取插件Application对象
 				Application pluginApp = pd.getPluginApplication();

@@ -110,7 +110,7 @@ public class PluginAppTrace implements Handler.Callback {
 
 						PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
 
-						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase", PluginLoader.getNewPluginContext(pd.getPluginContext()));
+						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase", PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), service.getBaseContext()));
 
 						if (pd.getPluginApplication() != null) {
 							RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());

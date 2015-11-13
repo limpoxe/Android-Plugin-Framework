@@ -155,7 +155,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public Context getApplicationContext() {
-		return super.getApplicationContext();
+		return mPluginDescriptor.getPluginApplication();
 	}
 
 	@Override

@@ -233,6 +233,14 @@ public class PluginLoader {
 		}
 	}
 
+	public static PluginDescriptor initPluginByPluginId(String pluginId) {
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
+		if (pluginDescriptor != null) {
+			ensurePluginInited(pluginDescriptor);
+		}
+		return pluginDescriptor;
+	}
+
 	/**
 	 * 根据插件中的classId加载一个插件中的class
 	 * 
@@ -311,7 +319,6 @@ public class PluginLoader {
 	public static Context getDefaultPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
 
 		Context pluginContext = null;
-
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazz.getName());
 
 		if (pluginDescriptor != null) {
@@ -325,33 +332,32 @@ public class PluginLoader {
 		}
 
 		return pluginContext;
-
 	}
 
 	/**
-	 * 根据当前class所在插件的默认Context, 为当前插件Class创建一个单独的context
-	 *
-	 * 原因在插件Activity中，每个Activity都应当建立独立的Context，
-	 *
-	 * 而不是都使用同一个defaultContext，避免不同界面的主题和样式互相影响
-	 * 
-	 * @param clazz
-	 * @return
+	 * 根据当前插件的默认Context, 为当前插件的组件创建一个单独的context
 	 */
-	public static Context getNewPluginContext(@SuppressWarnings("rawtypes") Class clazz) {
-		Context pluginContext = getDefaultPluginContext(clazz);
-
-		return getNewPluginContext(pluginContext);
+	public static Context getNewPluginComponentContext(Context pluginContext, Context base) {
+		Context newContext = null;
+		if (pluginContext != null) {
+			newContext = PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
+					base, pluginContext.getResources(),
+					(DexClassLoader) pluginContext.getClassLoader());
+			newContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
+		}
+		return newContext;
 	}
 
-	public static Context getNewPluginContext(Context pluginContext) {
-		if (pluginContext != null) {
-			pluginContext = PluginCreator.createPluginApplicationContext(((PluginContextTheme)pluginContext).getPluginDescriptor(),
-					sApplication, pluginContext.getResources(),
-					(DexClassLoader) pluginContext.getClassLoader());
-			pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
+	public static Context getNewPluginApplicationContext(Class clazz) {
+		Context defaultContext = getDefaultPluginContext(clazz);
+		Context newContext = null;
+		if (defaultContext != null) {
+			newContext = PluginCreator.createPluginContext(((PluginContextTheme) defaultContext).getPluginDescriptor(),
+					sApplication, defaultContext.getResources(),
+					(DexClassLoader) defaultContext.getClassLoader());
+			newContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		}
-		return pluginContext;
+		return newContext;
 	}
 
 	/**
@@ -373,7 +379,7 @@ public class PluginLoader {
 				pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
 						pluginDescriptor.isStandalone());
 				Context pluginContext = PluginCreator
-						.createPluginApplicationContext(pluginDescriptor, sApplication, pluginRes, pluginClassLoader);
+						.createPluginContext(pluginDescriptor, sApplication, pluginRes, pluginClassLoader);
 
 				pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 				pluginDescriptor.setPluginContext(pluginContext);
@@ -393,11 +399,10 @@ public class PluginLoader {
 
 		Application application = null;
 
-		if (pluginDescriptor.getApplicationName() != null && pluginDescriptor.getPluginApplication() == null
-				&& pluginDescriptor.getPluginClassLoader() != null) {
+		if (pluginDescriptor.getPluginApplication() == null && pluginDescriptor.getPluginClassLoader() != null) {
 			try {
 				LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
-				application = Instrumentation.newApplication(pluginDescriptor.getPluginClassLoader().loadClass(pluginDescriptor.getApplicationName()) , sApplication);
+				application = Instrumentation.newApplication(pluginDescriptor.getPluginClassLoader().loadClass(pluginDescriptor.getApplicationName()) , pluginDescriptor.getPluginContext());
 				pluginDescriptor.setPluginApplication(application);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -408,8 +413,10 @@ public class PluginLoader {
 			}
 		}
 
+		//安装ContentProvider
 		PluginInjector.installContentProviders(sApplication, pluginDescriptor.getProviderInfos().values());
 
+		//执行onCreate
 		if (application != null) {
 			application.onCreate();
 		}

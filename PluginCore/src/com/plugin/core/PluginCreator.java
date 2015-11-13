@@ -131,17 +131,11 @@ public class PluginCreator {
 	}
 
 	/**
-	 * 创建插件apk的Context。
-	 * 如果插件是运行在普通的Activity中，那么插件中需要使用context的地方，都需要使用此方法返回的Context
-	 * 
-	 * @param application
-	 * @param pluginRes
-	 * @param pluginClassLoader
+	 * 创建插件的Context
 	 * @return
 	 */
-	static Context createPluginApplicationContext(PluginDescriptor pluginDescriptor, Application application, Resources pluginRes,
-			DexClassLoader pluginClassLoader) {
-		return new PluginContextTheme(pluginDescriptor, application, pluginRes, pluginClassLoader);
+	static Context createPluginContext(PluginDescriptor pluginDescriptor, Context base, Resources pluginRes,
+												  DexClassLoader pluginClassLoader) {
+		return new PluginContextTheme(pluginDescriptor, base, pluginRes, pluginClassLoader);
 	}
-
 }
