@@ -33,7 +33,7 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 		getActivity().setTitle("测试插件中的Fragment，使用插件中指定的PluginTheme主题");
 
 		// 默认是宿主程序Application主题
-		pluginContext = PluginLoader.getNewPluginContext(PluginSpecFragment.class);
+		pluginContext = PluginLoader.getNewPluginApplicationContext(PluginSpecFragment.class);
 		// 设置主题为插件程序主题
 		PluginThemeHelper.setTheme(pluginContext, R.style.PluginTheme);
 		// 设置主题为宿主程序主题

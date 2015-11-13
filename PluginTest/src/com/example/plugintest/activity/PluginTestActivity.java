@@ -38,6 +38,8 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setTitle("测试插件中的Activity");
 
+		Log.d("xx", getApplication().toString() + "," + getApplicationContext().toString() + "," + getApplication().getApplicationContext().toString());
+
 		Log.d("xx", ((ParamVO)getIntent().getSerializableExtra("paramvo")) + ", action:" + getIntent().getAction());
 
 		mInflater = getLayoutInflater();

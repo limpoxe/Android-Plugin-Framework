@@ -45,14 +45,9 @@ public class PluginListActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
-		int skin = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getInt("shinId", 0);
-
+		String pluginId = "com.example.plugintest";
+		int skin = PreferenceManager.getDefaultSharedPreferences(getApplication()).getInt("shinId", 0);
 		if (skin != 0) {
-			//两个参数：1、插件id，插件主题id
-			String pluginId = "com.example.plugintest";
-			//这里修改主题是会修改当前Activiy的Context
-			//所以在当前页面获取getDefaultSharedPreferences是不能使用this，要使用getApplicationContext
-			//否则在修改了Context后， 再次获取的getDefaultSharedPreferences和修改之前获取的不是同一个对象
 			PluginThemeHelper.applyPluginTheme(this, pluginId, skin);
 		}
 
@@ -123,7 +118,7 @@ public class PluginListActivity extends Activity {
 
 				int themeId = PluginThemeHelper.getPluginThemeIdByName(pluginId, "PluginTheme2");
 
-				PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+				PreferenceManager.getDefaultSharedPreferences(getApplication())
 						.edit().putInt("shinId", themeId).commit();
 
 				if (Build.VERSION.SDK_INT >= 11) {
@@ -141,7 +136,7 @@ public class PluginListActivity extends Activity {
 
 				int themeId = PluginThemeHelper.getPluginThemeIdByName(pluginId, "PluginTheme4");
 
-				PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+				PreferenceManager.getDefaultSharedPreferences(getApplication())
 						.edit().putInt("shinId", themeId).commit();
 
 				if (Build.VERSION.SDK_INT >= 11) {
@@ -154,7 +149,7 @@ public class PluginListActivity extends Activity {
 		findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().remove("shinId").commit();
+				PreferenceManager.getDefaultSharedPreferences(getApplication()).edit().remove("shinId").commit();
 				if (Build.VERSION.SDK_INT >= 11) {
 					//重启使主题生效
 					PluginListActivity.this.recreate();
