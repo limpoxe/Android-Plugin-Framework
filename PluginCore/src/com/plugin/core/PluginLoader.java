@@ -191,8 +191,8 @@ public class PluginLoader {
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
-			LogUtil.e("已安装过，先删除旧版本", pluginDescriptor.getInstalledPath());
-			remove(pluginDescriptor.getPackageName());
+			LogUtil.e("已安装过，先删除旧版本", oldPluginDescriptor.getInstalledPath());
+			remove(oldPluginDescriptor.getPackageName());
 		}
 
 		// 第4步骤，复制插件到插件目录
