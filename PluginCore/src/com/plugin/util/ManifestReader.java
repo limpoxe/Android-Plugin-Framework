@@ -141,6 +141,9 @@ public class ManifestReader {
         if (type >= TypedValue.TYPE_FIRST_INT && type <= TypedValue.TYPE_LAST_INT) {
             return String.valueOf(data);
         }
+        if (type == 0x07) {
+            return String.format("@%s%08X", getPackage(data), data);
+        }
         return String.format("<0x%X, type 0x%02X>", data, type);
     }
 
