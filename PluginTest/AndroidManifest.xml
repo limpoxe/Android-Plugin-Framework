@@ -13,7 +13,7 @@
 
  	<application 
  	    android:name="com.example.plugintest.PluginTestApplication"
-        android:label="@string/descpt"
+        android:label="@*com.example.pluginmain:string/share_string_2"
         android:theme="@style/PluginTheme2">
         
         <!-- for fragment -->
