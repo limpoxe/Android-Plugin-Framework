@@ -11,7 +11,7 @@
   
   3、支持插件自定义控件、宿主自定控件。
   
-  4、开发插件apk和开发普通apk时代码编写方式无区别。对插件apk和宿主程序来说，插件框架完全透明，开发插件apk时无约定、无规范约束。无复杂打包脚本。
+  4、开发插件apk和开发普通apk时代码编写方式无区别。对插件apk和宿主程序来说，插件框架完全透明，开发插件apk时无约定、无规范约束。
   
   5、插件中的组件拥有真正生命周期，完全交由系统管理、非反射无代理
   
@@ -19,7 +19,8 @@
   
   7、支持插件使用宿主程序主题（部分系统暂不支持，如MX5）、系统主题、插件自身主题以及style（插件主题不支持透明）
   
-  8、支持非独立插件和独立插件（非独立插件指自己编译的需要依赖宿主中的公共类和资源的插件，不可独立安装运行。独立插件又分为两种：一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装运行，这种只做了简单支持。）
+  8、支持非独立插件和独立插件（非独立插件指自己编译的需要依赖宿主中的公共类和资源的插件，不可独立安装运行。独立插件又分为两种：
+     一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装运行，这种只做了简单支持。）
   
   9、支持插件Activity的4个LaunchMode
 
@@ -37,16 +38,18 @@
 
 # 开发注意事项
 
-    1、若仅需支持独立插件，无任何要求，与常规开发无异。
+    1、插件开发必须要解决插件资源id和宿主资源id重复产生的冲突问题。
 
-    2、若需要支持非独立插件，必须解决资源id冲突的问题，解决冲突的方式有如下两种：
+        解决冲突的方式有如下两种：
 
-        a）通过public.xml文件来解决资源id冲突，优点是纯天然，缺点是不支持gradle编译（因此也不支持Android Studio），且编译脚本稍显复杂（只能用Ant或maven编译），代码在for-eclispe-ide分支上，不再更新。
+        a）通过在宿主中添加一个public.xml文件来解决资源id冲突（master分支采用的方案）
 
-        b）通过定制过的aapt编译，优点是支持gradle编译，因此支持Android Studio，对主题资源id分组支持较好，缺点是非纯天然，需要替换sdk原生的aapt，且要区分多平台，buildTools版本更新后需同步升级aapt。
-            定制的aapt由 openAtlasExtention@github 项目提供，目前的版本是基于22.0.1，将项目中的BuildTools替换到本地Android Sdk中相应版本的BuildTools中，并指定gradle的buildTools version为对应版本即可。
+        b）通过定制过的aapt在编译插件时指定id范围来解决冲突（For-gradle-with-aapt分支采用的方案）
+           此方案需要替换sdk原生的aapt，且要区分多平台，buildTools版本更新后需同步升级aapt。
+           定制的aapt由 openAtlasExtention@github 项目提供，目前的版本是基于22.0.1，将项目中的BuildTools替换到本地Android Sdk中相应版本的BuildTools中，
+           并指定gradle的buildTools version为对应版本即可。
 
-        另：非独立插件中的class不能同时存在于宿主程序中，因此其引用的公共库仅参与编译，不参与打包，具体可关注下相应脚本，参看demo。
+    2、非独立插件中的class不能同时存在于宿主和插件程序中，因此其引用的公共库仅参与编译，不参与打包，参看demo中的gradle脚本。
     
     
 目录结构说明：
@@ -66,22 +69,24 @@ demo安装说明：
 
   1、宿主程序demo工程的assets目录下已包含了编译好的独立插件demo apk和非独立插件demo apk。
 
-  2、宿主程序demo工程可直接编译安装运行。
+  2、宿主程序demo工程根目录下已包含一个已经编译好的宿主demo，可直接安装运行。
+
+  3、宿主程序demo工程源码可直接编译安装运行。
   
-  3、插件demo工程：
-    将openAtlasExtention@github项目提供的BuildTools替换自己的Sdk中相应版本的BuildTools。剩下的步骤照常即可。
-    
-    待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（参看插件工程的build.gradle）,然后重新打包安装PluginMain即可。
-    
-    或者也可将插件复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")
-  进行安装。
+  4、插件demo工程：
 
-  4、简易安装方式
-        直接将插件demo安装到系统中，PluginMain工程中PluginDebugHelper会监听系
-        统的应用安装广播，监听到插件demo安装广播后，再自动调用PluginLoader.installPlugin("/data/app/[插件demo].apk")
-        进行插件安装。免去复制到sdcard的过程。
+     1、若使用master分支：
+        直接编译即可，无特别要求。
 
-  5、如果使用eclipse ＋ ant ＋ public.xml需要关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,若编译失败，请升级androidSDK。
+     2、若使用For-gradle-with-aapt分支：
+        将openAtlasExtention@github项目提供的BuildTools替换自己的Sdk中相应版本的BuildTools。剩下的步骤照常即可。
+
+     3、若使用For－eclipse－ide分支：
+        需要使用ant编译，关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,若编译失败，请升级androidSDK。
+
+
+    待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（参看插件工程的build.gradle）,然后重新打包安装PluginMain。
+    或者也可将插件复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
 
 
 # 实现原理简介：
@@ -108,17 +113,15 @@ demo安装说明：
     NNNN则是某种资源类型的资源id，默认从1开始，依次累加。
     
     那么我们要解决资源id问题，就可从TT的值开始入手，只要将每次编译时的TT值固定，即可是资
-    源id达到分组的效果，从而避免重复。例如将宿主程序的layout资源的TT固定为03，将插件程序
-    资源的layout的TT值固定为23,即可解决资源id重复的问题了。
+    源id达到分组的效果，从而避免重复。例如将宿主程序的layout资源的TT固定为33，将插件程序
+    资源的layout的TT值固定为03（也可不对插件程序的资源id做任何处理，使其使用编译出来的原生的值）, 即可解决资源id重复的问题了。
     
     固定资源id的TT值的办法也非常简单，提供一份public.xml，在public.xml中指定什么资源类型以
-    什么TT值开头即可。具体public.xml如何编写，可参考PluginMain/res/values/public.xml 以及
-    PluginTest/res/values/public.xml俩个文件，它们是分别用来固定宿主程序和插件程序资源id的范围的。
+    什么TT值开头即可。具体public.xml如何编写，可参考PluginMain/public.xml，是用来固定宿主程序资源id范围的。
 
 
-    更新：openAtlasExtention@github项目提供了重写过的aapt指定PP段来实现id分组，不再使用public.xml来实现分组
-        原因是android gradle插件1.3.0以上版本不支持public.xml文件，也无法识别public-padding节点
-    
+    还有一个方法是通过定制过的aapt在编译时指定插件的PP段的值来实现分组：
+        参考openAtlasExtention@github项目提供的重写过的aapt指定PP段来实现id分组，代码见For-gradle-with-aapt分支
 
   4、插件apk的Context和LayoutInfalter
   
@@ -150,8 +153,7 @@ demo安装说明：
     
     b、替换Instrumention。
      这种方式仅适用于Activity。通过修改Instrumentation进行拦截，可以利用Intent传递参数。
-     如果是Receiver，利用Handler Callback进行拦截，也能很好的利用Intent传递参数。
-     如果是Service，其在创建实例时是没有Intent的，只能通过Classloader在loadclass时进行拦截
+     如果是Receiver和Service，利用Handler Callback进行拦截，再配合Classloader在loadclass时进行映射
      
     
   8、通过activity代理方式实现加载插件中的activity是如何实现的
@@ -191,16 +193,23 @@ demo安装说明：
     
   12、插件Activity的LaunchMode
     要实现插件Activity的LaunchMode，需要在宿主程序中预埋若干个相应launchMode的Activity（预注册的组件可实际存在也可不存在），在运行时进行动态映射选择
-  
+
+  13、对多Service的支持
+    Service的启动模式类似于Activity的singleInstance，因此为了支持插件多service，采用了和上述第12像类似的做法。
+
 # 需要注意的问题
 
    1、项目插件化后，特别需要注意的是宿主程序混淆问题。公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
    所以公共库一定要排除混淆。
 
-   2、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用Ant + public.xml的方式编译，应采用较新版本的buildtools。
+   2、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
 
-  更新：已迁移至android studio ＋gradle + aapt，eclispe ＋ ant ＋public.xml的方式不再更新
-  
+   项目已迁移至android studio，eclispe的分支不再更新
+
+# 更新纪录：
+
+  2015-11-22： gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，因此master分支切回到利用public.xml分组的实现
+
 联系作者：
   Q：15871365851， 添加时请注明插件开发。
   Q群：207397154
