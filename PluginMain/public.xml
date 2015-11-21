@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--在宿主中指定这些id的范围是为了使宿主各类资源的id和插件各类资源的id不重复，否则会出错（若没出错也仅是凑巧）-->
+
+    <public-padding type="attr" name="public_static_final_host_attr_"     start="0x7f310000" end="0x7f310000" />
+    <public-padding type="drawable" name="public_static_final_host_drawable_" start="0x7f320000" end="0x7f320000" />
+    <public-padding type="layout" name="public_static_final_host_layout_"   start="0x7f330000" end="0x7f330000" />
+    <public-padding type="anim" name="public_static_final_host_anim_"     start="0x7f340000" end="0x7f340000" />
+    <public-padding type="xml" name="public_static_final_host_xml_"      start="0x7f350000" end="0x7f350000" />
+    <public-padding type="raw" name="public_static_final_host_raw_"      start="0x7f360000" end="0x7f360000" />
+    <public-padding type="dimen" name="public_static_final_host_dimen_"    start="0x7f370000" end="0x7f370000" />
+    <public-padding type="string" name="public_static_final_host_string_"   start="0x7f380000" end="0x7f380000" />
+	<public-padding type="style" name="public_static_final_host_style_"    start="0x7f390000" end="0x7f390000" />
+    <public-padding type="color" name="public_static_final_host_color_"    start="0x7f3a0000" end="0x7f3a0000" />
+    <public-padding type="id" name="public_static_final_host_id_"       start="0x7f3b0000" end="0x7f3b0000" />
+    <public-padding type="bool" name="public_static_final_host_bool_"     start="0x7f3c0000" end="0x7f3c0000" />
+    <public-padding type="integer" name="public_static_final_host_int_"  start="0x7f3d0000" end="0x7f3d0000" />
+    <public-padding type="array" name="public_static_final_host_array_"    start="0x7f3e0000" end="0x7f3e0000" />
+    <public-padding type="menu" name="public_static_final_host_menu_"     start="0x7f3f0000" end="0x7f3f0000" />
+
+</resources>

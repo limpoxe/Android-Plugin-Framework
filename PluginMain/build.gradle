@@ -5,7 +5,7 @@ android {
     buildToolsVersion "22.0.1"
 
     aaptOptions {
-        //additionalParameters "-P", "E:/workspace/Android-Plugin-Framework/PluginTest/res/values/public.xml"
+        additionalParameters "-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml"
     }
 
     packagingOptions {
@@ -66,6 +66,21 @@ dependencies {
     compile project(':PluginShareLib')
 }
 
+
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
+
+        task.doLast {
+            copy {
+                from(project.getProjectDir()) {
+                    include 'public.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+        }
+        //task.enabled = false
+    }
+}
 
 //http://unclechen.github.io/2015/10/25/Gradle%E5%AE%9E%E8%B7%B5%E4%B9%8B%E6%89%93%E5%8C%85jar+Log%E5%BC%80%E5%85%B3%E8%87%AA%E5%8A%A8%E5%85%B3%E9%97%AD/
 //自定义混淆配置
