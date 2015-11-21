@@ -11,7 +11,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.os.Build;
 import dalvik.system.DexClassLoader;
 
 public class PluginCreator {
@@ -81,16 +80,26 @@ public class PluginCreator {
 	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin) {
 		String[] assetPaths = new String[isStandalone ? 1 : 2];
 
+//		if (!isStandalone) {
+//			// 不可更改顺序否则不能兼容4.x
+//			assetPaths[0] = app;
+//			assetPaths[1] = plugin;
+//			if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)
+//					|| "Coolpad".equalsIgnoreCase(Build.BRAND)) {
+//				// 但是！！！如是OPPO或者vivo4.x系统的话 ，要吧这个顺序反过来，否则在混合模式下会找不到资源
+//				assetPaths[0] = plugin;
+//				assetPaths[1] = app;
+//			}
+//			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
+//		} else {
+//			assetPaths[0] = plugin;
+//			LogUtil.d("create Plugin Resource from: ", assetPaths[0]);
+//		}
+
 		if (!isStandalone) {
-			// 不可更改顺序否则不能兼容4.x
-			assetPaths[0] = app;
-			assetPaths[1] = plugin;
-			if ("vivo".equalsIgnoreCase(Build.BRAND) || "oppo".equalsIgnoreCase(Build.BRAND)
-					|| "Coolpad".equalsIgnoreCase(Build.BRAND)) {
-				// 但是！！！如是OPPO或者vivo4.x系统的话 ，要吧这个顺序反过来，否则在混合模式下会找不到资源
-				assetPaths[0] = plugin;
-				assetPaths[1] = app;
-			}
+			// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
+			assetPaths[0] = plugin;
+			assetPaths[1] = app;
 			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
 		} else {
 			assetPaths[0] = plugin;
