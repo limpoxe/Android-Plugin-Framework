@@ -5,7 +5,8 @@ android {
     buildToolsVersion "22.0.1"
 
     aaptOptions {
-        additionalParameters '-I', "../PluginMain/build/intermediates/res/resources-debug.ap_"
+        //将宿主资源添加到编译时，仅参与编译，不参与打包
+        additionalParameters '-I', project(':PluginMain').getBuildDir().absolutePath + "/intermediates/res/resources-debug.ap_"
     }
 
     packagingOptions {
@@ -53,15 +54,13 @@ android {
 
     buildTypes {
         release {
-            //表示插件的id分组为0x3f, 必须设置为0x1f到0x7f之间，不可超出这个范围
-            versionNameSuffix '_' + getDate() + '_0x3f'
+            versionNameSuffix '_' + getDate()
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         debug {
-            //表示插件的id分组为0x3f, 必须设置为0x1f到0x7f之间，不可超出这个范围
-            versionNameSuffix '_' + getDate() + '_0x3f'
+            versionNameSuffix '_' + getDate()
         }
     }
 
@@ -87,7 +86,7 @@ dependencies {
 }
 
 build.doLast {
-    //将编译好的插件apk复制到Main工程的assets目录下
+    //将编译好的插件apk复制到Main工程的assets目录下, 便于测试
     copy {
         println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginTest-debug.apk'
         from(buildDir.absolutePath + '/outputs/apk/') {
@@ -99,6 +98,6 @@ build.doLast {
 
 def getDate() {
     def date = new Date()
-    def formattedDate = date.format('yyyyMMddHHmmss')
+    def formattedDate = date.format('yyyy_MM_dd_HH_mm_ss')
     return formattedDate
 }
