@@ -24,7 +24,7 @@
   
   9、支持插件Activity的4个LaunchMode
 
-  10、支持插件资源文件中直接引用共享依赖库中的资源(目前粗略测试结果只支持5.x及以上)
+  10、支持插件资源文件中直接通过@xxx方式引用共享依赖库中的资源
 
   11、支持插件发送notification时在RemoteViews使用插件自定义的布局资源（只支持5.x及以上）
 
@@ -208,7 +208,8 @@ demo安装说明：
 
 # 更新纪录：
 
-  2015-11-22： gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，因此master分支切回到利用public.xml分组的实现
+    2015-11-22： 1、gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，因此master分支切回到利用public.xml分组的实现
+                 2、支持插件资源文件直接通过@package:type/name方式引用宿主资源
 
 联系作者：
   Q：15871365851， 添加时请注明插件开发。
