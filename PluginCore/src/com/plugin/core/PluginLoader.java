@@ -184,9 +184,11 @@ public class PluginLoader {
 		}
 
 		PackageInfo packageInfo = sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
-		pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
-		pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
-		pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
+		if (packageInfo != null) {
+			pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
+			pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
+			pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
+		}
 
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
