@@ -89,7 +89,7 @@ public class FileUtil {
 						String name = "lib" + File.separator + abi + File.separator + so;
 						File sourceFile = new File(sourceDir, name);
 						if (sourceFile.exists()) {
-							isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator + so);
+							isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator + name);
 							break;
 						}
 					}
@@ -110,12 +110,12 @@ public class FileUtil {
 					}
 				}
 				if (sourceFile.exists()) {
-					isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator + so);
+					isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator + "lib" + File.separator + so);
 				}
 			}
 
 			if (!isSuccess) {
-				Toast.makeText(PluginLoader.getApplicatoin(), "安装" + so + "失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+				Toast.makeText(PluginLoader.getApplicatoin(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
