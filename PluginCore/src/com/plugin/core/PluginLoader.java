@@ -213,7 +213,7 @@ public class PluginLoader {
 			Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempDir);
 			if (soList != null) {
 				for (String soName : soList) {
-					FileUtil.copySo(tempDir, soName, new File(destPluginFile).getParent() + File.separator + "lib");
+					FileUtil.copySo(tempDir, soName, new File(destPluginFile).getParent());
 				}
 				FileUtil.deleteAll(tempDir);
 			}
