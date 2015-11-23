@@ -75,19 +75,25 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 			values.put(PluginDbTables.PluginFirstTable.MY_FIRST_PLUGIN_NAME, "test web" + System.currentTimeMillis());
 			getContentResolver().insert(PluginDbTables.PluginFirstTable.CONTENT_URI, values);
 
+			Toast.makeText(this, "ContentResolver insert test web", Toast.LENGTH_LONG).show();
 
 		} else if (v.getId() == R.id.db_read) {
+			boolean isSuccess = false;
 			Cursor cursor = getContentResolver().query(PluginDbTables.PluginFirstTable.CONTENT_URI, null, null, null, null);
 			if (cursor != null) {
 				if (cursor.moveToFirst()) {
 					int index = cursor.getColumnIndex(PluginDbTables.PluginFirstTable.MY_FIRST_PLUGIN_NAME);
 					if (index != -1) {
+						isSuccess = true;
 						String pluginName = cursor.getString(index);
 						LogUtil.d(pluginName);
 						Toast.makeText(this, "ContentResolver " + pluginName + " count=" + cursor.getCount(), Toast.LENGTH_LONG).show();
 					}
 				}
 				cursor.close();
+			}
+			if (!isSuccess) {
+				Toast.makeText(this, "ContentResolver 查无数据", Toast.LENGTH_LONG).show();
 			}
 		} else if (v.getId() == R.id.db_so) {
 

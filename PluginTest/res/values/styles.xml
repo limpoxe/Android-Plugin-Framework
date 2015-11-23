@@ -7,12 +7,16 @@
 
     <style name="MyButton2">
         <item name="android:background">#00ffA3</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">#e3a438</item>
     </style>
 
     <style name="MyButton3">
         <item name="android:background">#ffcc0000</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">#00ffA3</item>
     </style>
