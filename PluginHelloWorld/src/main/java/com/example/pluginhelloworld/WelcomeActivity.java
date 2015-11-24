@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.hellojni.HelloJni;
+
 /**
  * 独立插件测试demo
  */
@@ -28,6 +30,8 @@ public class WelcomeActivity extends Activity {
         findViewById(R.id.test_s_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " +  HelloJni.calculate(3, 4), Toast.LENGTH_LONG).show();
                 Toast.makeText(WelcomeActivity.this, "测试插件资源：" + getText(R.string.app_name), Toast.LENGTH_LONG).show();
             }
         });
