@@ -46,7 +46,8 @@ public class PluginLoader {
 	private static final int SIGNATURES_INVALIDATE = 3;
 	private static final int VERIFY_SIGNATURES_FAIL = 4;
 	private static final int PARSE_MANIFEST_FAIL = 5;
-	private static final int INSTALL_FAIL = 6;
+	private static final int FAIL_BECAUSE_HAS_LOADED = 6;
+	private static final int INSTALL_FAIL = 7;
 
 	private static Application sApplication;
 
@@ -144,7 +145,7 @@ public class PluginLoader {
 			if (FileUtil.copyFile(srcPluginFile, tempFilePath)) {
 				srcPluginFile = tempFilePath;
 			} else {
-				LogUtil.e("复制插件文件失败失败", srcPluginFile, tempFilePath);
+				LogUtil.e("复制插件文件失败", srcPluginFile, tempFilePath);
 				return COPY_FILE_FAIL;
 			}
 		}
@@ -193,8 +194,16 @@ public class PluginLoader {
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
-			LogUtil.e("已安装过，先删除旧版本", oldPluginDescriptor.getInstalledPath());
-			remove(oldPluginDescriptor.getPackageName());
+			LogUtil.e("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath());
+
+			//检查插件是否已经加载
+			if (oldPluginDescriptor.getPluginContext() != null) {
+				LogUtil.e("插件已经加载, 现在不可执行安装操作");
+				return FAIL_BECAUSE_HAS_LOADED;
+			} else {
+				LogUtil.e("先删除已安装的版本");
+				remove(oldPluginDescriptor.getPackageName());
+			}
 		}
 
 		// 第4步骤，复制插件到插件目录
@@ -204,30 +213,37 @@ public class PluginLoader {
 		if (!isCopySuccess) {
 
 			LogUtil.d("复制插件到安装目录失败", srcPluginFile);
+			//删掉临时文件
 			new File(srcPluginFile).delete();
 			return COPY_FILE_FAIL;
 		} else {
 
-			//第5步，复制插件so到插件so目录, 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
+			//第5步，先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
 			File tempDir = new File(new File(destPluginFile).getParentFile(), "temp");
 			Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempDir);
 			if (soList != null) {
 				for (String soName : soList) {
 					FileUtil.copySo(tempDir, soName, new File(destPluginFile).getParent());
 				}
+				//删掉临时文件
 				FileUtil.deleteAll(tempDir);
 			}
 
 			// 第6步 添加到已安装插件列表
 			pluginDescriptor.setInstalledPath(destPluginFile);
 			boolean isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
-
+			//删掉临时文件
 			new File(srcPluginFile).delete();
 
 			if (!isInstallSuccess) {
 				LogUtil.d("安装插件失败", srcPluginFile);
 				return INSTALL_FAIL;
 			} else {
+				//通过创建classloader来触发dexopt，但不加载
+				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
+				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone());
+				LogUtil.d("DEXOPT完毕");
+
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 				LogUtil.d("安装插件成功", destPluginFile);
 				return SUCCESS;
