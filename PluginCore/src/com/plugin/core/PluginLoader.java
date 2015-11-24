@@ -235,6 +235,11 @@ public class PluginLoader {
 		}
 	}
 
+	/**
+	 * 通过插件Id唤起插件
+	 * @param pluginId
+	 * @return
+	 */
 	public static PluginDescriptor initPluginByPluginId(String pluginId) {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
 		if (pluginDescriptor != null) {
@@ -338,8 +343,12 @@ public class PluginLoader {
 
 	/**
 	 * 根据当前插件的默认Context, 为当前插件的组件创建一个单独的context
+	 *
+	 * @param pluginContext
+	 * @param base  由系统创建的Context。 其实际类型应该是ContextImpl
+	 * @return
 	 */
-	public static Context getNewPluginComponentContext(Context pluginContext, Context base) {
+	/*package*/ static Context getNewPluginComponentContext(Context pluginContext, Context base) {
 		Context newContext = null;
 		if (pluginContext != null) {
 			newContext = PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
@@ -426,50 +435,10 @@ public class PluginLoader {
 		changeListener.onPluginStarted(pluginDescriptor.getPackageName());
 	}
 
-	/**
-	 * for eclipse & ant with public.xml
-	 *
-	 * unused
-	 * @param pluginDescriptor
-	 * @param res
-	 * @return
-	 */
-	private static boolean checkPluginPublicXml(PluginDescriptor pluginDescriptor, Resources res) {
-
-		// "plugin_layout_1"资源id时由public.xml配置的
-		// 如果没有检测到这个资源，说明编译时没有引入public.xml,
-		// 这里直接抛个异常出去。
-		// 不同的系统版本获取id的方式不同，
-		// 三星4.x等系统适用
-		int publicStub = res.getIdentifier("plugin_layout_1", "layout", pluginDescriptor.getPackageName());
-		if (publicStub == 0) {
-			// 小米5.x等系统适用
-			publicStub = res.getIdentifier("plugin_layout_1", "layout", sApplication.getPackageName());
-		}
-		if (publicStub == 0) {
-			try {
-				// 如果以上两种方式都检测失败，最后尝试通过反射检测
-				Class layoutClass = ((ClassLoader) pluginDescriptor.getPluginClassLoader()).loadClass(pluginDescriptor
-						.getPackageName() + ".R$layout");
-				Integer layouId = (Integer) RefInvoker.getFieldObject(null, layoutClass, "plugin_layout_1");
-				if (layouId != null) {
-					publicStub = layouId;
-				}
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-
-		if (publicStub == 0) {
-			throw new IllegalStateException("\n插件工程没有使用public.xml给资源id分组！！！\n" + "插件工程没有使用public.xml给资源id分组！！！\n"
-					+ "插件工程没有使用public.xml给资源id分组！！！\n" + "重要的事情讲三遍！！！");
-		}
-		return true;
-	}
-
 	public static boolean isInstalled(String pluginId, String pluginVersion) {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
 		if (pluginDescriptor != null) {
+			LogUtil.d(pluginId, pluginDescriptor.getVersion(), pluginVersion);
 			return pluginDescriptor.getVersion().equals(pluginVersion);
 		}
 		return false;
