@@ -96,6 +96,21 @@ build.doLast {
     }
 }
 
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
+
+        task.doLast {
+            copy {
+                from(project.getProjectDir()) {
+                    include 'public.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+        }
+        //task.enabled = false
+    }
+}
+
 def getDate() {
     def date = new Date()
     def formattedDate = date.format('yyyy_MM_dd_HH_mm_ss')

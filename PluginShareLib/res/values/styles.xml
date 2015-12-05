@@ -5,6 +5,7 @@
 
     <style name="ShareTheme" parent="ShareBaseTheme">
         <item name="android:buttonStyle">@style/ShareButtonStyle</item>
+        <item name="layoutbg">#FF00CC00</item>
     </style>
     
     <style name="ShareButtonStyle">
@@ -12,5 +13,7 @@
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
+
+    <attr name="layoutbg" format="color|reference"/>
 
 </resources>

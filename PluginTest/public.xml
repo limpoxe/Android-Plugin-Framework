@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--在插件中指定属性类型的范围，插件中的自定义属性的个数不可超过宿主中的public.xml定义的上限值 -->
+   <public-padding type="attr" name="public_static_final_plugin_attr_"     start="0x7f010000" end="0x7f010000" />
+
+   <!-- 指定需要换肤的属性 -->
+   <public name="layoutbg" type = "attr" id="0x7f010030"/>
+
+</resources>

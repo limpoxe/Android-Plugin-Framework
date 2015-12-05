@@ -32,6 +32,7 @@
     <!-- Application theme. -->
     <style name="PluginTheme2" parent="AppBaseTheme">
         <item name="android:buttonStyle">@style/MyButton2</item>
+        <item name="layoutbg">#ffC000CC</item>
     </style>
 
     <style name="PluginTheme3" parent="android:Theme.Holo.NoActionBar.Fullscreen">
@@ -39,6 +40,8 @@
 
     <style name="PluginTheme4" parent="AppBaseTheme">
         <item name="android:buttonStyle">@style/MyButton3</item>
+        <item name="layoutbg">#ff0000CC</item>
     </style>
 
+    <attr name = "layoutbg" format="color|reference" />
 </resources>
