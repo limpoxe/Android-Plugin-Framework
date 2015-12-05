@@ -3,7 +3,12 @@
 
     <!--在宿主中指定这些id的范围是为了使宿主各类资源的id和插件各类资源的id不重复，否则会出错（若没出错也仅是凑巧）-->
 
-    <public-padding type="attr" name="public_static_final_host_attr_"     start="0x7f310000" end="0x7f310000" />
+    <!-- 单独指定属性的资源范围是为了支持主题属性换肤  将end值设置为0100，意思预留从0000到0100的id给插件属性使用
+        即插件的attr不可超过256个，这个值可以根据实际情况调整
+     -->
+    <public-padding type="attr" name="public_static_final_host_attr_"     start="0x7f010000" end="0x7f010100" />
+
+    <!-- 除属性外 其他类型的资源设置为  0x7f32开始 -->
     <public-padding type="drawable" name="public_static_final_host_drawable_" start="0x7f320000" end="0x7f320000" />
     <public-padding type="layout" name="public_static_final_host_layout_"   start="0x7f330000" end="0x7f330000" />
     <public-padding type="anim" name="public_static_final_host_anim_"     start="0x7f340000" end="0x7f340000" />
