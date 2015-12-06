@@ -5,6 +5,6 @@
    <public-padding type="attr" name="public_static_final_plugin_attr_"     start="0x7f010000" end="0x7f010000" />
 
    <!-- 指定需要换肤的属性 -->
-   <public name="layoutbg" type = "attr" id="0x7f010030"/>
+   <public name="layoutbg" type = "attr" id="0x7f010101"/>
 
 </resources>
