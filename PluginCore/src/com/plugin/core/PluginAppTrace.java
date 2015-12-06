@@ -165,6 +165,15 @@ public class PluginAppTrace implements Handler.Callback {
 		public static final int SET_CORE_SETTINGS = 138;
 		public static final int UPDATE_PACKAGE_COMPATIBILITY_INFO = 139;
 		public static final int TRIM_MEMORY = 140;
+		public static final int DUMP_PROVIDER           = 141;
+		public static final int UNSTABLE_PROVIDER_DIED  = 142;
+		public static final int REQUEST_ASSIST_CONTEXT_EXTRAS = 143;
+		public static final int TRANSLUCENT_CONVERSION_COMPLETE = 144;
+		public static final int INSTALL_PROVIDER        = 145;
+		public static final int ON_NEW_ACTIVITY_OPTIONS = 146;
+		public static final int CANCEL_VISIBLE_BEHIND = 147;
+		public static final int BACKGROUND_VISIBLE_BEHIND_CHANGED = 148;
+		public static final int ENTER_ANIMATION_COMPLETE = 149;
 
 		public static String codeToString(int code) {
 			switch (code) {
@@ -250,6 +259,24 @@ public class PluginAppTrace implements Handler.Callback {
 				return "UPDATE_PACKAGE_COMPATIBILITY_INFO";
 			case TRIM_MEMORY:
 				return "TRIM_MEMORY";
+			case DUMP_PROVIDER:
+				return "DUMP_PROVIDER";
+			case UNSTABLE_PROVIDER_DIED:
+				return "UNSTABLE_PROVIDER_DIED";
+			case REQUEST_ASSIST_CONTEXT_EXTRAS:
+				return "REQUEST_ASSIST_CONTEXT_EXTRAS";
+			case TRANSLUCENT_CONVERSION_COMPLETE:
+				return "TRANSLUCENT_CONVERSION_COMPLETE";
+			case INSTALL_PROVIDER:
+				return "INSTALL_PROVIDER";
+			case ON_NEW_ACTIVITY_OPTIONS:
+				return "ON_NEW_ACTIVITY_OPTIONS";
+			case CANCEL_VISIBLE_BEHIND:
+				return "CANCEL_VISIBLE_BEHIND";
+			case BACKGROUND_VISIBLE_BEHIND_CHANGED:
+				return "BACKGROUND_VISIBLE_BEHIND_CHANGED";
+			case ENTER_ANIMATION_COMPLETE:
+				return "ENTER_ANIMATION_COMPLETE";
 			}
 			return "(unknown: " + code +")";
 		}
