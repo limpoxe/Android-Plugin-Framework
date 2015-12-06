@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -28,7 +30,9 @@ import com.plugin.util.ResourceUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class PluginInjector {
 
@@ -297,6 +301,39 @@ public class PluginInjector {
 		if (Build.VERSION.SDK_INT >= 19) {
 			activity.getWindow().setIcon(activityInfo.icon);
 			activity.getWindow().setLogo(activityInfo.logo);
+		}
+	}
+
+	/*package*/static void replaceReceiverContext(Context baseContext, Class clazz) {
+
+		if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
+			ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext, "android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
+			RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", PluginLoader.getDefaultPluginContext(clazz));
+		}
+	}
+
+	/*package*/static void replaceServiceContext(String serviceName) {
+		Object activityThread = PluginInjector.getActivityThread();
+		if (activityThread != null) {
+			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
+			if (services != null) {
+				Iterator<Service> itr = services.values().iterator();
+				while(itr.hasNext()) {
+					Service service = itr.next();
+					if (service != null && service.getClass().getName().equals(serviceName) ) {
+
+						PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
+
+						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase", PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), service.getBaseContext()));
+
+						if (pd.getPluginApplication() != null) {
+							RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());
+						}
+					}
+
+				}
+			}
+
 		}
 	}
 

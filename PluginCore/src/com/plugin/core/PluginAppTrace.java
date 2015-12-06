@@ -34,93 +34,118 @@ public class PluginAppTrace implements Handler.Callback {
 
 		LogUtil.d(">>> handling: ", CodeConst.codeToString(msg.what));
 
-		String serviceName = null;
-		Context baseContext = null;
-
-		if (msg.what == CodeConst.RECEIVER) {
-
-			Class clazz = PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
-
-			baseContext = replaceReceiverContext(clazz);
-
-		} else if (msg.what == CodeConst.CREATE_SERVICE) {
-
-			serviceName = PluginIntentResolver.hackServiceName(msg.obj);
-
-			if (serviceName != null) {
-				ClassLoaderUtil.hackClassLoaderIfNeeded();
-			}
-		} else if (msg.what == CodeConst.STOP_SERVICE) {
-			//销毁service时回收映射关系
-			Object activityThread = PluginInjector.getActivityThread();
-			if (activityThread != null) {
-				Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
-				if (services != null) {
-					Service service = services.get(msg.obj);
-					if (service != null) {
-						String pluginServiceClassName = service.getClass().getName();
-						LogUtil.d("STOP_SERVICE", pluginServiceClassName);
-						PluginStubBinding.unBindStubService(pluginServiceClassName);
-					}
-				}
-			}
-		}
+		Result result = beforeHandle(msg);
 
 		try {
+
 			mHandler.handleMessage(msg);
+
 			LogUtil.d(">>> done: " + CodeConst.codeToString(msg.what));
+
 		} finally {
-			if (msg.what == CodeConst.RECEIVER && baseContext != null) {
 
-				RefInvoker.setFieldObject(baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
-
-			} else if (msg.what == CodeConst.CREATE_SERVICE) {
-				//拿到创建好的service，重新 设置mBase和mApplicaiton
-				//由于这步操作是再service得oncreate之后执行，所以再插件service得oncreate中不应尝试通过此service的context执行操作
-				replaceServiceContext(serviceName);
-			}
+			afterHandle(msg, result);
+			
 		}
 
 		return true;
 	}
 
-	private static Context replaceReceiverContext(Class clazz) {
-		if (clazz == null) {
-			return null;
+	private Result beforeHandle(Message msg) {
+
+		switch (msg.what) {
+			case CodeConst.RECEIVER:
+
+				return beforeReceiver(msg);
+
+			case CodeConst.CREATE_SERVICE:
+
+				return beforeCreateService(msg);
+
+			case CodeConst.STOP_SERVICE:
+
+				return beforeStopService(msg);
 		}
-		Context baseContext = PluginLoader.getApplicatoin().getBaseContext();
-		if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
-			ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext, "android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
-			RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", PluginLoader.getDefaultPluginContext(clazz));
-		} else {
-			baseContext = null;
-		}
-		return baseContext;
+		return null;
 	}
 
-	private static void replaceServiceContext(String serviceName) {
+	private static Result beforeReceiver(Message msg) {
+		Class clazz = PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
+
+		if (clazz != null) {
+			Context baseContext = PluginLoader.getApplicatoin().getBaseContext();
+			PluginInjector.replaceReceiverContext(baseContext, clazz);
+
+			Result result = new Result();
+			result.baseContext = baseContext;
+
+			return result;
+		}
+		return null;
+	}
+
+	private static Result beforeCreateService(Message msg) {
+		String serviceName = PluginIntentResolver.hackServiceName(msg.obj);
+
+		if (serviceName != null) {
+			ClassLoaderUtil.hackClassLoaderIfNeeded();
+		}
+		Result result = new Result();
+		result.serviceName = serviceName;
+
+		return result;
+	}
+
+	private static Result beforeStopService(Message msg) {
+		//销毁service时回收映射关系
 		Object activityThread = PluginInjector.getActivityThread();
 		if (activityThread != null) {
 			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
 			if (services != null) {
-				Iterator<Service> itr = services.values().iterator();
-				while(itr.hasNext()) {
-					Service service = itr.next();
-					if (service != null && service.getClass().getName().equals(serviceName) ) {
-
-						PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
-
-						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase", PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), service.getBaseContext()));
-
-						if (pd.getPluginApplication() != null) {
-							RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());
-						}
-					}
-
+				Service service = services.get(msg.obj);
+				if (service != null) {
+					String pluginServiceClassName = service.getClass().getName();
+					LogUtil.d("STOP_SERVICE", pluginServiceClassName);
+					PluginStubBinding.unBindStubService(pluginServiceClassName);
 				}
 			}
-
 		}
+		return null;
+	}
+
+	private static void afterHandle(Message msg, Result result) {
+		switch (msg.what) {
+			case  CodeConst.RECEIVER:
+
+				afterReceiver(result);
+
+				break;
+
+			case CodeConst.CREATE_SERVICE:
+
+				afterCreateService(result);
+
+				break;
+		}
+	}
+
+	private static void afterReceiver(Result result) {
+		if (result != null && result.baseContext != null) {
+			RefInvoker.setFieldObject(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+		}
+	}
+
+	private static void afterCreateService(Result result) {
+		if (result != null) {
+			//拿到创建好的service，重新 设置mBase和mApplicaiton
+			//由于这步操作是再service得oncreate之后执行，所以再插件service得oncreate中不应尝试通过此service的context执行操作
+			PluginInjector.replaceServiceContext(result.serviceName);
+		}
+	}
+
+	static class Result {
+		String serviceName;
+		Context baseContext;
 	}
 
 	private static class CodeConst {

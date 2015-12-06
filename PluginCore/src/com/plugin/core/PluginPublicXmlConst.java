@@ -6,7 +6,7 @@ import android.util.SparseArray;
  * Consts in public.xml
  */
 public class PluginPublicXmlConst {
-	public static final int public_static_final_host_attr = 0x7f31;
+	public static final int public_static_final_host_attr = 0x7f01;
 	public static final int public_static_final_host_drawable = 0x7f32;
 	public static final int public_static_final_host_layout = 0x7f33;
 	public static final int public_static_final_host_anim = 0x7f34;
