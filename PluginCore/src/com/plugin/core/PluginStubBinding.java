@@ -157,8 +157,8 @@ public class PluginStubBinding {
 			HashMap<String, String> mapping = restore();
 			if (mapping != null) {
 				serviceMapping.putAll(mapping);
-				save(serviceMapping);
 			}
+			save(serviceMapping);
 		}
 	}
 
@@ -223,7 +223,7 @@ public class PluginStubBinding {
 			if (entry.getValue() == null) {
 				if (idleStubServiceName == null) {
 					idleStubServiceName = entry.getKey();
-					//这里找到空闲的idleStubServiceName以后，还需继续遍历，用来检查是否pluginActivityClassName已经绑定过了
+					//这里找到空闲的idleStubServiceName以后，还需继续遍历，用来检查是否pluginServiceClassName已经绑定过了
 				}
 			} else if (pluginServiceClassName.equals(entry.getValue())) {
 				//已经绑定过，直接返回
@@ -254,7 +254,7 @@ public class PluginStubBinding {
 				LogUtil.d("回收绑定", entry.getKey(), entry.getValue());
 				serviceMapping.put(entry.getKey(), null);
 				save(serviceMapping);
-				entry.getKey();
+				break;
 			}
 		}
 	}

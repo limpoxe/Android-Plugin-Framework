@@ -87,10 +87,12 @@ public class PluginIntentResolver {
 		//通过映射查找
 		String targetClassName = PluginStubBinding.getBindedPluginServiceName(info.name);
 
-		LogUtil.d("hackServiceName", info.name,info.packageName, info.processName, "targetClassName", targetClassName);
+		LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName);
 
 		if (targetClassName != null) {
 			info.name =  prefix + targetClassName;
+		} else {
+			LogUtil.d("hackServiceName 没有找到映射关系, 说明是宿主service（也可能是映射表出了异常）", info.name);
 		}
 		return targetClassName;
 	}
