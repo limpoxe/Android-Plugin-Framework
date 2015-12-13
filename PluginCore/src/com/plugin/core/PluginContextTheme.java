@@ -12,6 +12,8 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
+import java.io.File;
+
 public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
 	Resources.Theme mTheme;
@@ -151,6 +153,20 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		String realName = mPluginDescriptor.getPackageName() + "_" + name;
 		LogUtil.d(realName);
 		return super.openOrCreateDatabase(realName, mode, factory, errorHandler);
+	}
+
+	@Override
+	public boolean deleteDatabase(String name) {
+		String realName = mPluginDescriptor.getPackageName() + "_" + name;
+		LogUtil.d(realName);
+		return super.deleteDatabase(realName);
+	}
+
+	@Override
+	public File getDatabasePath(String name) {
+		String realName = mPluginDescriptor.getPackageName() + "_" + name;
+		LogUtil.d(realName);
+		return super.getDatabasePath(realName);
 	}
 
 	@Override
