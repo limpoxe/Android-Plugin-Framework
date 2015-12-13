@@ -53,24 +53,25 @@ public class PluginStubBinding {
 
 		initPool();
 
-		Iterator<Map.Entry<String, String>> itr = null;
+		HashMap<String, String> bindingMapping = null;
 
 		if (launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
 
-			itr = singleTaskMapping.entrySet().iterator();
+			bindingMapping = singleTaskMapping;
 
 		} else if (launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
 
-			itr = singleTopMapping.entrySet().iterator();
+			bindingMapping = singleTopMapping;
 
 		} else if (launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
 
-			itr = singleInstanceMapping.entrySet().iterator();
+			bindingMapping = singleInstanceMapping;
 
 		}
 
-		if (itr != null) {
+		if (bindingMapping != null) {
 
+			Iterator<Map.Entry<String, String>> itr = bindingMapping.entrySet().iterator();
 			String idleStubActivityName = null;
 
 			while (itr.hasNext()) {
@@ -81,13 +82,14 @@ public class PluginStubBinding {
 						//这里找到空闲的stubactivity以后，还需继续遍历，用来检查是否pluginActivityClassName已经绑定过了
 					}
 				} else if (pluginActivityClassName.equals(entry.getValue())) {
+					//已绑定过，直接返回
 					return entry.getKey();
 				}
 			}
 
 			//没有绑定到StubActivity，而且还有空余的stubActivity，进行绑定
 			if (idleStubActivityName != null) {
-				singleTaskMapping.put(idleStubActivityName, pluginActivityClassName);
+				bindingMapping.put(idleStubActivityName, pluginActivityClassName);
 				return idleStubActivityName;
 			}
 
