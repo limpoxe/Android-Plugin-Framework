@@ -11,6 +11,11 @@ android {
         versionCode 2
         versionName "1.0.1"
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -21,6 +26,6 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:22.1.1'
-    //compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
