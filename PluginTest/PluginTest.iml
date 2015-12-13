@@ -85,9 +85,10 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="android-support-v4" level="project" />
     <orderEntry type="library" exported="" name="classes" level="project" />
     <orderEntry type="library" exported="" name="1_classes" level="project" />
+    <orderEntry type="library" exported="" name="2_classes" level="project" />
+    <orderEntry type="library" exported="" name="internal_impl-22.1.1" level="project" />
     <orderEntry type="library" exported="" name="rClasses" level="project" />
   </component>
 </module>
