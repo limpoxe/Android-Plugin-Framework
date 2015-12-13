@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 
+import com.plugin.core.viewfactory.PluginViewFactory;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -111,6 +112,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		if (intent != null) {
 			intent.setExtrasClassLoader(activity.getClassLoader());
+		}
+
+		//TODO 试验性功能，暂时关闭
+		if (false) {
+			new PluginViewFactory(activity, activity.getWindow()).installViewFactory();
 		}
 
 		super.callActivityOnCreate(activity, icicle);
