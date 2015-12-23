@@ -24,7 +24,9 @@ public class WelcomeActivity extends AppCompatActivity {
         Log.e("xxx", "activity_welcome ID= " + R.layout.activity_welcome);
         Log.e("xxx", getResources().getResourceEntryName(R.layout.activity_welcome));
         Log.e("xxx", getResources().getString(R.string.app_name));
+        Log.e("xxx", getPackageName() + ", " + getText(R.string.app_name));
         Log.e("xxx", getResources().getString(android.R.string.httpErrorBadUrl));
+        Log.e("xxx", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginhelloworld")));
 
         setContentView(R.layout.activity_welcome);
 
@@ -33,7 +35,6 @@ public class WelcomeActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " +  HelloJni.calculate(3, 4), Toast.LENGTH_LONG).show();
-                Toast.makeText(WelcomeActivity.this, "测试插件资源：" + getText(R.string.app_name), Toast.LENGTH_LONG).show();
             }
         });
 
