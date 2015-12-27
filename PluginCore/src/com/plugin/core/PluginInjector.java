@@ -158,7 +158,7 @@ public class PluginInjector {
 				} else if (!TextUtils.isEmpty(fragmentContainer.fragmentId())) {
 					String classId = null;
 					try {
-						//TODO
+						//TODO 不应该从intent中去取参数
 						classId = intent.getStringExtra(fragmentContainer.fragmentId());
 					} catch (Exception e) {
 						LogUtil.printException("这里的Intent如果包含来自插件的VO对象实例，" +

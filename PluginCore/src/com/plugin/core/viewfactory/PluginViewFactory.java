@@ -20,13 +20,15 @@ public class PluginViewFactory implements PluginFactoryInterface {
 	final Context mContext;
 	final Window mWindow;
 	final Window.Callback mOriginalWindowCallback;
+	final LayoutInflater.Factory mViewfactory;
 
 	PluginViewInflater mPluginViewInflater;
 
-	public PluginViewFactory(Context context, Window window) {
+	public PluginViewFactory(Context context, Window window, LayoutInflater.Factory viewfactory) {
 		mContext = context;
 		mWindow = window;
 		mOriginalWindowCallback = window.getCallback();
+		mViewfactory = viewfactory;
 	}
 
 	public void installViewFactory() {
@@ -77,7 +79,7 @@ public class PluginViewFactory implements PluginFactoryInterface {
 		final boolean isPre21 = Build.VERSION.SDK_INT < 21;
 
 		if (mPluginViewInflater == null) {
-			mPluginViewInflater = new PluginViewInflater(mContext);
+			mPluginViewInflater = new PluginViewInflater(mContext, mViewfactory);
 		}
 
 		// We only want the View to inherit it's context from the parent if it is from the

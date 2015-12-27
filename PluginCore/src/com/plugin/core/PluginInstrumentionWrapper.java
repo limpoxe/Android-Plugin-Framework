@@ -114,9 +114,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			intent.setExtrasClassLoader(activity.getClassLoader());
 		}
 
-		//TODO 试验性功能，暂时关闭
-		if (false) {
-			new PluginViewFactory(activity, activity.getWindow()).installViewFactory();
+		if (true) {
+			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
 		}
 
 		super.callActivityOnCreate(activity, icicle);

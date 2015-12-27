@@ -1,14 +1,11 @@
 package com.plugin.core.viewfactory;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.InflateException;
+import android.view.LayoutInflater;
 import android.view.View;
 
-import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -26,11 +23,13 @@ public class PluginViewInflater {
 
     private static final Map<String, Constructor<? extends View>> sConstructorMap = new HashMap<>();
 
+    private final LayoutInflater.Factory mViewfactory;
     private final Context mContext;
     private final Object[] mConstructorArgs = new Object[2];
 
-    public PluginViewInflater(Context context) {
+    public PluginViewInflater(Context context, final LayoutInflater.Factory viewfactory) {
         mContext = context;
+        mViewfactory = viewfactory;
     }
 
     public final View createView(View parent, final String name, Context context,
@@ -63,8 +62,9 @@ public class PluginViewInflater {
     }
 
     private View injectView(String name, Context context, AttributeSet attrs) {
-        //TODO
-        LogUtil.d("TODO");
+        if (mViewfactory != null) {
+            return mViewfactory.onCreateView(name, context, attrs);
+        }
         return null;
     };
 
@@ -117,8 +117,6 @@ public class PluginViewInflater {
     }
 
     private ClassLoader getClassLoader(Context context, String name, String prefix) {
-        //TODO
-        LogUtil.d("TODO");
         return context.getClassLoader();
     }
 

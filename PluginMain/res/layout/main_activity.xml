@@ -56,6 +56,13 @@
             android:padding="5dp"
             android:textSize="16sp" />
 
+        <!-- 测试控件级插件-->
+        <pluginView
+            class="com.example.plugintest.view.PluginTestView"
+            context="com.example.plugintest"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
