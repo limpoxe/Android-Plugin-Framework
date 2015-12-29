@@ -76,9 +76,51 @@ tasks.whenTaskAdded { task ->
                 from(project.getProjectDir()) {
                     include 'public.xml'
                 }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+                String dirName = task.name.replace("merge", "").replace("Resources", "");
+                //这里最好再增加一个buildType判断，而不是写死Debug和Release两种
+                if (dirName.equals("Debug") || dirName.equals("Release")) {
+                    into("${project.buildDir}/intermediates/res/merged/" + dirName.toLowerCase() + "/values/")
+                } else if (dirName.endsWith("Debug")) {
+                    into("${project.buildDir}/intermediates/res/merged/" + dirName.replace("Debug", "") + "/debug/values/")
+                } else if (dirName.endsWith("Release")) {
+                    into("${project.buildDir}/intermediates/res/merged/" + dirName.replace("Release", "") + "/release/values/")
+                }
             }
         }
+        //task.enabled = false
+    }
+
+    if (task.name.startsWith("process") && task.name.endsWith("Resources")) {
+
+        task.doLast {
+            copy {
+                String name = task.name.replace("process", "").replace("Resources", "");
+                //这里最好再增加一个buildType判断，而不是写死Debug和Release两种
+                if (name.equals("Debug") || name.equals("Release")) {
+                    name = "resources-" + name.toLowerCase() + ".ap_";
+                } else if (name.endsWith("Debug")) {
+                    name = "resources-" + name.replace("Debug", "") + "-debug.ap_";
+                } else if (name.endsWith("Release")) {
+                    name = "resources-" + name.replace("Release", "") + "-release.ap_";
+                }
+
+                from("${project.buildDir}/intermediates/res/") {
+                    include name
+                }
+                if (task.name.endsWith("DebugResources")) {
+                    into("${project.buildDir}/outputs/")
+                    rename { String fileName ->
+                        'resources-debug.ap_'
+                    }
+                } else if (task.name.endsWith("ReleaseResources")) {
+                    into("${project.buildDir}/outputs/")
+                    rename { String fileName ->
+                        'resources-release.ap_'
+                    }
+                }
+            }
+        }
+
         //task.enabled = false
     }
 }

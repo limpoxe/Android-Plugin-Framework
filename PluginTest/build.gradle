@@ -6,7 +6,7 @@ android {
 
     aaptOptions {
         //将宿主资源添加到编译时，仅参与编译，不参与打包
-        additionalParameters '-I', project(':PluginMain').getBuildDir().absolutePath + "/intermediates/res/resources-debug.ap_"
+        additionalParameters '-I', project(':PluginMain').getBuildDir().absolutePath + "/outputs/resources-debug.ap_"
     }
 
     packagingOptions {
@@ -71,13 +71,13 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     //依赖库的src
-    provided files(project(':PluginCore').getBuildDir().absolutePath + '/intermediates/bundles/release/classes.jar')
+    provided files(project(':PluginCore').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
     //依赖库的R
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
     //依赖库的src
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/release/classes.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
     //依赖库的依赖裤（当supportV4在依赖库V的libs目录下时）
-    //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/release/libs/android-support-v4.jar')
+    //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
     //依赖库的依赖裤（当supportV4通过仓库依赖时）
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/classes.jar')
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/libs/internal_impl-22.1.1.jar')
