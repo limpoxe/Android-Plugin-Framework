@@ -6,7 +6,7 @@ package com.plugin.core.localservice;
  * 所有context公用
  *
  */
-public abstract class LocalServiceFetcher {
+abstract class LocalServiceFetcher {
     int mServiceId;
     private Object mCachedInstance;
 

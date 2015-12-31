@@ -13,7 +13,13 @@ public class LocalServiceManager {
     private LocalServiceManager() {
     }
 
-    public static void registerService(String serviceName, LocalServiceFetcher fetcher) {
+    public static void registerService(String serviceName, final Object object) {
+        LocalServiceFetcher fetcher = new LocalServiceFetcher() {
+            @Override
+            public Object createService(int serviceId) {
+                return object;
+            }
+        };
         fetcher.mServiceId ++;
         SYSTEM_SERVICE_MAP.put(serviceName, fetcher);
     }
