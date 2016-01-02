@@ -77,6 +77,7 @@ public class PluginListActivity extends Activity {
 				if (!isInstalled) {
 					isInstalled = true;
 
+					copyAndInstall("PluginBase-debug.apk");
 					copyAndInstall("PluginTest-debug.apk");
 					copyAndInstall("PluginHelloWorld-debug.apk");
 

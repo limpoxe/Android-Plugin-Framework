@@ -8,6 +8,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.plugintestbase.ILoginService;
+import com.example.plugintestbase.LoginVO;
+import com.plugin.core.localservice.LocalServiceManager;
+
 public class PluginSingleTaskActivity extends Activity implements OnClickListener {
 
 	@Override
@@ -21,7 +25,15 @@ public class PluginSingleTaskActivity extends Activity implements OnClickListene
 
 	@Override
 	public void onClick(View v) {
-		 startActivity(new Intent(this, PluginSingleTaskActivity.class));
+		ILoginService login = (ILoginService) LocalServiceManager.getService("plugin_login_service");
+		if (login != null) {
+			LoginVO vo = login.login("admin", "123456");
+			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, "ILoginService == null", Toast.LENGTH_SHORT).show();
+		}
+
+		startActivity(new Intent(this, PluginSingleTaskActivity.class));
 	}
 
 	@Override

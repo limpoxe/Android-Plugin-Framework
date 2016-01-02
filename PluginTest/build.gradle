@@ -72,6 +72,7 @@ dependencies {
 
     //依赖库的src
     provided files(project(':PluginCore').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
+    provided files(project(':PluginBase').getProjectDir().absolutePath + '/pluginbase.jar')
     //依赖库的R
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
     //依赖库的src

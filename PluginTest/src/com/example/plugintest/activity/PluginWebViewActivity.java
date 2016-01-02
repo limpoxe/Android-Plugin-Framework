@@ -25,9 +25,12 @@ import android.widget.Toast;
 import com.example.hellojni.HelloJni;
 import com.example.plugintest.R;
 import com.example.plugintest.provider.PluginDbTables;
+import com.example.plugintestbase.ILoginService;
+import com.example.plugintestbase.LoginVO;
 import com.plugin.core.PluginIntentResolver;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginRemoteViewHelper;
+import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 
@@ -59,6 +62,13 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		setUpWebViewSetting();
 		setClient();
 
+		ILoginService login = (ILoginService) LocalServiceManager.getService("plugin_login_service");
+		if (login != null) {
+			LoginVO vo = login.login("admin", "123456");
+			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, "ILoginService == null", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
