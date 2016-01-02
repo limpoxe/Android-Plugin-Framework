@@ -50,3 +50,14 @@ android {
         }
     }
 }
+
+build.doLast {
+
+    exportJar.execute()
+
+}
+
+task exportJar(type: Jar) {
+    from buildDir.absolutePath + '/intermediates/classes/debug/'
+    destinationDir = file(buildDir.absolutePath + '/outputs/')
+}

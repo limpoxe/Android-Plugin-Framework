@@ -24,6 +24,8 @@ dependencies {
 
 build.doLast {
 
+    exportJar.execute()
+
     //将编译好的插件apk复制到Main工程的assets目录下, 便于测试
     copy {
         println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginBase-debug.apk'
@@ -32,4 +34,9 @@ build.doLast {
         }
         into(project(':PluginMain').getProjectDir().absolutePath + '/assets/')
     }
+}
+
+task exportJar(type: Jar) {
+    from buildDir.absolutePath + '/intermediates/classes/debug/'
+    destinationDir = file(buildDir.absolutePath + '/outputs/')
 }
