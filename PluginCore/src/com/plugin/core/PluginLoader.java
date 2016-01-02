@@ -401,7 +401,7 @@ public class PluginLoader {
 				LogUtil.d("是否为独立插件", pluginDescriptor.isStandalone());
 
 				Resources pluginRes = PluginCreator.createPluginResource(sApplication, pluginDescriptor.getInstalledPath(),
-						pluginDescriptor.isStandalone());
+						pluginDescriptor.isStandalone(), pluginDescriptor.getDependencies());
 
 				pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
 						pluginDescriptor.isStandalone(), pluginDescriptor.getDependencies());

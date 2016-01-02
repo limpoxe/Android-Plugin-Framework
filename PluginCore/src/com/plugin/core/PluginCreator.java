@@ -49,7 +49,7 @@ public class PluginCreator {
 	 * @return
 	 */
 	public static Resources createPluginResource(Application application, String absolutePluginApkPath,
-			boolean isStandalone) {
+			boolean isStandalone, String[] dependencies) {
 		try {
 
 			// 插件运行时可能会通过getActivityInfo等
@@ -60,7 +60,7 @@ public class PluginCreator {
 			isStandalone = false;
 
 			String[] assetPaths = buildAssetPath(isStandalone, application.getApplicationInfo().sourceDir,
-					absolutePluginApkPath);
+					absolutePluginApkPath, dependencies);
 			AssetManager assetMgr = AssetManager.class.newInstance();
 			RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
 					new Class[] { String[].class }, new Object[] { assetPaths });
@@ -76,7 +76,7 @@ public class PluginCreator {
 		return null;
 	}
 
-	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin) {
+	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin, String[] dependencies) {
 		String[] assetPaths = new String[isStandalone ? 1 : 2];
 
 //		if (!isStandalone) {
@@ -94,6 +94,9 @@ public class PluginCreator {
 //			assetPaths[0] = plugin;
 //			LogUtil.d("create Plugin Resource from: ", assetPaths[0]);
 //		}
+
+
+		//若需支持插件间资源依赖，这里需要遍历添加dependencies
 
 		if (!isStandalone) {
 			// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
