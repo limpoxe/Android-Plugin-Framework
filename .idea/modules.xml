@@ -9,7 +9,6 @@
       <module fileurl="file://$PROJECT_DIR$/PluginMain/PluginMain.iml" filepath="$PROJECT_DIR$/PluginMain/PluginMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/PluginShareLib/PluginShareLib.iml" filepath="$PROJECT_DIR$/PluginShareLib/PluginShareLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/PluginTest/PluginTest.iml" filepath="$PROJECT_DIR$/PluginTest/PluginTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/PuginBase/PuginBase.iml" filepath="$PROJECT_DIR$/PuginBase/PuginBase.iml" />
     </modules>
   </component>
 </project>
