@@ -1,23 +1,23 @@
 package com.plugin.core;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import com.plugin.content.PluginProviderInfo;
+import com.plugin.content.PluginDescriptor;
 import com.plugin.util.LogUtil;
 
 import dalvik.system.DexClassLoader;
 
 /**
- * 为了支持Receiver和ContentProvider，增加此类。
+ * 为了支持插件间依赖，增加此类。
  * 
  * @author Administrator
  * 
  */
 public class PluginClassLoader extends DexClassLoader {
 
-	public PluginClassLoader(String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent) {
+	private String[] dependencies;
+
+	public PluginClassLoader(String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent, String[] dependencies) {
 		super(dexPath, optimizedDirectory, libraryPath, parent);
+		this.dependencies = dependencies;
 	}
 
 	@Override
@@ -27,26 +27,38 @@ public class PluginClassLoader extends DexClassLoader {
 	}
 
 	@Override
-	protected Class<?> loadClass(String className, boolean resolve) throws ClassNotFoundException {
+	protected Class<?> findClass(String className) throws ClassNotFoundException {
+		Class<?> clazz = null;
+		ClassNotFoundException suppressed = null;
+		try {
+			clazz = super.findClass(className);
+		} catch (ClassNotFoundException e) {
+			suppressed = e;
+		}
 
-		//Just for Receiver and service
-		if (className.startsWith(PluginIntentResolver.prefix)) {
-			String realName = className.replace(PluginIntentResolver.prefix, "");
-			LogUtil.d("className ", className, "target", realName);
-			Class clazz = PluginLoader.loadPluginClassByName(realName);
-			if (clazz != null) {
-				return clazz;
-			}
-		} else if (className.startsWith(PluginProviderInfo.prefix)) {
-			//Just for contentprovider
-			String realName = className.replace(PluginProviderInfo.prefix, "");
-			LogUtil.d("className ", className, "target", realName);
-			Class clazz = PluginLoader.loadPluginClassByName(realName);
-			if (clazz != null) {
-				return clazz;
+		if (clazz == null && !className.startsWith("android.view")) {//这里判断android.view 是为了解决webview的问题
+			if (dependencies != null) {
+				for (String dependencePluginId: dependencies) {
+					PluginDescriptor pd = PluginLoader.initPluginByPluginId(dependencePluginId);
+					if (pd != null) {
+						try {
+							clazz = pd.getPluginClassLoader().loadClass(className);
+						} catch (ClassNotFoundException e) {
+						}
+						if (clazz != null) {
+							break;
+						}
+					} else {
+						LogUtil.e("PluginClassLoader", "未找到插件", dependencePluginId, className);
+					}
+				}
 			}
 		}
-		return super.loadClass(className, resolve);
-	}
 
+		if (clazz == null && suppressed != null) {
+			throw suppressed;
+		}
+
+		return clazz;
+	}
 }

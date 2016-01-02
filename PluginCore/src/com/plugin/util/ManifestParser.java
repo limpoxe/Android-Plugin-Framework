@@ -62,7 +62,13 @@ public class ManifestParser {
                             desciptor.setVersion(versionName + "_" + versionCode);
                             
                             desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplicatoin().getPackageName().equals(sharedUserId));
-                            
+
+                            String dependencies = parser.getAttributeValue("", "dependencies");
+                            if (dependencies != null) {
+                                String[] pluginIds = dependencies.split(",");
+                                desciptor.setDependencies(pluginIds);
+                            }
+
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
                         } else if (tag.equals("meta-data")) {
 
@@ -110,7 +116,7 @@ public class ManifestParser {
 
                     		desciptor.setDescription(parser.getAttributeValue(namespaceAndroid, "label"));
                     		
-                    		LogUtil.d("applicationName" + applicationName + " Description " + desciptor.getDescription());
+                    		LogUtil.d("applicationName", applicationName, " Description ", desciptor.getDescription());
 
                         } else if ("activity".equals(parser.getName())) {
 
@@ -198,7 +204,12 @@ public class ManifestParser {
             } while (eventType != XmlPullParser.END_DOCUMENT);
             
             desciptor.setEnabled(true);
-            
+
+            //有可能没有配置application节点，这里需要检查一下application
+            if (desciptor.getApplicationName() == null) {
+                desciptor.setApplicationName(Application.class.getName());
+            }
+
             return desciptor;
         } catch (XmlPullParserException e) {
             e.printStackTrace();

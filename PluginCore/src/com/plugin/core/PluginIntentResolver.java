@@ -25,7 +25,7 @@ public class PluginIntentResolver {
 	/* package */static void resolveService(Intent service) {
 		String className = PluginLoader.matchPlugin(service);
 		if (className != null) {
-			ClassLoaderUtil.hackClassLoaderIfNeeded();
+			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
 			String stubActivityName = PluginStubBinding.bindStubService(className);
 			if (stubActivityName != null) {
 				service.setClassName(PluginLoader.getApplicatoin(), stubActivityName);
@@ -38,7 +38,7 @@ public class PluginIntentResolver {
 		// 不需要在这里记录目标className，className将在Intent中传递
 		String className = PluginLoader.matchPlugin(intent);
 		if (className != null) {
-			ClassLoaderUtil.hackClassLoaderIfNeeded();
+			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
 			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
 					PluginStubReceiver.class.getName()));
 			//hackReceiverForClassLoader检测到这个标记后会进行替换

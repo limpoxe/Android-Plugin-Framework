@@ -102,7 +102,7 @@ public class PluginInjector {
 		LogUtil.d("安装插件ContentProvider", pluginProviderInfos.size());
 		Object activityThread = PluginInjector.getActivityThread();
 		if (activityThread != null) {
-			ClassLoaderUtil.hackClassLoaderIfNeeded();
+			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
 			List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 			for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 				ProviderInfo p = new ProviderInfo();

@@ -1,5 +1,7 @@
 package com.plugin.core.localservice;
 
+import com.plugin.util.LogUtil;
+
 import java.util.HashMap;
 
 /**
@@ -22,10 +24,12 @@ public class LocalServiceManager {
         };
         fetcher.mServiceId ++;
         SYSTEM_SERVICE_MAP.put(serviceName, fetcher);
+        LogUtil.d("registerService", serviceName);
     }
 
     public static Object getService(String name) {
         LocalServiceFetcher fetcher = SYSTEM_SERVICE_MAP.get(name);
+        LogUtil.d("getService", fetcher == null?"No fetcher":"fetcher found");
         return fetcher == null ? null : fetcher.getService();
     }
 

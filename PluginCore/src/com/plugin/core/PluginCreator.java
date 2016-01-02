@@ -25,15 +25,16 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone) {
-		if (!isStandalone) {
-			return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
+	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
+														 String[] dependences) {
+		if (!isStandalone) {//非独立插件
+			return new PluginClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
 					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
-					PluginLoader.class.getClassLoader());
-		} else {
-			return new DexClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
+					PluginLoader.class.getClassLoader(), dependences);//宿主classloader
+		} else {//独立插件
+			return new PluginClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
 					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
-					PluginLoader.class.getClassLoader().getParent());
+					PluginLoader.class.getClassLoader().getParent(), null);//系统classloader
 		}
 
 	}

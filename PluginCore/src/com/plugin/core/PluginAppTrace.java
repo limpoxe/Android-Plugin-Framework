@@ -2,17 +2,14 @@ package com.plugin.core;
 
 import android.app.Service;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.plugin.content.PluginDescriptor;
 import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -88,7 +85,7 @@ public class PluginAppTrace implements Handler.Callback {
 		String serviceName = PluginIntentResolver.hackServiceName(msg.obj);
 
 		if (serviceName != null) {
-			ClassLoaderUtil.hackClassLoaderIfNeeded();
+			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
 		}
 		Result result = new Result();
 		result.serviceName = serviceName;

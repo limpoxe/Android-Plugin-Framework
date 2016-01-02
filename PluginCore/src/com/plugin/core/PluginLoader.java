@@ -241,7 +241,7 @@ public class PluginLoader {
 			} else {
 				//通过创建classloader来触发dexopt，但不加载
 				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
-				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone());
+				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null);
 				LogUtil.d("DEXOPT完毕");
 
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
@@ -404,7 +404,7 @@ public class PluginLoader {
 						pluginDescriptor.isStandalone());
 
 				pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
-						pluginDescriptor.isStandalone());
+						pluginDescriptor.isStandalone(), pluginDescriptor.getDependencies());
 				Context pluginContext = PluginCreator
 						.createPluginContext(pluginDescriptor, sApplication, pluginRes, pluginClassLoader);
 

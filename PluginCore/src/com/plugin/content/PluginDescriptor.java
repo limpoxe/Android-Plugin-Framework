@@ -84,6 +84,8 @@ public class PluginDescriptor implements Serializable {
 
 	private String installedPath;
 
+	private String[] dependencies;
+
 	private transient Application pluginApplication;
 	
 	private transient DexClassLoader pluginClassLoader;
@@ -204,6 +206,14 @@ public class PluginDescriptor implements Serializable {
 
 	public void setInstalledPath(String installedPath) {
 		this.installedPath = installedPath;
+	}
+
+	public String[] getDependencies() {
+		return dependencies;
+	}
+
+	public void setDependencies(String[] dependencies) {
+		this.dependencies = dependencies;
 	}
 
 	public void setDescription(String description) {
