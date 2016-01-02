@@ -1,0 +1,35 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+build.doLast {
+
+    //将编译好的插件apk复制到Main工程的assets目录下, 便于测试
+    copy {
+        println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginBase-debug.apk'
+        from(buildDir.absolutePath + '/outputs/apk/') {
+            include 'PluginBase-debug.apk'
+        }
+        into(project(':PluginMain').getProjectDir().absolutePath + '/assets/')
+    }
+}
