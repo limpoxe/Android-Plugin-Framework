@@ -38,7 +38,7 @@
 
 # 开发注意事项
 
-    1、插件开发必须要解决插件资源id和宿主资源id重复产生的冲突问题。
+    1、非独立插件开发需要解决插件资源id和宿主资源id重复产生的冲突问题。
 
         解决冲突的方式有如下两种：
 
@@ -73,6 +73,7 @@
   
   5、PluginHelloWorld是用来测试的独立插件Demo工程。
 
+  6、PluginBase是用来测试的被PluginTest插件依赖的插件Demo工程（插件间依赖）。
   
 demo安装说明：
 
@@ -182,7 +183,7 @@ demo安装说明：
      更新：已接入gradle，通过provided方式即可，具体可参考PluginShareLib和PluginTest的build.gradle文件
   
   10、插件Fragment
-    插件UI可通过fragment或者activity来实现
+    插件UI可通过fragment或者activity来实现        
     
     如果是fragment实现的插件，又分为3种：
     1、fragment运行在宿主中的普通Activity中
@@ -195,15 +196,19 @@ demo安装说明：
     那么这种fragment对其运行容器没有特殊要求
     
     第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
-
+    
+    demo中都有例子。
 
   11、插件主题
+  
     重要实现原理仍然基于上述第2、3点。
     
   12、插件Activity的LaunchMode
+  
     要实现插件Activity的LaunchMode，需要在宿主程序中预埋若干个相应launchMode的Activity（预注册的组件可实际存在也可不存在），在运行时进行动态映射选择
 
   13、对多Service的支持
+  
     Service的启动模式类似于Activity的singleInstance，因此为了支持插件多service，采用了和上述第12像类似的做法。
 
 # 需要注意的问题
@@ -216,6 +221,9 @@ demo安装说明：
    3、本项目除master分支外，其他分支不会更新维护。
 
 # 更新纪录：
+
+    2016-01-01： 1、添加对插件依赖插件的支持
+                 2、添加localservice
 
     2015-12-27： 添加控件插件支持。可在宿主或插件布局文件中直接嵌入其他插件中定义的控件
 
