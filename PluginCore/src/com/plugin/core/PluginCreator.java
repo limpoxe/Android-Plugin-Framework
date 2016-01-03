@@ -77,7 +77,7 @@ public class PluginCreator {
 	}
 
 	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin, String[] dependencies) {
-		String[] assetPaths = new String[isStandalone ? 1 : 2];
+		String[] assetPaths = new String[isStandalone ? 1 : (2 + (dependencies==null?0:dependencies.length))];
 
 //		if (!isStandalone) {
 //			// 不可更改顺序否则不能兼容4.x
@@ -96,12 +96,23 @@ public class PluginCreator {
 //		}
 
 
-		//若需支持插件间资源依赖，这里需要遍历添加dependencies
-
 		if (!isStandalone) {
 			// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
 			assetPaths[0] = plugin;
-			assetPaths[1] = app;
+			if (dependencies != null) {
+				//插件间资源依赖，这里需要遍历添加dependencies
+				//这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持
+				//插件依赖插件，如果被依赖的插件中包含资源文件，则需要在所有的插件中提供public.xml文件来分组资源id
+				for(int i = 0; i < dependencies.length; i++) {
+					PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(dependencies[i]);
+					if (pd != null) {
+						assetPaths[1+ i] = pd.getInstalledPath();
+					} else {
+						assetPaths[1+ i] = "";
+					}
+				}
+			}
+			assetPaths[assetPaths.length -1] = app;
 			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
 		} else {
 			assetPaths[0] = plugin;
