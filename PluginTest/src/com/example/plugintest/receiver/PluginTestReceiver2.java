@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.example.plugintest.R;
 import com.example.plugintest.vo.ParamVO;
+import com.plugin.util.LogUtil;
 
 /**
  * 静态注册的插件receiver不能监听系统广播
@@ -19,6 +20,7 @@ public class PluginTestReceiver2 extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		LogUtil.d("PluginTestReceiver2", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
 		Toast.makeText(context, "PluginTestReceiver2 onReceive " + context.getResources().getText(R.string.hello_world4), Toast.LENGTH_LONG).show();
 	}
 

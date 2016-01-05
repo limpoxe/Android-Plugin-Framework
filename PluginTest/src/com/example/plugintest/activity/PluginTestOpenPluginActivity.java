@@ -15,11 +15,12 @@ import com.example.pluginsharelib.SharePOJO;
 import com.example.plugintest.receiver.PluginTestReceiver;
 import com.example.plugintest.service.PluginTestService;
 import com.example.plugintest.vo.ParamVO;
+import com.plugin.util.LogUtil;
 
 public class PluginTestOpenPluginActivity extends Activity implements OnClickListener {
 
 	NestReceiver nestReceiver;
-
+	NestReceiver2 nestReceiver2;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -34,12 +35,24 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 		testFiler.addAction("xx.nest");
 		nestReceiver = new NestReceiver();
 		registerReceiver(nestReceiver, testFiler);
+
+		IntentFilter testFiler2 = new IntentFilter();
+		testFiler2.addAction("xx.nest");
+		nestReceiver2 = new NestReceiver2();
+		registerReceiver(nestReceiver2, testFiler2);
 	}
 
 	class NestReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d("xx", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+			LogUtil.d("NestReceiver", intent.getStringExtra("str1") + ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+		}
+	}
+
+	class NestReceiver2 extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			LogUtil.d("NestReceiver2", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
 		}
 	}
 
@@ -79,11 +92,10 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 		stopService(service);
 
 
-		Intent intent = new Intent();
-		intent.setClassName(this, PluginTestReceiver.class.getName());
-		intent.putExtra("str1", "打开PluginTestReceiver——————");
+		Intent intent = new Intent("test.rst2");
+		intent.putExtra("str1", "打开 test.rst2——————");
 		pvo = new ParamVO();
-		pvo.name = "打开PluginTestReceiver";
+		pvo.name = "打开 test.rst2";
 		intent.putExtra("paramvo", pvo);
 		sendBroadcast(intent);
 
