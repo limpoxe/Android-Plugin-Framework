@@ -14,6 +14,8 @@ import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
+import java.util.ArrayList;
+
 public class PluginIntentResolver {
 
 	static final String ACTIVITY_ACTION_IN_PLUGIN = "_ACTIVITY_ACTION_IN_PLUGIN_";
@@ -23,28 +25,36 @@ public class PluginIntentResolver {
 	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
 
 	/* package */static void resolveService(Intent service) {
-		String className = PluginLoader.matchPlugin(service);
-		if (className != null) {
+		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
+		if (classNameList != null && classNameList.size() > 0) {
 			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
-			String stubActivityName = PluginStubBinding.bindStubService(className);
+			String stubActivityName = PluginStubBinding.bindStubService(classNameList.get(0));
 			if (stubActivityName != null) {
 				service.setClassName(PluginLoader.getApplicatoin(), stubActivityName);
 			}
 		}
 	}
 
-	/* package */static Intent resolveReceiver(final Intent intent) {
+	/* package */static ArrayList<Intent> resolveReceiver(final Intent intent) {
 		// 如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
 		// 不需要在这里记录目标className，className将在Intent中传递
-		String className = PluginLoader.matchPlugin(intent);
-		if (className != null) {
+		ArrayList<Intent> result = new ArrayList<Intent>();
+		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.BROADCAST);
+		if (classNameList != null) {
 			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
-			intent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
-					PluginStubReceiver.class.getName()));
-			//hackReceiverForClassLoader检测到这个标记后会进行替换
-			intent.setAction(className + RECEIVER_ACTION_IN_PLUGIN + (intent.getAction() == null ? "" : intent.getAction()));
+
+			for(String className: classNameList) {
+				Intent newIntent = new Intent(intent);
+				newIntent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
+						PluginStubReceiver.class.getName()));
+				//hackReceiverForClassLoader检测到这个标记后会进行替换
+				newIntent.setAction(className + RECEIVER_ACTION_IN_PLUGIN + (intent.getAction() == null ? "" : intent.getAction()));
+				result.add(newIntent);
+			}
+		} else {
+			result.add(intent);
 		}
-		return intent;
+		return result;
 	}
 
 	/* package */static Class hackReceiverForClassLoader(Object msgObj) {
@@ -99,9 +109,10 @@ public class PluginIntentResolver {
 
 	/* package */static void resolveActivity(Intent intent) {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
-		String className = PluginLoader.matchPlugin(intent);
-		if (className != null) {
+		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.ACTIVITY);
+		if (classNameList != null && classNameList.size() >0) {
 
+			String className = classNameList.get(0);
 			PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(className);
 
 			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
@@ -124,14 +135,11 @@ public class PluginIntentResolver {
 	 * @param intent
 	 * @return
 	 */
-	public static Intent resolveNotificationIntent(Intent intent) {
-		int type = PluginLoader.getTargetType(intent);
-
-		LogUtil.d("notification type", type);
+	public static Intent resolveNotificationIntent(Intent intent, int type) {
 
 		if (type == PluginDescriptor.BROADCAST) {
 
-			Intent newIntent = PluginIntentResolver.resolveReceiver(intent);
+			Intent newIntent = PluginIntentResolver.resolveReceiver(intent).get(0);
 			return newIntent;
 
 		} else if (type == PluginDescriptor.ACTIVITY) {
@@ -149,24 +157,22 @@ public class PluginIntentResolver {
 	}
 
 	@SuppressWarnings("ResourceType")
-	public static PendingIntent resolvePendingIntent(PendingIntent origin) {
+	public static PendingIntent resolvePendingIntent(PendingIntent origin, int type) {
 		if (origin != null) {
 			Intent originIntent = (Intent)RefInvoker.invokeMethod(origin,
 					PendingIntent.class.getName(), "getIntent",
 					(Class[])null, (Object[])null);
 			if (originIntent != null) {
 				//如果目标是插件中的组件，需要额外提供2个参数, 默认为0、Update_Current。
-				String className = PluginLoader.matchPlugin(originIntent);
-				if (className != null) {
-
-					int type = PluginLoader.getTargetType(originIntent);
+				ArrayList<String> classNameList = PluginLoader.matchPlugin(originIntent, type);
+				if (classNameList != null && classNameList.size() > 0) {
 
 					int requestCode = originIntent.getIntExtra("pending_requestCode", 0);
 					int flags = originIntent.getIntExtra("pending_flag", PendingIntent.FLAG_UPDATE_CURRENT);
 
 					if (type == PluginDescriptor.BROADCAST) {
 
-						Intent newIntent = PluginIntentResolver.resolveReceiver(originIntent);
+						Intent newIntent = PluginIntentResolver.resolveReceiver(originIntent).get(0);
 						return PendingIntent.getBroadcast(PluginLoader.getApplicatoin(), requestCode, newIntent, flags);
 
 					} else if (type == PluginDescriptor.ACTIVITY) {

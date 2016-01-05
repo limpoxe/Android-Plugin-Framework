@@ -509,85 +509,63 @@ public class PluginLoader {
 	}
 
 	/**
-	 * //If getComponent returns an explicit class, that is returned without any
-	 * further consideration. //If getAction is non-NULL, the activity must
-	 * handle this action. //If resolveType returns non-NULL, the activity must
-	 * handle this type. //If addCategory has added any categories, the activity
-	 * must handle ALL of the categories specified. //If getPackage is non-NULL,
-	 * only activity components in that application package will be considered.
-	 * 
-	 * @param intent
-	 * @return
 	 */
-	public static String matchPlugin(Intent intent) {
+	public static ArrayList<String> matchPlugin(Intent intent, int type) {
+		ArrayList<String> result = null;
 
 		Iterator<PluginDescriptor> itr = getPlugins().iterator();
 
 		while (itr.hasNext()) {
 			PluginDescriptor plugin = itr.next();
+			String clazzName = null;
 			// 如果是通过组件进行匹配的
 			if (intent.getComponent() != null) {
 				if (plugin.containsName(intent.getComponent().getClassName())) {
-					return intent.getComponent().getClassName();
+					clazzName = intent.getComponent().getClassName();
+					result = new ArrayList<String>(1);
+					result.add(clazzName);
+					return result;//暂时不考虑不同的插件中配置了相同名称的组件的问题
 				}
 			} else {
 				// 如果是通过IntentFilter进行匹配的
-				String clazzName = findClassNameByIntent(intent, plugin.getActivitys());
+				if (type == PluginDescriptor.ACTIVITY) {
 
-				if (clazzName == null) {
-					clazzName = findClassNameByIntent(intent, plugin.getServices());
-				}
+					ArrayList<String> list  = findClassNameByIntent(intent, plugin.getActivitys());
 
-				if (clazzName == null) {
-					clazzName = findClassNameByIntent(intent, plugin.getReceivers());
-				}
+					if (list != null && list.size() >0) {
+						result = new ArrayList<String>(1);
+						result.add(list.get(0));
+						return result;//暂时不考虑多个Activity配置了相同的Intent的问题
+					}
 
-				if (clazzName != null) {
-					return clazzName;
-				}
-			}
+				} else if (type == PluginDescriptor.SERVICE) {
 
-		}
-		return null;
-	}
+					ArrayList<String> list  = findClassNameByIntent(intent, plugin.getServices());
 
-	/**
-	 * 获取目标类型，activity or service or broadcast
-	 * @param intent
-	 * @return
-	 */
-	public static int getTargetType(Intent intent) {
+					if (list != null && list.size() >0) {
+						result = new ArrayList<String>(1);
+						result.add(list.get(0));
+						return result;//service本身不支持多匹配
+					}
 
-		Iterator<PluginDescriptor> itr = getPlugins().iterator();
+				} else if (type == PluginDescriptor.BROADCAST) {
 
-		while (itr.hasNext()) {
-			PluginDescriptor plugin = itr.next();
-			// 如果是通过组件进行匹配的
-			if (intent.getComponent() != null) {
-				if (plugin.containsName(intent.getComponent().getClassName())) {
-					return plugin.getType(intent.getComponent().getClassName());
-				}
-			} else {
-				String clazzName = findClassNameByIntent(intent, plugin.getActivitys());
-
-				if (clazzName == null) {
-					clazzName = findClassNameByIntent(intent, plugin.getServices());
-				}
-
-				if (clazzName == null) {
-					clazzName = findClassNameByIntent(intent, plugin.getReceivers());
-				}
-
-				if (clazzName != null) {
-					return plugin.getType(clazzName);
+					ArrayList<String> list  = findClassNameByIntent(intent, plugin.getReceivers());
+					if (list != null) {
+						if (result == null) {
+							result = new ArrayList<String>();
+						}
+						result.addAll(list);//暂时不考虑去重的问题
+					}
 				}
 			}
 		}
-		return PluginDescriptor.UNKOWN;
+		return result;
 	}
 
-	private static String findClassNameByIntent(Intent intent, HashMap<String, ArrayList<PluginIntentFilter>> intentFilter) {
+	private static ArrayList<String> findClassNameByIntent(Intent intent, HashMap<String, ArrayList<PluginIntentFilter>> intentFilter) {
 		if (intentFilter != null) {
+			ArrayList<String> targetClassNameList = null;
 
 			Iterator<Entry<String, ArrayList<PluginIntentFilter>>> entry = intentFilter.entrySet().iterator();
 			while (entry.hasNext()) {
@@ -602,10 +580,15 @@ public class PluginLoader {
 							&& result != PluginIntentFilter.NO_MATCH_CATEGORY
 							&& result != PluginIntentFilter.NO_MATCH_DATA
 							&& result != PluginIntentFilter.NO_MATCH_TYPE) {
-						return item.getKey();
+						if (targetClassNameList == null) {
+							targetClassNameList = new ArrayList<String>();
+						}
+						targetClassNameList.add(item.getKey());
+						break;
 					}
 				}
 			}
+			return targetClassNameList;
 		}
 		return null;
 	}

@@ -30,6 +30,8 @@ import android.os.UserHandle;
 
 import com.plugin.util.LogUtil;
 
+import java.util.ArrayList;
+
 public class PluginBaseContextWrapper extends ContextWrapper {
 
 	public PluginBaseContextWrapper(Context base) {
@@ -57,48 +59,59 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@Override
 	public void sendBroadcast(Intent intent) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendBroadcast(intent);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendBroadcast(item);
+		}
 	}
 
 	@Override
 	public void sendBroadcast(Intent intent, String receiverPermission) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendBroadcast(intent, receiverPermission);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendBroadcast(item, receiverPermission);
+		}
 	}
 
 	@Override
 	public void sendOrderedBroadcast(Intent intent, String receiverPermission) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendOrderedBroadcast(intent, receiverPermission);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendOrderedBroadcast(item, receiverPermission);
+		}
 	}
 
 	@Override
 	public void sendOrderedBroadcast(Intent intent, String receiverPermission, BroadcastReceiver resultReceiver,
 			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendOrderedBroadcast(intent, receiverPermission, resultReceiver,
-				scheduler, initialCode, initialData, initialExtras);
-
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendOrderedBroadcast(item, receiverPermission, resultReceiver,
+					scheduler, initialCode, initialData, initialExtras);
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendBroadcastAsUser(Intent intent, UserHandle user) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendBroadcastAsUser(intent, user);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendBroadcastAsUser(item, user);
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendBroadcastAsUser(intent, user, receiverPermission);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendBroadcastAsUser(item, user, receiverPermission);
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -107,39 +120,50 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 			BroadcastReceiver resultReceiver, Handler scheduler, int initialCode, String initialData,
 			Bundle initialExtras) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendOrderedBroadcastAsUser(intent, user, receiverPermission, resultReceiver, scheduler, initialCode,
-				initialData, initialExtras);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendOrderedBroadcastAsUser(item, user, receiverPermission, resultReceiver, scheduler, initialCode,
+					initialData, initialExtras);
+		}
 	}
 
 	@Override
 	public void sendStickyBroadcast(Intent intent) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendStickyBroadcast(intent);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendStickyBroadcast(item);
+		}
 	}
 
 	@Override
 	public void sendStickyOrderedBroadcast(Intent intent, BroadcastReceiver resultReceiver, Handler scheduler,
 			int initialCode, String initialData, Bundle initialExtras) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendStickyOrderedBroadcast(intent, resultReceiver, scheduler, initialCode, initialData, initialExtras);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendStickyOrderedBroadcast(item, resultReceiver, scheduler, initialCode, initialData, initialExtras);
+		}
+
 	}
 
 	@Override
 	public void removeStickyBroadcast(Intent intent) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.removeStickyBroadcast(intent);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.removeStickyBroadcast(item);
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendStickyBroadcastAsUser(Intent intent, UserHandle user) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendStickyBroadcastAsUser(intent, user);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendStickyBroadcastAsUser(item, user);
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -147,9 +171,11 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendStickyOrderedBroadcastAsUser(Intent intent, UserHandle user, BroadcastReceiver resultReceiver,
 			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
 		LogUtil.d(intent);
-		intent = PluginIntentResolver.resolveReceiver(intent);
-		super.sendStickyOrderedBroadcastAsUser(intent, user, resultReceiver, scheduler, initialCode, initialData,
-				initialExtras);
+		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
+		for (Intent item:list) {
+			super.sendStickyOrderedBroadcastAsUser(item, user, resultReceiver, scheduler, initialCode, initialData,
+					initialExtras);
+		}
 	}
 
 	@Override
