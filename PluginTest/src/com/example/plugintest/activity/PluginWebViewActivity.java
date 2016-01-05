@@ -27,6 +27,7 @@ import com.example.plugintest.R;
 import com.example.plugintest.provider.PluginDbTables;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
+import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginIntentResolver;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginRemoteViewHelper;
@@ -133,7 +134,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		//还可以支持唤起service、receiver等等。
 
 		intent.putExtra("param1", "这是来自通知栏的参数");
-		intent = PluginIntentResolver.resolveNotificationIntent(intent);
+		intent = PluginIntentResolver.resolveNotificationIntent(intent, PluginDescriptor.ACTIVITY);
 
 		PendingIntent contentIndent = PendingIntent.getActivity(this, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
