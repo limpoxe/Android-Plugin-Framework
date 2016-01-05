@@ -32,10 +32,19 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginInstrumentionWrapper;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginThemeHelper;
+import com.plugin.core.annotation.AnnotationProcessor;
+import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.util.FileUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
 
+/**
+ * 添加这个注解@ComponentContainer是为了控制宿主的当前Activity是否需要支持控件级插件
+ *
+ * 控件级插件功能默认是关闭的。控件级插件和主题换肤功能不能共存。关闭控件级插件。页面换肤功能刚能生效
+ *
+ */
+@ComponentContainer
 public class PluginListActivity extends Activity {
 
 	private ViewGroup mList;
@@ -114,6 +123,14 @@ public class PluginListActivity extends Activity {
 		findViewById(R.id.blue).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+
+				if (AnnotationProcessor.getComponentContainer(PluginListActivity.class) != null) {
+					//控件级插件和换肤功能不能共存
+					Toast.makeText(PluginListActivity.this, "控件级插件和换肤功能不能共存", Toast.LENGTH_SHORT).show();
+					//要启用换肤 请删除本Activity的注解 并删除R.layout.main_activity这个布局文件中嵌入的插件View
+					return;
+				}
+
 				//需要先从插件中获取插件提供的可选主题列表
 				String pluginId = "com.example.plugintest";
 
@@ -132,6 +149,14 @@ public class PluginListActivity extends Activity {
 		findViewById(R.id.red).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+
+				if (AnnotationProcessor.getComponentContainer(PluginListActivity.class) != null) {
+					//控件级插件和换肤功能不能共存
+					Toast.makeText(PluginListActivity.this, "控件级插件和换肤功能不能共存", Toast.LENGTH_SHORT).show();
+					//要启用换肤 请删除本Activity的注解 并删除R.layout.main_activity这个布局文件中嵌入的插件View
+					return;
+				}
+
 				//需要先从插件中获取插件提供的可选主题列表
 				String pluginId = "com.example.plugintest";
 

@@ -9,4 +9,9 @@ public class AnnotationProcessor {
         return fragmentContainer;
     }
 
+    public static ComponentContainer getComponentContainer(Class clazz) {
+        ComponentContainer componentContainer = (ComponentContainer)clazz.getAnnotation(ComponentContainer.class);
+        return componentContainer;
+    }
+
 }

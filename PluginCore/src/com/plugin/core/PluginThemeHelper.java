@@ -2,9 +2,10 @@ package com.plugin.core;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.util.RefInvoker;
+import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -61,18 +62,27 @@ public class PluginThemeHelper {
 	 */
 	public static void applyPluginTheme(Activity activity, String pluginId, int themeResId) {
 
-		if (!(activity.getBaseContext() instanceof PluginContextTheme)) {
-			PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
-			if (pd != null) {
+		LayoutInflater layoutInflater = LayoutInflater.from(activity);
+		if (layoutInflater.getFactory() == null) {
+			if (!(activity.getBaseContext() instanceof PluginContextTheme)) {
+				PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+				if (pd != null) {
 
-				//插件可能尚未初始化，确保使用前已经初始化
-				PluginLoader.ensurePluginInited(pd);
+					//插件可能尚未初始化，确保使用前已经初始化
+					PluginLoader.ensurePluginInited(pd);
 
-				//注入插件上下文和主题
-				Context defaultContext = pd.getPluginContext();
-				Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext, activity.getBaseContext());
-				PluginInjector.resetActivityContext(pluginContext, activity, themeResId);
+					//注入插件上下文和主题
+					Context defaultContext = pd.getPluginContext();
+					Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext, ((PluginBaseContextWrapper)activity.getBaseContext()).getBaseContext());
+					PluginInjector.resetActivityContext(pluginContext, activity, themeResId);
+
+				}
 			}
+		} else {
+			//启用了控件级插件的页面 不能使用换肤功能呢
+			//参见注解ComponentContainer
+			//还有一个判断方式是通过注解来判断
+			LogUtil.e("启用了控件级插件的页面 不能使用换肤功能呢");
 		}
 
 	}

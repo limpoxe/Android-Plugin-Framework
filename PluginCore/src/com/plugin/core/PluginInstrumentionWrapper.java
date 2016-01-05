@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 
+import com.plugin.core.annotation.AnnotationProcessor;
+import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.viewfactory.PluginViewFactory;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
@@ -114,7 +116,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			intent.setExtrasClassLoader(activity.getClassLoader());
 		}
 
-		if (true) {
+		//是否启用控件级插件功能
+		//控件级插件功能默认是关闭的
+		//在宿主的需要支持控件级插件的Activity上配置下面这个注解，用来启用此功能
+		//之所以默认关闭此功能，是因为控件级插件和换肤不能共存
+		ComponentContainer componentContainer = AnnotationProcessor.getComponentContainer(activity.getClass());
+		if (componentContainer != null) {
 			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
 		}
 
