@@ -182,6 +182,8 @@ public class PluginStubBinding {
 
 	public static String getBindedPluginServiceName(String stubServiceName) {
 
+		initPool();
+
 		Iterator<Map.Entry<String, String>> itr = serviceMapping.entrySet().iterator();
 
 		while (itr.hasNext()) {
