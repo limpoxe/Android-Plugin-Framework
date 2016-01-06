@@ -18,10 +18,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 插件组件动态绑定到宿主的虚拟stub组件
@@ -33,6 +36,8 @@ public class PluginStubBinding {
 	private static final String ACTION_LAUNCH_MODE = "com.plugin.core.LAUNCH_MODE";
 
 	private static final String ACTION_STUB_SERVICE = "com.plugin.core.STUB_SERVICE";
+
+	private static final String STUB_EXACT = "com.plugin.core.STUB_EXACT";
 
 	/**
 	 * key:stub Activity Name
@@ -46,6 +51,8 @@ public class PluginStubBinding {
 	 * value:plugin Service Name
 	 */
 	private static HashMap<String, String> serviceMapping = new HashMap<String, String>();
+
+	private static Set<String> mExcatStubSet;
 
 	private static boolean isPoolInited = false;
 
@@ -108,6 +115,8 @@ public class PluginStubBinding {
 
 		loadStubService();
 
+		loadExact();
+
 		isPoolInited = true;
 	}
 
@@ -160,6 +169,47 @@ public class PluginStubBinding {
 			}
 			save(serviceMapping);
 		}
+	}
+
+	private static void loadExact() {
+		Intent exactStub = new Intent();
+		exactStub.setAction(STUB_EXACT);
+		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
+
+		//精确匹配的activity
+		List<ResolveInfo> resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+
+		if (resolveInfos != null && resolveInfos.size() > 0) {
+			if (mExcatStubSet == null) {
+				mExcatStubSet = new HashSet<String>();
+			}
+			for(ResolveInfo info:resolveInfos) {
+				mExcatStubSet.add(info.activityInfo.name);
+			}
+		}
+
+		//精确匹配的service
+		resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+
+		if (resolveInfos != null && resolveInfos.size() > 0) {
+			if (mExcatStubSet == null) {
+				mExcatStubSet = new HashSet<String>();
+			}
+			for(ResolveInfo info:resolveInfos) {
+				mExcatStubSet.add(info.serviceInfo.name);
+			}
+		}
+
+	}
+
+	public static boolean isExact(String name) {
+		initPool();
+
+		if (mExcatStubSet != null && mExcatStubSet.size() > 0) {
+			return mExcatStubSet.contains(name);
+		}
+
+		return false;
 	}
 
 	public static void unBindLaunchModeStubActivity(String activityName, Intent intent) {

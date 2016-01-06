@@ -42,6 +42,12 @@ public class HostClassLoader extends DexClassLoader {
 			if (clazz != null) {
 				return clazz;
 			}
+		} else if (PluginStubBinding.isExact(className)) {
+			LogUtil.d("className ", className, "target", className);
+			Class clazz = PluginLoader.loadPluginClassByName(className);
+			if (clazz != null) {
+				return clazz;
+			}
 		}
 		return super.loadClass(className, resolve);
 	}
