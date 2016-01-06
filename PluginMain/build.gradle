@@ -58,6 +58,22 @@ android {
         }
 
     }
+
+    signingConfigs {
+        debug {
+            storeFile file("limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+
+        release {
+            storeFile file("limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+    }
 }
 
 dependencies {
