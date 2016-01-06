@@ -50,6 +50,18 @@
                     android:scheme="package" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name="com.example.pluginmain.wxapi.WXEntryActivity"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_EXACT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

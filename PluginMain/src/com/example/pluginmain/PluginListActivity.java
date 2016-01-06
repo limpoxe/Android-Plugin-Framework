@@ -89,6 +89,7 @@ public class PluginListActivity extends Activity {
 					copyAndInstall("PluginBase-debug.apk");
 					copyAndInstall("PluginTest-debug.apk");
 					copyAndInstall("PluginHelloWorld-debug.apk");
+					copyAndInstall("wxsdklibrary-debug.apk");
 
 				} else {
 					Toast.makeText(PluginListActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
