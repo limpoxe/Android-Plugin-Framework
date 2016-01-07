@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 
+import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.viewfactory.PluginViewFactory;
@@ -55,27 +56,29 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 			String action = intent.getAction();
 			if (action != null && action.contains(PluginIntentResolver.CLASS_SEPARATOR)) {
-
 				String[] targetClassName  = action.split(PluginIntentResolver.CLASS_SEPARATOR);
+				String pluginClassName = targetClassName[0];
 
-				LogUtil.d(className, action, targetClassName[0]);
-
-				String tempclassName = targetClassName[0];
-				Class clazz = PluginLoader.loadPluginClassByName(tempclassName);
+				Class clazz = PluginLoader.loadPluginClassByName(pluginClassName);
 				if (clazz != null) {
-					className = tempclassName;
+					className = pluginClassName;
 					cl = clazz.getClassLoader();
 
 					intent.setExtrasClassLoader(cl);
-
-					//之前为了传递classNae，intent的action被修改过 这里再把Action还原到原始的Action
 					if (targetClassName.length >1) {
+						//之前为了传递classNae，intent的action被修改过 这里再把Action还原到原始的Action
 						intent.setAction(targetClassName[1]);
 					} else {
 						intent.setAction(null);
 					}
 					//添加一个标记符
 					intent.addCategory(RELAUNCH_FLAG + className);
+				}
+			} else if (PluginStubBinding.isExact(className, PluginDescriptor.ACTIVITY)) {
+				//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
+				Class clazz = PluginLoader.loadPluginClassByName(className);
+				if (clazz != null) {
+					cl = clazz.getClassLoader();
 				}
 			} else {
 				//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了

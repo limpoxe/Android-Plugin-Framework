@@ -229,7 +229,7 @@ public class PluginStubBinding {
 		return standardActivity;
 	}
 
-	private static boolean isExact(String name, int type) {
+	public static boolean isExact(String name, int type) {
 		initPool();
 
 		if (mExcatStubSet != null && mExcatStubSet.size() > 0) {
