@@ -27,8 +27,8 @@ public class HostClassLoader extends DexClassLoader {
 	protected Class<?> loadClass(String className, boolean resolve) throws ClassNotFoundException {
 
 		//Just for Receiver and service
-		if (className.startsWith(PluginIntentResolver.prefix)) {
-			String realName = className.replace(PluginIntentResolver.prefix, "");
+		if (className.startsWith(PluginIntentResolver.CLASS_PREFIX)) {
+			String realName = className.replace(PluginIntentResolver.CLASS_PREFIX, "");
 			LogUtil.d("className ", className, "target", realName);
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			if (clazz != null) {
@@ -42,13 +42,8 @@ public class HostClassLoader extends DexClassLoader {
 			if (clazz != null) {
 				return clazz;
 			}
-		} else if (PluginStubBinding.isExact(className)) {
-			LogUtil.d("className ", className, "target", className);
-			Class clazz = PluginLoader.loadPluginClassByName(className);
-			if (clazz != null) {
-				return clazz;
-			}
 		}
+
 		return super.loadClass(className, resolve);
 	}
 

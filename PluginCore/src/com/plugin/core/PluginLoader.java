@@ -524,7 +524,7 @@ public class PluginLoader {
 					clazzName = intent.getComponent().getClassName();
 					result = new ArrayList<String>(1);
 					result.add(clazzName);
-					return result;//暂时不考虑不同的插件中配置了相同名称的组件的问题
+					return result;//暂时不考虑不同的插件中配置了相同名称的组件的问题,先到先得
 				}
 			} else {
 				// 如果是通过IntentFilter进行匹配的
@@ -535,7 +535,7 @@ public class PluginLoader {
 					if (list != null && list.size() >0) {
 						result = new ArrayList<String>(1);
 						result.add(list.get(0));
-						return result;//暂时不考虑多个Activity配置了相同的Intent的问题
+						return result;//暂时不考虑多个Activity配置了相同的Intent的问题,先到先得
 					}
 
 				} else if (type == PluginDescriptor.SERVICE) {

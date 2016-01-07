@@ -9,7 +9,6 @@ import android.os.Build;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginReceiverIntent;
-import com.plugin.core.stub.PluginStubReceiver;
 import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
@@ -18,19 +17,16 @@ import java.util.ArrayList;
 
 public class PluginIntentResolver {
 
-	static final String ACTIVITY_ACTION_IN_PLUGIN = "_ACTIVITY_ACTION_IN_PLUGIN_";
-
-	static final String prefix = "plugin_receiver_or_service_prefix.";
-
-	private static String RECEIVER_ACTION_IN_PLUGIN = "_RECEIVER_ACTION_IN_PLUGIN_";
+	static final String CLASS_SEPARATOR = "_CLASS_SEPARATOR_IN_ACTION_";
+	static final String CLASS_PREFIX = "_CLASS_PREFIX_";
 
 	/* package */static void resolveService(Intent service) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
 			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
-			String stubActivityName = PluginStubBinding.bindStubService(classNameList.get(0));
-			if (stubActivityName != null) {
-				service.setClassName(PluginLoader.getApplicatoin(), stubActivityName);
+			String stubServiceName = PluginStubBinding.bindStubService(classNameList.get(0));
+			if (stubServiceName != null) {
+				service.setClassName(PluginLoader.getApplicatoin(), stubServiceName);
 			}
 		}
 	}
@@ -46,9 +42,9 @@ public class PluginIntentResolver {
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
 				newIntent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
-						PluginStubReceiver.class.getName()));
+						PluginStubBinding.bindStubReceiver()));
 				//hackReceiverForClassLoader检测到这个标记后会进行替换
-				newIntent.setAction(className + RECEIVER_ACTION_IN_PLUGIN + (intent.getAction() == null ? "" : intent.getAction()));
+				newIntent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
 				result.add(newIntent);
 			}
 		} else {
@@ -59,11 +55,11 @@ public class PluginIntentResolver {
 
 	/* package */static Class hackReceiverForClassLoader(Object msgObj) {
 		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
-		if (intent.getComponent().getClassName().equals(PluginStubReceiver.class.getName())) {
+		if (intent.getComponent().getClassName().equals(PluginStubBinding.bindStubReceiver())) {
 			String action = intent.getAction();
 			LogUtil.d("action", action);
 			if (action != null) {
-				String[] targetClassName = action.split(RECEIVER_ACTION_IN_PLUGIN);
+				String[] targetClassName = action.split(CLASS_SEPARATOR);
 				@SuppressWarnings("rawtypes")
 				Class clazz = PluginLoader.loadPluginClassByName(targetClassName[0]);
 				if (clazz != null) {
@@ -77,7 +73,7 @@ public class PluginIntentResolver {
 				}
 				// PluginClassLoader检测到这个特殊标记后会进行替换
 				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(),
-						prefix + targetClassName[0]));
+						CLASS_PREFIX + targetClassName[0]));
 
 				if (Build.VERSION.SDK_INT >= 21) {
 					if (intent.getExtras() != null) {
@@ -100,7 +96,7 @@ public class PluginIntentResolver {
 		LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName);
 
 		if (targetClassName != null) {
-			info.name =  prefix + targetClassName;
+			info.name =  CLASS_PREFIX + targetClassName;
 		} else {
 			LogUtil.e("hackServiceName 没有找到映射关系, 说明是宿主service（也可能是映射表出了异常）", info.name);
 		}
@@ -117,12 +113,12 @@ public class PluginIntentResolver {
 
 			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
 
-			String stubActivityName = PluginStubBinding.bindLaunchModeStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
+			String stubActivityName = PluginStubBinding.bindStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
 
 			intent.setComponent(
 					new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubActivityName));
 			//PluginInstrumentationWrapper检测到这个标记后会进行替换
-			intent.setAction(className + ACTIVITY_ACTION_IN_PLUGIN + (intent.getAction()==null?"":intent.getAction()));
+			intent.setAction(className + CLASS_SEPARATOR + (intent.getAction()==null?"":intent.getAction()));
 		}
 	}
 

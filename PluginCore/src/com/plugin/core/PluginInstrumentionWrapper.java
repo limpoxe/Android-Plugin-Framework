@@ -51,14 +51,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		// 将PluginStubActivity替换成插件中的activity
-		if (className.startsWith(PluginStubBinding.STUB_ACTIVITY_PRE)) {
+		if (PluginStubBinding.isStubActivity(className)) {
 
 			String action = intent.getAction();
+			if (action != null && action.contains(PluginIntentResolver.CLASS_SEPARATOR)) {
 
-			//
-			if (action != null && action.contains(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN)) {
-
-				String[] targetClassName  = action.split(PluginIntentResolver.ACTIVITY_ACTION_IN_PLUGIN);
+				String[] targetClassName  = action.split(PluginIntentResolver.CLASS_SEPARATOR);
 
 				LogUtil.d(className, action, targetClassName[0]);
 

@@ -9,7 +9,7 @@ import android.content.pm.ResolveInfo;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.plugin.core.stub.ui.PluginStubActivity;
+import com.plugin.content.PluginDescriptor;
 import com.plugin.util.LogUtil;
 
 import java.io.ByteArrayInputStream;
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,21 +30,18 @@ import java.util.Set;
  */
 public class PluginStubBinding {
 
-	public static final String STUB_ACTIVITY_PRE = PluginStubActivity.class.getPackage().getName();
-
-	private static final String ACTION_LAUNCH_MODE = "com.plugin.core.LAUNCH_MODE";
-
-	private static final String ACTION_STUB_SERVICE = "com.plugin.core.STUB_SERVICE";
-
+	private static final String STUB_DEFAULT = "com.plugin.core.STUB_DEFAULT";
 	private static final String STUB_EXACT = "com.plugin.core.STUB_EXACT";
 
 	/**
 	 * key:stub Activity Name
 	 * value:plugin Activity Name
 	 */
-	private static HashMap<String, String> singleTaskMapping = new HashMap<String, String>();
-	private static HashMap<String, String> singleTopMapping = new HashMap<String, String>();
-	private static HashMap<String, String> singleInstanceMapping = new HashMap<String, String>();
+	private static HashMap<String, String> singleTaskActivityMapping = new HashMap<String, String>();
+	private static HashMap<String, String> singleTopActivityMapping = new HashMap<String, String>();
+	private static HashMap<String, String> singleInstanceActivityMapping = new HashMap<String, String>();
+	private static String standardActivity = null;
+	private static String receiver = null;
 	/**
 	 * key:stub Service Name
 	 * value:plugin Service Name
@@ -56,56 +52,6 @@ public class PluginStubBinding {
 
 	private static boolean isPoolInited = false;
 
-	public static String bindLaunchModeStubActivity(String pluginActivityClassName, int launchMode) {
-
-		initPool();
-
-		HashMap<String, String> bindingMapping = null;
-
-		if (launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
-
-			bindingMapping = singleTaskMapping;
-
-		} else if (launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
-
-			bindingMapping = singleTopMapping;
-
-		} else if (launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
-
-			bindingMapping = singleInstanceMapping;
-
-		}
-
-		if (bindingMapping != null) {
-
-			Iterator<Map.Entry<String, String>> itr = bindingMapping.entrySet().iterator();
-			String idleStubActivityName = null;
-
-			while (itr.hasNext()) {
-				Map.Entry<String, String> entry = itr.next();
-				if (entry.getValue() == null) {
-					if (idleStubActivityName == null) {
-						idleStubActivityName = entry.getKey();
-						//这里找到空闲的stubactivity以后，还需继续遍历，用来检查是否pluginActivityClassName已经绑定过了
-					}
-				} else if (pluginActivityClassName.equals(entry.getValue())) {
-					//已绑定过，直接返回
-					return entry.getKey();
-				}
-			}
-
-			//没有绑定到StubActivity，而且还有空余的stubActivity，进行绑定
-			if (idleStubActivityName != null) {
-				bindingMapping.put(idleStubActivityName, pluginActivityClassName);
-				return idleStubActivityName;
-			}
-
-		}
-
-		//绑定失败
-		return PluginStubActivity.class.getName();
-	}
-
 	private static void initPool() {
 		if (isPoolInited) {
 			return;
@@ -115,14 +61,16 @@ public class PluginStubBinding {
 
 		loadStubService();
 
-		loadExact();
+		loadStubExactly();
+
+		loadStubReceiver();
 
 		isPoolInited = true;
 	}
 
 	private static void loadStubActivity() {
 		Intent launchModeIntent = new Intent();
-		launchModeIntent.setAction(ACTION_LAUNCH_MODE);
+		launchModeIntent.setAction(STUB_DEFAULT);
 		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
 
 		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
@@ -130,30 +78,32 @@ public class PluginStubBinding {
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
 					list) {
-				if (resolveInfo.activityInfo.name.startsWith(STUB_ACTIVITY_PRE)) {
+				if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
 
-					if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
+					singleTaskActivityMapping.put(resolveInfo.activityInfo.name, null);
 
-						singleTaskMapping.put(resolveInfo.activityInfo.name, null);
+				} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
 
-					} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
+					singleTopActivityMapping.put(resolveInfo.activityInfo.name, null);
 
-						singleTopMapping.put(resolveInfo.activityInfo.name, null);
+				} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
 
-					} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+					singleInstanceActivityMapping.put(resolveInfo.activityInfo.name, null);
 
-						singleInstanceMapping.put(resolveInfo.activityInfo.name, null);
+				} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
 
-					}
+					standardActivity = resolveInfo.activityInfo.name;
 
 				}
+
 			}
 		}
+
 	}
 
 	private static void loadStubService() {
 		Intent launchModeIntent = new Intent();
-		launchModeIntent.setAction(ACTION_STUB_SERVICE);
+		launchModeIntent.setAction(STUB_DEFAULT);
 		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
 
 		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
@@ -167,11 +117,12 @@ public class PluginStubBinding {
 			if (mapping != null) {
 				serviceMapping.putAll(mapping);
 			}
+			//只有service需要固化
 			save(serviceMapping);
 		}
 	}
 
-	private static void loadExact() {
+	private static void loadStubExactly() {
 		Intent exactStub = new Intent();
 		exactStub.setAction(STUB_EXACT);
 		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
@@ -202,7 +153,83 @@ public class PluginStubBinding {
 
 	}
 
-	public static boolean isExact(String name) {
+	private static void loadStubReceiver() {
+		Intent exactStub = new Intent();
+		exactStub.setAction(STUB_DEFAULT);
+		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
+
+		List<ResolveInfo> resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+
+		if (resolveInfos != null && resolveInfos.size() >0) {
+			receiver = resolveInfos.get(0).activityInfo.name;
+		}
+
+	}
+
+	public static String bindStubReceiver() {
+		initPool();
+		return receiver;
+	}
+
+	public static String bindStubActivity(String pluginActivityClassName, int launchMode) {
+
+		initPool();
+
+		if (isExact(pluginActivityClassName, PluginDescriptor.ACTIVITY)) {
+			return pluginActivityClassName;
+		}
+
+
+		HashMap<String, String> bindingMapping = null;
+
+		if (launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
+
+			return standardActivity;
+
+		} else if (launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
+
+			bindingMapping = singleTaskActivityMapping;
+
+		} else if (launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) {
+
+			bindingMapping = singleTopActivityMapping;
+
+		} else if (launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) {
+
+			bindingMapping = singleInstanceActivityMapping;
+
+		}
+
+		if (bindingMapping != null) {
+
+			Iterator<Map.Entry<String, String>> itr = bindingMapping.entrySet().iterator();
+			String idleStubActivityName = null;
+
+			while (itr.hasNext()) {
+				Map.Entry<String, String> entry = itr.next();
+				if (entry.getValue() == null) {
+					if (idleStubActivityName == null) {
+						idleStubActivityName = entry.getKey();
+						//这里找到空闲的stubactivity以后，还需继续遍历，用来检查是否pluginActivityClassName已经绑定过了
+					}
+				} else if (pluginActivityClassName.equals(entry.getValue())) {
+					//已绑定过，直接返回
+					return entry.getKey();
+				}
+			}
+
+			//没有绑定到StubActivity，而且还有空余的stubActivity，进行绑定
+			if (idleStubActivityName != null) {
+				bindingMapping.put(idleStubActivityName, pluginActivityClassName);
+				return idleStubActivityName;
+			}
+
+		}
+
+		return standardActivity;
+	}
+
+	private static boolean isExact(String name, int type) {
 		initPool();
 
 		if (mExcatStubSet != null && mExcatStubSet.size() > 0) {
@@ -213,18 +240,21 @@ public class PluginStubBinding {
 	}
 
 	public static void unBindLaunchModeStubActivity(String activityName, Intent intent) {
-		if (activityName.startsWith(PluginStubBinding.STUB_ACTIVITY_PRE)) {
-			if (intent != null) {
-				ComponentName cn = intent.getComponent();
-				if (cn != null) {
-					String pluginActivityName = cn.getClassName();
-					if (pluginActivityName.equals(singleTaskMapping.get(activityName))) {
-						singleTaskMapping.put(activityName, null);
-					} else if (pluginActivityName.equals(singleInstanceMapping.get(activityName))) {
-						singleInstanceMapping.put(activityName, null);
-					} else {
-						//对于standard和singleTop的launchmode，不做处理。
-					}
+		if (intent != null) {
+			ComponentName cn = intent.getComponent();
+			if (cn != null) {
+				String pluginActivityName = cn.getClassName();
+
+				if (pluginActivityName.equals(singleTaskActivityMapping.get(activityName))) {
+
+					singleTaskActivityMapping.put(activityName, null);
+
+				} else if (pluginActivityName.equals(singleInstanceActivityMapping.get(activityName))) {
+
+					singleInstanceActivityMapping.put(activityName, null);
+
+				} else {
+					//对于standard和singleTop的launchmode，不做处理。
 				}
 			}
 		}
@@ -233,6 +263,10 @@ public class PluginStubBinding {
 	public static String getBindedPluginServiceName(String stubServiceName) {
 
 		initPool();
+
+		if (isExact(stubServiceName, PluginDescriptor.SERVICE)) {
+			return stubServiceName;
+		}
 
 		Iterator<Map.Entry<String, String>> itr = serviceMapping.entrySet().iterator();
 
@@ -265,6 +299,10 @@ public class PluginStubBinding {
 	public static String bindStubService(String pluginServiceClassName) {
 
 		initPool();
+
+		if (isExact(pluginServiceClassName, PluginDescriptor.SERVICE)) {
+			return pluginServiceClassName;
+		}
 
 		Iterator<Map.Entry<String, String>> itr = serviceMapping.entrySet().iterator();
 
@@ -386,5 +424,13 @@ public class PluginStubBinding {
 			return mapping;
 		}
 		return null;
+	}
+
+	public static boolean isStubActivity(String className) {
+		initPool();
+
+		return isExact(className, PluginDescriptor.ACTIVITY) || className.equals(standardActivity) || singleTaskActivityMapping.containsKey(className)
+				|| singleTopActivityMapping.containsKey(className)
+				|| singleInstanceActivityMapping.containsKey(className);
 	}
 }
