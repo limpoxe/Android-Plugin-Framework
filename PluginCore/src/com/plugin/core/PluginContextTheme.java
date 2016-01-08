@@ -2,6 +2,7 @@ package com.plugin.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
@@ -172,6 +173,11 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public Context getApplicationContext() {
 		return mPluginDescriptor.getPluginApplication();
+	}
+
+	@Override
+	public ApplicationInfo getApplicationInfo() {
+		return super.getApplicationInfo();
 	}
 
 	@Override

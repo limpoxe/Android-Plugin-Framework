@@ -26,7 +26,7 @@ public class PluginIntentResolver {
 			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
 			String stubServiceName = PluginStubBinding.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
-				service.setClassName(PluginLoader.getApplicatoin(), stubServiceName);
+				service.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubServiceName));
 			}
 		}
 	}
