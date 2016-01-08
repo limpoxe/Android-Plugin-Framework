@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -68,9 +69,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			return mTheme;
 		}
 
-		Object result = RefInvoker.invokeStaticMethod(Resources.class.getName(), "selectDefaultTheme", new Class[] {
-				int.class, int.class }, new Object[] { mThemeResource,
-				getBaseContext().getApplicationInfo().targetSdkVersion });
+		Object result = RefInvoker.invokeStaticMethod(Resources.class.getName(), "selectDefaultTheme", new Class[]{
+				int.class, int.class}, new Object[]{mThemeResource,
+				getBaseContext().getApplicationInfo().targetSdkVersion});
 		if (result != null) {
 			mThemeResource = (Integer) result;
 		}
@@ -88,7 +89,14 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			}
 			return mInflater;
 		}
-		return getBaseContext().getSystemService(name);
+
+		Object service = getBaseContext().getSystemService(name);
+
+		if (service == null) {
+			service = LocalServiceManager.getService(name);
+		}
+
+		return service;
 	}
 
 	private void initializeTheme() {
