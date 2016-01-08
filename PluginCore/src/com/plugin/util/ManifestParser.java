@@ -72,22 +72,11 @@ public class ManifestParser {
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
                         } else if (tag.equals("meta-data")) {
 
-                        	HashMap<String, String> hashMap = desciptor.getFragments();
-                        	if (hashMap == null) {
-                        		hashMap = new HashMap<String, String>();
-                        		desciptor.setfragments(hashMap);
-                        	}
-                        	
                         	String name = parser.getAttributeValue(namespaceAndroid, "name");
                         	String value = parser.getAttributeValue(namespaceAndroid, "value");
 
-                            /**
-                             * fragmentId 约定以fragment_id_开头，避免把其他普通metadata信息读出来了
-                             */
-                            if (name != null && name.startsWith("fragment_id_")) {
-                                hashMap.put(name, value);
-                                LogUtil.d(name, value);
-                            } else {
+                            if (name != null) {
+
                                 HashMap<String, String> metaData = desciptor.getMetaData();
                                 if (metaData == null) {
                                     metaData = new HashMap<String, String>();
@@ -103,6 +92,42 @@ public class ManifestParser {
                                     }
                                 }
                                 metaData.put(name, value);
+                                LogUtil.d(name, value);
+
+                            }
+
+                        } else if (tag.equals("exported-fragment")) {
+
+                            String name = parser.getAttributeValue(namespaceAndroid, "name");
+                            String value = parser.getAttributeValue(namespaceAndroid, "value");
+
+                            if (name != null) {
+
+                                HashMap<String, String> fragments = desciptor.getFragments();
+                                if (fragments == null) {
+                                    fragments = new HashMap<String, String>();
+                                    desciptor.setfragments(fragments);
+                                }
+                                fragments.put(name, value);
+                                LogUtil.d(name, value);
+
+                            }
+
+                        } else if (tag.equals("exported-service")) {
+
+                            String name = parser.getAttributeValue(namespaceAndroid, "name");
+                            String value = parser.getAttributeValue(namespaceAndroid, "value");
+
+                            if (name != null) {
+
+                                HashMap<String, String> functions = desciptor.getFunctions();
+                                if (functions == null) {
+                                    functions = new HashMap<String, String>();
+                                    desciptor.setFunctions(functions);
+                                }
+                                functions.put(name, value);
+                                LogUtil.d(name, value);
+
                             }
 
                         } else if ("application".equals(parser.getName())) {

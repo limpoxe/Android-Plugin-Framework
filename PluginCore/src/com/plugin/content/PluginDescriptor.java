@@ -59,6 +59,12 @@ public class PluginDescriptor implements Serializable {
 	private HashMap<String, String> fragments = new HashMap<String, String>();
 
 	/**
+	 * key: localservice id,
+	 * value: localservice class
+	 */
+	private HashMap<String, String> functions = new HashMap<String, String>();
+
+	/**
 	 * key: activity class name
 	 * value: intentfilter list
 	 */
@@ -166,6 +172,14 @@ public class PluginDescriptor implements Serializable {
 
 	public void setfragments(HashMap<String, String> fragments) {
 		this.fragments = fragments;
+	}
+
+	public HashMap<String, String> getFunctions() {
+		return functions;
+	}
+
+	public void setFunctions(HashMap<String, String> functions) {
+		this.functions = functions;
 	}
 
 	public HashMap<String, ArrayList<PluginIntentFilter>> getReceivers() {

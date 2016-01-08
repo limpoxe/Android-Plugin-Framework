@@ -25,6 +25,7 @@ import android.text.TextUtils;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginIntentFilter;
+import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginCallbackImpl;
 import com.plugin.core.manager.PluginManagerImpl;
 import com.plugin.core.manager.PluginCallback;
@@ -87,6 +88,13 @@ public class PluginLoader {
 			changeListener = new PluginCallbackImpl();
 
 			pluginManager.loadInstalledPlugins();
+
+			Iterator<PluginDescriptor> itr = getPlugins().iterator();
+			while (itr.hasNext()) {
+				PluginDescriptor plugin = itr.next();
+				LocalServiceManager.registerService(plugin);
+			}
+
 			changeListener.onPluginLoaderInited();
 
 			if (Build.VERSION.SDK_INT >= 14) {
@@ -243,6 +251,8 @@ public class PluginLoader {
 				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null);
 				LogUtil.d("DEXOPT完毕");
+
+				LocalServiceManager.registerService(pluginDescriptor);
 
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 				LogUtil.d("安装插件成功", destPluginFile);
