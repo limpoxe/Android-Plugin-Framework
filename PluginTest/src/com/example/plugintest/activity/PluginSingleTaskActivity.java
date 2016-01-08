@@ -25,7 +25,7 @@ public class PluginSingleTaskActivity extends Activity implements OnClickListene
 
 	@Override
 	public void onClick(View v) {
-		ILoginService login = (ILoginService) LocalServiceManager.getService("plugin_login_service");
+		ILoginService login = (ILoginService) getSystemService("login_service");
 		if (login != null) {
 			LoginVO vo = login.login("admin", "123456");
 			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
