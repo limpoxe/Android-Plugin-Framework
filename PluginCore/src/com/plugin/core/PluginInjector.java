@@ -106,7 +106,8 @@ public class PluginInjector {
 			List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 			for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 				ProviderInfo p = new ProviderInfo();
-				p.name = pluginProviderInfo.getName();
+				//name做上标记，表示是来自插件，方便classloader进行判断
+				p.name = PluginProviderInfo.CLASS_PREFIX + pluginProviderInfo.getName();
 				p.authority = pluginProviderInfo.getAuthority();
 				p.applicationInfo = context.getApplicationInfo();
 				p.exported = pluginProviderInfo.isExported();

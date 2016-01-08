@@ -188,7 +188,7 @@ public class ManifestParser {
                             }
 
                             PluginProviderInfo info = new PluginProviderInfo();
-                            info.setName(PluginProviderInfo.prefix + name);//name做上标记，表示是来自插件，方便classloader进行判断
+                            info.setName(name);
                             info.setExported(Boolean.getBoolean(exported));
                             info.setAuthority(author);
 

@@ -34,9 +34,9 @@ public class HostClassLoader extends DexClassLoader {
 			if (clazz != null) {
 				return clazz;
 			}
-		} else if (className.startsWith(PluginProviderInfo.prefix)) {
+		} else if (className.startsWith(PluginProviderInfo.CLASS_PREFIX)) {
 			//Just for contentprovider
-			String realName = className.replace(PluginProviderInfo.prefix, "");
+			String realName = className.replace(PluginProviderInfo.CLASS_PREFIX, "");
 			LogUtil.d("className ", className, "target", realName);
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			if (clazz != null) {
