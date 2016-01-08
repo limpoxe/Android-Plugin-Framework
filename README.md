@@ -62,7 +62,7 @@
 
     4、插件间依赖时，被插件依赖的插件暂不支持包含资源
 
-目录结构说明：
+# 目录结构说明：
 
   1、PluginCore工程是插件库核心工程，用于提供对插件功能的支持。
 
@@ -74,9 +74,11 @@
   
   5、PluginHelloWorld是用来测试的独立插件Demo工程。
 
-  6、PluginBase是用来测试的被PluginTest插件依赖的插件Demo工程（插件间依赖），此插件不包含资源。
+  6、PluginBase是用来测试的被PluginTest插件依赖的插件Demo工程（此插件被PluginTest、wxsdklibrary两个插件依赖），此插件不包含资源。
   
-demo安装说明：
+  7、wxsdklibrary是用来测试的非独立插件Demo工程。
+  
+# demo安装说明：
 
   1、宿主程序demo工程的assets目录下已包含了编译好的独立插件demo apk和非独立插件demo apk。
 

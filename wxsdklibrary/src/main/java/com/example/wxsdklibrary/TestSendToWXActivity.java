@@ -5,8 +5,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.pluginmain.wxapi.WXEntryActivity;
+import com.example.plugintestbase.ILoginService;
+import com.example.plugintestbase.LoginVO;
+import com.example.plugintestbase.UserVO;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.SendMessageToWX;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
@@ -26,6 +30,14 @@ public class TestSendToWXActivity extends Activity {
 		Button btn = new Button(this);
 		btn.setText("点击发送信息到微信");
 		setContentView(btn);
+
+		ILoginService login = (ILoginService) getSystemService("login_service");
+		if (login != null) {
+			LoginVO vo = login.login("admin", "123456");
+			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, "ILoginService == null", Toast.LENGTH_SHORT).show();
+		}
 
 		btn.setOnClickListener(new View.OnClickListener() {
 

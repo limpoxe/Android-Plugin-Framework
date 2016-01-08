@@ -2,7 +2,8 @@
     package="com.example.wxsdklibrary"
     android:versionCode="1"
     android:versionName="1.0.1"
-    android:sharedUserId="com.example.pluginmain">
+    android:sharedUserId="com.example.pluginmain"
+    dependencies="com.example.plugintestbase,">
 
     <application
         android:allowBackup="true"
