@@ -31,10 +31,8 @@ import com.plugin.core.manager.PluginManagerImpl;
 import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManager;
 import com.plugin.util.LogUtil;
-import com.plugin.util.ManifestParser;
 import com.plugin.util.FileUtil;
 import com.plugin.util.PackageVerifyer;
-import com.plugin.util.RefInvoker;
 
 import dalvik.system.DexClassLoader;
 
@@ -185,7 +183,7 @@ public class PluginLoader {
 		}
 
 		// 第2步，解析Manifest，获得插件详情
-		PluginDescriptor pluginDescriptor = ManifestParser.parseManifest(srcPluginFile);
+		PluginDescriptor pluginDescriptor = PluginManifestParser.parseManifest(srcPluginFile);
 		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
 			LogUtil.e("解析插件Manifest文件失败", srcPluginFile);
 			new File(srcPluginFile).delete();

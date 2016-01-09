@@ -1,7 +1,18 @@
-package com.plugin.util;
+package com.plugin.core;
 
 import android.app.Application;
 import android.content.pm.ActivityInfo;
+
+import com.plugin.content.PluginActivityInfo;
+import com.plugin.content.PluginDescriptor;
+import com.plugin.content.PluginIntentFilter;
+import com.plugin.content.PluginProviderInfo;
+import com.plugin.util.LogUtil;
+import com.plugin.util.ManifestReader;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,17 +22,7 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import com.plugin.content.PluginActivityInfo;
-import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginIntentFilter;
-import com.plugin.content.PluginProviderInfo;
-import com.plugin.core.PluginLoader;
-
-public class ManifestParser {
+public class PluginManifestParser {
 
 	public static PluginDescriptor parseManifest(String pluginPath) {
     	

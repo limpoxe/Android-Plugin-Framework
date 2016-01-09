@@ -1,6 +1,8 @@
 package com.plugin.core.systemservice;
 
+import android.annotation.TargetApi;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -9,6 +11,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.FeatureInfo;
 import android.content.pm.InstrumentationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionGroupInfo;
 import android.content.pm.PermissionInfo;
@@ -17,8 +20,10 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -29,7 +34,10 @@ import java.util.List;
 /**
  * Created by cailiming on 16/1/9.
  *
- * base on android4.4_r1
+ * based on android6.0.1_r10
+ *
+ * 如果你不知道、不确定自己在干什么，请慎用此API！！！
+ * 如果你不知道、不确定自己在干什么，请慎用此API！！！
  *
  */
 public class PluginPackageManager extends PackageManager {
@@ -37,11 +45,141 @@ public class PluginPackageManager extends PackageManager {
     private int mUseId;//mContext.getUserId()
     private PackageManager mPM;
 
+    public PluginPackageManager(PackageManager pm) {
+        this.mPM = pm;
+        Context contextImpl = (Context)RefInvoker.getFieldObject(pm, pm.getClass(), "mContext");
+        if (contextImpl != null) {
+            Integer id = (Integer) RefInvoker.invokeMethod(contextImpl, "android.app.ContextImpl", "getUserId", (Class[])null,
+                    (Object[])null);
+            if (id != null) {
+                mUseId = id;
+            }
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Begin:常用API
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @Override
     public PackageInfo getPackageInfo(String packageName, int flags)
             throws NameNotFoundException {
         return mPM.getPackageInfo(packageName, flags);
     }
+
+    @Override
+    public List<ResolveInfo> queryIntentActivities(Intent intent,
+                                                   int flags) {
+        return queryIntentActivitiesAsUser(intent, flags, mUseId);
+    }
+
+    public List<ResolveInfo> queryIntentActivitiesAsUser(Intent intent,
+                                                         int flags, int userId) {
+        return (List<ResolveInfo>)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryIntentActivitiesAsUser",
+                new Class[]{Intent.class, int.class, int.class},
+                new Object[]{intent, flags, userId});
+    }
+
+    @Override
+    public List<ResolveInfo> queryIntentActivityOptions(
+            ComponentName caller, Intent[] specifics, Intent intent,
+            int flags) {
+        return mPM.queryIntentActivityOptions(caller, specifics, intent, flags);
+    }
+
+    public List<ResolveInfo> queryBroadcastReceivers(Intent intent, int flags, int userId) {
+        return (List<ResolveInfo>)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryBroadcastReceivers",
+                new Class[]{Intent.class, int.class, int.class},
+                new Object[]{intent, flags, userId});
+    }
+
+    @Override
+    public List<ResolveInfo> queryBroadcastReceivers(Intent intent, int flags) {
+        return queryBroadcastReceivers(intent, flags, mUseId);
+    }
+
+    @Override
+    public ResolveInfo resolveService(Intent intent, int flags) {
+        return (ResolveInfo)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "resolveService",
+                new Class[]{Intent.class, int.class, int.class},
+                new Object[]{intent, flags});
+    }
+
+    public List<ResolveInfo> queryIntentServicesAsUser(Intent intent, int flags, int userId) {
+        return (List<ResolveInfo> )(ResolveInfo)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryIntentServicesAsUser",
+                new Class[]{Intent.class, int.class, int.class},
+                new Object[]{intent, flags, userId});
+    }
+
+    @Override
+    public List<ResolveInfo> queryIntentServices(Intent intent, int flags) {
+        return queryIntentServicesAsUser(intent, flags, mUseId);
+    }
+
+    public List<ResolveInfo> queryIntentContentProvidersAsUser(
+            Intent intent, int flags, int userId) {
+        return (List<ResolveInfo> )(ResolveInfo)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryIntentContentProvidersAsUser",
+                new Class[]{Intent.class, int.class, int.class},
+                new Object[]{intent, flags, userId});
+    }
+
+    @Override
+    public List<ResolveInfo> queryIntentContentProviders(Intent intent, int flags) {
+        return queryIntentContentProvidersAsUser(intent, flags, mUseId);
+    }
+
+    @Override
+    public ProviderInfo resolveContentProvider(String name,
+                                               int flags) {
+        return mPM.resolveContentProvider(name, flags);
+    }
+
+    @Override
+    public List<ProviderInfo> queryContentProviders(String processName,
+                                                    int uid, int flags) {
+        return mPM.queryContentProviders(processName, uid, flags);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<PackageInfo> getInstalledPackages(int flags) {
+        return getInstalledPackages(flags, mUseId);
+    }
+
+    public List<PackageInfo> getInstalledPackages(int flags, int userId) {
+        List<PackageInfo> list = (List<PackageInfo>)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "getInstalledPackages",
+                new Class[]{int.class, int.class},
+                new Object[]{flags, userId});
+        return list;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<PackageInfo> getPackagesHoldingPermissions(
+            String[] permissions, int flags) {
+        return mPM.getPackagesHoldingPermissions(permissions, flags);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ApplicationInfo> getInstalledApplications(int flags) {
+        return mPM.getInstalledApplications(flags);
+    }
+
+    @Override
+    public ResolveInfo resolveActivity(Intent intent, int flags) {
+
+        return resolveActivityAsUser(intent, flags, mUseId);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // End:常用API
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 
     @Override
     public String[] currentToCanonicalPackageNames(String[] names) {
@@ -79,6 +217,11 @@ public class PluginPackageManager extends PackageManager {
         intent.setClassName(ris.get(0).activityInfo.packageName,
                 ris.get(0).activityInfo.name);
         return intent;
+    }
+
+    @Override
+    public Intent getLeanbackLaunchIntentForPackage(String packageName) {
+        return null;
     }
 
     @Override
@@ -120,13 +263,19 @@ public class PluginPackageManager extends PackageManager {
         return mPM.getAllPermissionGroups(flags);
     }
 
-    //不可更改， 被 getText、getDrawable、getResourcesForApplicationAsUser 调用
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //被 getText、getDrawable、getResourcesForApplicationAsUser 调用
     @Override public Resources getResourcesForApplication(
             ApplicationInfo app) throws NameNotFoundException {
         return mPM.getResourcesForApplication(app);
     }
 
-    //不可更改，被 getText、getDrawable 调用
+    //被 getText、getDrawable 调用
     @Override
     public ApplicationInfo getApplicationInfo(String packageName, int flags)
             throws NameNotFoundException {
@@ -151,6 +300,11 @@ public class PluginPackageManager extends PackageManager {
                                 ApplicationInfo appInfo) {
         return mPM.getText(packageName, resid, appInfo);
     }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
     @Override
     public ActivityInfo getActivityInfo(ComponentName className, int flags)
@@ -170,6 +324,7 @@ public class PluginPackageManager extends PackageManager {
         return mPM.getServiceInfo(className, flags);
     }
 
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     public ProviderInfo getProviderInfo(ComponentName className, int flags)
             throws NameNotFoundException {
@@ -194,6 +349,17 @@ public class PluginPackageManager extends PackageManager {
     @Override
     public int checkPermission(String permName, String pkgName) {
         return mPM.checkPermission(permName, pkgName);
+    }
+
+    @TargetApi(23)
+    public boolean isPermissionRevokedByPolicy(String permName, String pkgName) {
+        Boolean result = (Boolean)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "isPermissionRevokedByPolicy",
+                new Class[]{String.class, String.class}, new Object[]{permName, pkgName});
+
+        if (result != null) {
+            return result;
+        }
+        return false;
     }
 
     @Override
@@ -262,37 +428,7 @@ public class PluginPackageManager extends PackageManager {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<PackageInfo> getInstalledPackages(int flags) {
-        return getInstalledPackages(flags, mUseId);
-    }
 
-    public List<PackageInfo> getInstalledPackages(int flags, int userId) {
-        List<PackageInfo> list = (List<PackageInfo>)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "getInstalledPackages",
-                new Class[]{int.class, int.class},
-                new Object[]{flags, userId});
-        return list;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<PackageInfo> getPackagesHoldingPermissions(
-            String[] permissions, int flags) {
-        return mPM.getPackagesHoldingPermissions(permissions, flags);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<ApplicationInfo> getInstalledApplications(int flags) {
-        return mPM.getInstalledApplications(flags);
-    }
-
-    @Override
-    public ResolveInfo resolveActivity(Intent intent, int flags) {
-
-        return resolveActivityAsUser(intent, flags, mUseId);
-    }
 
     public ResolveInfo resolveActivityAsUser(Intent intent, int flags, int userId) {
 
@@ -300,79 +436,6 @@ public class PluginPackageManager extends PackageManager {
                 new Class[]{Intent.class, int.class, int.class},
                 new Object[]{intent, flags, userId});
 
-    }
-
-    @Override
-    public List<ResolveInfo> queryIntentActivities(Intent intent,
-                                                   int flags) {
-        return queryIntentActivitiesAsUser(intent, flags, mUseId);
-    }
-
-    public List<ResolveInfo> queryIntentActivitiesAsUser(Intent intent,
-                                                         int flags, int userId) {
-            return (List<ResolveInfo>)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryIntentActivitiesAsUser",
-                    new Class[]{Intent.class, int.class, int.class},
-                    new Object[]{intent, flags, userId});
-    }
-
-    @Override
-    public List<ResolveInfo> queryIntentActivityOptions(
-            ComponentName caller, Intent[] specifics, Intent intent,
-            int flags) {
-        return mPM.queryIntentActivityOptions(caller, specifics, intent, flags);
-    }
-
-    public List<ResolveInfo> queryBroadcastReceivers(Intent intent, int flags, int userId) {
-            return (List<ResolveInfo>)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryBroadcastReceivers",
-                    new Class[]{Intent.class, int.class, int.class},
-                    new Object[]{intent, flags, userId});
-    }
-
-    @Override
-    public List<ResolveInfo> queryBroadcastReceivers(Intent intent, int flags) {
-        return queryBroadcastReceivers(intent, flags, mUseId);
-    }
-
-    @Override
-    public ResolveInfo resolveService(Intent intent, int flags) {
-            return (ResolveInfo)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "resolveService",
-                    new Class[]{Intent.class, int.class, int.class},
-                    new Object[]{intent, flags});
-    }
-
-    public List<ResolveInfo> queryIntentServicesAsUser(Intent intent, int flags, int userId) {
-            return (List<ResolveInfo> )(ResolveInfo)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryIntentServicesAsUser",
-                    new Class[]{Intent.class, int.class, int.class},
-                    new Object[]{intent, flags, userId});
-    }
-
-    @Override
-    public List<ResolveInfo> queryIntentServices(Intent intent, int flags) {
-        return queryIntentServicesAsUser(intent, flags, mUseId);
-    }
-
-    public List<ResolveInfo> queryIntentContentProvidersAsUser(
-            Intent intent, int flags, int userId) {
-        return (List<ResolveInfo> )(ResolveInfo)(ResolveInfo)RefInvoker.invokeMethod(mPM, PackageManager.class.getName(), "queryIntentContentProvidersAsUser",
-                new Class[]{Intent.class, int.class, int.class},
-                new Object[]{intent, flags, userId});
-    }
-
-    @Override
-    public List<ResolveInfo> queryIntentContentProviders(Intent intent, int flags) {
-        return queryIntentContentProvidersAsUser(intent, flags, mUseId);
-    }
-
-    @Override
-    public ProviderInfo resolveContentProvider(String name,
-                                               int flags) {
-        return mPM.resolveContentProvider(name, flags);
-    }
-
-    @Override
-    public List<ProviderInfo> queryContentProviders(String processName,
-                                                    int uid, int flags) {
-            return mPM.queryContentProviders(processName, uid, flags);
     }
 
     @Override
@@ -408,6 +471,18 @@ public class PluginPackageManager extends PackageManager {
         throw new NameNotFoundException(intent.toUri(0));
     }
 
+    @TargetApi(20)
+    @Override
+    public Drawable getActivityBanner(ComponentName activityName) throws NameNotFoundException {
+        return mPM.getActivityBanner(activityName);
+    }
+
+    @TargetApi(20)
+    @Override
+    public Drawable getActivityBanner(Intent intent) throws NameNotFoundException {
+        return mPM.getActivityBanner(intent);
+    }
+
     @Override public Drawable getDefaultActivityIcon() {
         return mPM.getDefaultActivityIcon();
     }
@@ -421,12 +496,26 @@ public class PluginPackageManager extends PackageManager {
         return getApplicationIcon(getApplicationInfo(packageName, 0));
     }
 
+    @TargetApi(21)
+    @Override
+    public Drawable getApplicationBanner(ApplicationInfo info) {
+        return mPM.getApplicationBanner(info);
+    }
+
+    @TargetApi(20)
+    @Override
+    public Drawable getApplicationBanner(String packageName) throws NameNotFoundException {
+        return mPM.getApplicationBanner(packageName);
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     public Drawable getActivityLogo(ComponentName activityName)
             throws NameNotFoundException {
         return getActivityInfo(activityName, 0).loadLogo(this);
     }
 
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     public Drawable getActivityLogo(Intent intent)
             throws NameNotFoundException {
@@ -443,6 +532,7 @@ public class PluginPackageManager extends PackageManager {
         throw new NameNotFoundException(intent.toUri(0));
     }
 
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     @Override
     public Drawable getApplicationLogo(ApplicationInfo info) {
         return info.loadLogo(this);
@@ -452,6 +542,23 @@ public class PluginPackageManager extends PackageManager {
     public Drawable getApplicationLogo(String packageName)
             throws NameNotFoundException {
         return getApplicationLogo(getApplicationInfo(packageName, 0));
+    }
+
+    @TargetApi(21)
+    @Override
+    public Drawable getUserBadgedIcon(Drawable icon, UserHandle user) {
+        return mPM.getUserBadgedIcon(icon, user);
+    }
+
+    @TargetApi(21)
+    @Override
+    public Drawable getUserBadgedDrawableForDensity(Drawable drawable, UserHandle user, Rect badgeLocation, int badgeDensity) {
+        return mPM.getUserBadgedDrawableForDensity(drawable, user, badgeLocation, badgeDensity);
+    }
+
+    @Override
+    public CharSequence getUserBadgedLabel(CharSequence label, UserHandle user) {
+        return null;
     }
 
     @Override public Resources getResourcesForActivity(
@@ -468,6 +575,12 @@ public class PluginPackageManager extends PackageManager {
 
     @Override public boolean isSafeMode() {
        return mPM.isSafeMode();
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public PackageInstaller getPackageInstaller() {
+        return mPM.getPackageInstaller();
     }
 
     @Override
@@ -556,17 +669,20 @@ public class PluginPackageManager extends PackageManager {
         return -1;
     }
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public void verifyPendingInstall(int id, int response) {
             mPM.verifyPendingInstall(id, response);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void extendVerificationTimeout(int id, int verificationCodeAtTimeout,
                                           long millisecondsToDelay) {
             mPM.extendVerificationTimeout(id, verificationCodeAtTimeout, millisecondsToDelay);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void setInstallerPackageName(String targetPackage,
                                         String installerPackageName) {

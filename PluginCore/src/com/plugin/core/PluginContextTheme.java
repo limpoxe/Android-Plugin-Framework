@@ -24,7 +24,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	Resources mResources;
 	private final ClassLoader mClassLoader;
 
-	private final PluginDescriptor mPluginDescriptor;
+	protected final PluginDescriptor mPluginDescriptor;
 
 	public PluginContextTheme(PluginDescriptor pluginDescriptor, Context base, Resources resources, ClassLoader classLoader) {
 		super(base);
@@ -115,7 +115,10 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	public String getPackageName() {
 		//如果是独立插件 返回插件本身的packageName
 		//但是只返回插件本身的packageName可能会引起其他问题
-		//例如1、会导致toast无法弹出，原因是toast弹出时会检查packageName是否时当前用户的
+		//例如：
+		//1、会导致toast无法弹出，原因是toast弹出时会检查packageName是否时当前用户的
+		//2、会导致NotificationManager发送通知时crash、原因同上
+		//还有其他等等
 		//if (mPluginDescriptor.isStandalone()) {
 		//	return mPluginDescriptor.getPackageName();
 		//} else {
