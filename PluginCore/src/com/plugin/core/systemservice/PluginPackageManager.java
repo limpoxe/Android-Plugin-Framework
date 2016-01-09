@@ -27,8 +27,13 @@ import android.os.Build;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.plugin.content.PluginActivityInfo;
+import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginLoader;
 import com.plugin.util.RefInvoker;
+import com.plugin.util.ResourceUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,57 +49,74 @@ public class PluginPackageManager extends PackageManager {
         this.mBase = base;
     }
 
+    ////////////////////////----Begin:常用API----////////////////////////
     @Override
     public PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException {
+        PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(packageName);
+        if (pd != null) {
+            return getPackageArchiveInfo(pd.getInstalledPath(), flags);
+        }
         return mBase.getPackageInfo(packageName, flags);
     }
 
     @Override
-    public String[] currentToCanonicalPackageNames(String[] names) {
-        return mBase.currentToCanonicalPackageNames(names);
-    }
-
-    @Override
-    public String[] canonicalToCurrentPackageNames(String[] names) {
-        return mBase.canonicalToCurrentPackageNames(names);
+    public PackageInfo getPackageArchiveInfo(String archiveFilePath, int flags) {
+        return mBase.getPackageArchiveInfo(archiveFilePath, flags);
     }
 
     @Override
     public Intent getLaunchIntentForPackage(String packageName) {
-        return mBase.getLaunchIntentForPackage(packageName);
-    }
+        // First see if the package has an INFO activity; the existence of
+        // such an activity is implied to be the desired front-door for the
+        // overall package (such as if it has multiple launcher entries).
+        Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
+        intentToResolve.addCategory(Intent.CATEGORY_INFO);
+        intentToResolve.setPackage(packageName);
+        List<ResolveInfo> ris = queryIntentActivities(intentToResolve, 0);
 
-    @TargetApi(21)
-    @Override
-    public Intent getLeanbackLaunchIntentForPackage(String packageName) {
-        return mBase.getLeanbackLaunchIntentForPackage(packageName);
-    }
-
-    @Override
-    public int[] getPackageGids(String packageName) throws NameNotFoundException {
-        return mBase.getPackageGids(packageName);
-    }
-
-    @Override
-    public PermissionInfo getPermissionInfo(String name, int flags) throws NameNotFoundException {
-        return mBase.getPermissionInfo(name, flags);
-    }
-
-    @Override
-    public List<PermissionInfo> queryPermissionsByGroup(String group, int flags) throws NameNotFoundException {
-        return mBase.queryPermissionsByGroup(group, flags);
-    }
-
-    @Override
-    public PermissionGroupInfo getPermissionGroupInfo(String name, int flags) throws NameNotFoundException {
-        return mBase.getPermissionGroupInfo(name, flags);
+        // Otherwise, try to find a main launcher activity.
+        if (ris == null || ris.size() <= 0) {
+            // reuse the intent instance
+            intentToResolve.removeCategory(Intent.CATEGORY_INFO);
+            intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER);
+            intentToResolve.setPackage(packageName);
+            ris = queryIntentActivities(intentToResolve, 0);
+        }
+        if (ris == null || ris.size() <= 0) {
+            return null;
+        }
+        Intent intent = new Intent(intentToResolve);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setClassName(ris.get(0).activityInfo.packageName,
+                ris.get(0).activityInfo.name);
+        return intent;
     }
 
     @Override
-    public List<PermissionGroupInfo> getAllPermissionGroups(int flags) {
-        return mBase.getAllPermissionGroups(flags);
+    public List<ResolveInfo> queryIntentActivities(Intent intent, int flags) {
+        ArrayList<String> intentToResolve = PluginLoader.matchPlugin(intent, PluginDescriptor.ACTIVITY);
+        if (intentToResolve != null && intentToResolve.size() > 0) {
+            List<ResolveInfo> result = new ArrayList<>();
+            ResolveInfo info = new ResolveInfo();
+            result.add(info);
+
+            PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(intentToResolve.get(0));
+            info.resolvePackageName = pluginDescriptor.getPackageName();
+
+            PluginActivityInfo pluginActivityInfo = pluginDescriptor.getActivityInfos().get(intentToResolve.get(0));
+            info.activityInfo = new ActivityInfo();
+            info.activityInfo.name = pluginActivityInfo.getName();
+            info.activityInfo.launchMode = Integer.valueOf(pluginActivityInfo.getLaunchMode());
+            info.activityInfo.theme = ResourceUtil.getResourceId(pluginActivityInfo.getTheme());
+            info.activityInfo.uiOptions = Integer.valueOf(pluginActivityInfo.getUiOptions());
+            info.activityInfo.icon = pluginDescriptor.getApplicationIcon();
+
+            return result;
+        }
+        return mBase.queryIntentActivities(intent, flags);
     }
 
+    //TODO
     @Override
     public ApplicationInfo getApplicationInfo(String packageName, int flags) throws NameNotFoundException {
         return mBase.getApplicationInfo(packageName, flags);
@@ -126,80 +148,14 @@ public class PluginPackageManager extends PackageManager {
         return mBase.getInstalledPackages(flags);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    @Override
-    public List<PackageInfo> getPackagesHoldingPermissions(String[] permissions, int flags) {
-        return mBase.getPackagesHoldingPermissions(permissions, flags);
-    }
-
-    @Override
-    public int checkPermission(String permName, String pkgName) {
-        return mBase.checkPermission(permName, pkgName);
-    }
-
-    @Override
-    public boolean addPermission(PermissionInfo info) {
-        return mBase.addPermission(info);
-    }
-
-    @Override
-    public boolean addPermissionAsync(PermissionInfo info) {
-        return mBase.addPermissionAsync(info);
-    }
-
-    @Override
-    public void removePermission(String name) {
-        mBase.removePermission(name);
-    }
-
     @Override
     public int checkSignatures(String pkg1, String pkg2) {
         return mBase.checkSignatures(pkg1, pkg2);
     }
 
     @Override
-    public int checkSignatures(int uid1, int uid2) {
-        return mBase.checkSignatures(uid1, uid2);
-    }
-
-    @Override
-    public String[] getPackagesForUid(int uid) {
-        return mBase.getPackagesForUid(uid);
-    }
-
-    @Override
-    public String getNameForUid(int uid) {
-        return mBase.getNameForUid(uid);
-    }
-
-    @Override
-    public List<ApplicationInfo> getInstalledApplications(int flags) {
-        return mBase.getInstalledApplications(flags);
-    }
-
-    @Override
-    public String[] getSystemSharedLibraryNames() {
-        return mBase.getSystemSharedLibraryNames();
-    }
-
-    @Override
-    public FeatureInfo[] getSystemAvailableFeatures() {
-        return mBase.getSystemAvailableFeatures();
-    }
-
-    @Override
-    public boolean hasSystemFeature(String name) {
-        return mBase.hasSystemFeature(name);
-    }
-
-    @Override
     public ResolveInfo resolveActivity(Intent intent, int flags) {
         return mBase.resolveActivity(intent, flags);
-    }
-
-    @Override
-    public List<ResolveInfo> queryIntentActivities(Intent intent, int flags) {
-        return mBase.queryIntentActivities(intent, flags);
     }
 
     @Override
@@ -237,6 +193,133 @@ public class PluginPackageManager extends PackageManager {
     public List<ProviderInfo> queryContentProviders(String processName, int uid, int flags) {
         return mBase.queryContentProviders(processName, uid, flags);
     }
+
+    @Override
+    public Drawable getApplicationIcon(ApplicationInfo info) {
+        return mBase.getApplicationIcon(info);
+    }
+
+    @Override
+    public Drawable getApplicationIcon(String packageName) throws NameNotFoundException {
+        return mBase.getApplicationIcon(packageName);
+    }
+
+    @TargetApi(9)
+    @Override
+    public Drawable getApplicationLogo(ApplicationInfo info) {
+        return mBase.getApplicationLogo(info);
+    }
+
+    @TargetApi(9)
+    @Override
+    public Drawable getApplicationLogo(String packageName) throws NameNotFoundException {
+        return mBase.getApplicationLogo(packageName);
+    }
+
+    ////////////////////////----End:常用API----////////////////////////
+
+    @Override
+    public String[] currentToCanonicalPackageNames(String[] names) {
+        return mBase.currentToCanonicalPackageNames(names);
+    }
+
+    @Override
+    public String[] canonicalToCurrentPackageNames(String[] names) {
+        return mBase.canonicalToCurrentPackageNames(names);
+    }
+
+    @TargetApi(21)
+    @Override
+    public Intent getLeanbackLaunchIntentForPackage(String packageName) {
+        return mBase.getLeanbackLaunchIntentForPackage(packageName);
+    }
+
+    @Override
+    public int[] getPackageGids(String packageName) throws NameNotFoundException {
+        return mBase.getPackageGids(packageName);
+    }
+
+    @Override
+    public PermissionInfo getPermissionInfo(String name, int flags) throws NameNotFoundException {
+        return mBase.getPermissionInfo(name, flags);
+    }
+
+    @Override
+    public List<PermissionInfo> queryPermissionsByGroup(String group, int flags) throws NameNotFoundException {
+        return mBase.queryPermissionsByGroup(group, flags);
+    }
+
+    @Override
+    public PermissionGroupInfo getPermissionGroupInfo(String name, int flags) throws NameNotFoundException {
+        return mBase.getPermissionGroupInfo(name, flags);
+    }
+
+    @Override
+    public List<PermissionGroupInfo> getAllPermissionGroups(int flags) {
+        return mBase.getAllPermissionGroups(flags);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @Override
+    public List<PackageInfo> getPackagesHoldingPermissions(String[] permissions, int flags) {
+        return mBase.getPackagesHoldingPermissions(permissions, flags);
+    }
+
+    @Override
+    public int checkPermission(String permName, String pkgName) {
+        return mBase.checkPermission(permName, pkgName);
+    }
+
+    @Override
+    public boolean addPermission(PermissionInfo info) {
+        return mBase.addPermission(info);
+    }
+
+    @Override
+    public boolean addPermissionAsync(PermissionInfo info) {
+        return mBase.addPermissionAsync(info);
+    }
+
+    @Override
+    public void removePermission(String name) {
+        mBase.removePermission(name);
+    }
+
+    @Override
+    public int checkSignatures(int uid1, int uid2) {
+        return mBase.checkSignatures(uid1, uid2);
+    }
+
+    @Override
+    public String[] getPackagesForUid(int uid) {
+        return mBase.getPackagesForUid(uid);
+    }
+
+    @Override
+    public String getNameForUid(int uid) {
+        return mBase.getNameForUid(uid);
+    }
+
+    @Override
+    public List<ApplicationInfo> getInstalledApplications(int flags) {
+        return mBase.getInstalledApplications(flags);
+    }
+
+    @Override
+    public String[] getSystemSharedLibraryNames() {
+        return mBase.getSystemSharedLibraryNames();
+    }
+
+    @Override
+    public FeatureInfo[] getSystemAvailableFeatures() {
+        return mBase.getSystemAvailableFeatures();
+    }
+
+    @Override
+    public boolean hasSystemFeature(String name) {
+        return mBase.hasSystemFeature(name);
+    }
+
 
     @Override
     public InstrumentationInfo getInstrumentationInfo(ComponentName className, int flags) throws NameNotFoundException {
@@ -280,15 +363,6 @@ public class PluginPackageManager extends PackageManager {
         return mBase.getDefaultActivityIcon();
     }
 
-    @Override
-    public Drawable getApplicationIcon(ApplicationInfo info) {
-        return mBase.getApplicationIcon(info);
-    }
-
-    @Override
-    public Drawable getApplicationIcon(String packageName) throws NameNotFoundException {
-        return mBase.getApplicationIcon(packageName);
-    }
 
     @TargetApi(20)
     @Override
@@ -312,18 +386,6 @@ public class PluginPackageManager extends PackageManager {
     @Override
     public Drawable getActivityLogo(Intent intent) throws NameNotFoundException {
         return mBase.getActivityLogo(intent);
-    }
-
-    @TargetApi(9)
-    @Override
-    public Drawable getApplicationLogo(ApplicationInfo info) {
-        return mBase.getApplicationLogo(info);
-    }
-
-    @TargetApi(9)
-    @Override
-    public Drawable getApplicationLogo(String packageName) throws NameNotFoundException {
-        return mBase.getApplicationLogo(packageName);
     }
 
     @TargetApi(21)
@@ -372,11 +434,6 @@ public class PluginPackageManager extends PackageManager {
     @Override
     public Resources getResourcesForApplication(String appPackageName) throws NameNotFoundException {
         return mBase.getResourcesForApplication(appPackageName);
-    }
-
-    @Override
-    public PackageInfo getPackageArchiveInfo(String archiveFilePath, int flags) {
-        return mBase.getPackageArchiveInfo(archiveFilePath, flags);
     }
 
     @TargetApi(14)
