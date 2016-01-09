@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.localservice.LocalServiceManager;
+import com.plugin.core.systemservice.PackageManagerCompat;
+import com.plugin.core.systemservice.PluginPackageManager;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -93,7 +95,13 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		Object service = getBaseContext().getSystemService(name);
 
 		if (service == null) {
-			service = LocalServiceManager.getService(name);
+
+			if ("package_manager".equals(name)) {
+				service = new PluginPackageManager(new PackageManagerCompat(getPackageManager()));
+			} else {
+				service = LocalServiceManager.getService(name);
+			}
+
 		}
 
 		return service;
