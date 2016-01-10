@@ -365,6 +365,23 @@ public class PluginLoader {
 		return pluginContext;
 	}
 
+	public static Context getDefaultPluginContext(String pluginId) {
+		Context pluginContext = null;
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
+
+		if (pluginDescriptor != null) {
+			pluginContext = pluginDescriptor.getPluginContext();
+		} else {
+			LogUtil.e("PluginDescriptor Not Found for ", pluginId);
+		}
+
+		if (pluginContext == null) {
+			LogUtil.e("Context Not Found for ", pluginId);
+		}
+
+		return pluginContext;
+	}
+
 	/**
 	 * 根据当前插件的默认Context, 为当前插件的组件创建一个单独的context
 	 *
@@ -384,12 +401,21 @@ public class PluginLoader {
 	}
 
 	public static Context getNewPluginApplicationContext(Class clazz) {
-		Context defaultContext = getDefaultPluginContext(clazz);
+
+		return newDefaultAppContext(getDefaultPluginContext(clazz));
+	}
+
+	public static Context getNewPluginApplicationContext(String pluginId) {
+
+		return newDefaultAppContext(getDefaultPluginContext(pluginId));
+	}
+
+	private static Context newDefaultAppContext(Context source) {
 		Context newContext = null;
-		if (defaultContext != null) {
-			newContext = PluginCreator.createPluginContext(((PluginContextTheme) defaultContext).getPluginDescriptor(),
-					sApplication, defaultContext.getResources(),
-					(DexClassLoader) defaultContext.getClassLoader());
+		if (source != null) {
+			newContext = PluginCreator.createPluginContext(((PluginContextTheme) source).getPluginDescriptor(),
+					sApplication, source.getResources(),
+					(DexClassLoader) source.getClassLoader());
 			newContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		}
 		return newContext;

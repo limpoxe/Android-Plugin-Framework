@@ -150,7 +150,9 @@ public class PluginPackageManager extends PackageManager {
             activityInfo.packageName = pluginDescriptor.getPackageName();
             activityInfo.launchMode = Integer.valueOf(pluginActivityInfo.getLaunchMode());
             activityInfo.theme = ResourceUtil.getResourceId(pluginActivityInfo.getTheme());
-            activityInfo.uiOptions = Integer.valueOf(pluginActivityInfo.getUiOptions());
+            if (pluginActivityInfo.getUiOptions() != null) {
+                activityInfo.uiOptions = Integer.parseInt(pluginActivityInfo.getUiOptions().replace("0x", ""), 16);
+            }
             activityInfo.icon = pluginDescriptor.getApplicationIcon();
             activityInfo.metaData = getMeta(pluginDescriptor.getMetaData());
             activityInfo.enabled = true;

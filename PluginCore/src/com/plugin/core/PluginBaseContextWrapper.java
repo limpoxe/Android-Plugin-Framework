@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -199,4 +200,12 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 		return super.bindService(service, conn, flags);
 	}
 
+	@Override
+	public Context createPackageContext(String packageName, int flags) throws PackageManager.NameNotFoundException {
+		if (PluginLoader.getPluginDescriptorByPluginId(packageName) != null) {
+			PluginLoader.initPluginByPluginId(packageName);
+			return PluginLoader.getNewPluginApplicationContext(packageName);
+		}
+		return super.createPackageContext(packageName, flags);
+	}
 }

@@ -20,7 +20,7 @@ public class PluginIntentResolver {
 	static final String CLASS_SEPARATOR = "_RECEIVER_AND_ACTIVITY_";
 	static final String CLASS_PREFIX = "_RECEIVER_AND_SERVICE_";
 
-	/* package */static void resolveService(Intent service) {
+	public static void resolveService(Intent service) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
 			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
@@ -31,7 +31,7 @@ public class PluginIntentResolver {
 		}
 	}
 
-	/* package */static ArrayList<Intent> resolveReceiver(final Intent intent) {
+	public static ArrayList<Intent> resolveReceiver(final Intent intent) {
 		// 如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
 		// 不需要在这里记录目标className，className将在Intent中传递
 		ArrayList<Intent> result = new ArrayList<Intent>();
@@ -103,7 +103,7 @@ public class PluginIntentResolver {
 		return targetClassName;
 	}
 
-	/* package */static void resolveActivity(Intent intent) {
+	public static void resolveActivity(Intent intent) {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.ACTIVITY);
 		if (classNameList != null && classNameList.size() >0) {
@@ -123,68 +123,7 @@ public class PluginIntentResolver {
 	}
 
 	/* package */static void resolveActivity(Intent[] intent) {
-		// not needed
+		// 不常用。需要时再实现此方法，
 	}
 
-	/**
-	 * used before send notification
-	 * @param intent
-	 * @return
-	 */
-	public static Intent resolveNotificationIntent(Intent intent, int type) {
-
-		if (type == PluginDescriptor.BROADCAST) {
-
-			Intent newIntent = PluginIntentResolver.resolveReceiver(intent).get(0);
-			return newIntent;
-
-		} else if (type == PluginDescriptor.ACTIVITY) {
-
-			PluginIntentResolver.resolveActivity(intent);
-			return intent;
-
-		} else if (type == PluginDescriptor.SERVICE) {
-
-			PluginIntentResolver.resolveService(intent);
-			return intent;
-
-		}
-		return intent;
-	}
-
-	@SuppressWarnings("ResourceType")
-	public static PendingIntent resolvePendingIntent(PendingIntent origin, int type) {
-		if (origin != null) {
-			Intent originIntent = (Intent)RefInvoker.invokeMethod(origin,
-					PendingIntent.class.getName(), "getIntent",
-					(Class[])null, (Object[])null);
-			if (originIntent != null) {
-				//如果目标是插件中的组件，需要额外提供2个参数, 默认为0、Update_Current。
-				ArrayList<String> classNameList = PluginLoader.matchPlugin(originIntent, type);
-				if (classNameList != null && classNameList.size() > 0) {
-
-					int requestCode = originIntent.getIntExtra("pending_requestCode", 0);
-					int flags = originIntent.getIntExtra("pending_flag", PendingIntent.FLAG_UPDATE_CURRENT);
-
-					if (type == PluginDescriptor.BROADCAST) {
-
-						Intent newIntent = PluginIntentResolver.resolveReceiver(originIntent).get(0);
-						return PendingIntent.getBroadcast(PluginLoader.getApplicatoin(), requestCode, newIntent, flags);
-
-					} else if (type == PluginDescriptor.ACTIVITY) {
-
-						PluginIntentResolver.resolveActivity(originIntent);
-						return PendingIntent.getActivity(PluginLoader.getApplicatoin(), requestCode, originIntent, flags);
-
-					} else if (type == PluginDescriptor.SERVICE) {
-
-						PluginIntentResolver.resolveService(originIntent);
-						return PendingIntent.getService(PluginLoader.getApplicatoin(), requestCode, originIntent, flags);
-
-					}
-				}
-			}
-		}
-		return origin;
-	}
 }

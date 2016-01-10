@@ -12,10 +12,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.example.pluginsharelib.SharePOJO;
-import com.example.plugintest.receiver.PluginTestReceiver;
 import com.example.plugintest.service.PluginTestService;
 import com.example.plugintest.vo.ParamVO;
-import com.plugin.util.LogUtil;
 
 public class PluginTestOpenPluginActivity extends Activity implements OnClickListener {
 
@@ -45,14 +43,14 @@ public class PluginTestOpenPluginActivity extends Activity implements OnClickLis
 	class NestReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			LogUtil.d("NestReceiver", intent.getStringExtra("str1") + ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+			Log.d("NestReceiver", intent.getStringExtra("str1") + ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
 		}
 	}
 
 	class NestReceiver2 extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			LogUtil.d("NestReceiver2", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+			Log.d("NestReceiver2", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
 		}
 	}
 

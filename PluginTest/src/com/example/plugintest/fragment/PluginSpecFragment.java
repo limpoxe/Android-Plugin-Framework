@@ -1,6 +1,7 @@
 package com.example.plugintest.fragment;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -12,7 +13,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.plugintest.R;
-import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginThemeHelper;
 
 /**
@@ -30,17 +30,17 @@ public class PluginSpecFragment extends Fragment implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		getActivity().setTitle("测试插件中的Fragment，使用插件中指定的PluginTheme主题");
+		getActivity().setTitle("测试插件中的特殊Fragment");
 
 		// 默认是宿主程序Application主题
-		pluginContext = PluginLoader.getNewPluginApplicationContext(PluginSpecFragment.class);
-		// 设置主题为插件程序主题
-		PluginThemeHelper.setTheme(pluginContext, R.style.PluginTheme);
-		// 设置主题为宿主程序主题
-		// PluginCompat.setTheme(pluginContext,
-		// com.example.pluginsharelib.R.style.ShareTheme);
-
-		pluginInflater = (LayoutInflater) pluginContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		try {
+			pluginContext = getActivity().createPackageContext("com.example.plugintest", 0);
+			// 设置主题为插件程序主题
+			PluginThemeHelper.setTheme(pluginContext, R.style.PluginTheme);
+			pluginInflater = (LayoutInflater) pluginContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

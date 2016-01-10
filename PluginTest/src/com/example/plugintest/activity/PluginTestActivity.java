@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.example.plugintest.R;
 import com.example.plugintest.vo.ParamVO;
-import com.plugin.util.LogUtil;
 
 /**
  * 插件中引用主程序资源文件需要显式的指定引用的R 因为主程序的资源id每次编译时都会变化 所以使用主程序资源id的时候必须使用引用
@@ -66,7 +65,6 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 	}
 
 	public void initViews() {
-		LogUtil.d(R.id.plugin_test_btn1, R.layout.plugin_layout);
 		Button btn1 = (Button) mRoot.findViewById(R.id.plugin_test_btn1);
 		btn1.setOnClickListener(this);
 

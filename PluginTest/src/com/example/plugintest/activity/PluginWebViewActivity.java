@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -14,6 +15,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebChromeClient;
@@ -30,17 +32,15 @@ import com.example.plugintest.R;
 import com.example.plugintest.provider.PluginDbTables;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
-import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginIntentResolver;
-import com.plugin.core.PluginLoader;
-import com.plugin.core.PluginRemoteViewHelper;
-import com.plugin.core.localservice.LocalServiceManager;
-import com.plugin.util.FileUtil;
-import com.plugin.util.LogUtil;
+import com.plugin.util.NotificationHelper;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
+@SuppressWarnings("ALL")
 public class PluginWebViewActivity extends Activity implements OnClickListener {
 	WebView web;
 
@@ -68,7 +68,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		setUpWebViewSetting();
 		setClient();
 
-		ILoginService login = (ILoginService) LocalServiceManager.getService("login_service");
+		ILoginService login = (ILoginService) getSystemService("login_service");
 		if (login != null) {
 			LoginVO vo = login.login("admin", "123456");
 			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
@@ -102,7 +102,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 					if (index != -1) {
 						isSuccess = true;
 						String pluginName = cursor.getString(index);
-						LogUtil.d(pluginName);
+						Log.d("xx", pluginName);
 						Toast.makeText(this, "ContentResolver " + pluginName + " count=" + cursor.getCount(), Toast.LENGTH_LONG).show();
 					}
 				}
@@ -160,7 +160,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		//还可以支持唤起service、receiver等等。
 
 		intent.putExtra("param1", "这是来自通知栏的参数");
-		intent = PluginIntentResolver.resolveNotificationIntent(intent, PluginDescriptor.ACTIVITY);
+		intent = NotificationHelper.resolveNotificationIntent(intent, 2/*PluginDescriptor.ACTIVITY*/);
 
 		PendingIntent contentIndent = PendingIntent.getActivity(this, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
@@ -173,11 +173,20 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 				.setContentText("来自插件ContentText");//设置上下文内容
 
 		if (Build.VERSION.SDK_INT >=21) {
-			RemoteViews remoteViews = PluginRemoteViewHelper.createRemoteViews(
-					R.layout.plugin_notification,
-					new File(Environment.getExternalStorageDirectory(), "tempNotificationRes.apk").getAbsolutePath(),
-					PluginLoader.getPluginDescriptorByClassName(PluginWebViewActivity.class.getName()).getPackageName());
-			builder.setContent(remoteViews);
+			try {
+				//获取当前插件的packageName
+				String currentPackageName = ((PackageManager)getSystemService("package_manager")).getActivityInfo(new ComponentName(this.getPackageName(), this.getClass().getName()), 0).packageName;
+
+				RemoteViews remoteViews = NotificationHelper.createRemoteViews(
+						R.layout.plugin_notification,
+						new File(Environment.getExternalStorageDirectory(), "tempNotificationRes.apk").getAbsolutePath(),
+						currentPackageName);
+				builder.setContent(remoteViews);
+
+			} catch (PackageManager.NameNotFoundException e) {
+				e.printStackTrace();
+			}
+
 		}
 
 		Notification notification = builder.getNotification();
@@ -188,7 +197,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 	private void testReadAssert() {
 		try {
 			InputStream assestInput = getAssets().open("test.json");
-			String text = FileUtil.streamToString(assestInput);
+			String text = streamToString(assestInput);
 			Toast.makeText(this, "read assets from plugin" + text, Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -231,5 +240,20 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 			}
 
 		});
+	}
+
+	private static String streamToString(InputStream input) throws IOException {
+
+		InputStreamReader isr = new InputStreamReader(input);
+		BufferedReader reader = new BufferedReader(isr);
+
+		String line;
+		StringBuffer sb = new StringBuffer();
+		while ((line = reader.readLine()) != null) {
+			sb.append(line);
+		}
+		reader.close();
+		isr.close();
+		return sb.toString();
 	}
 }

@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
-import com.plugin.core.localservice.LocalServiceManager;
 
 public class PluginSingleTaskActivity extends Activity implements OnClickListener {
 
