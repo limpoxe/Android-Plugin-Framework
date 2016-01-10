@@ -8,9 +8,7 @@
     package="com.example.plugintest"
     android:versionCode="1"
     android:versionName="1.0.1"
-    android:sharedUserId="com.example.pluginmain"
-    dependencies="com.example.plugintestbase,"
-    >
+    android:sharedUserId="com.example.pluginmain" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -20,6 +18,8 @@
  	    android:name="com.example.plugintest.PluginTestApplication"
         android:label="@*com.example.pluginmain:string/share_string_2"
         android:theme="@style/PluginTheme2">
+
+        <uses-library android:name="com.example.plugintestbase" android:required="true" />
 
         <meta-data android:name="abcdef" android:value="654321"/>
 

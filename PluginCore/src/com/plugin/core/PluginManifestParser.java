@@ -38,7 +38,9 @@ public class PluginManifestParser {
             int eventType = parser.getEventType();
             String namespaceAndroid = null;
             String packageName = null;
-            
+
+            ArrayList<String> dependencies = null;
+
             PluginDescriptor desciptor = new PluginDescriptor();
             do {
                 switch (eventType) {
@@ -47,7 +49,7 @@ public class PluginManifestParser {
                     }
                     case XmlPullParser.START_TAG: {
                         String tag = parser.getName();
-                        if (tag.equals("manifest")) {
+                        if ("manifest".equals(tag)) {
                         	
                             namespaceAndroid = parser.getNamespace("android");
                             
@@ -64,14 +66,8 @@ public class PluginManifestParser {
                             
                             desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplicatoin().getPackageName().equals(sharedUserId));
 
-                            String dependencies = parser.getAttributeValue("", "dependencies");
-                            if (dependencies != null) {
-                                String[] pluginIds = dependencies.split(",");
-                                desciptor.setDependencies(pluginIds);
-                            }
-
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
-                        } else if (tag.equals("meta-data")) {
+                        } else if ("meta-data".equals(tag)) {
 
                         	String name = parser.getAttributeValue(namespaceAndroid, "name");
                         	String value = parser.getAttributeValue(namespaceAndroid, "value");
@@ -97,7 +93,7 @@ public class PluginManifestParser {
 
                             }
 
-                        } else if (tag.equals("exported-fragment")) {
+                        } else if ("exported-fragment".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             String value = parser.getAttributeValue(namespaceAndroid, "value");
@@ -114,7 +110,7 @@ public class PluginManifestParser {
 
                             }
 
-                        } else if (tag.equals("exported-service")) {
+                        } else if ("exported-service".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             String value = parser.getAttributeValue(namespaceAndroid, "value");
@@ -131,7 +127,16 @@ public class PluginManifestParser {
 
                             }
 
-                        } else if ("application".equals(parser.getName())) {
+                        } else if ("uses-library".equals(tag)) {
+
+                            String name = parser.getAttributeValue(namespaceAndroid, "name");
+
+                            if (dependencies == null) {
+                                dependencies = new ArrayList<String>();
+                            }
+                            dependencies.add(name);
+
+                        } else if ("application".equals(tag)) {
                         	
                         	String applicationName = parser.getAttributeValue(namespaceAndroid, "name");
                             if (applicationName == null) {
@@ -141,10 +146,10 @@ public class PluginManifestParser {
                             desciptor.setApplicationName(applicationName);
 
                     		desciptor.setDescription(parser.getAttributeValue(namespaceAndroid, "label"));
-                    		
-                    		LogUtil.d("applicationName", applicationName, " Description ", desciptor.getDescription());
 
-                        } else if ("activity".equals(parser.getName())) {
+                            LogUtil.d("applicationName", applicationName, " Description ", desciptor.getDescription());
+
+                        } else if ("activity".equals(tag)) {
 
                             String windowSoftInputMode = parser.getAttributeValue(namespaceAndroid, "windowSoftInputMode");//strin
                             String hardwareAccelerated = parser.getAttributeValue(namespaceAndroid, "hardwareAccelerated");//int string
@@ -184,16 +189,16 @@ public class PluginManifestParser {
                             pluginActivityInfo.setWindowSoftInputMode(windowSoftInputMode);
                             pluginActivityInfo.setUiOptions(uiOptions);
 
-                        } else if ("receiver".equals(parser.getName())) {
+                        } else if ("receiver".equals(tag)) {
 
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getReceivers();
                             if (map == null) {
                                 map = new HashMap<String, ArrayList<PluginIntentFilter>>();
                                 desciptor.setReceivers(map);
                             }
-                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "receiver");
+                            addIntentFilter(map, packageName, namespaceAndroid, parser, "receiver");
 
-                        } else if ("service".equals(parser.getName())) {
+                        } else if ("service".equals(tag)) {
 
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getServices();
                             if (map == null) {
@@ -202,7 +207,7 @@ public class PluginManifestParser {
                             }
                         	addIntentFilter(map, packageName, namespaceAndroid, parser, "service");
 
-                        } else if ("provider".equals(parser.getName())) {
+                        } else if ("provider".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             String author = parser.getAttributeValue(namespaceAndroid, "authorities");
@@ -234,6 +239,10 @@ public class PluginManifestParser {
             //有可能没有配置application节点，这里需要检查一下application
             if (desciptor.getApplicationName() == null) {
                 desciptor.setApplicationName(Application.class.getName());
+            }
+
+            if (dependencies != null) {
+                desciptor.setDependencies((String[])dependencies.toArray(new String[0]));
             }
 
             return desciptor;
