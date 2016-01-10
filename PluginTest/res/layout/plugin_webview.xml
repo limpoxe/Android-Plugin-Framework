@@ -45,6 +45,12 @@
         android:layout_height="wrap_content"
         android:text="点击测试notification" />
 
+    <Button
+        android:id="@+id/weixin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击唤起微信插件" />
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="fill_parent"

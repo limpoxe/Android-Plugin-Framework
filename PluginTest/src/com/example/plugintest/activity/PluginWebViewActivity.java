@@ -7,6 +7,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,12 +61,14 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		bn.setOnClickListener(this);
 		bn = (Button) findViewById(R.id.db_notification);
 		bn.setOnClickListener(this);
+		bn = (Button) findViewById(R.id.weixin);
+		bn.setOnClickListener(this);
 
 		web = (WebView) findViewById(R.id.webview);
 		setUpWebViewSetting();
 		setClient();
 
-		ILoginService login = (ILoginService) LocalServiceManager.getService("plugin_login_service");
+		ILoginService login = (ILoginService) LocalServiceManager.getService("login_service");
 		if (login != null) {
 			LoginVO vo = login.login("admin", "123456");
 			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
@@ -116,6 +121,27 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		} else if (v.getId() == R.id.db_notification) {
 
 			testNotification();
+		} else if (v.getId() == R.id.weixin) {
+
+			//通过packageManager查询其他插件信息
+			PackageManager packageManager = (PackageManager)getSystemService("package_manager");
+			try {
+				PackageInfo info = packageManager.getPackageInfo("com.example.wxsdklibrary", PackageManager.GET_ACTIVITIES);
+
+				for(ActivityInfo activityInfo:info.activities) {
+					if (activityInfo.name.contains("Send")) {
+						Intent intent = new Intent();
+						intent.setClassName(activityInfo.packageName, activityInfo.name);
+						startActivity(intent);
+						return;
+					}
+				}
+				Toast.makeText(this, "TargetNotFound", Toast.LENGTH_SHORT).show();
+			} catch (PackageManager.NameNotFoundException e) {
+				e.printStackTrace();
+				Toast.makeText(this, "NameNotFoundException", Toast.LENGTH_SHORT).show();
+			}
+
 		}
 	}
 
