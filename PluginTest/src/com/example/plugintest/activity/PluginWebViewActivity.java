@@ -63,6 +63,8 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		bn.setOnClickListener(this);
 		bn = (Button) findViewById(R.id.weixin);
 		bn.setOnClickListener(this);
+		bn = (Button) findViewById(R.id.hellow);
+		bn.setOnClickListener(this);
 
 		web = (WebView) findViewById(R.id.webview);
 		setUpWebViewSetting();
@@ -123,7 +125,7 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 			testNotification();
 		} else if (v.getId() == R.id.weixin) {
 
-			//通过packageManager查询其他插件信息
+			//通过packageManager查询其他插件信息, 微信插件中没有配置launcher，所以这里用字符串“Send”来匹配
 			PackageManager packageManager = (PackageManager)getSystemService("package_manager");
 			try {
 				PackageInfo info = packageManager.getPackageInfo("com.example.wxsdklibrary", PackageManager.GET_ACTIVITIES);
@@ -142,6 +144,11 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 				Toast.makeText(this, "NameNotFoundException", Toast.LENGTH_SHORT).show();
 			}
 
+		} else if (v.getId() == R.id.hellow) {
+			//通过packageManager查询其他插件信息
+			PackageManager packageManager = (PackageManager)getSystemService("package_manager");
+			Intent intent = packageManager.getLaunchIntentForPackage("com.example.pluginhelloworld");
+			startActivity(intent);
 		}
 	}
 

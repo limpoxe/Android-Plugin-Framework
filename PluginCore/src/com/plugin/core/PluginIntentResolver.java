@@ -36,7 +36,7 @@ public class PluginIntentResolver {
 		// 不需要在这里记录目标className，className将在Intent中传递
 		ArrayList<Intent> result = new ArrayList<Intent>();
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.BROADCAST);
-		if (classNameList != null) {
+		if (classNameList != null && classNameList.size() > 0) {
 			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
 
 			for(String className: classNameList) {
@@ -106,7 +106,7 @@ public class PluginIntentResolver {
 	public static void resolveActivity(Intent intent) {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.ACTIVITY);
-		if (classNameList != null && classNameList.size() >0) {
+		if (classNameList != null && classNameList.size() > 0) {
 
 			String className = classNameList.get(0);
 			PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(className);

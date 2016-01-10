@@ -93,6 +93,19 @@ public class PluginPackageManager extends PackageManager {
 
     @Override
     public Intent getLaunchIntentForPackage(String packageName) {
+        PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(packageName);
+        if (pd != null) {
+            Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
+            intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER);
+            intentToResolve.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            List<String> result = pd.matchPlugin(intentToResolve, PluginDescriptor.ACTIVITY);
+            if (result != null && result.size() >0) {
+                intentToResolve.setClassName(packageName, result.get(0));
+                return intentToResolve;
+            }
+            return null;
+        }
+
         // First see if the package has an INFO activity; the existence of
         // such an activity is implied to be the desired front-door for the
         // overall package (such as if it has multiple launcher entries).

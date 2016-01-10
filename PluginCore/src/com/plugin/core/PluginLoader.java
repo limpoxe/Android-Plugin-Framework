@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -546,85 +547,20 @@ public class PluginLoader {
 	 */
 	public static ArrayList<String> matchPlugin(Intent intent, int type) {
 		ArrayList<String> result = null;
-
 		Iterator<PluginDescriptor> itr = getPlugins().iterator();
-
 		while (itr.hasNext()) {
-			PluginDescriptor plugin = itr.next();
-			String clazzName = null;
-			// 如果是通过组件进行匹配的
-			if (intent.getComponent() != null) {
-				if (plugin.containsName(intent.getComponent().getClassName())) {
-					clazzName = intent.getComponent().getClassName();
-					result = new ArrayList<String>(1);
-					result.add(clazzName);
-					return result;//暂时不考虑不同的插件中配置了相同名称的组件的问题,先到先得
+			List<String> list = itr.next().matchPlugin(intent, type);
+			if (list != null && list.size() > 0) {
+				if (result == null) {
+					result = new ArrayList<>();
 				}
-			} else {
-				// 如果是通过IntentFilter进行匹配的
-				if (type == PluginDescriptor.ACTIVITY) {
-
-					ArrayList<String> list  = findClassNameByIntent(intent, plugin.getActivitys());
-
-					if (list != null && list.size() >0) {
-						result = new ArrayList<String>(1);
-						result.add(list.get(0));
-						return result;//暂时不考虑多个Activity配置了相同的Intent的问题,先到先得
-					}
-
-				} else if (type == PluginDescriptor.SERVICE) {
-
-					ArrayList<String> list  = findClassNameByIntent(intent, plugin.getServices());
-
-					if (list != null && list.size() >0) {
-						result = new ArrayList<String>(1);
-						result.add(list.get(0));
-						return result;//service本身不支持多匹配
-					}
-
-				} else if (type == PluginDescriptor.BROADCAST) {
-
-					ArrayList<String> list  = findClassNameByIntent(intent, plugin.getReceivers());
-					if (list != null) {
-						if (result == null) {
-							result = new ArrayList<String>();
-						}
-						result.addAll(list);//暂时不考虑去重的问题
-					}
-				}
+				result.addAll(list);
+			}
+			if (result != null && type != PluginDescriptor.BROADCAST) {
+				break;
 			}
 		}
 		return result;
-	}
-
-	private static ArrayList<String> findClassNameByIntent(Intent intent, HashMap<String, ArrayList<PluginIntentFilter>> intentFilter) {
-		if (intentFilter != null) {
-			ArrayList<String> targetClassNameList = null;
-
-			Iterator<Entry<String, ArrayList<PluginIntentFilter>>> entry = intentFilter.entrySet().iterator();
-			while (entry.hasNext()) {
-				Entry<String, ArrayList<PluginIntentFilter>> item = entry.next();
-				Iterator<PluginIntentFilter> values = item.getValue().iterator();
-				while (values.hasNext()) {
-					PluginIntentFilter filter = values.next();
-					int result = filter.match(intent.getAction(), intent.getType(), intent.getScheme(),
-							intent.getData(), intent.getCategories());
-
-					if (result != PluginIntentFilter.NO_MATCH_ACTION
-							&& result != PluginIntentFilter.NO_MATCH_CATEGORY
-							&& result != PluginIntentFilter.NO_MATCH_DATA
-							&& result != PluginIntentFilter.NO_MATCH_TYPE) {
-						if (targetClassNameList == null) {
-							targetClassNameList = new ArrayList<String>();
-						}
-						targetClassNameList.add(item.getKey());
-						break;
-					}
-				}
-			}
-			return targetClassNameList;
-		}
-		return null;
 	}
 
 }

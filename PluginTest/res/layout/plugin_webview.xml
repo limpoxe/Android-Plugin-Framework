@@ -51,6 +51,12 @@
         android:layout_height="wrap_content"
         android:text="点击唤起微信插件" />
 
+    <Button
+        android:id="@+id/hellow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击唤起HelloWorld插件" />
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="fill_parent"
