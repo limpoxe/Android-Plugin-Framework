@@ -1,6 +1,3 @@
-import java.util.jar.JarEntry
-import java.util.jar.JarOutputStream
-import java.util.zip.Deflater
 
 apply plugin: 'com.android.library'
 
@@ -53,81 +50,36 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-def manifestFile = android.sourceSets.main.manifest.srcFile
-
-def packageName = new XmlParser().parse(manifestFile).attribute('package')
-
-//定义一个生成Jar的t方法
-def jarTask(String outputJarPath, String packageNamePath) {
-
-    final String buildDirPath = buildDir.absolutePath;
-    final String intermediate = 'intermediates' + File.separator + 'classes' + File.separator + 'release' + File.separator;
-    final String filter1 = 'R.class';
-    final String filter2 = 'R$';
-
-    println 'jarTask... ' + buildDirPath
-
-    try {
-
-        File outputJar = new File(outputJarPath);
-        if (outputJar.exists()) {
-            outputJar.delete();
-        }
-
-        JarOutputStream jos = new JarOutputStream(new FileOutputStream(outputJar));
-        jos.setLevel(Deflater.BEST_COMPRESSION);
-        BufferedInputStream bis = null;
-        byte[] cache = new byte[1024];
-
-        File[] file = new File(buildDirPath, intermediate + packageNamePath).listFiles(
-                new FileFilter() {
-                    @Override
-                    public boolean accept(File pathname) {
-                        if (filter1.equals(pathname.getName()) || pathname.getName().startsWith(filter2)) {
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-
-        for(int i=0; i< file.length; i++) {
-            bis = new BufferedInputStream(new FileInputStream(file[i]), 1024);
-            println file[i].getAbsolutePath().replace(buildDirPath + File.separator + intermediate, "")
-            jos.putNextEntry(new JarEntry(file[i].getAbsolutePath().replace(buildDirPath + File.separator + intermediate, "")));
-            int count;
-            while((count = bis.read(cache, 0, 1024)) != -1) {
-                jos.write(cache, 0, count);
-            }
-            jos.closeEntry();
-            bis.close();
-        }
-
-        jos.flush();
-        jos.close();
-
-    } catch(Exception ex) {
-        ex.printStackTrace();
-    }
-}
-
 build.doLast {
 
     //测试自定义task, 观察编译log里面是否有输出
     helloTask.execute()
 
-    //生成R的jar包
-    jarTask(buildDir.absolutePath + File.separator + 'outputs' + File.separator + 'rClasses.jar', packageName.replace('.', File.separator))
+    //导出R的Jar包
+    exportJar.execute()
 
 }
 
+task exportJar(type: Jar) {
+    //指定生成的jar名
+    baseName 'rClasses'
+    from buildDir.absolutePath + '/intermediates/classes/debug/'
+    include '**/R.class'
+    include '**/R$*.class'
+    //打包到jar后的目录结构
+    //into("com/xxx/xxx")
+    destinationDir = file(buildDir.absolutePath + '/outputs/')
+}
+
+
 // 自定义task的用法
 task helloTask(type: HelloGradleTask) {
-    helloStr = 'hello BBB from greeting'
+    helloStr = 'hello from ovrride greeting ' + android.sourceSets.main.manifest.srcFile
 }
 // 自定义task的用法
 class HelloGradleTask extends DefaultTask {
 
-    def String helloStr = 'hello AAA from HelloGradleTask'
+    def String helloStr = 'hello from Default HelloGradleTask '
 
     @TaskAction
     def hello() {
