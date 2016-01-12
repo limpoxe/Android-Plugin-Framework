@@ -124,12 +124,16 @@ public class PluginResourceWrapper extends Resources {
 			// 判断是否在真的在宿主中
 			Class rClass = null;
 			try {
-				rClass = this.getClass().getClassLoader().loadClass(packageName + ".R$" + type);
+				String className = packageName + ".R$" + type;
+				rClass = this.getClass().getClassLoader().loadClass(className);
 				Field field = rClass.getDeclaredField(entry);
-				if (field == null) {//不在宿主中，换成插件的
+				if (field == null) {
+					//不在宿主中，换成插件的
 					packageName = mPluginDescriptor.getPackageName();
 				}
 			} catch (Exception e) {
+				//不在宿主中，换成插件的
+				packageName = mPluginDescriptor.getPackageName();
 			}
 		}
 		return super.getIdentifier(entry, type, packageName);
