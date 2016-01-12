@@ -32,7 +32,7 @@ public class PluginManagerImpl implements PluginManager {
 	@Override
 	public String genInstallPath(String pluginId, String pluginVersoin) {
 		return PluginLoader.getApplicatoin().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath() + "/" + pluginId + "/"
-				+ pluginVersoin + "/" + pluginId + ".apk";
+				+ pluginVersoin + "/base-1.apk";
 	}
 
 	@SuppressWarnings("unchecked")
