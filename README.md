@@ -20,7 +20,8 @@
   7、支持插件使用宿主程序主题（部分系统暂不支持，如MX5）、系统主题、插件自身主题以及style（插件主题不支持透明）、轻松支持皮肤切换
   
   8、支持非独立插件和独立插件（非独立插件指自己编译的需要依赖宿主中的公共类和资源的插件，不可独立安装运行。独立插件又分为两种：
-     一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装运行，这种只做了简单支持。）
+     一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装
+     运行，这种只做了简单支持。）
   
   9、支持插件Activity的4个LaunchMode
 
@@ -34,7 +35,8 @@
   
   2、不支持插件申请权限，权限必须预埋到宿主中。
   
-  3、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接。
+  3、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。
+     第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接。
 
 # 开发注意事项
 
@@ -46,7 +48,8 @@
 
         b）通过定制过的aapt在编译插件时指定id范围来解决冲突（For-gradle-with-aapt分支采用的方案）
            此方案需要替换sdk原生的aapt，且要区分多平台，buildTools版本更新后需同步升级aapt。
-           定制的aapt由 openAtlasExtention@github 项目提供，目前的版本是基于22.0.1，将项目中的BuildTools替换到本地Android Sdk中相应版本的BuildTools中，
+           定制的aapt由 openAtlasExtention@github 项目提供，目前的版本是基于22.0.1，将项目中的BuildTools替换
+           到本地Android Sdk中相应版本的BuildTools中，
            并指定gradle的buildTools version为对应版本即可。
 
     2、非独立插件中的class不能同时存在于宿主和插件程序中，因此其引用的公共库仅参与编译，不参与打包，参看demo中的gradle脚本。
@@ -60,7 +63,19 @@
 
        因此需要提前通知系统，宿主需要在哪些cpu模式下运行。提前通知的方式即内置占位so。
 
-    4、插件间依赖时，被插件依赖的插件暂不支持包含资源
+    4、插件依赖插件时，被插件依赖的插件暂不支持包含资源
+    
+    5、插件中获取当前插件的包信息，如meta－data等：
+        
+        PackageInfo packageInfo = getPackageManager().getPackageArchiveInfo(getPackageResourcePath(), PackageManager.GET_META_DATA);
+        
+    6、插件中获取其他插件的包信息，如Activity等：
+        
+        PackageManager packageManager = (PackageManager)getSystemService("package_manager");
+    	Intent intent = packageManager.getLaunchIntentForPackage("com.example.pluginhelloworld");
+    	
+    7、在插件中调用getPackageName方法返回的是宿主的包名，不是插件包名。
+        
 
 # 目录结构说明：
 
@@ -209,7 +224,8 @@
     
   12、插件Activity的LaunchMode
   
-    要实现插件Activity的LaunchMode，需要在宿主程序中预埋若干个相应launchMode的Activity（预注册的组件可实际存在也可不存在），在运行时进行动态映射选择
+    要实现插件Activity的LaunchMode，需要在宿主程序中预埋若干个（standard只需1个）相应launchMode的Activity（预注
+    册的组件可实际存在也可不存在），在运行时进行动态映射选择。core工程的manifest中配置
 
   13、对多Service的支持
   
@@ -234,9 +250,10 @@
     2015-12-05： 1、修复插件so在多cpu平台下模式选择错误的问题
                  2、添加对基于主题style和自定义属性的换肤功能
 
-    2015-11-22： 1、gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，因此master分支切回到利用public.xml分组的实现
+    2015-11-22： 1、gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，
+                    因此master分支切回到利用public.xml分组的实现
                  2、支持插件资源文件直接通过@package:type/name方式引用宿主资源
 
 联系作者：
-  Q：15871365851， 添加时请注明插件开发。
-  Q群：207397154
+  Q：15871365851，添加时请注明插件开发
+  Q群：207397154，添加前请务必仔细阅读此ReadMe！请务必仔细阅读Demo！
