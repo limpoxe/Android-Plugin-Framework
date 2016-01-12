@@ -48,8 +48,11 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static Resources createPluginResource(Application application, String absolutePluginApkPath,
-			boolean isStandalone, String[] dependencies) {
+	public static Resources createPluginResource(Application application, PluginDescriptor pluginDescriptor) {
+		String absolutePluginApkPath = pluginDescriptor.getInstalledPath();
+		boolean isStandalone = pluginDescriptor.isStandalone();
+		String[] dependencies = pluginDescriptor.getDependencies();
+
 		try {
 
 			// 插件运行时可能会通过getActivityInfo等
@@ -67,7 +70,7 @@ public class PluginCreator {
 
 			Resources mainRes = application.getResources();
 			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
-					mainRes.getConfiguration());
+					mainRes.getConfiguration(), pluginDescriptor);
 
 			return pluginRes;
 		} catch (Exception e) {

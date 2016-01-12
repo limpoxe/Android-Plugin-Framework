@@ -5,6 +5,9 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
+import com.plugin.content.PluginDescriptor;
+import com.plugin.util.LogUtil;
+
 /**
  * 根据不同的rom，可能需要重写更多的方法，目前发现的几个机型的问题暂时只需要重写下面2个方法。
  * @author cailiming
@@ -12,9 +15,12 @@ import android.util.DisplayMetrics;
  */
 public class PluginResourceWrapper extends Resources {
 
+	private PluginDescriptor mPluginDescriptor;
+
 	public PluginResourceWrapper(AssetManager assets, DisplayMetrics metrics,
-			Configuration config) {
+			Configuration config, PluginDescriptor pluginDescriptor) {
 		super(assets, metrics, config);
+		this.mPluginDescriptor = pluginDescriptor;
 	}
 	
 	@Override
@@ -56,6 +62,12 @@ public class PluginResourceWrapper extends Resources {
 		//默认宿主的资源id以0x7f开头
 		return resid>>24 == 0x7f;
 	}
-     
+
+	@Override
+	public int getIdentifier(String name, String defType, String defPackage) {
+		LogUtil.e("packageName", defPackage, "重置为：", mPluginDescriptor.getPackageName());
+		defPackage = mPluginDescriptor.getPackageName();
+		return super.getIdentifier(name, defType, defPackage);
+	}
 }
 
