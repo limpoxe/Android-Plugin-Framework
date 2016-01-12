@@ -195,7 +195,8 @@
 
     对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
     
-    对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getPluginContext()获取的context，
+    对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getPluginContext()或者
+    通过context.createPackageContext(插件包名)获取的插件context，
     那么这种fragment对其运行容器没有特殊要求
     
     第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。

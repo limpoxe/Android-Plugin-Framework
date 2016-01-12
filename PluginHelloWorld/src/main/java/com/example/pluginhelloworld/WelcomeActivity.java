@@ -21,12 +21,13 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.e("xxx", "activity_welcome ID= " + R.layout.activity_welcome);
-        Log.e("xxx", getResources().getResourceEntryName(R.layout.activity_welcome));
-        Log.e("xxx", getResources().getString(R.string.app_name));
-        Log.e("xxx", getPackageName() + ", " + getText(R.string.app_name));
-        Log.e("xxx", getResources().getString(android.R.string.httpErrorBadUrl));
-        Log.e("xxx", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginhelloworld")));
+        Log.e("xxx1", "activity_welcome ID= " + R.layout.activity_welcome);
+        Log.e("xxx2", getResources().getResourceEntryName(R.layout.activity_welcome));
+        Log.e("xxx3", getResources().getString(R.string.app_name));
+        Log.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
+        Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
+        Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginhelloworld")));
+        Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
 
         setContentView(R.layout.activity_welcome);
 
