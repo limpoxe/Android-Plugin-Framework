@@ -27,14 +27,29 @@ public class PluginCreator {
 	 */
 	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
 														 String[] dependences) {
+
+		String apkParentDir = new File(absolutePluginApkPath).getParent();
+
+		File optDir = new File(apkParentDir, "dalvik-cache");
+		optDir.mkdirs();
+
+		File libDir = new File(apkParentDir, "lib");
+		libDir.mkdirs();
+
 		if (!isStandalone) {//非独立插件
-			return new PluginClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
-					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
-					PluginLoader.class.getClassLoader(), dependences);//宿主classloader
+			return new PluginClassLoader(
+					absolutePluginApkPath,
+					optDir.getAbsolutePath(),
+					libDir.getAbsolutePath(),
+					PluginLoader.class.getClassLoader(),//宿主classloader
+					dependences);//插件依赖的插件
 		} else {//独立插件
-			return new PluginClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
-					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
-					PluginLoader.class.getClassLoader().getParent(), null);//系统classloader
+			return new PluginClassLoader(
+					absolutePluginApkPath,
+					optDir.getAbsolutePath(),
+					libDir.getAbsolutePath(),
+					PluginLoader.class.getClassLoader().getParent(),//系统classloader
+					null);//独立插件无依赖
 		}
 
 	}

@@ -3,6 +3,7 @@ package com.plugin.core;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
@@ -105,6 +106,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		}
 
 		return service;
+	}
+
+	@Override
+	public PackageManager getPackageManager() {
+		//return new PluginPackageManager(new PackageManagerCompat(getPackageManager()));
+		return super.getPackageManager();
 	}
 
 	private void initializeTheme() {

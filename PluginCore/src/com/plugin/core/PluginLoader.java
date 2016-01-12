@@ -214,8 +214,8 @@ public class PluginLoader {
 		}
 
 		// 第4步骤，复制插件到插件目录
-		String destPluginFile = pluginManager.genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-		boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destPluginFile);
+		String destApkPath = pluginManager.genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+		boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destApkPath);
 
 		if (!isCopySuccess) {
 
@@ -226,35 +226,41 @@ public class PluginLoader {
 		} else {
 
 			//第5步，先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
-			File tempDir = new File(new File(destPluginFile).getParentFile(), "temp");
-			Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempDir);
+			File apkParent = new File(destApkPath).getParentFile();
+			File tempSoDir = new File(apkParent, "temp");
+			Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempSoDir);
 			if (soList != null) {
 				for (String soName : soList) {
-					FileUtil.copySo(tempDir, soName, new File(destPluginFile).getParent());
+					FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath());
 				}
 				//删掉临时文件
-				FileUtil.deleteAll(tempDir);
+				FileUtil.deleteAll(tempSoDir);
 			}
 
 			// 第6步 添加到已安装插件列表
-			pluginDescriptor.setInstalledPath(destPluginFile);
+			pluginDescriptor.setInstalledPath(destApkPath);
 			boolean isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
 			//删掉临时文件
 			new File(srcPluginFile).delete();
 
 			if (!isInstallSuccess) {
 				LogUtil.d("安装插件失败", srcPluginFile);
+
+				new File(destApkPath).delete();
+
 				return INSTALL_FAIL;
 			} else {
 				//通过创建classloader来触发dexopt，但不加载
 				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
+				FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
 				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null);
 				LogUtil.d("DEXOPT完毕");
 
 				LocalServiceManager.registerService(pluginDescriptor);
 
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-				LogUtil.d("安装插件成功", destPluginFile);
+				LogUtil.d("安装插件成功", destApkPath);
+
 				return SUCCESS;
 			}
 		}
@@ -445,9 +451,6 @@ public class PluginLoader {
 				pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 				pluginDescriptor.setPluginContext(pluginContext);
 				pluginDescriptor.setPluginClassLoader(pluginClassLoader);
-
-				//使用了openAtlasExtention之后就不需要Public.xml文件了
-				//checkPluginPublicXml(pluginDescriptor, pluginRes);
 
 				callPluginApplicationOnCreate(pluginDescriptor);
 
