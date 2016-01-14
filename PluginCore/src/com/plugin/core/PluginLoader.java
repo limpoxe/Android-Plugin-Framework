@@ -198,17 +198,23 @@ public class PluginLoader {
 			pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
 		}
 
+		boolean isNeedPending = false;
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
-			LogUtil.e("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath());
+			LogUtil.e("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath(), oldPluginDescriptor.getVersion(), pluginDescriptor.getVersion());
 
 			//检查插件是否已经加载
 			if (oldPluginDescriptor.getPluginContext() != null) {
-				LogUtil.e("插件已经加载, 现在不可执行安装操作");
-				return FAIL_BECAUSE_HAS_LOADED;
+				if (!oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
+					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本不同，进入pending状态，新版插件将在安装后进程重启再生效");
+					isNeedPending = true;
+				} else {
+					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
+					return FAIL_BECAUSE_HAS_LOADED;
+				}
 			} else {
-				LogUtil.e("先删除已安装的版本");
+				LogUtil.e("旧版插件还未加载，忽略版本，直接删除旧版，尝试安装新版");
 				remove(oldPluginDescriptor.getPackageName());
 			}
 		}
@@ -219,7 +225,7 @@ public class PluginLoader {
 
 		if (!isCopySuccess) {
 
-			LogUtil.d("复制插件到安装目录失败", srcPluginFile);
+			LogUtil.e("复制插件到安装目录失败", srcPluginFile);
 			//删掉临时文件
 			new File(srcPluginFile).delete();
 			return COPY_FILE_FAIL;
@@ -239,12 +245,17 @@ public class PluginLoader {
 
 			// 第6步 添加到已安装插件列表
 			pluginDescriptor.setInstalledPath(destApkPath);
-			boolean isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
+			boolean isInstallSuccess = false;
+			if (!isNeedPending) {
+				isInstallSuccess = pluginManager.addOrReplace(pluginDescriptor);
+			} else {
+				isInstallSuccess = pluginManager.pending(pluginDescriptor);
+			}
 			//删掉临时文件
 			new File(srcPluginFile).delete();
 
 			if (!isInstallSuccess) {
-				LogUtil.d("安装插件失败", srcPluginFile);
+				LogUtil.e("安装插件失败", srcPluginFile);
 
 				new File(destApkPath).delete();
 
@@ -256,10 +267,12 @@ public class PluginLoader {
 				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null);
 				LogUtil.d("DEXOPT完毕");
 
-				LocalServiceManager.registerService(pluginDescriptor);
+				if (!isNeedPending) {
+					LocalServiceManager.registerService(pluginDescriptor);
+				}
 
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-				LogUtil.d("安装插件成功", destApkPath);
+				LogUtil.e("安装插件成功," + (isNeedPending?" 重启进程生效":" 立即生效"), destApkPath);
 
 				return SUCCESS;
 			}

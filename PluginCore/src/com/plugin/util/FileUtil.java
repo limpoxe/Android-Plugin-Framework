@@ -29,6 +29,8 @@ import java.util.zip.ZipInputStream;
 
 public class FileUtil {
 
+	private static final boolean DEBUG = false;
+
 	public static boolean copyFile(String source, String dest) {
 		try {
 			return copyFile(new FileInputStream(new File(source)), dest);
@@ -85,7 +87,7 @@ public class FileUtil {
 				String[] abis = Build.SUPPORTED_ABIS;
 				if (abis != null) {
 					for (String abi: abis) {
-						LogUtil.d(abi);
+						LogUtil.d("try supported abi:", abi);
 						String name = "lib" + File.separator + abi + File.separator + so;
 						File sourceFile = new File(sourceDir, name);
 						if (sourceFile.exists()) {
@@ -97,7 +99,7 @@ public class FileUtil {
 					}
 				}
 			} else {
-				LogUtil.d(Build.CPU_ABI, Build.CPU_ABI2);
+				LogUtil.d("supported api:", Build.CPU_ABI, Build.CPU_ABI2);
 
 				String name = "lib" + File.separator + Build.CPU_ABI + File.separator + so;
 				File sourceFile = new File(sourceDir, name);
@@ -150,13 +152,17 @@ public class FileUtil {
 				String relativePath = ze.getName();
 
 				if (!relativePath.startsWith("lib" + File.separator)) {
-					LogUtil.d("不是lib目录，跳过", relativePath);
+					if (DEBUG) {
+						LogUtil.d("不是lib目录，跳过", relativePath);
+					}
 					continue;
 				}
 
 				if (ze.isDirectory()) {
 					File folder = new File(tempDir, relativePath);
-					LogUtil.d("正在创建目录", folder.getAbsolutePath());
+					if (DEBUG) {
+						LogUtil.d("正在创建目录", folder.getAbsolutePath());
+					}
 					if (!folder.exists()) {
 						folder.mkdirs();
 					}
@@ -261,6 +267,7 @@ public class FileUtil {
 				}
 			}
 		}
+		LogUtil.d("delete", file.getAbsolutePath());
 		return file.delete();
 	}
 

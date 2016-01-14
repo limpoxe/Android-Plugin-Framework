@@ -19,6 +19,7 @@ import java.util.jar.JarFile;
  */
 public class PackageVerifyer {
     private static String TAG = "PackageVerifyer";
+    private static boolean DEBUG = false;
 
     private static final Object mSync = new Object();
     private static WeakReference<byte[]> mReadBuffer;
@@ -69,7 +70,7 @@ public class PackageVerifyer {
                     LogUtil.e("INSTALL_PARSE_FAILED_NO_CERTIFICATES");
                     return null;
                 }
-                if (true) {
+                if (DEBUG) {
                     LogUtil.d(TAG, "File " + sourcePath + ": entry=" + jarEntry
                             + " certs=" + (certs != null ? certs.length : 0));
                     if (certs != null) {
@@ -90,7 +91,7 @@ public class PackageVerifyer {
                     if (je.getName().startsWith("META-INF/")) continue;
                     Certificate[] localCerts = loadCertificates(jarFile, je,
                             readBuffer);
-                    if (true) {
+                    if (DEBUG) {
                         LogUtil.d(TAG, "File " + sourcePath + " entry " + je.getName()
                                 + ": certs=" + certs + " ("
                                 + (certs != null ? certs.length : 0) + ")");

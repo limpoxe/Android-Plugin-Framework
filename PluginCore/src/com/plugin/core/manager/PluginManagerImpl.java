@@ -21,10 +21,17 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 
 public class PluginManagerImpl implements PluginManager {
 
+	private static final String INSTALLED_KEY = "plugins.list";
+
+	private static final String PENDING_KEY = "plugins.pending";
+
 	private final Hashtable<String, PluginDescriptor> sInstalledPlugins = new Hashtable<String, PluginDescriptor>();
+
+	private final Hashtable<String, PluginDescriptor> sPendingPlugins = new Hashtable<String, PluginDescriptor>();
 
 	/**
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
@@ -39,39 +46,27 @@ public class PluginManagerImpl implements PluginManager {
 	@Override
 	public synchronized void loadInstalledPlugins() {
 		if (sInstalledPlugins.size() == 0) {
-			// 读取已经安装的插件列表
-			String list = getSharedPreference().getString("plugins.list", "");
-			Serializable object = null;
-			if (!TextUtils.isEmpty(list)) {
-				ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-						Base64.decode(list, Base64.DEFAULT));
-				ObjectInputStream objectInputStream = null;
-				try {
-					objectInputStream = new ObjectInputStream(byteArrayInputStream);
-					object = (Serializable) objectInputStream.readObject();
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					if (objectInputStream != null) {
-						try {
-							objectInputStream.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					if (byteArrayInputStream != null) {
-						try {
-							byteArrayInputStream.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-			if (object != null) {
-
-				Hashtable<String, PluginDescriptor> installedPlugin = (Hashtable<String, PluginDescriptor>) object;
+			Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(INSTALLED_KEY);
+			if (installedPlugin != null) {
 				sInstalledPlugins.putAll(installedPlugin);
+			}
+
+			//把pending合并到install
+			Hashtable<String, PluginDescriptor> pendingPlugin = readPlugins(PENDING_KEY);
+			if (pendingPlugin != null) {
+				Iterator<Map.Entry<String, PluginDescriptor>> itr = pendingPlugin.entrySet().iterator();
+				while (itr.hasNext()) {
+					Map.Entry<String, PluginDescriptor> entry = itr.next();
+					//删除旧版
+					remove(entry.getKey());
+				}
+
+				//保存新版
+				sInstalledPlugins.putAll(pendingPlugin);
+				savePlugins(INSTALLED_KEY, sInstalledPlugins);
+
+				//清除pending
+				getSharedPreference().edit().remove(PENDING_KEY).commit();
 			}
 		}
 	}
@@ -79,13 +74,19 @@ public class PluginManagerImpl implements PluginManager {
 	@Override
 	public boolean addOrReplace(PluginDescriptor pluginDescriptor) {
 		sInstalledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-		return saveInstalledPlugins();
+		return savePlugins(INSTALLED_KEY, sInstalledPlugins);
+	}
+
+	@Override
+	public boolean pending(PluginDescriptor pluginDescriptor) {
+		sPendingPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
+		return savePlugins(PENDING_KEY, sPendingPlugins);
 	}
 
 	@Override
 	public synchronized boolean removeAll() {
 		sInstalledPlugins.clear();
-		boolean isSuccess = saveInstalledPlugins();
+		boolean isSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 		return isSuccess;
 	}
 
@@ -93,7 +94,7 @@ public class PluginManagerImpl implements PluginManager {
 	public synchronized boolean remove(String pluginId) {
 		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
 		if (old != null) {
-			boolean isSuccess = saveInstalledPlugins();
+			boolean isSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 			LogUtil.d("delete old", isSuccess, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 			return isSuccess;
@@ -111,7 +112,7 @@ public class PluginManagerImpl implements PluginManager {
 		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
 		if (pluginDescriptor != null && !pluginDescriptor.isEnabled()) {
 			pluginDescriptor.setEnabled(enable);
-			saveInstalledPlugins();
+			savePlugins(INSTALLED_KEY, sInstalledPlugins);
 		}
 	}
 
@@ -160,19 +161,19 @@ public class PluginManagerImpl implements PluginManager {
 		return sp;
 	}
 
-	private synchronized boolean saveInstalledPlugins() {
+	private synchronized boolean savePlugins(String key, Hashtable<String, PluginDescriptor> plugins) {
 
 		ObjectOutputStream objectOutputStream = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		try {
 			objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-			objectOutputStream.writeObject(sInstalledPlugins);
+			objectOutputStream.writeObject(plugins);
 			objectOutputStream.flush();
 
 			byte[] data = byteArrayOutputStream.toByteArray();
 			String list = Base64.encodeToString(data, Base64.DEFAULT);
 
-			getSharedPreference().edit().putString("plugins.list", list).commit();
+			getSharedPreference().edit().putString(key, list).commit();
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -193,6 +194,40 @@ public class PluginManagerImpl implements PluginManager {
 			}
 		}
 		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	private synchronized Hashtable<String, PluginDescriptor> readPlugins(String key) {
+		String list = getSharedPreference().getString(key, "");
+		Serializable object = null;
+		if (!TextUtils.isEmpty(list)) {
+			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+					Base64.decode(list, Base64.DEFAULT));
+			ObjectInputStream objectInputStream = null;
+			try {
+				objectInputStream = new ObjectInputStream(byteArrayInputStream);
+				object = (Serializable) objectInputStream.readObject();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (objectInputStream != null) {
+					try {
+						objectInputStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				if (byteArrayInputStream != null) {
+					try {
+						byteArrayInputStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+
+		return (Hashtable<String, PluginDescriptor>) object;
 	}
 
 }

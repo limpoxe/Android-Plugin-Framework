@@ -7,6 +7,7 @@ public interface PluginManager {
 	////管理接口
 	void loadInstalledPlugins();
 	boolean addOrReplace(PluginDescriptor pluginDescriptor);
+	boolean pending(PluginDescriptor pluginDescriptor);
 	boolean remove(String packageName);
 	boolean removeAll();
 	void enablePlugin(String pluginId, boolean enable);
