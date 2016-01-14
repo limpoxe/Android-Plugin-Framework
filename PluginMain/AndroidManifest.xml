@@ -15,6 +15,7 @@
     <application
         android:name="com.plugin.core.PluginApplication"
         android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
         android:theme="@style/ShareTheme" >
 
         <activity

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="app_name">插件框架</string>
     <string name="main_string_1">主程序首页文字1, button黑色是宿主程序主题</string>
 	<string name="main_string_2">主程序首页文字2</string>
 
