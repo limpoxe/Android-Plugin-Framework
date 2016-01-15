@@ -1,5 +1,7 @@
 package com.plugin.core;
 
+import android.app.ActivityManager;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -12,12 +14,15 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.localservice.LocalServiceManager;
+import com.plugin.core.systemservice.AndroidAppIActivityManager;
+import com.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.plugin.core.systemservice.PackageManagerCompat;
 import com.plugin.core.systemservice.PluginPackageManager;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 import java.io.File;
+import java.util.HashSet;
 
 public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
@@ -28,6 +33,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	private final ClassLoader mClassLoader;
 
 	protected final PluginDescriptor mPluginDescriptor;
+
+	final static HashSet<String> sServiceCache = new HashSet<String>(5);
 
 	public PluginContextTheme(PluginDescriptor pluginDescriptor, Context base, Resources resources, ClassLoader classLoader) {
 		super(base);
@@ -95,6 +102,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 		Object service = getBaseContext().getSystemService(name);
 
+		if (service != null && !sServiceCache.contains(name)) {
+			if (NOTIFICATION_SERVICE.equals(name)) {
+				AndroidAppINotificationManager.installProxy((NotificationManager)service);
+				sServiceCache.add(name);
+			} else if (ACTIVITY_SERVICE.equals(name)) {
+				AndroidAppIActivityManager.installProxy((ActivityManager) service);
+				sServiceCache.add(name);
+			} else if (ALARM_SERVICE.equals(name)) {
+
+			}
+		}
+
 		if (service == null) {
 
 			if ("package_manager".equals(name)) {
@@ -110,7 +129,6 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public PackageManager getPackageManager() {
-		//return new PluginPackageManager(new PackageManagerCompat(getPackageManager()));
 		return super.getPackageManager();
 	}
 

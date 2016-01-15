@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ProxyUtil {
 
-	public static Object asInterface(Object target, MethodDelegate delegate) {
+	public static Object createProxy(Object target, MethodDelegate delegate) {
 		Class<?> clazz = target.getClass();
 		List<Class<?>> interfaces = getAllInterfaces(clazz);
 		Class[] ifs = interfaces != null && interfaces.size() > 0 ? interfaces.toArray(new Class[interfaces.size()]) : new Class[0];
