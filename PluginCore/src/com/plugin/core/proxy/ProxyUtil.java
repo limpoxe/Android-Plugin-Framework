@@ -1,4 +1,4 @@
-package com.plugin.util;
+package com.plugin.core.proxy;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class RefProxy {
+public class ProxyUtil {
 
-	public static Object asInterface(Object target) {
+	public static Object asInterface(Object target, MethodDelegate delegate) {
 		Class<?> clazz = target.getClass();
 		List<Class<?>> interfaces = getAllInterfaces(clazz);
 		Class[] ifs = interfaces != null && interfaces.size() > 0 ? interfaces.toArray(new Class[interfaces.size()]) : new Class[0];
-		return Proxy.newProxyInstance(target.getClass().getClassLoader(), ifs, new MethodHandler(target));
+		return Proxy.newProxyInstance(target.getClass().getClassLoader(), ifs, new MethodHandler(target, delegate));
 	}
 
 	private static List<Class<?>> getAllInterfaces(final Class<?> cls) {

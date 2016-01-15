@@ -1,28 +1,31 @@
-package com.plugin.util;
+package com.plugin.core.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class MethodHandler implements InvocationHandler {
+public class MethodHandler implements InvocationHandler, MethodDelegate {
 
     private Object mTarget = null;
 
-    public MethodHandler(Object target) {
+    private MethodDelegate mDelegate;
+
+    public MethodHandler(Object target, MethodDelegate delegate) {
         this.mTarget = target;
+        this.mDelegate = delegate;
     }
 
+    @Override
     public boolean beforeInvoke(Object target, Method method, Object[] args) {
-        return false;
+        return mDelegate.beforeInvoke(target, method, args);
     }
 
-    public Object processResult(Object result) {
-        return result;
+    @Override
+    public Object afterInvoke(Object target, Method method, Object[] args, Object invokeResult) {
+        return mDelegate.afterInvoke(target, method, args, invokeResult);
     }
 
-    public void afterInvoke(Object target, Method method, Object[] args, Object invokeResult) {
-    }
-
+    @Override
     public synchronized Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
         boolean intercepted = beforeInvoke(mTarget, method, args);
 
@@ -32,8 +35,7 @@ public class MethodHandler implements InvocationHandler {
             invokeResult = method.invoke(mTarget, args);
         }
 
-        afterInvoke(mTarget, method, args, invokeResult);
+        return afterInvoke(mTarget, method, args, invokeResult);
+    }
 
-        return processResult(invokeResult);
-    };
 }

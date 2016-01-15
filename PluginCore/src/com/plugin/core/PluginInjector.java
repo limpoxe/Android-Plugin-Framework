@@ -351,4 +351,19 @@ public class PluginInjector {
 		}
 		return pluginAppTheme;
 	}
+
+	/**
+	 * 通常系统服务实例内部都有一个成员变量private final Context mContext;
+	 *
+	 * 这个成员变量通常是一个ContextImpl实例。
+	 *
+	 * @param manager 通过getSystemService获取的系统服务。例如 ActivityManager
+	 *
+	 */
+	static void replaceContext(Object manager, Context context) {
+		Object original = RefInvoker.getFieldObject(manager, manager.getClass(), "mContext");
+		if (original != null) {//表示确实存在此成员变量对象，替换掉
+			RefInvoker.setFieldObject(manager, manager.getClass().getName(), "mContext", context);
+		}
+	}
 }
