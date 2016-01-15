@@ -23,7 +23,6 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
-import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
@@ -102,7 +101,7 @@ public class PluginInjector {
 		LogUtil.d("安装插件ContentProvider", pluginProviderInfos.size());
 		Object activityThread = PluginInjector.getActivityThread();
 		if (activityThread != null) {
-			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
+			PluginInjector.hackHostClassLoaderIfNeeded();
 			List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 			for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 				ProviderInfo p = new ProviderInfo();
@@ -364,6 +363,22 @@ public class PluginInjector {
 		Object original = RefInvoker.getFieldObject(manager, manager.getClass(), "mContext");
 		if (original != null) {//表示确实存在此成员变量对象，替换掉
 			RefInvoker.setFieldObject(manager, manager.getClass().getName(), "mContext", context);
+		}
+	}
+
+	/**
+	 * 如果插件中不包含service、receiver和contentprovider，是不需要替换classloader的
+	 */
+	public static void hackHostClassLoaderIfNeeded() {
+		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(),
+				"mLoadedApk");
+		ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(mLoadedApk, "android.app.LoadedApk",
+				"mClassLoader");
+		if (!(originalLoader instanceof HostClassLoader)) {
+			HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplicatoin()
+					.getCacheDir().getAbsolutePath(),
+					PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(), originalLoader);
+			RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk", "mClassLoader", newLoader);
 		}
 	}
 }

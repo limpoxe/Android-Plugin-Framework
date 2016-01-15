@@ -9,7 +9,6 @@ import android.os.Build;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginReceiverIntent;
-import com.plugin.util.ClassLoaderUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -23,7 +22,7 @@ public class PluginIntentResolver {
 	public static void resolveService(Intent service) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
-			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
+			PluginInjector.hackHostClassLoaderIfNeeded();
 			String stubServiceName = PluginStubBinding.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
 				service.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubServiceName));
@@ -37,7 +36,7 @@ public class PluginIntentResolver {
 		ArrayList<Intent> result = new ArrayList<Intent>();
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.BROADCAST);
 		if (classNameList != null && classNameList.size() > 0) {
-			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
+			PluginInjector.hackHostClassLoaderIfNeeded();
 
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
