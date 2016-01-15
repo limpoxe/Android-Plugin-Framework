@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class MethodHandler implements InvocationHandler, MethodDelegate {
+public class MethodHandler extends MethodDelegate implements InvocationHandler {
 
     private Object mTarget = null;
 

@@ -5,10 +5,14 @@ import java.lang.reflect.Method;
 /**
  * Created by cailiming on 16/1/15.
  */
-public interface MethodDelegate {
+public abstract class MethodDelegate {
 
-    public boolean beforeInvoke(Object target, Method method, Object[] args);
+    public boolean beforeInvoke(Object target, Method method, Object[] args) {
+        return false;
+    }
 
-    public Object afterInvoke(Object target, Method method, Object[] args, Object invokeResult);
+    public Object afterInvoke(Object target, Method method, Object[] args, Object invokeResult) {
+        return invokeResult;
+    }
 
 }

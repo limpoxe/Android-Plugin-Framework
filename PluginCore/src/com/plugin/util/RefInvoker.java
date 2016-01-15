@@ -121,14 +121,24 @@ public class RefInvoker {
 		setFieldObject(null, className, fieldName, fieldValue);
 	}
 
-	public static Method findMethod(Object object, String methodName, Class[] clazzes) throws NoSuchMethodException {
+	public static Method findMethod(Object object, String methodName, Class[] clazzes) {
 		//TODO
-		return object.getClass().getDeclaredMethod(methodName, clazzes);
+		try {
+			return object.getClass().getDeclaredMethod(methodName, clazzes);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
-	public static Method findMethod(Object object, String methodName, Object[] args) throws NoSuchMethodException {
+	public static Method findMethod(Object object, String methodName, Object[] args) {
 		if (args == null) {
-			return object.getClass().getDeclaredMethod(methodName, (Class[])null);
+			try {
+				return object.getClass().getDeclaredMethod(methodName, (Class[])null);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+			return null;
 		} else {
 			Method[] methods = object.getClass().getDeclaredMethods();
 			boolean isFound = false;
