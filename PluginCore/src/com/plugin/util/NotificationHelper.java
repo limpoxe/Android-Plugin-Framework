@@ -43,43 +43,6 @@ public class NotificationHelper {
         return intent;
     }
 
-    @SuppressWarnings("ResourceType")
-    public static PendingIntent resolvePendingIntent(PendingIntent origin, int type) {
-        if (origin != null) {
-            Intent originIntent = (Intent)RefInvoker.invokeMethod(origin,
-                    PendingIntent.class.getName(), "getIntent",
-                    (Class[])null, (Object[])null);
-            if (originIntent != null) {
-                //如果目标是插件中的组件，需要额外提供2个参数, 默认为0、Update_Current。
-                ArrayList<String> classNameList = PluginLoader.matchPlugin(originIntent, type);
-                if (classNameList != null && classNameList.size() > 0) {
-
-                    int requestCode = originIntent.getIntExtra("pending_requestCode", 0);
-                    int flags = originIntent.getIntExtra("pending_flag", PendingIntent.FLAG_UPDATE_CURRENT);
-
-                    if (type == PluginDescriptor.BROADCAST) {
-
-                        Intent newIntent = PluginIntentResolver.resolveReceiver(originIntent).get(0);
-                        return PendingIntent.getBroadcast(PluginLoader.getApplicatoin(), requestCode, newIntent, flags);
-
-                    } else if (type == PluginDescriptor.ACTIVITY) {
-
-                        PluginIntentResolver.resolveActivity(originIntent);
-                        return PendingIntent.getActivity(PluginLoader.getApplicatoin(), requestCode, originIntent, flags);
-
-                    } else if (type == PluginDescriptor.SERVICE) {
-
-                        PluginIntentResolver.resolveService(originIntent);
-                        return PendingIntent.getService(PluginLoader.getApplicatoin(), requestCode, originIntent, flags);
-
-                    }
-                }
-            }
-        }
-        return origin;
-    }
-
-
     public static RemoteViews createRemoteViews(int pluginNotificationLayout, String notificationResPath, String pluginId) {
 
         return createRemoteViews(pluginNotificationLayout, getNotificationResourcePath(pluginId, notificationResPath));

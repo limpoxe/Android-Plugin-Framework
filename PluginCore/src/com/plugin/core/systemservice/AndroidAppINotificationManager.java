@@ -19,9 +19,11 @@ public class AndroidAppINotificationManager extends MethodProxy {
     }
 
     public static void installProxy(NotificationManager manager) {
+        LogUtil.d("安装NotificationManagerProxy");
         Object androidAppINotificationStubProxy = RefInvoker.invokeStaticMethod(NotificationManager.class.getName(), "getService", (Class[])null, (Object[])null);
         Object androidAppINotificationStubProxyProxy = ProxyUtil.createProxy(androidAppINotificationStubProxy, new AndroidAppINotificationManager());
         RefInvoker.setStaticOjbect(NotificationManager.class.getName(), "sService", androidAppINotificationStubProxyProxy);
+        LogUtil.d("安装完成");
     }
 
     static {

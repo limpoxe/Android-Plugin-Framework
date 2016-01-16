@@ -37,10 +37,12 @@ import java.util.Map;
 public class AndroidAppIPackageManager extends MethodProxy {
 
     public static void installProxy(PackageManager manager) {
+        LogUtil.d("安装PackageManagerProxy");
         Object androidAppIPackageManagerStubProxy = RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sPackageManager");
         Object androidAppIPackageManagerStubProxyProxy = ProxyUtil.createProxy(androidAppIPackageManagerStubProxy, new AndroidAppIPackageManager());
         RefInvoker.setStaticOjbect("android.app.ActivityThread", "sPackageManager", androidAppIPackageManagerStubProxyProxy);
         RefInvoker.setFieldObject(manager, "android.app.ApplicationPackageManager", "mPM", androidAppIPackageManagerStubProxyProxy);
+        LogUtil.d("安装完成");
     }
 
     static {
