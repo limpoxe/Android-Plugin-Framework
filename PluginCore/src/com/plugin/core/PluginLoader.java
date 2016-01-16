@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.content.ComponentName;
@@ -31,6 +32,10 @@ import com.plugin.core.manager.PluginCallbackImpl;
 import com.plugin.core.manager.PluginManagerImpl;
 import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManager;
+import com.plugin.core.systemservice.AndroidAppIActivityManager;
+import com.plugin.core.systemservice.AndroidAppINotificationManager;
+import com.plugin.core.systemservice.AndroidAppIPackageManager;
+import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
 import com.plugin.util.FileUtil;
 import com.plugin.util.PackageVerifyer;
@@ -76,28 +81,29 @@ public class PluginLoader {
 
 			isLoaderInited = true;
 			sApplication = app;
+			pluginManager = manager;
+			changeListener = new PluginCallbackImpl();
+
+			AndroidAppIActivityManager.installProxy();
+			AndroidAppINotificationManager.installProxy();
+			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
+			AndroidWidgetToast.installProxy();
 
 			PluginInjector.injectBaseContext(sApplication);
-
 			Object activityThread = PluginInjector.getActivityThread();
 			PluginInjector.injectInstrumentation(activityThread);
 			PluginInjector.injectHandlerCallback(activityThread);
 
-			pluginManager = manager;
-			changeListener = new PluginCallbackImpl();
-
 			pluginManager.loadInstalledPlugins();
-
 			Iterator<PluginDescriptor> itr = getPlugins().iterator();
 			while (itr.hasNext()) {
 				PluginDescriptor plugin = itr.next();
 				LocalServiceManager.registerService(plugin);
 			}
-
 			changeListener.onPluginLoaderInited();
 
-			if (Build.VERSION.SDK_INT >= 14) {
 
+			if (Build.VERSION.SDK_INT >= 14) {
 				sApplication.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 					@Override
 					public void onActivityCreated(Activity activity, Bundle savedInstanceState) {

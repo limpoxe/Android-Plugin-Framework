@@ -21,7 +21,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
     private AndroidAppIActivityManager() {
     }
 
-    public static void installProxy(ActivityManager manager) {
+    public static void installProxy() {
         LogUtil.d("安装ActivityManagerProxy");
         Object androidAppActivityManagerProxy = RefInvoker.invokeStaticMethod("android.app.ActivityManagerNative", "getDefault", (Class[])null, (Object[])null);
         Object androidAppIActivityManagerStubProxyProxy = ProxyUtil.createProxy(androidAppActivityManagerProxy, new AndroidAppIActivityManager());
