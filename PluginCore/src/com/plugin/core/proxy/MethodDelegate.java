@@ -7,11 +7,14 @@ import java.lang.reflect.Method;
  */
 public abstract class MethodDelegate {
 
-    public boolean beforeInvoke(Object target, Method method, Object[] args) {
-        return false;
+    public Object beforeInvoke(Object target, Method method, Object[] args) {
+        return null;
     }
 
-    public Object afterInvoke(Object target, Method method, Object[] args, Object invokeResult) {
+    public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+        if (beforeInvoke != null) {
+            return beforeInvoke;
+        }
         return invokeResult;
     }
 

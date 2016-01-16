@@ -367,7 +367,7 @@ public class PluginDescriptor implements Serializable {
 		PluginDescriptor plugin = this;
 		List<String> result = null;
 		String clazzName = null;
-		// 如果是通过组件进行匹配的
+		// 如果是通过组件进行匹配的, 这里忽略了packageName
 		if (intent.getComponent() != null) {
 			if (plugin.containsName(intent.getComponent().getClassName())) {
 				clazzName = intent.getComponent().getClassName();

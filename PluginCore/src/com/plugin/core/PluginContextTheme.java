@@ -14,10 +14,9 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.localservice.LocalServiceManager;
+import com.plugin.core.systemservice.AndroidAppIPackageManager;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
-import com.plugin.core.systemservice.PackageManagerCompat;
-import com.plugin.core.systemservice.PluginPackageManager;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -104,24 +103,20 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 		if (service != null && !sServiceCache.contains(name)) {
 			if (NOTIFICATION_SERVICE.equals(name)) {
+				//这里修改的是全局静态变量，宿主中的context获取到的服务也会被修改
 				AndroidAppINotificationManager.installProxy((NotificationManager)service);
 				sServiceCache.add(name);
 			} else if (ACTIVITY_SERVICE.equals(name)) {
+				//这里修改的是全局静态变量，宿主中的context获取到的服务也会被修改
 				AndroidAppIActivityManager.installProxy((ActivityManager) service);
 				sServiceCache.add(name);
 			} else if (ALARM_SERVICE.equals(name)) {
-
+				//TODO
 			}
 		}
 
 		if (service == null) {
-
-			if ("package_manager".equals(name)) {
-				service = new PluginPackageManager(new PackageManagerCompat(getPackageManager()));
-			} else {
-				service = LocalServiceManager.getService(name);
-			}
-
+			service = LocalServiceManager.getService(name);
 		}
 
 		return service;
@@ -129,6 +124,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public PackageManager getPackageManager() {
+		if (!sServiceCache.contains("package")) {
+			//这里修改的是全局静态变量，宿主中的context获取到的服务也会被修改
+			PackageManager service = super.getPackageManager();
+			AndroidAppIPackageManager.installProxy(service);
+			sServiceCache.add("package");
+		}
 		return super.getPackageManager();
 	}
 

@@ -65,16 +65,7 @@
 
     4、插件依赖插件时，被插件依赖的插件暂不支持包含资源
     
-    5、插件中获取当前插件的包信息，如meta－data等：
-        
-        PackageInfo packageInfo = getPackageManager().getPackageArchiveInfo(getPackageResourcePath(), PackageManager.GET_META_DATA);
-        
-    6、插件中获取其他插件的包信息，如Activity等：
-        
-        PackageManager packageManager = (PackageManager)getSystemService("package_manager");
-    	Intent intent = packageManager.getLaunchIntentForPackage("com.example.pluginhelloworld");
-    	
-    7、在插件中调用getPackageName方法返回的是宿主的包名，不是插件包名。
+    5、在插件中调用getPackageName方法返回的是宿主的包名，不是插件包名。
         
 
 # 目录结构说明：

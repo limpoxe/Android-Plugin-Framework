@@ -18,21 +18,21 @@ public abstract class MethodProxy extends MethodDelegate {
     }
 
     @Override
-    public boolean beforeInvoke(Object target, Method method, Object[] args) {
+    public Object beforeInvoke(Object target, Method method, Object[] args) {
         MethodDelegate deleate = findMethodDelegate(method.getName(), args);
-        if (deleate == null) {
-            return false;
+        if (deleate != null) {
+            return deleate.beforeInvoke(target, method, args);
         }
-        return deleate.beforeInvoke(target, method, args);
+        return super.beforeInvoke(target, method, args);
     }
 
     @Override
-    public Object afterInvoke(Object target, Method method, Object[] args, Object invokeResult) {
+    public Object afterInvoke(Object target, Method method, Object[] args, Object before, Object invokeResult) {
         MethodDelegate deleate = findMethodDelegate(method.getName(), args);
-        if (deleate == null) {
-            return invokeResult;
+        if (deleate != null) {
+            return deleate.afterInvoke(target, method, args, before, invokeResult);
         }
-        return deleate.afterInvoke(target, method, args, invokeResult);
+        return super.afterInvoke(target, method, args, before, invokeResult);
     }
 
 

@@ -16,26 +16,26 @@ public class MethodHandler extends MethodDelegate implements InvocationHandler {
     }
 
     @Override
-    public boolean beforeInvoke(Object target, Method method, Object[] args) {
+    public Object beforeInvoke(Object target, Method method, Object[] args) {
         return mDelegate.beforeInvoke(target, method, args);
     }
 
     @Override
-    public Object afterInvoke(Object target, Method method, Object[] args, Object invokeResult) {
-        return mDelegate.afterInvoke(target, method, args, invokeResult);
+    public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+        return mDelegate.afterInvoke(target, method, args, beforeInvoke, invokeResult);
     }
 
     @Override
     public synchronized Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-        boolean intercepted = beforeInvoke(mTarget, method, args);
+        Object before = beforeInvoke(mTarget, method, args);
 
         Object invokeResult = null;
-        if (!intercepted) {
+        if (before == null) {
             method.setAccessible(true);
             invokeResult = method.invoke(mTarget, args);
         }
 
-        return afterInvoke(mTarget, method, args, invokeResult);
+        return afterInvoke(mTarget, method, args, before, invokeResult);
     }
 
 }

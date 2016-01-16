@@ -562,18 +562,37 @@ public class PluginLoader {
 	 */
 	public static ArrayList<String> matchPlugin(Intent intent, int type) {
 		ArrayList<String> result = null;
-		Iterator<PluginDescriptor> itr = getPlugins().iterator();
-		while (itr.hasNext()) {
-			List<String> list = itr.next().matchPlugin(intent, type);
-			if (list != null && list.size() > 0) {
-				if (result == null) {
-					result = new ArrayList<>();
+
+		String packageName = intent.getPackage();
+		if (packageName == null && intent.getComponent() != null) {
+			packageName = intent.getComponent().getPackageName();
+		}
+		if (packageName != null && !packageName.equals(PluginLoader.getApplicatoin().getPackageName())) {
+			PluginDescriptor dp = getPluginDescriptorByPluginId(packageName);
+			if (dp != null) {
+				List<String> list = dp.matchPlugin(intent, type);
+				if (list != null && list.size() > 0) {
+					if (result == null) {
+						result = new ArrayList<>();
+					}
+					result.addAll(list);
 				}
-				result.addAll(list);
 			}
-			if (result != null && type != PluginDescriptor.BROADCAST) {
-				break;
+		} else {
+			Iterator<PluginDescriptor> itr = getPlugins().iterator();
+			while (itr.hasNext()) {
+				List<String> list = itr.next().matchPlugin(intent, type);
+				if (list != null && list.size() > 0) {
+					if (result == null) {
+						result = new ArrayList<>();
+					}
+					result.addAll(list);
+				}
+				if (result != null && type != PluginDescriptor.BROADCAST) {
+					break;
+				}
 			}
+
 		}
 		return result;
 	}

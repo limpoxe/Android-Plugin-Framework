@@ -32,7 +32,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     public static class enqueueNotification extends MethodDelegate {
         @Override
-        public boolean beforeInvoke(Object target, Method method, Object[] args) {
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
             //TODO
             return super.beforeInvoke(target, method, args);
@@ -41,7 +41,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     public static class enqueueNotificationWithTag extends MethodDelegate {
         @Override
-        public boolean beforeInvoke(Object target, Method method, Object[] args) {
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
             //TODO
             return super.beforeInvoke(target, method, args);
@@ -50,7 +50,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     public static class enqueueNotificationWithTagPriority extends MethodDelegate {
         @Override
-        public boolean beforeInvoke(Object target, Method method, Object[] args) {
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
             //TODO
             return super.beforeInvoke(target, method, args);

@@ -121,19 +121,23 @@ public class PluginResourceWrapper extends Resources {
 		}
 
 		if (PluginLoader.getApplicatoin().getPackageName().equals(packageName)) {
-			// 判断是否在真的在宿主中
-			Class rClass = null;
-			try {
-				String className = packageName + ".R$" + type;
-				rClass = this.getClass().getClassLoader().loadClass(className);
-				Field field = rClass.getDeclaredField(entry);
-				if (field == null) {
+			if (mPluginDescriptor.isStandalone()) {
+				packageName = mPluginDescriptor.getPackageName();
+			} else {
+				// 判断是否在真的在宿主中
+				Class rClass = null;
+				try {
+					String className = packageName + ".R$" + type;
+					rClass = this.getClass().getClassLoader().loadClass(className);
+					Field field = rClass.getDeclaredField(entry);
+					if (field == null) {
+						//不在宿主中，换成插件的
+						packageName = mPluginDescriptor.getPackageName();
+					}
+				} catch (Exception e) {
 					//不在宿主中，换成插件的
 					packageName = mPluginDescriptor.getPackageName();
 				}
-			} catch (Exception e) {
-				//不在宿主中，换成插件的
-				packageName = mPluginDescriptor.getPackageName();
 			}
 		}
 		return super.getIdentifier(entry, type, packageName);
