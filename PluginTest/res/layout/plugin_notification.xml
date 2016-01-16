@@ -9,6 +9,6 @@
         android:layout_height="wrap_content"
         android:background="@android:color/black"
         android:textColor="@android:color/white"
-        android:text="插件自定义的通知布局" />
+        android:text="这是插件自定义的通知布局" />
 
 </LinearLayout>
