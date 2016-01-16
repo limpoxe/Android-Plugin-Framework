@@ -2,6 +2,8 @@ package com.plugin.util;
 
 import android.content.Context;
 
+import com.plugin.core.PluginPublicXmlConst;
+
 /**
  * Created by cailiming
  */
@@ -75,5 +77,11 @@ public class ResourceUtil {
             }
         }
         return 0;
+    }
+
+    public static boolean isMainResId(int resid) {
+        //如果使用的使openatlasextention
+        //默认宿主的资源id以0x7f3X开头
+        return PluginPublicXmlConst.resourceMap.get(resid>>16) != null;
     }
 }

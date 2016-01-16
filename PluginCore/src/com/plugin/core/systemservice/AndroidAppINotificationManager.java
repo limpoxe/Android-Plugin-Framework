@@ -11,6 +11,7 @@ import android.widget.RemoteViews;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginIntentResolver;
 import com.plugin.core.PluginLoader;
+import com.plugin.core.PluginPublicXmlConst;
 import com.plugin.core.proxy.MethodDelegate;
 import com.plugin.core.proxy.MethodProxy;
 import com.plugin.core.proxy.ProxyUtil;
@@ -50,6 +51,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
+                    break;
                 }
             }
             return super.beforeInvoke(target, method, args);
@@ -63,6 +65,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
+                    break;
                 }
             }
             return super.beforeInvoke(target, method, args);
@@ -76,6 +79,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
+                    break;
                 }
             }
             return super.beforeInvoke(target, method, args);
@@ -84,30 +88,47 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     private static void resolveRemoteViews(Notification notification) {
         if (Build.VERSION.SDK_INT >= 21) {
-            if (notification.contentIntent != null) {
-                Intent intent = (Intent)RefInvoker.invokeMethod(notification.contentIntent, PendingIntent.class.getName(), "getIntent", (Class[]) null, (Object[]) null);
-                if (intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
-                    String className = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR)[0];
-                    PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(className);
-                    if (pd != null) {
-                        ApplicationInfo applicationInfo = PluginLoader.getApplicatoin().getApplicationInfo();
-                        ApplicationInfo newInfo = new ApplicationInfo();//重新构造一个，而不是修改原本的
-                        newInfo.packageName = applicationInfo.packageName;
-                        newInfo.sourceDir = applicationInfo.sourceDir;
-                        newInfo.dataDir = applicationInfo.dataDir;
-                        //要确保publicSourceDir这个路径可以被SystemUI应用读取，
-                        newInfo.publicSourceDir = getNotificationResourcePath(pd.getInstalledPath(), PluginLoader.getApplicatoin().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
-                        if (notification.tickerView != null) {
-                            RefInvoker.setFieldObject(notification.tickerView, RemoteViews.class.getName(), "mApplication", newInfo);
-                        }
-                        if (notification.contentView != null) {
-                            RefInvoker.setFieldObject(notification.contentView, RemoteViews.class.getName(), "mApplication", newInfo);
-                        }
-                        if (notification.bigContentView != null) {
-                            RefInvoker.setFieldObject(notification.bigContentView, RemoteViews.class.getName(), "mApplication", newInfo);
-                        }
-                        if (notification.headsUpContentView != null) {
-                            RefInvoker.setFieldObject(notification.headsUpContentView, RemoteViews.class.getName(), "mApplication", newInfo);
+
+            int layoutId = 0;
+            if (notification.contentView != null) {
+                layoutId = (int)RefInvoker.getFieldObject(notification.contentView, RemoteViews.class, "mLayoutId");
+            }
+            if (layoutId == 0) {
+                if (notification.bigContentView != null) {
+                    layoutId = (int)RefInvoker.getFieldObject(notification.bigContentView, RemoteViews.class, "mLayoutId");
+                }
+            }
+            if (layoutId != 0) {
+                //检查资源布局资源Id是否属于宿主
+                if (PluginPublicXmlConst.resourceMap.get(layoutId>>16) == null) {
+                    //资源是来自插件
+                    if (notification.contentIntent != null) {
+                        Intent intent = (Intent)RefInvoker.invokeMethod(notification.contentIntent, PendingIntent.class.getName(), "getIntent", (Class[]) null, (Object[]) null);
+                        if (intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
+                            String className = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR)[0];
+                            //通过重新构造ApplicationInfo来附加插件资源
+                            PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(className);
+                            if (pd != null) {
+                                ApplicationInfo applicationInfo = PluginLoader.getApplicatoin().getApplicationInfo();
+                                ApplicationInfo newInfo = new ApplicationInfo();//重新构造一个，而不是修改原本的
+                                newInfo.packageName = applicationInfo.packageName;
+                                newInfo.sourceDir = applicationInfo.sourceDir;
+                                newInfo.dataDir = applicationInfo.dataDir;
+                                //要确保publicSourceDir这个路径可以被SystemUI应用读取，
+                                newInfo.publicSourceDir = getNotificationResourcePath(pd.getInstalledPath(), PluginLoader.getApplicatoin().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
+                                if (notification.tickerView != null) {
+                                    RefInvoker.setFieldObject(notification.tickerView, RemoteViews.class.getName(), "mApplication", newInfo);
+                                }
+                                if (notification.contentView != null) {
+                                    RefInvoker.setFieldObject(notification.contentView, RemoteViews.class.getName(), "mApplication", newInfo);
+                                }
+                                if (notification.bigContentView != null) {
+                                    RefInvoker.setFieldObject(notification.bigContentView, RemoteViews.class.getName(), "mApplication", newInfo);
+                                }
+                                if (notification.headsUpContentView != null) {
+                                    RefInvoker.setFieldObject(notification.headsUpContentView, RemoteViews.class.getName(), "mApplication", newInfo);
+                                }
+                            }
                         }
                     }
                 }
@@ -116,7 +137,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
     }
 
     private static String getNotificationResourcePath(String pluginInstalledPath, String worldReadablePath) {
-        LogUtil.d("正在为通知栏准备插件资源。。。");
+        LogUtil.d("正在为通知栏准备插件资源。。。这里现在暂时是同步复制，注意大文件卡顿！！");
         File worldReadableFile = new File(worldReadablePath);
 
         if (FileUtil.copyFile(pluginInstalledPath, worldReadableFile.getAbsolutePath())) {
