@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 这里配置sharedUserId的作用，是为了告诉宿主程序，这个插件需要依赖宿主程序的class和资源
-如果不配置这个参数，表示这个插件是一个独立插件，即本身可以独立安装运行
-
- dependencies的作用是用来指定此插件依赖的掐他基础插件
+<!--
+这里配置sharedUserId的作用，是为了告诉宿主程序，
+这个插件需要依赖宿主程序的class和资源
+如果不配置这个参数，表示这个插件是一个独立插件，
+即本身可以独立安装运行
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.plugintest"
@@ -19,16 +20,27 @@
         android:label="@*com.example.pluginmain:string/share_string_2"
         android:theme="@style/PluginTheme2">
 
+        <!-- uses-library作用是用来通知插件框架此插件依赖哪些其他插件 -->
         <uses-library android:name="com.example.plugintestbase" android:required="true" />
 
+        <!-- 测试插件Meta-Data -->
         <meta-data android:name="abcdef" android:value="654321"/>
 
-        <!-- for fragment -->
+        <!-- 通知插件框架哪些fragment是可以嵌入宿主Activity的，如果fragment只是插件内使用，无需对外暴露则无需配置 -->
         <exported-fragment android:name="some_id_for_fragment1" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
-        <!-- for fragment -->
+        <!-- 通知插件框架哪些fragment是可以嵌入宿主Activity的，如果fragment只是插件内使用，无需对外暴露则无需配置 -->
         <exported-fragment android:name="some_id_for_fragment2" android:value="com.example.plugintest.fragment.PluginSpecFragment" />
-        <!-- for localservice -->
+        <!-- 通知插件框架本插件向外提供的业务服务接口 -->
         <exported-service android:name="login_service" android:value="com.example.plugintest.PluginLoginService" />
+
+        <activity android:name=".activity.LauncherActivity">
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.MAIN" />
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.example.plugintest.activity.PluginTestActivity"

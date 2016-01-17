@@ -18,40 +18,20 @@
         android:label="@string/app_name"
         android:theme="@style/ShareTheme" >
 
-        <activity
-            android:name="com.example.pluginmain.PluginListActivity" >
+        <activity android:name=".MainActivity" >
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
-
                 <category
                     android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <activity
-            android:name="com.example.pluginmain.PluginDetailActivity" >
-        </activity>
+        <activity android:name=".DetailActivity" />
+        <activity android:name=".TestFragmentActivity" />
+        <activity android:name=".TestSkinActivity" />
+        <activity android:name=".TestViewActivity" />
 
-        <activity
-            android:name="com.example.pluginmain.PluginSampleFragmentActivity" >
-        </activity>
-
-        <receiver
-            android:name="com.example.pluginmain.PluginDebugHelper" >
-            <intent-filter>
-                <action
-                    android:name="android.intent.action.PACKAGE_ADDED" />
-                <action
-                    android:name="android.intent.action.PACKAGE_REPLACED" />
-                <action
-                    android:name="android.intent.action.PACKAGE_RESTARTED" />
-
-                <data
-                    android:scheme="package" />
-            </intent-filter>
-        </receiver>
-
+        <!-- 微信插件需要支持外部唤起，所有需要在宿主中预注册一个跳板，intentfilte中的STUB_EXACT用来标记这是个跳板 -->
         <activity
             android:name="com.example.pluginmain.wxapi.WXEntryActivity"
             android:exported="true">

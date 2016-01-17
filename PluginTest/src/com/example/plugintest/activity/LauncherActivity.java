@@ -1,0 +1,220 @@
+package com.example.plugintest.activity;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+
+import com.example.pluginsharelib.SharePOJO;
+import com.example.plugintest.R;
+import com.example.plugintest.receiver.PluginTestReceiver2;
+import com.example.plugintest.service.PluginTestService;
+
+public class LauncherActivity extends Activity implements View.OnClickListener {
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setTitle("这是插件首屏");
+		setContentView(R.layout.plugin_launcher);
+
+		findViewById( R.id.onClickHellowrld).setOnClickListener(this);
+		findViewById( R.id.onClickPluginNormalFragment).setOnClickListener(this);
+		findViewById( R.id.onClickPluginSpecFragment).setOnClickListener(this);
+		findViewById( R.id.onClickPluginForDialogActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginForOppoAndVivoActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginNotInManifestActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginFragmentTestActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginSingleTaskActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginTestActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginTestOpenPluginActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginWebViewActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginTestReceiver).setOnClickListener(this);
+		findViewById( R.id.onClickPluginTestReceiver2).setOnClickListener(this);
+		findViewById( R.id.onClickPluginTestService).setOnClickListener(this);
+		findViewById( R.id.onClickPluginTestService2).setOnClickListener(this);
+	}
+
+	private static void startFragmentInHostActivity(Context context, String targetId) {
+		Intent pluginActivity = new Intent();
+		pluginActivity.setClassName(context, "com.example.pluginmain.TestFragmentActivity");
+		pluginActivity.putExtra("PluginDispatcher.fragmentId", targetId);
+		pluginActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(pluginActivity);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.onClickHellowrld:
+				onClickHellowrld(v);
+				break;
+			case R.id.onClickPluginNormalFragment:
+				onClickPluginNormalFragment(v);
+				break;
+			case R.id.onClickPluginSpecFragment:
+				onClickPluginSpecFragment(v);
+				break;
+			case R.id.onClickPluginForDialogActivity:
+				onClickPluginForDialogActivity(v);
+				break;
+			case R.id.onClickPluginForOppoAndVivoActivity:
+				onClickPluginForOppoAndVivoActivity(v);
+				break;
+			case R.id.onClickPluginNotInManifestActivity:
+				onClickPluginNotInManifestActivity(v);
+				break;
+			case R.id.onClickPluginFragmentTestActivity:
+				onClickPluginFragmentTestActivity(v);
+				break;
+			case R.id.onClickPluginSingleTaskActivity:
+				onClickPluginSingleTaskActivity(v);
+				break;
+			case R.id.onClickPluginTestActivity:
+				onClickPluginTestActivity(v);
+				break;
+			case R.id.onClickPluginTestOpenPluginActivity:
+				onClickPluginTestOpenPluginActivity(v);
+				break;
+			case R.id.onClickPluginWebViewActivity:
+				onClickPluginWebViewActivity(v);
+				break;
+			case R.id.onClickPluginTestReceiver:
+				onClickPluginTestReceiver(v);
+				break;
+			case R.id.onClickPluginTestReceiver2:
+				onClickPluginTestReceiver2(v);
+				break;
+			case R.id.onClickPluginTestService:
+				onClickPluginTestService(v);
+				break;
+			case R.id.onClickPluginTestService2:
+				onClickPluginTestService2(v);
+				break;
+		}
+	}
+
+	public void onClickHellowrld(View v) {
+		Intent intent = getPackageManager().getLaunchIntentForPackage("com.example.pluginhelloworld");
+		intent.putExtra("testParam", "testParam");
+		startActivity(intent);
+	}
+
+	public void onClickPluginNormalFragment(View v) {
+		startFragmentInHostActivity(this, "some_id_for_fragment1");
+	}
+
+	public void onClickPluginSpecFragment(View v) {
+		startFragmentInHostActivity(this, "some_id_for_fragment2");
+	}
+
+	public void onClickPluginForDialogActivity(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginForDialogActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickPluginForOppoAndVivoActivity(View v) {
+		//利用Action打开
+		Intent intent = new Intent("test.ijk");
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickPluginNotInManifestActivity(View v) {
+		//利用scheme打开
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.addCategory(Intent.CATEGORY_DEFAULT);
+		intent.addCategory(Intent.CATEGORY_BROWSABLE);
+		intent.setData(Uri.parse("testscheme://testhost"));
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+
+	}
+
+	public void onClickPluginFragmentTestActivity(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginFragmentTestActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickPluginSingleTaskActivity(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginSingleTaskActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickPluginTestActivity(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginTestActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+
+	}
+
+	public void onClickPluginTestOpenPluginActivity(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginTestOpenPluginActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickPluginWebViewActivity(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginWebViewActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickPluginTestReceiver(View v) {
+		//利用Action打开
+		Intent intent = new Intent("test.rst2");//两个Receive都配置了这个aciton，这里可以同时唤起两个Receiver
+		intent.putExtra("testParam", "testParam");
+		sendBroadcast(intent);
+	}
+
+	public void onClickPluginTestReceiver2(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginTestReceiver2.class.getName());
+		intent.putExtra("testParam", "testParam");
+		sendBroadcast(intent);
+	}
+
+	public void onClickPluginTestService(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginTestService.class.getName());
+		intent.putExtra("testParam", "testParam");
+		startService(intent);
+		//stopService(intent);
+	}
+
+	public void onClickPluginTestService2(View v) {
+		//利用Action打开
+		Intent intent = new Intent("test.lmn2");
+		intent.putExtra("testParam", "testParam");
+		startService(intent);
+		//stopService(intent);
+	}
+
+}
