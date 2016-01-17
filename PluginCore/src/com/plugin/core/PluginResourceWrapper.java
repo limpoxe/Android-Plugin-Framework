@@ -29,38 +29,36 @@ public class PluginResourceWrapper extends Resources {
 	
 	@Override
 	public String getResourcePackageName(int resid) throws NotFoundException {
-//		try {
+		try {
 			return super.getResourcePackageName(resid);
-//		} catch(NotFoundException e) {
-//			e.printStackTrace();
-//			以前有下面这个问题、现在貌似已经修复了。。。
+		} catch(NotFoundException e) {
+			LogUtil.e("NotFoundException Try Following");
 
-//			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
-//			//华为、三星、小米等手机不会到这里来。
-//			if (ResourceUtil.isMainResId(resid)) {
-//				return PluginLoader.getApplicatoin().getPackageName();
-//			}
-//			throw new NotFoundException("Unable to find resource ID #0x"
-//	                + Integer.toHexString(resid));
-//		}
+			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
+			//华为、三星、小米等手机不会到这里来。
+			if (ResourceUtil.isMainResId(resid)) {
+				return PluginLoader.getApplicatoin().getPackageName();
+			}
+			throw new NotFoundException("Unable to find resource ID #0x"
+	                + Integer.toHexString(resid));
+		}
 	}
 	
 	@Override
 	public String getResourceName(int resid) throws NotFoundException {
-//		try {
+		try {
 			return super.getResourceName(resid);
-//		} catch(NotFoundException e) {
-//			e.printStackTrace();
-//			以前有下面这个问题、现在貌似已经修复了。。。
+		} catch(NotFoundException e) {
+			LogUtil.e("NotFoundException Try Following");
 
-//			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
-//			//华为、三星、小米等手机不会到这里来。
-//			if (ResourceUtil.isMainResId(resid) {
-//				return PluginLoader.getApplicatoin().getResources().getResourceName(resid);
-//			}
-//			throw new NotFoundException("Unable to find resource ID #0x"
-//	                + Integer.toHexString(resid));
-//		}
+			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
+			//华为、三星、小米等手机不会到这里来。
+			if (ResourceUtil.isMainResId(resid)) {
+				return PluginLoader.getApplicatoin().getResources().getResourceName(resid);
+			}
+			throw new NotFoundException("Unable to find resource ID #0x"
+	                + Integer.toHexString(resid));
+		}
 	}
 
 	/**
