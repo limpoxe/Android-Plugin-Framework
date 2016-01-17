@@ -296,6 +296,10 @@ public class PluginDescriptor implements Serializable {
 		return description;
 	}
 
+	public boolean isRunning() {
+		return getPluginContext() != null;
+	}
+
 	/**
 	 * 需要根据id查询的只有fragment
 	 * @param clazzId

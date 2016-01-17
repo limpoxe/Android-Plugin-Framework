@@ -10,8 +10,6 @@ import com.plugin.util.LogUtil;
  */
 public class PluginCallbackImpl implements PluginCallback {
 
-    private static final String ACTION_PLUGIN_CHANGED = "com.plugin.core.action_plugin_changed";
-
     @Override
     public void onPluginLoaderInited() {
         LogUtil.d("PluginLoader inited");
