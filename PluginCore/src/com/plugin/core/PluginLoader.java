@@ -217,6 +217,7 @@ public class PluginLoader {
 					isNeedPending = true;
 				} else {
 					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
+					new File(srcPluginFile).delete();
 					return FAIL_BECAUSE_HAS_LOADED;
 				}
 			} else {
