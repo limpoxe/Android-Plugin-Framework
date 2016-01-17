@@ -51,7 +51,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 				LogUtil.e("Context 不是Activity");
 			}
 
-			View view = new View(context);
+			View view = new View(context, attrs);
 			view.setVisibility(View.GONE);
 			return view;
 		}
