@@ -89,7 +89,7 @@ public class PluginInjector {
 	}
 
 	static void injectHandlerCallback(Object activityThread) {
-		LogUtil.d("向插入宿主程序消息循环插入回调器");
+		LogUtil.d("向宿主程序消息循环插入回调器");
 		Handler handler = (Handler) RefInvoker.invokeMethod(activityThread,
 				android_app_ActivityThread, android_app_ActivityThread_getHandler,
 				(Class[]) null, (Object[]) null);

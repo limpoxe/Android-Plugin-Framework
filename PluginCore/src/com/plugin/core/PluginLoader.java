@@ -146,7 +146,7 @@ public class PluginLoader {
 	 * @return
 	 */
 	public static synchronized int installPlugin(String srcPluginFile) {
-		LogUtil.d("开始安装插件", srcPluginFile);
+		LogUtil.e("开始安装插件", srcPluginFile);
 		if (TextUtils.isEmpty(srcPluginFile) || !new File(srcPluginFile).exists()) {
 			return SRC_FILE_NOT_FOUND;
 		}
@@ -457,7 +457,7 @@ public class PluginLoader {
 		if (pluginDescriptor != null) {
 			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
 			if (pluginClassLoader == null) {
-				LogUtil.d("正在初始化插件Resources, DexClassLoader, Context, Application ");
+				LogUtil.e("正在初始化插件" + pluginDescriptor.getPackageName() + "Resources, DexClassLoader, Context, Application");
 
 				LogUtil.d("是否为独立插件", pluginDescriptor.isStandalone());
 
@@ -474,7 +474,7 @@ public class PluginLoader {
 
 				callPluginApplicationOnCreate(pluginDescriptor);
 
-				LogUtil.d("初始化插件" + pluginDescriptor.getPackageName() + "完成");
+				LogUtil.e("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 			}
 		}
 	}
