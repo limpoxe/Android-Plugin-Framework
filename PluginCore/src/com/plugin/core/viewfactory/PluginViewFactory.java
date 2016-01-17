@@ -1,6 +1,7 @@
 package com.plugin.core.viewfactory;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -17,14 +18,14 @@ import com.plugin.util.LogUtil;
  */
 public class PluginViewFactory implements PluginFactoryInterface {
 
-	final Context mContext;
+	final Activity mContext;
 	final Window mWindow;
 	final Window.Callback mOriginalWindowCallback;
 	final LayoutInflater.Factory mViewfactory;
 
 	PluginViewInflater mPluginViewInflater;
 
-	public PluginViewFactory(Context context, Window window, LayoutInflater.Factory viewfactory) {
+	public PluginViewFactory(Activity context, Window window, LayoutInflater.Factory viewfactory) {
 		mContext = context;
 		mWindow = window;
 		mOriginalWindowCallback = window.getCallback();
@@ -32,7 +33,7 @@ public class PluginViewFactory implements PluginFactoryInterface {
 	}
 
 	public void installViewFactory() {
-		LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+		LayoutInflater layoutInflater = mContext.getLayoutInflater();
 		if (layoutInflater.getFactory() == null) {
 			PluginFactoryCompat.setFactory(layoutInflater, this);
 		} else {

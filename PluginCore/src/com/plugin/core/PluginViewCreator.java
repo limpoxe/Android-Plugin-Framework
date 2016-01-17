@@ -2,6 +2,7 @@ package com.plugin.core;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.util.AttributeSet;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -36,19 +37,15 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 
 	private View createViewFromTag(Context context, String name, AttributeSet attrs) {
 		if (name.equals("pluginView")) {
-			if (context instanceof Activity) {
-				name = attrs.getAttributeValue(null, "class");
-				String pluginId = attrs.getAttributeValue(null, "context");
-				try {
-					View view = createView((Activity) context, pluginId, name, attrs);
-					if (view != null) {
-						return view;
-					}
-				} catch (Exception e) {
-				} finally {
+			name = attrs.getAttributeValue(null, "class");
+			String pluginId = attrs.getAttributeValue(null, "context");
+			try {
+				View view = createView(context, pluginId, name, attrs);
+				if (view != null) {
+					return view;
 				}
-			} else {
-				LogUtil.e("Context 不是Activity");
+			} catch (Exception e) {
+			} finally {
 			}
 
 			View view = new View(context, attrs);
@@ -59,12 +56,15 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 		return null;
 	}
 
-	private View createView(Activity activity, String pluginId, String name, AttributeSet atts)
+	private View createView(Context Context, String pluginId, String name, AttributeSet atts)
 			throws ClassNotFoundException, InflateException {
 		try {
 			PluginDescriptor pd = PluginLoader.initPluginByPluginId(pluginId);
 			if (pd != null) {
-				Context baseContext = activity.getBaseContext();
+				Context baseContext = Context;
+				if (!(baseContext instanceof PluginContextTheme)) {
+					baseContext = ((ContextWrapper)baseContext).getBaseContext();
+				}
 				if (baseContext instanceof PluginContextTheme) {
 					baseContext = ((PluginContextTheme) baseContext).getBaseContext();
 				}
