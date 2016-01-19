@@ -147,6 +147,8 @@ public class PluginManifestParser {
 
                     		desciptor.setDescription(parser.getAttributeValue(namespaceAndroid, "label"));
 
+                            //这里不解析主题，后面会通过packageManager查询
+
                             LogUtil.d("applicationName", applicationName, " Description ", desciptor.getDescription());
 
                         } else if ("activity".equals(tag)) {

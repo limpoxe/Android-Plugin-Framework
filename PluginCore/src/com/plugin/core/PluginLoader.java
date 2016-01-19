@@ -468,7 +468,8 @@ public class PluginLoader {
 				Context pluginContext = PluginCreator
 						.createPluginContext(pluginDescriptor, sApplication, pluginRes, pluginClassLoader);
 
-				pluginContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
+				//插件Context默认主题设置为插件application主题
+				pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
 				pluginDescriptor.setPluginContext(pluginContext);
 				pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 
