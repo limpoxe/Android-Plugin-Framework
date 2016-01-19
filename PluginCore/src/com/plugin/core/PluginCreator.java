@@ -56,11 +56,7 @@ public class PluginCreator {
 
 	/**
 	 * 根据插件apk文件，创建插件资源文件，同时绑定宿主程序的资源，这样就可以在插件中使用宿主程序的资源。
-	 * 
-	 * @param application
-	 *            宿主程序的Application
-	 * @param absolutePluginApkPath
-	 *            插件apk文件路径
+	 *
 	 * @return
 	 */
 	public static Resources createPluginResource(Application application, PluginDescriptor pluginDescriptor) {
@@ -69,14 +65,6 @@ public class PluginCreator {
 		String[] dependencies = pluginDescriptor.getDependencies();
 
 		try {
-
-			// 插件运行时可能会通过getActivityInfo等
-			// 会拿到到PluginStubActivity的ActivityInfo以及ApplicationInfo
-			// 这两个info里面有部分资源id是在宿主程序的Manifest中配置的，比如logo和icon
-			// 如果在独立插件中尝试通过Context获取上述这些资源会导致异常
-			// 所以为了解决这个问题，利用宿主程序的资源id已经通过public.xml分过组了，这里强制对独立插件也进行资源合并操作
-			isStandalone = false;
-
 			String[] assetPaths = buildAssetPath(isStandalone, application.getApplicationInfo().sourceDir,
 					absolutePluginApkPath, dependencies);
 			AssetManager assetMgr = AssetManager.class.newInstance();
@@ -95,7 +83,7 @@ public class PluginCreator {
 	}
 
 	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin, String[] dependencies) {
-		dependencies = null;//暂不支持资源多级依赖
+		dependencies = null;//暂不支持资源多级依赖, 会导致插件难以维护
 		String[] assetPaths = new String[isStandalone ? 1 : (2 + (dependencies==null?0:dependencies.length))];
 
 //		if (!isStandalone) {
