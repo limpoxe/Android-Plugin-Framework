@@ -73,7 +73,7 @@ public class PluginThemeHelper {
 
 					//注入插件上下文和主题
 					Context defaultContext = pd.getPluginContext();
-					Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext, ((PluginBaseContextWrapper)activity.getBaseContext()).getBaseContext());
+					Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext, ((PluginBaseContextWrapper)activity.getBaseContext()).getBaseContext(), 0);
 					PluginInjector.resetActivityContext(pluginContext, activity, themeResId);
 
 				}

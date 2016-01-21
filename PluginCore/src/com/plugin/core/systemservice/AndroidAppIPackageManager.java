@@ -55,6 +55,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
         sMethods.put("getProviderInfo", new getProviderInfo());
         sMethods.put("queryIntentActivities", new queryIntentActivities());
         sMethods.put("queryIntentServices", new queryIntentServices());
+        sMethods.put("resolveActivity", new resolveActivity());
+        sMethods.put("resolveActivityAsUser", new resolveActivityAsUser());
     }
 
     public static class getPackageInfo extends MethodDelegate {
@@ -157,7 +159,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
-                getServiceInfo(pluginDescriptor, className);
+                return getServiceInfo(pluginDescriptor, className);
             }
 
             return super.beforeInvoke(target, method, args);
@@ -180,7 +182,6 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 providerInfo.enabled = true;
                 providerInfo.exported = info.isExported();
                 providerInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
-                providerInfo.metaData = getMeta(pluginDescriptor.getMetaData());
                 providerInfo.authority = info.getAuthority();
                 return providerInfo;
             }
@@ -237,6 +238,38 @@ public class AndroidAppIPackageManager extends MethodProxy {
         }
     }
 
+    //public abstract ResolveInfo resolveActivity(Intent intent, int flags);
+    public static class resolveActivity extends MethodDelegate {
+        @Override
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            LogUtil.e("beforeInvoke", method.getName());
+            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
+            if (classNames != null && classNames.size() > 0) {
+                PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(classNames.get(0));
+                ResolveInfo info = new ResolveInfo();
+                info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
+                return info;
+            }
+            return super.beforeInvoke(target, method, args);
+        }
+    }
+
+    //public abstract ResolveInfo resolveActivityAsUser(Intent intent, int flags, int userId);
+    public static class resolveActivityAsUser extends MethodDelegate {
+        @Override
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            LogUtil.e("beforeInvoke", method.getName());
+            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
+            if (classNames != null && classNames.size() > 0) {
+                PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(classNames.get(0));
+                ResolveInfo info = new ResolveInfo();
+                info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
+                return info;
+            }
+            return super.beforeInvoke(target, method, args);
+        }
+    }
+
     private static Bundle getMeta(HashMap<String, String> map) {
         //TODO 可以缓存起来
         Bundle meta = new Bundle();
@@ -279,7 +312,6 @@ public class AndroidAppIPackageManager extends MethodProxy {
         activityInfo.exported = false;
         activityInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
         activityInfo.taskAffinity = null;//需要时再加上
-        activityInfo.metaData = getMeta(pluginDescriptor.getMetaData());
 
         if (pluginDescriptor.getType(className) == PluginDescriptor.ACTIVITY) {
             PluginActivityInfo detail = pluginDescriptor.getActivityInfos().get(className);
@@ -301,7 +333,6 @@ public class AndroidAppIPackageManager extends MethodProxy {
         serviceInfo.enabled = true;
         serviceInfo.exported = false;
         serviceInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
-        serviceInfo.metaData = getMeta(pluginDescriptor.getMetaData());
         return serviceInfo;
     }
 

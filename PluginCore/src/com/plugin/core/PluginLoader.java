@@ -416,7 +416,7 @@ public class PluginLoader {
 	 * @param base  由系统创建的Context。 其实际类型应该是ContextImpl
 	 * @return
 	 */
-	/*package*/ static Context getNewPluginComponentContext(Context pluginContext, Context base) {
+	/*package*/ static Context getNewPluginComponentContext(Context pluginContext, Context base, int theme) {
 		Context newContext = null;
 		if (pluginContext != null) {
 			newContext = PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
@@ -428,22 +428,23 @@ public class PluginLoader {
 	}
 
 	public static Context getNewPluginApplicationContext(Class clazz) {
-
-		return newDefaultAppContext(getDefaultPluginContext(clazz));
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazz.getName());
+		return newDefaultAppContext(pluginDescriptor);
 	}
 
 	public static Context getNewPluginApplicationContext(String pluginId) {
-
-		return newDefaultAppContext(getDefaultPluginContext(pluginId));
+		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
+		return newDefaultAppContext(pluginDescriptor);
 	}
 
-	private static Context newDefaultAppContext(Context source) {
+	private static Context newDefaultAppContext(PluginDescriptor pluginDescriptor) {
 		Context newContext = null;
-		if (source != null) {
-			newContext = PluginCreator.createPluginContext(((PluginContextTheme) source).getPluginDescriptor(),
-					sApplication, source.getResources(),
-					(DexClassLoader) source.getClassLoader());
-			newContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
+		if (pluginDescriptor != null && pluginDescriptor.getPluginContext() != null) {
+			Context originContext = pluginDescriptor.getPluginContext();
+			newContext = PluginCreator.createPluginContext(((PluginContextTheme) originContext).getPluginDescriptor(),
+					sApplication, originContext.getResources(),
+					(DexClassLoader) originContext.getClassLoader());
+			newContext.setTheme(pluginDescriptor.getApplicationTheme());
 		}
 		return newContext;
 	}

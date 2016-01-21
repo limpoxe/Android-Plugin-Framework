@@ -153,7 +153,7 @@ public class PluginInjector {
 				if (!TextUtils.isEmpty(fragmentContainer.pluginId())) {
 
 					pd = PluginLoader.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
-					pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext());
+					pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext(), 0);
 
 				} else if (!TextUtils.isEmpty(fragmentContainer.fragmentId())) {
 					String classId = null;
@@ -169,7 +169,7 @@ public class PluginInjector {
 						Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
 
 						pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
-						pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext());
+						pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext(), 0);
 
 					} else {
 						return;
@@ -182,7 +182,7 @@ public class PluginInjector {
 			} else {
 				//是打开插件中的activity
 				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
-				pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext());
+				pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext(), 0);
 
 				//获取插件Application对象
 				Application pluginApp = pd.getPluginApplication();
@@ -324,7 +324,9 @@ public class PluginInjector {
 
 						PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
 
-						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase", PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), service.getBaseContext()));
+						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
+								PluginLoader.getNewPluginComponentContext(pd.getPluginContext(),
+												service.getBaseContext(), pd.getApplicationTheme()));
 
 						if (pd.getPluginApplication() != null) {
 							RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());
@@ -346,6 +348,7 @@ public class PluginInjector {
 			pluginAppTheme = pd.getApplicationTheme();
 		}
 		if (pluginAppTheme == 0) {
+			//If the activity defines a theme, that is used; else, the application theme is used.
 			pluginAppTheme = activityInfo.getThemeResource();
 		}
 		return pluginAppTheme;
