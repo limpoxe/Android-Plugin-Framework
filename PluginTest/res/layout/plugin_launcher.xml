@@ -97,6 +97,14 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestTabActivity"
+            android:text="打开PluginTestTabActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
             android:id="@+id/onClickPluginWebViewActivity"
             android:text="打开PluginWebViewActivity" />
 

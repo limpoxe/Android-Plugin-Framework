@@ -139,6 +139,10 @@
             android:launchMode="singleTask">
         </activity>
 
+        <activity
+            android:name="com.example.plugintest.activity.PluginTestTabActivity">
+        </activity>
+
         <service android:name="com.example.plugintest.service.PluginTestService">
             <intent-filter>
                 <action

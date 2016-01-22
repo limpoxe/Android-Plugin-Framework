@@ -30,6 +30,7 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		findViewById( R.id.onClickPluginSingleTaskActivity).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestActivity).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestOpenPluginActivity).setOnClickListener(this);
+		findViewById( R.id.onClickPluginTestTabActivity).setOnClickListener(this);
 		findViewById( R.id.onClickPluginWebViewActivity).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestReceiver).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestReceiver2).setOnClickListener(this);
@@ -77,6 +78,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 				break;
 			case R.id.onClickPluginTestOpenPluginActivity:
 				onClickPluginTestOpenPluginActivity(v);
+				break;
+			case R.id.onClickPluginTestTabActivity:
+				onClickPluginTestTabActivity(v);
 				break;
 			case R.id.onClickPluginWebViewActivity:
 				onClickPluginWebViewActivity(v);
@@ -171,6 +175,15 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		//利用className打开
 		Intent intent = new Intent();
 		intent.setClassName(this, PluginTestOpenPluginActivity.class.getName());
+		intent.putExtra("testParam", "testParam");
+		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickPluginTestTabActivity(View v) {
+		//利用className打开
+		Intent intent = new Intent();
+		intent.setClassName(this, PluginTestTabActivity.class.getName());
 		intent.putExtra("testParam", "testParam");
 		intent.putExtra("paramVO", new SharePOJO("测试VO"));
 		startActivity(intent);
