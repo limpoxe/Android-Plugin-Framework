@@ -176,7 +176,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 PluginProviderInfo info = pluginDescriptor.getProviderInfos().get(className);
                 ProviderInfo providerInfo = new ProviderInfo();
                 providerInfo.name = info.getName();
-                providerInfo.packageName = pluginDescriptor.getPackageName();
+                providerInfo.packageName = getPackageName(pluginDescriptor);
                 providerInfo.icon = pluginDescriptor.getApplicationIcon();
                 providerInfo.metaData = getMeta(pluginDescriptor.getMetaData());
                 providerInfo.enabled = true;
@@ -287,7 +287,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
     private static ApplicationInfo getApplicationInfo(PluginDescriptor pluginDescriptor) {
         ApplicationInfo info = new ApplicationInfo();
-        info.packageName = pluginDescriptor.getPackageName();
+        info.packageName = getPackageName(pluginDescriptor);
         info.metaData = getMeta(pluginDescriptor.getMetaData());
         info.name = pluginDescriptor.getApplicationName();
         info.className = pluginDescriptor.getApplicationName();
@@ -305,13 +305,14 @@ public class AndroidAppIPackageManager extends MethodProxy {
     private static ActivityInfo getActivityInfo(PluginDescriptor pluginDescriptor, String className) {
         ActivityInfo activityInfo = new ActivityInfo();
         activityInfo.name = className;
-        activityInfo.packageName = pluginDescriptor.getPackageName();
+        activityInfo.packageName = getPackageName(pluginDescriptor);
         activityInfo.icon = pluginDescriptor.getApplicationIcon();
         activityInfo.metaData = getMeta(pluginDescriptor.getMetaData());
         activityInfo.enabled = true;
         activityInfo.exported = false;
         activityInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
         activityInfo.taskAffinity = null;//需要时再加上
+        //activityInfo.targetActivity =
 
         if (pluginDescriptor.getType(className) == PluginDescriptor.ACTIVITY) {
             PluginActivityInfo detail = pluginDescriptor.getActivityInfos().get(className);
@@ -327,13 +328,18 @@ public class AndroidAppIPackageManager extends MethodProxy {
     private static ServiceInfo getServiceInfo(PluginDescriptor pluginDescriptor, String className) {
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.name = className;
-        serviceInfo.packageName = pluginDescriptor.getPackageName();
+        serviceInfo.packageName = getPackageName(pluginDescriptor);
         serviceInfo.icon = pluginDescriptor.getApplicationIcon();
         serviceInfo.metaData = getMeta(pluginDescriptor.getMetaData());
         serviceInfo.enabled = true;
         serviceInfo.exported = false;
         serviceInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
         return serviceInfo;
+    }
+
+    private static String getPackageName(PluginDescriptor pluginDescriptor) {
+        //这里的packageName可能需要使用宿主的packageName，
+        return pluginDescriptor.getPackageName();
     }
 
 }

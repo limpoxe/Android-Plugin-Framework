@@ -275,12 +275,12 @@ public class PluginInjector {
 			if (null != pluginActivityInfo.getScreenOrientation()) {
 				int orientation = Integer.parseInt(pluginActivityInfo.getScreenOrientation());
 				//noinspection ResourceType
-				if (orientation != activityInfo.screenOrientation) {
+				if (orientation != activityInfo.screenOrientation && !activity.isChild()) {
 					//noinspection ResourceType
 					activity.setRequestedOrientation(orientation);
 				}
 			}
-			if (Build.VERSION.SDK_INT >= 18) {
+			if (Build.VERSION.SDK_INT >= 18 && !activity.isChild()) {
 				Boolean isImmersive = ResourceUtil.getBoolean(pluginActivityInfo.getImmersive(), pluginContext);
 				if (isImmersive != null) {
 					activity.setImmersive(isImmersive);

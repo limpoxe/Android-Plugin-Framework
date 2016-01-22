@@ -2,6 +2,7 @@ package com.plugin.core;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Application;
 import android.app.Fragment;
 import android.app.Instrumentation;
 import android.app.Service;
@@ -46,6 +47,16 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			((Service) obj).stopSelf();
 		}
 		return super.onException(obj, e);
+	}
+
+	public Application newApplication(ClassLoader cl, String className, Context context)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
+		if (pluginDescriptor != null) {
+			return pluginDescriptor.getPluginApplication();
+		}
+		return newApplication(cl.loadClass(className), context);
 	}
 
 	@Override
@@ -101,7 +112,25 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			}
 		}
 
-		return super.newActivity(cl, className, intent);
+		ClassNotFoundException e = null;
+		try {
+			//先尝试交给宿主
+			Activity activity = super.newActivity(cl, className, intent);
+			return activity;
+		} catch (ClassNotFoundException cne) {
+			e = cne;
+		}
+
+		//再查漏补缺
+		//for LocalActivityManager
+		Class clazz = PluginLoader.loadPluginClassByName(className);
+		if (clazz != null) {
+			cl = clazz.getClassLoader();
+			PluginIntentResolver.resolveActivity(intent);
+			return super.newActivity(cl, className, intent);
+		} else {
+			throw e;
+		}
 	}
 
 	@Override

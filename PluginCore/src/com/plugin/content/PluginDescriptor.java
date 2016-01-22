@@ -344,6 +344,8 @@ public class PluginDescriptor implements Serializable {
 			return true;
 		} else if (getProviderInfos().containsKey(clazzName) && isEnabled()) {
 			return true;
+		} else if (getApplicationName().equals(clazzName) && !clazzName.equals(Application.class.getName()) && isEnabled()) {
+			return true;
 		}
 		return false;
 	}
