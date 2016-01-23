@@ -199,6 +199,8 @@ public class PluginInjector {
 					android_app_Activity_mActivityInfo);
 			int pluginAppTheme = getPluginTheme(activityInfo, pluginActivityInfo, pd);
 
+			LogUtil.e("Theme", "0x" + Integer.toHexString(pluginAppTheme), activity.getClass().getName());
+
 			resetActivityContext(pluginContext, activity, pluginAppTheme);
 
 			resetWindowConfig(pluginContext, pd, activity, activityInfo, pluginActivityInfo);
@@ -249,7 +251,7 @@ public class PluginInjector {
 		// 重设LayoutInflater
 		LogUtil.d(activity.getWindow().getClass().getName());
 		RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
-				"mLayoutInflater", LayoutInflater.from(pluginContext));
+				"mLayoutInflater", LayoutInflater.from(activity));
 
 		// 如果api>=11,还要重设factory2
 		if (Build.VERSION.SDK_INT >= 11) {
