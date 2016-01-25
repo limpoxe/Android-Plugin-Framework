@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginIntentFilter;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginCallbackImpl;
 import com.plugin.core.manager.PluginManagerImpl;
@@ -89,10 +88,9 @@ public class PluginLoader {
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
 			AndroidWidgetToast.installProxy();
 
+			PluginInjector.injectInstrumentation();
+			PluginInjector.injectHandlerCallback();
 			PluginInjector.injectBaseContext(sApplication);
-			Object activityThread = PluginInjector.getActivityThread();
-			PluginInjector.injectInstrumentation(activityThread);
-			PluginInjector.injectHandlerCallback(activityThread);
 
 			pluginManager.loadInstalledPlugins();
 			Iterator<PluginDescriptor> itr = getPlugins().iterator();

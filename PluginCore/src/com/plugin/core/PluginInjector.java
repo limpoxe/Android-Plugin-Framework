@@ -23,6 +23,7 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
+import com.plugin.core.app.ActivityThread;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
@@ -35,23 +36,14 @@ import java.util.Map;
 
 public class PluginInjector {
 
-	private static final String android_app_ActivityThread = "android.app.ActivityThread";
-	private static final String android_app_ActivityThread_currentActivityThread = "currentActivityThread";
-	private static final String android_app_ActivityThread_mInstrumentation = "mInstrumentation";
-	private static final String android_app_ActivityThread_getHandler = "getHandler";
-	private static final String android_app_ActivityThread_installContentProviders = "installContentProviders";
-
 	private static final String android_content_ContextWrapper_mBase = "mBase";
-
-	private static final String android_os_Handler_mCallback = "mCallback";
-
-	private static final String android_app_Activity_mInstrumentation = "mInstrumentation";
-	private static final String android_app_Activity_mActivityInfo = "mActivityInfo";
 
 	private static final String android_content_ContextThemeWrapper_attachBaseContext = "attachBaseContext";
 	private static final String android_content_ContextThemeWrapper_mResources = "mResources";
 	private static final String android_content_ContextThemeWrapper_mTheme = "mTheme";
 
+	private static final String android_app_Activity_mInstrumentation = "mInstrumentation";
+	private static final String android_app_Activity_mActivityInfo = "mActivityInfo";
 
 	/**
 	 * 替换宿主程序Application对象的mBase是为了修改它的几个StartActivity、
@@ -66,57 +58,36 @@ public class PluginInjector {
 				android_content_ContextWrapper_mBase, newBase);
 	}
 
-	static Object getActivityThread() {
-		// 从ThreadLocal中取出来的
-		LogUtil.d("从宿主程序中取出ActivityThread对象备用");
-		Object activityThread = RefInvoker.invokeStaticMethod(android_app_ActivityThread,
-				android_app_ActivityThread_currentActivityThread,
-				(Class[]) null, (Object[]) null);
-		return activityThread;
-	}
-
 	/**
 	 * 注入Instrumentation主要是为了支持Activity
 	 */
-	static void injectInstrumentation(Object activityThread) {
+	static void injectInstrumentation() {
 		// 给Instrumentation添加一层代理，用来实现隐藏api的调用
 		LogUtil.d("替换宿主程序Intstrumentation");
-		Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getFieldObject(activityThread,
-				android_app_ActivityThread, android_app_ActivityThread_mInstrumentation);
-		RefInvoker.setFieldObject(activityThread, android_app_ActivityThread,
-				android_app_ActivityThread_mInstrumentation,
-				new PluginInstrumentionWrapper(originalInstrumentation));
+		ActivityThread.wrapInstrumentation();
 	}
 
-	static void injectHandlerCallback(Object activityThread) {
+	static void injectHandlerCallback() {
 		LogUtil.d("向宿主程序消息循环插入回调器");
-		Handler handler = (Handler) RefInvoker.invokeMethod(activityThread,
-				android_app_ActivityThread, android_app_ActivityThread_getHandler,
-				(Class[]) null, (Object[]) null);
-		RefInvoker.setFieldObject(handler, Handler.class.getName(), android_os_Handler_mCallback,
-				new PluginAppTrace(handler));
+		ActivityThread.wrapHandler();
 	}
 
 	static void installContentProviders(Context context, Collection<PluginProviderInfo> pluginProviderInfos) {
 		LogUtil.d("安装插件ContentProvider", pluginProviderInfos.size());
-		Object activityThread = PluginInjector.getActivityThread();
-		if (activityThread != null) {
-			PluginInjector.hackHostClassLoaderIfNeeded();
-			List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
-			for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
-				ProviderInfo p = new ProviderInfo();
-				//name做上标记，表示是来自插件，方便classloader进行判断
-				p.name = PluginProviderInfo.CLASS_PREFIX + pluginProviderInfo.getName();
-				p.authority = pluginProviderInfo.getAuthority();
-				p.applicationInfo = context.getApplicationInfo();
-				p.exported = pluginProviderInfo.isExported();
-				p.packageName = context.getApplicationInfo().packageName;
-				providers.add(p);
-			}
-			RefInvoker.invokeMethod(activityThread,
-					android_app_ActivityThread, android_app_ActivityThread_installContentProviders,
-					new Class[]{Context.class, List.class}, new Object[]{context, providers});
+		PluginInjector.hackHostClassLoaderIfNeeded();
+		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
+		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
+			ProviderInfo p = new ProviderInfo();
+			//name做上标记，表示是来自插件，方便classloader进行判断
+			p.name = PluginProviderInfo.CLASS_PREFIX + pluginProviderInfo.getName();
+			p.authority = pluginProviderInfo.getAuthority();
+			p.applicationInfo = context.getApplicationInfo();
+			p.exported = pluginProviderInfo.isExported();
+			p.packageName = context.getApplicationInfo().packageName;
+			providers.add(p);
 		}
+
+		ActivityThread.installContentProviders(context, providers);
 	}
 
 	static void injectInstrumetionFor360Safe(Activity activity, Instrumentation pluginInstrumentation) {
@@ -315,7 +286,7 @@ public class PluginInjector {
 	}
 
 	/*package*/static void replaceServiceContext(String serviceName) {
-		Object activityThread = PluginInjector.getActivityThread();
+		Object activityThread = ActivityThread.currentActivityThread();
 		if (activityThread != null) {
 			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
 			if (services != null) {

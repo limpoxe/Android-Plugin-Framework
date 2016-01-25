@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
+import com.plugin.core.app.ActivityThread;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -21,7 +22,7 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private final Handler mHandler;
 
-	protected PluginAppTrace(Handler handler) {
+	public PluginAppTrace(Handler handler) {
 		mHandler = handler;
 	}
 
@@ -94,7 +95,7 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static Result beforeStopService(Message msg) {
 		//销毁service时回收映射关系
-		Object activityThread = PluginInjector.getActivityThread();
+		Object activityThread = ActivityThread.currentActivityThread();
 		if (activityThread != null) {
 			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
 			if (services != null) {

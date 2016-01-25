@@ -14,7 +14,6 @@ public class RefInvoker {
 			Object[] paramValues) {
 
 		return invokeMethod(null, className, methodName, paramTypes, paramValues);
-
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -23,6 +22,17 @@ public class RefInvoker {
 
 		try {
 			Class clazz = Class.forName(className);
+			return invokeMethod(target, clazz, methodName, paramTypes, paramValues);
+		}catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Object invokeMethod(Object target, Class clazz, String methodName, Class[] paramTypes,
+									  Object[] paramValues) {
+		try {
+			LogUtil.e("Method", methodName);
 			Method method = clazz.getDeclaredMethod(methodName, paramTypes);
 			method.setAccessible(true);
 			return method.invoke(target, paramValues);
@@ -36,11 +46,8 @@ public class RefInvoker {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		}
 		return null;
-
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -80,7 +87,6 @@ public class RefInvoker {
 			e.printStackTrace();
 		}
 		return null;
-
 	}
 
 	public static Object getStaticFieldObject(String className, String fieldName) {
@@ -93,6 +99,14 @@ public class RefInvoker {
 		Class clazz = null;
 		try {
 			clazz = Class.forName(className);
+			setFieldObject(target, clazz, fieldName, fieldValue);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void setFieldObject(Object target, Class clazz, String fieldName, Object fieldValue) {
+		try {
 			Field field = clazz.getDeclaredField(fieldName);
 			field.setAccessible(true);
 			field.set(target, fieldValue);
@@ -111,8 +125,6 @@ public class RefInvoker {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
