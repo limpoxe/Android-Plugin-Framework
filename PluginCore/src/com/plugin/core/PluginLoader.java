@@ -472,6 +472,12 @@ public class PluginLoader {
 				pluginDescriptor.setPluginContext(pluginContext);
 				pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 
+//				try {
+//					ActivityThread.installPackageInfo(PluginLoader.getApplicatoin(), pluginDescriptor.getPackageName());
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//				}
+
 				callPluginApplicationOnCreate(pluginDescriptor);
 
 				LogUtil.e("初始化插件" + pluginDescriptor.getPackageName() + "完成");

@@ -91,8 +91,10 @@ public class PluginIntentResolver {
 		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
 		//通过映射查找
 		String targetClassName = PluginStubBinding.getBindedPluginServiceName(info.name);
+		//TODO
+		//info.applicationInfo = XXX
 
-		LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName);
+		LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName, info.applicationInfo.packageName);
 
 		if (targetClassName != null) {
 			info.name =  CLASS_PREFIX + targetClassName;

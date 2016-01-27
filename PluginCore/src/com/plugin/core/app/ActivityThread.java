@@ -162,7 +162,7 @@ public class ActivityThread {
 //            42                parent = baseParent;
 //            43            }
 //
-    public static void getPackageInfo(Context hostContext, String pluginId) throws ClassNotFoundException {
+    public static void installPackageInfo(Context hostContext, String pluginId) throws ClassNotFoundException {
         enableLog();
         Object applicationLoaders = RefInvoker.invokeStaticMethod("android.app.ApplicationLoaders", "getDefault", (Class[]) null, (Object[]) null);
         Map mLoaders = (Map)RefInvoker.getFieldObject(applicationLoaders, "android.app.ApplicationLoaders", "mLoaders");
