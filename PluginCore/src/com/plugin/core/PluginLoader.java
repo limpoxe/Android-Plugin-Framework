@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.app.ActivityThread;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginCallbackImpl;
 import com.plugin.core.manager.PluginManagerImpl;
@@ -472,11 +473,11 @@ public class PluginLoader {
 				pluginDescriptor.setPluginContext(pluginContext);
 				pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 
-//				try {
-//					ActivityThread.installPackageInfo(PluginLoader.getApplicatoin(), pluginDescriptor.getPackageName());
-//				} catch (ClassNotFoundException e) {
-//					e.printStackTrace();
-//				}
+				try {
+					ActivityThread.installPackageInfo(getApplicatoin(), pluginDescriptor.getPackageName());
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 
 				callPluginApplicationOnCreate(pluginDescriptor);
 

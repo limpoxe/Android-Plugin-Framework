@@ -177,8 +177,8 @@ public class ActivityThread {
             //先保存
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             //会触发替换
-            RefInvoker.invokeMethod(currentActivityThread(), android_app_ActivityThread, "getPackageInfo",
-                    new Class[]{ApplicationInfo.class, Class.forName("android.content.res.CompatibilityInfo"),  ClassLoader.class, boolean.class, boolean.class},
+            Object pluginLoadedApk = RefInvoker.invokeMethod(currentActivityThread(), android_app_ActivityThread, "getPackageInfo",
+                    new Class[]{ApplicationInfo.class, Class.forName("android.content.res.CompatibilityInfo"), ClassLoader.class, boolean.class, boolean.class},
                     new Object[]{info, compatibilityInfo, baseLoader, securityViolation, includeCode});
             //再还原
             Thread.currentThread().setContextClassLoader(classLoader);

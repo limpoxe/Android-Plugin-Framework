@@ -312,6 +312,13 @@ public class PluginInjector {
 		}
 	}
 
+	/**
+	 * 主题的选择顺序为 先选择插件Activity配置的主题，再选择插件Application配置的主题，再选择宿主Activity主题
+	 * @param activityInfo
+	 * @param pluginActivityInfo
+	 * @param pd
+	 * @return
+	 */
 	private static int getPluginTheme(ActivityInfo activityInfo, PluginActivityInfo pluginActivityInfo, PluginDescriptor pd) {
 		int pluginAppTheme = 0;
 		if (pluginActivityInfo != null ) {

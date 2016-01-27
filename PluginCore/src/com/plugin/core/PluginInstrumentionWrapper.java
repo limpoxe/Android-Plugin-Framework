@@ -110,27 +110,17 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					}
 				}
 			}
-		}
-
-		ClassNotFoundException e = null;
-		try {
-			//先尝试交给宿主
-			Activity activity = super.newActivity(cl, className, intent);
-			return activity;
-		} catch (ClassNotFoundException cne) {
-			e = cne;
-		}
-
-		//再查漏补缺
-		//for LocalActivityManager
-		Class clazz = PluginLoader.loadPluginClassByName(className);
-		if (clazz != null) {
-			cl = clazz.getClassLoader();
-			PluginIntentResolver.resolveActivity(intent);
-			return super.newActivity(cl, className, intent);
 		} else {
-			throw e;
+			//到这里有2中种情况
+			//1、确实是宿主Activity
+			//2、是插件Activity，但是上面的if没有识别出来（这种情况目前只发现在ActivityGroup情况下会出现，因为ActivityGroup不会触发resolveActivity方法，导致Intent没有更换）
+			//判断上述两种情况可以通过ClassLoader的类型来判断, 判断出来以后补一个resolveActivity方法
+			if (cl instanceof PluginClassLoader) {
+				PluginIntentResolver.resolveActivity(intent);
+			}
 		}
+
+		return super.newActivity(cl, className, intent);
 	}
 
 	@Override

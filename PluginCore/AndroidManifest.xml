@@ -57,6 +57,7 @@
         </service>
 
         <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name="com.plugin.core.stub.PluginStubActivity0"
             android:exported="true">
             <intent-filter>
