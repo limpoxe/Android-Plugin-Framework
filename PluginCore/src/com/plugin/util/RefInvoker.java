@@ -32,7 +32,7 @@ public class RefInvoker {
 	public static Object invokeMethod(Object target, Class clazz, String methodName, Class[] paramTypes,
 									  Object[] paramValues) {
 		try {
-			LogUtil.e("Method", methodName);
+			//LogUtil.e("Method", methodName);
 			Method method = clazz.getDeclaredMethod(methodName, paramTypes);
 			method.setAccessible(true);
 			return method.invoke(target, paramValues);

@@ -57,12 +57,13 @@ public class AndroidAppIPackageManager extends MethodProxy {
         sMethods.put("queryIntentServices", new queryIntentServices());
         sMethods.put("resolveActivity", new resolveActivity());
         sMethods.put("resolveActivityAsUser", new resolveActivityAsUser());
+        sMethods.put("resolveService", new resolveService());
     }
 
     public static class getPackageInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(args[0].toString());
             if (pd != null) {
                 return PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(pd.getInstalledPath(), (int) args[1]);
@@ -75,7 +76,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeResult, Object invokeResult) {
-            LogUtil.e("afterInvoke", method.getName());
+            LogUtil.d("afterInvoke", method.getName());
 
             List<PackageInfo> result = (List<PackageInfo> )RefInvoker.invokeMethod(invokeResult, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
 
@@ -97,7 +98,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class queryIntentActivities extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(classNames.get(0));
@@ -115,7 +116,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getApplicationInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(args[0].toString());
             if (pluginDescriptor != null) {
                 return getApplicationInfo(pluginDescriptor);
@@ -127,7 +128,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getActivityInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
@@ -141,7 +142,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getReceiverInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
@@ -155,7 +156,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getServiceInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
@@ -169,7 +170,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getProviderInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
@@ -192,7 +193,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class queryIntentServices extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(classNames.get(0));
@@ -209,7 +210,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class resolveIntent extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 List<ResolveInfo> result = new ArrayList<>();
@@ -226,7 +227,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class resolveService extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(classNames.get(0));
@@ -242,7 +243,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class resolveActivity extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(classNames.get(0));
@@ -258,7 +259,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class resolveActivityAsUser extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.d("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(classNames.get(0));
