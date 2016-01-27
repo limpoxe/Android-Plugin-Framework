@@ -21,6 +21,11 @@
         <activity
             android:name=".MainActivity" >
         </activity>
+
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name=".TransparentActivity" >
+        </activity>
     </application>
 
 </manifest>

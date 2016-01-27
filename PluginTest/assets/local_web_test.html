@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GDT DEV guide.4.3</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>广点通联盟 Android SDK——接入说明文档 V4.4</h1>
+<h2>1.  SDK嵌入</h2>
+<h3>1.1.	步骤1：添加SDK到工程中</h3>
+<hr />
+<p>请在工程文件根目录下创建一个名为 libs 的子目录，并将广点通 SDK 的 JAR 包拷贝到 libs 目录下。</p>
+<h3>1.2.	步骤2: 修改AndroidManifest.xml文件</h3>
+<hr />
+<p>添加权限声明：</p>
+<pre><code>&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;    
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_NETWORK_STATE&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_WIFI_STATE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.READ_PHONE_STATE&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_COARSE_LOCATION&quot; /&gt;  
+&lt;uses-permission android:name=&quot;android.permission.ACCESS_COARSE_UPDATES&quot;/&gt;
+&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/&gt;
+</code></pre>
+
+<p>接入任意广告（Banner、应用墙、插屏、消息流）都需要在XML中添加以下声明：</p>
+<pre><code>&lt;service android:name=&quot;com.qq.e.comm.DownloadService&quot; 
+    android:exported=&quot;false&quot; /&gt;
+&lt;activity android:name=&quot;com.qq.e.ads.AdActivity&quot; 
+    android:theme=&quot;@android:style/Theme.Translucent&quot; /&gt;
+</code></pre>
+
+<h2>2.  接入代码</h2>
+<h3>2.1.	Banner广告接入代码</h3>
+<hr />
+<p>（详细内容请参考压缩包中的代码示例）</p>
+<pre><code>public class MainActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        RelativeLayout l = (RelativeLayout)findViewById(R.id.adcontent);
+        // 创建Banner广告AdView对象
+        // appId : 在 http://e.qq.com/dev/ 能看到的app唯一字符串
+        // posId : 在 http://e.qq.com/dev/ 生成的数字串，并非 appid 或者 appkey 
+        AdView adv = new AdView(this, AdSize.BANNER, “appId”,&quot;posId&quot;);      
+        l.addView(adv);
+        // 广告请求数据，可以设置广告轮播时间，默认为30s  
+        AdRequest adr = new AdRequest();
+        //设置广告刷新时间，为30~120之间的数字，单位为s,0标识不自动刷新
+        adr.setRefresh(30);
+        //在banner广告上展示关闭按钮
+        adr. setShowCloseBtn(true);
+        //设置空广告和首次收到广告数据回调
+        //调用fetchAd方法后会发起广告请求 */
+        adv.setAdListener(new AdListener() {
+            //加载广告失败时的回调
+            public void onNoAd() {      }
+            //加载广告失败时的回调
+            public void onNoAd(int errorCode)
+            //加载广告成功时的回调
+            public void onAdReceiv() {          }
+            //Banner关闭时的回调，仅在展示Banner关闭按钮时有效
+            public void onBannerClosed() {          }
+            //Banner广告曝光时的回调
+            public void onAdExposure() {    }
+            //当广告点击时调用
+            public void onAdClicked();                  
+        });
+        /* 发起广告请求，收到广告数据后会展示数据   */ 
+        adv.fetchAd(adr);
+    }
+}
+</code></pre>
+
+<p>banner广告使用说明：</p>
+<pre><code>1. 废弃接口：
+    a)  AdListener.onNoAd()
+        实现空方法体即可，建议在AdListener.onNoAd(int errorCode)中实现所需逻辑。
+2. 新增接口：
+    a)  AdListener.onNoAd(int errorCode)
+    c)  AdView.destroy()
+</code></pre>
+
+<h3>2.2.	应用墙广告接入代码</h3>
+<hr />
+<pre><code>import com.qq.e.appwall.GdtAppwall;
+public class MainActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        /*
+        * 创建应用墙广告
+        * “appid” 指在 http://e.qq.com/dev/ 能看到的app唯一字符串
+        * “posid” 指在 http://e.qq.com/dev/ 生成的数字串，
+        *  并非 appid 或者 appkey
+        * testad 如果设置为true，则进入测试广告模式。该广告模式下不扣费。
+        * 建议在调式时设置为true，发布前设置为false。
+        */
+        final GdtAppwall appwall = new GdtAppwall(this,&quot;appid&quot;,&quot;posid&quot;, testad);
+        Button btn = (Button)findViewById(R.id.appwallbtn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            //调用展示应用墙的接口，请选择合适的场景调用此接口
+            appwall.doShowAppWall();
+            }
+        }); 
+    } 
+}
+</code></pre>
+
+<p>应用墙广告使用说明：</p>
+<pre><code>1. 原来的静态接口已废弃，不建议新接入开发者使用。废弃接口如下：
+    a)  GdtAppwall.init(context, appid, pid, testad);
+    b)  GdtAppwall.init(context, appid, pid);
+    c)  GdtAppwall.showAppwall();
+2. 老开发者如需切换成新接口，可参照以下步骤：
+    a)  new 一个 GdtAppwall 的实例
+    b)  无需进行 init，直接调用 GdtAppwall.doShowAppWall()进行展示
+</code></pre>
+
+<h3>2.3.	插屏广告嵌入代码</h3>
+<hr />
+<pre><code>import com.qq.e.ads.InterstitialAd;
+import com.qq.e.ads.InterstitialAdListener;
+    /*
+    * 创建插屏广告
+    * &quot;appid&quot;指在 http://e.qq.com/dev/ 能看到的app唯一字符串
+    * &quot;广告位 id&quot; 指在 http://e.qq.com/dev/ 生成的数字串，
+    * 并非 appid 或者 appkey
+    * /
+    final InterstitialAd iad = new InterstitialAd(this, &quot;appid&quot;,&quot;posid&quot;);
+    iad.setAdListener(new InterstitialAdListener() {
+        @Override
+        public void onFail() {
+            //广告出错时的回调
+        }
+        public void onFail(int errorCode){
+            //广告出错时的回调
+        }
+        @Override
+        public void onBack() {
+            //广告关闭时的回调
+        }
+        @Override
+        public void onAdReceive() {
+            //广告数据收到时的回调。在收到广告后可以调用 InterstitialAd.show 方法展示插屏
+        }
+        public void onExposure(){
+            //广告曝光时的回调
+        }
+        public void onClicked(){
+            //广告点击时的回调
+        }           
+    });
+    //请求插屏广告，每次重新请求都可以调用此方法。
+    iad.loadAd();
+    /*
+    * 展示插屏广告
+    * 仅在adreceive事件发生后调用才有效。
+    * IntersititialAd.show 方法会开启一个透明的activity
+    *如广告情景不合适，也可考虑InterstitialAd.showAsPopupWindow
+    *配套的关闭方法为closePopupWindow
+    * 优先建议调用show
+    */
+    iad.show();
+</code></pre>
+
+<p>插屏广告使用说明：</p>
+<pre><code>1. 废弃接口：
+    a)  InterstitialAdListener.onFail()
+        实现空方法体即可，建议在InterstitialAdListener.onFail(int errorCode)中实现所需逻辑。
+2. 新增接口：
+    a)  InterstitialAdListener.onFail(int errorCode)
+    d)  InterstitialAd.destory()
+</code></pre>
+
+<h3>2.4.	开屏广告嵌入代码</h3>
+<hr />
+<pre><code>public class FullscreenActivity extends Activity {
+    protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_fullscreen);
+    //准备展示开屏广告的容器
+    FrameLayout container = (FrameLayout) this
+            .findViewById(R.id.splashcontainer);        
+    //创建开屏广告，广告拉取成功后会自动展示在container中。Container会首先被清空
+    new SplashAd(this, container, Constants.APPId, Constants.SplashPosId,
+            new SplashAdListener() {
+                //广告拉取成功开始展示时调用
+                public void onAdPresent() {
+                    Log.i(&quot;test&quot;, &quot;present&quot;);
+                    Toast.makeText(FullscreenActivity.this,
+                            &quot;SplashPresent&quot;, Toast.LENGTH_LONG).show();
+                }
+                //广告拉取超时（3s）或者没有广告时调用，errCode参见SplashAd类的常量声明
+                public void onAdFailed(int errCode) {
+                    Toast.makeText(FullscreenActivity.this,
+                            &quot;SplashFail&quot;+errCode, Toast.LENGTH_LONG).show();
+                    FullscreenActivity.this.finish();
+                }
+                //广告展示时间结束（5s）或者用户点击关闭时调用。
+                public void onAdDismissed() {
+                    Toast.makeText(FullscreenActivity.this,
+                            &quot;SplashDismissed&quot;, Toast.LENGTH_LONG).show();
+                    FullscreenActivity.this.finish();
+                }
+            });
+    }
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    //阻止用户在展示过程中点击手机返回键，推荐开发者使用
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+}
+</code></pre>
+
+<p>开屏使用说明： </p>
+<pre><code>1. 因为广告拉取需要一定的时间，为了避免出现黑屏，强烈建议开发者设置自己的开机画面，同时提供一个Layout作为展示开屏广告的容器。 
+2. 建议开发者在OnAdDismissed和OnAdFailed回调方法中进行开屏页面到主页面的跳转（推荐例子中的finish方式），以避免用户回退时再次看到开屏页面。
+</code></pre>
+
+<h3>2.5.	橱窗广告嵌入代码说明</h3>
+<hr />
+<pre><code>public class GridDemoActivity extends Activity {
+    protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_grid_demo);
+    // 创建橱窗广告
+    //&quot;appid&quot;       在  http://e.qq.com/dev/  能看到的app唯一字符串
+    //&quot;posid&quot;       在http://e.qq.com/dev/  生成的数字串，
+    final GridAppWall g = new GridAppWall(&quot;appid&quot;, &quot;posid&quot;, this, new GridAppWallListener() {
+        public void onAdPresent() {//橱窗广告开始展示回调}
+        public void onAdFailed(int errCode) {//广告展示失败回调}
+        public void onAdDismissed() {//橱窗广告关闭回调}
+    });
+    Button showBtn = (Button)findViewById(R.id.gridShowBtn);
+    showBtn.setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+            String xText = ((EditText) findViewById(R.id.xEditText)).getText().toString();
+            String yText = ((EditText) findViewById(R.id.yEditText)).getText().toString();
+            int x = xText.isEmpty() ? 0 : Integer.parseInt(xText);
+            int y = yText.isEmpty() ? 0 : Integer.parseInt(yText);
+            //  方式1：从绝对位置开始展现橱窗，x y值为物理像素
+            g.showRelativeTo(x, y);
+        }
+    });
+    OnClickListener l = new OnClickListener() {
+        public void onClick(View v) {
+        //  方式2：从组件位置开始展现橱窗
+        g.showRelativeTo(v);
+        }
+    };
+    ImageButton ib = (ImageButton) findViewById(R.id.showGridBtn);
+    ib.setOnClickListener(l);
+    }
+}
+</code></pre>
+
+<p>橱窗广告使用说明：</p>
+<pre><code>橱窗广告展示时提供三种方式：
+    a)  show();  从屏幕左上角开始展现橱窗。
+    b)  showRelativeTo(int x, int y);  传入参数为物理像素 x,y 值，从该点开始展现橱窗。
+    c)  showRelativeTo(View v);  传入参数为单个组件，从该组件的位置开始展现橱窗。
+</code></pre>
+
+<h3>2.6.	原生广告嵌入代码说明</h3>
+<hr />
+<pre><code>public class GDTNativeAdActivity extends Activity {  
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_gdtnativead_demo); 
+        //创建原生广告
+        gdtnativead = new GDTNativeAd(this, APPID, I_POS_ID, new GDTNativeAdListener(){
+            public void onGDTNativeAdLoaded(List&lt;GDTNativeAdDataRef&gt; refs) {//原生广告拉取成功回调}
+            public void onGDTNativeAdFail(int errorCode) {//原生广告拉取失败回调} 
+            public void onGDTNativeAdDataSetChanged(GDTNativeAdDataRef adData) {//原生广告数据更新状态时的回调}        
+        });
+        Button btnRefresh = (Button) this.findViewById(R.id.btn_refresh); 
+        btnRefresh.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {  
+                gdtnativead.loadAd(count); //调用原生广告拉取接口  
+            }
+        });
+        aq.id(R.id.img_logo).image((String) ad.getIconUrl(), false, true);
+        aq.id(R.id.img_poster).image(ad.getImgUrl(), false, true);
+        aq.id(R.id.text_name).text((String) ad.getTitle());
+        aq.id(R.id.text_desc).text((String) ad.getDesc());
+        ad.onExposured(adContainer); //调用原生广告曝光接口
+        btnDownload.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            //调用原生广告点击接口，注意调用此click方法前需要保证已经调用过曝光接口
+            ad.onClicked();
+            }
+        });
+    }  
+
+}
+</code></pre>
+
+<p>原生广告使用说明：</p>
+<pre><code>新增接口：
+    a)  GDTNativeAdListener.onGDTNativeAdDataSetChanged(GDTNativeAdDataRef adData)
+    b)  GDTNativeAdDataRef.getAppStatus() // 以下四个接口对app类广告返回实际值，对普链广告返回-1
+    c)  GDTNativeAdDataRef.getProgress()
+    d)  GDTNativeAdDataRef.getDownloadCount()
+    e)  GDTNativeAdDataRef.getAppScore()
+</code></pre>
+
+<h2>3.	广告位创建流程</h2>
+<p>在您的应用通过审核后，可以在相关页面选择“创建广告位”。</p>
+<p>步骤说明：</p>
+<pre><code>1. 在创建广告位之前，确保您已经下载最新版SDK并阅读完说明文档，了解如何在您的应用中使用广告位ID。
+2. 选择需要嵌入广告的应用名称。注意此处只可选择已通过审核的应用。
+3. 设置广告位的名称及格式。广告位名称用于区分应用内设置的各个广告位，方便您在后台进行统一管理和查看数据报表；目前提供选择的广告位格式有Banner广告、应用墙广告、插屏广告和开屏广告。
+4. 点击创建按钮以后即获得对应该广告位的ID号。
+5. 成功得到广告位ID以后，您可以在应用代码内使用该ID进行广告联调测试（见“接入代码”部分）。
+6. 通过测试后去掉测试代码部分（TestAd），即可发布带有联盟广告位的Android应用。
+</code></pre>
+
+<h2>4.	SDK相关问题排查</h2>
+<p>如果根据正常的注册流程仍然无法在嵌入广点通sdk的app中看到广告，可以尝试使用logcat排查问题。广点通SDK默认设置下会对广告流程中的关键步骤打印日志，日志格式如下：</p>
+<pre><code>LogTag  ：gdt_ad_log
+Text    ：code:[返回码]. msg : [信息]
+</code></pre>
+
+<p>广点通在打印广告关键信息时会带上gdt_ad_log 的tag,其他带gdt tag 的log与广告信息无关。
+在每条log中，会带上当前的广告请求是否测试模式的广告。</p>
+<h2>5.	SDK错误码</h2>
+<table>
+<thead>
+<tr>
+	<th align="left">错误码</th>
+	<th align="left">错误类型</th>
+	<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td align="left">3XX</td>
+	<td align="left"><strong>具体类型可联系GDT移动联盟排查</strong></td>
+	<td>初始化错误</td>
+</tr>
+<tr>
+	<td align="left">403</td>
+	<td align="left">HTTP_STATUS_ERROR</td>
+	<td>HHTP状态码错误：建议检查网络状态</td>
+</tr>
+<tr>
+	<td align="left">404</td>
+	<td align="left">TIME_OUT_ERROR</td>
+	<td>网络超时：建议检查网络状态</td>
+</tr>
+<tr>
+	<td align="left">405</td>
+	<td align="left">RESOURCE_LOAD_FAIL_ERROR</td>
+	<td>加载资源出错：建议网络状态</td>
+</tr>
+<tr>
+	<td align="left">406</td>
+	<td align="left">IMG_LOAD_ERROR</td>
+	<td>图片加载出错：建议检查网络状态</td>
+</tr>
+<tr>
+	<td align="left">4XX</td>
+	<td align="left"><strong>具体类型可联系GDT移动联盟排查</strong></td>
+	<td>网络错误</td>
+</tr>
+<tr>
+	<td align="left">500</td>
+	<td align="left">PLACEMENT_ERROR</td>
+	<td>广告位错误：建议检查广告位是否正确</td>
+</tr>
+<tr>
+	<td align="left">501</td>
+	<td align="left">NO_FILL_ERROR</td>
+	<td>无广告返回：建议重新请求广告</td>
+</tr>
+<tr>
+	<td align="left">5XX</td>
+	<td align="left"><strong>具体类型可联系GDT移动联盟排查</strong></td>
+	<td>广告错误</td>
+</tr>
+<tr>
+	<td align="left">600</td>
+	<td align="left">CONTAINER_INVISIBLE_ERROR</td>
+	<td>广告容器不可见错误：建议检查代码逻辑，保证广告容器可见</td>
+</tr>
+<tr>
+	<td align="left">601</td>
+	<td align="left">NETWORK_TYPE_ERROR</td>
+	<td>网络类型错误。例：开屏广告仅在wifi下展示</td>
+</tr>
+<tr>
+	<td align="left">602</td>
+	<td align="left">ANDROID_PERMMISON_ERROR</td>
+	<td>Android权限错误：建议检查AndroidManifest是否声明了所需权限</td>
+</tr>
+<tr>
+	<td align="left">6XX</td>
+	<td align="left"><strong>具体类型可联系GDT移动联盟排查</strong></td>
+	<td>其他错误</td>
+</tr>
+</tbody>
+</table>
+<h2>6.	注意事项</h2>
+<pre><code>1. 在代码混淆时务必不要混淆android-support-v4.jar中的类
+2. 确保所使用的android-support-v4.jar包中的android.support.v4.app.NotificationCompat.Builder 类包含setProgress方法，如果不包含此方法请升级android开发套件
+3. 如果在将Banner广告加入ListView的Header中时出现各种问题请参考sample代码中的样例。
+4. 在以下情况下使用Banner广告请将AdRequest刷新频率设为0，即不自动刷新。
+    a)  使用广告聚合平台控制刷新频率时
+    b)  使用代码定时新建Banner广告的AdView来控制刷新频率时
+5. 代码混淆
+如果您需要使用proguard混淆代码，需确保不要混淆SDK的代码。 
+请在proguard.cfg文件(或其他混淆文件)尾部添加如下配置： 
+    -keep class com.qq.e.** { 
+        public protected *; 
+    } 
+    -keep class com.tencent.gdt.**{ 
+        public protected *; 
+    }
+6. Banner广告升级4.1注意事项：
+    1)  Manifest中AdActivity增加Theme属性，参考本文档1.2节
+    2)  在ListHeader中增加AdView的代码样例参照最新Demo代码
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

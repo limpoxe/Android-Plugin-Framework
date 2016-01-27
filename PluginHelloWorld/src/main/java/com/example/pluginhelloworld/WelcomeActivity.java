@@ -35,7 +35,7 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " +  HelloJni.calculate(3, 4), Toast.LENGTH_LONG).show();
+                Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " + HelloJni.calculate(3, 4), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -43,6 +43,13 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+            }
+        });
+
+        findViewById(R.id.test_transparent_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(WelcomeActivity.this, TransparentActivity.class));
             }
         });
 

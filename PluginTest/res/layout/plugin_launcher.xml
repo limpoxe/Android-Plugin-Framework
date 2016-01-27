@@ -113,6 +113,14 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:layout_margin="10dp"
+            android:id="@+id/onClickTransparentActivity"
+            android:text="打开TransparentActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
             android:id="@+id/onClickPluginTestReceiver"
             android:text="打开PluginTestReceiver" />
 

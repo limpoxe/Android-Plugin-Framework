@@ -85,6 +85,8 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 			e.printStackTrace();
 		}
 
+		web.loadUrl("file:///android_asset/local_web_test.html");
+
 	}
 
 	@Override

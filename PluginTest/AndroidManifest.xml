@@ -143,6 +143,11 @@
             android:name="com.example.plugintest.activity.PluginTestTabActivity">
         </activity>
 
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name="com.example.plugintest.activity.TransparentActivity">
+        </activity>
+
         <service android:name="com.example.plugintest.service.PluginTestService">
             <intent-filter>
                 <action
