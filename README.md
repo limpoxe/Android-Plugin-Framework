@@ -73,6 +73,8 @@
        如无需支持换肤可删除插件工程中的Public.xml，并将PluginMain中的Public.xml中的attr格式修改为和其他项一致，
        xml中有注释
        
+    7、若想将插件切换到单独的插件进程，仅需将core工程的Manifest中配置的若干组件添加上process宿主即可
+       
         
 
 # 目录结构说明：
