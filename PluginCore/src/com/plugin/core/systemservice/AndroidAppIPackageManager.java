@@ -299,6 +299,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         info.taskAffinity = null;//需要时再加上
         info.dataDir = null;//需要时再添加
         info.theme = pluginDescriptor.getApplicationTheme();
+        info.flags = info.flags | ApplicationInfo.FLAG_HAS_CODE;
         return info;
     }
 
