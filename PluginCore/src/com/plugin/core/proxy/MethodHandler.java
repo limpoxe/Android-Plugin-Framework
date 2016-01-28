@@ -31,7 +31,9 @@ public class MethodHandler extends MethodDelegate implements InvocationHandler {
 
         Object invokeResult = null;
         if (before == null) {
-            method.setAccessible(true);
+            if (!method.isAccessible()) {
+                method.setAccessible(true);
+            }
             invokeResult = method.invoke(mTarget, args);
         }
 

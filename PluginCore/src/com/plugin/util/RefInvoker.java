@@ -34,7 +34,9 @@ public class RefInvoker {
 		try {
 			//LogUtil.e("Method", methodName);
 			Method method = clazz.getDeclaredMethod(methodName, paramTypes);
-			method.setAccessible(true);
+			if (!method.isAccessible()) {
+				method.setAccessible(true);
+			}
 			return method.invoke(target, paramValues);
 		} catch (SecurityException e) {
 			e.printStackTrace();
@@ -54,7 +56,9 @@ public class RefInvoker {
 	public static Object getFieldObject(Object target, Class clazz, String fieldName) {
 		try {
 			Field field = clazz.getDeclaredField(fieldName);
-			field.setAccessible(true);
+			if (!field.isAccessible()) {
+				field.setAccessible(true);
+			}
 			return field.get(target);
 		} catch (SecurityException e) {
 			e.printStackTrace();
@@ -108,7 +112,9 @@ public class RefInvoker {
 	public static void setFieldObject(Object target, Class clazz, String fieldName, Object fieldValue) {
 		try {
 			Field field = clazz.getDeclaredField(fieldName);
-			field.setAccessible(true);
+			if (!field.isAccessible()) {
+				field.setAccessible(true);
+			}
 			field.set(target, fieldValue);
 		} catch (SecurityException e) {
 			e.printStackTrace();
@@ -116,7 +122,9 @@ public class RefInvoker {
 			// try supper for Miui, Miui has a class named MiuiPhoneWindow
 			try {
 				Field field = clazz.getSuperclass().getDeclaredField(fieldName);
-				field.setAccessible(true);
+				if (!field.isAccessible()) {
+					field.setAccessible(true);
+				}
 				field.set(target, fieldValue);
 			} catch (Exception superE) {
 				e.printStackTrace();
