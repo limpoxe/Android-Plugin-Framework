@@ -278,9 +278,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             Iterator<Map.Entry<String, String>> entryIterator = map.entrySet().iterator();
             while (entryIterator.hasNext()) {
                 Map.Entry<String, String> item = entryIterator.next();
-                if (TextUtils.isDigitsOnly(item.getValue())) {
-                    meta.putString(item.getKey(), item.getValue());
-                }
+                meta.putString(item.getKey(), item.getValue());
             }
         }
         return meta;
