@@ -23,6 +23,7 @@ import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 
 import com.plugin.content.PluginDescriptor;
@@ -35,6 +36,7 @@ import com.plugin.core.manager.PluginManager;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.plugin.core.systemservice.AndroidAppIPackageManager;
+import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
 import com.plugin.util.FileUtil;
@@ -88,6 +90,13 @@ public class PluginLoader {
 			AndroidAppINotificationManager.installProxy();
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
 			AndroidWidgetToast.installProxy();
+			//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					AndroidWebkitWebViewFactoryProvider.installProxy();
+				}
+			}, 50);
 
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectHandlerCallback();
