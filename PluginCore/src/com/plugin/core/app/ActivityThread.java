@@ -24,6 +24,7 @@ public class ActivityThread {
     private static final String android_app_ActivityThread_mInstrumentation = "mInstrumentation";
     private static final String android_app_ActivityThread_getHandler = "getHandler";
     private static final String android_app_ActivityThread_installContentProviders = "installContentProviders";
+    private static final String android_app_ActivityThread_AppBindData = "android.app.ActivityThread$AppBindData";
 
     private static final String android_os_Handler_mCallback = "mCallback";
 
@@ -53,7 +54,9 @@ public class ActivityThread {
     }
 
     public static Object getResCompatibilityInfo() {
-        return RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, "mResCompatibilityInfo");
+        Object mBoundApplication = RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, "mBoundApplication");
+        Object compatInfo = RefInvoker.getFieldObject(mBoundApplication, android_app_ActivityThread_AppBindData, "compatInfo");
+        return compatInfo;
     }
 
     public static void enableLog() {
