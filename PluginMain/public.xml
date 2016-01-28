@@ -23,5 +23,5 @@
     <public-padding type="integer" name="public_static_final_host_int_"  start="0x7f3d0000" end="0x7f3d0000" />
     <public-padding type="array" name="public_static_final_host_array_"    start="0x7f3e0000" end="0x7f3e0000" />
     <public-padding type="menu" name="public_static_final_host_menu_"     start="0x7f3f0000" end="0x7f3f0000" />
-
+    <public-padding type="mipmap" name="public_static_final_host_mipmap_"     start="0x7f400000" end="0x7f400000" />
 </resources>
