@@ -60,7 +60,8 @@ public class ActivityThread {
     }
 
     public static void enableLog() {
-        RefInvoker.setFieldObject(currentActivityThread(), android_app_ActivityThread, "localLOGV", true);
+        RefInvoker.setStaticOjbect(android_app_ActivityThread, "TAG", "Plugin_ActivityThread");
+        RefInvoker.setStaticOjbect(android_app_ActivityThread, "localLOGV", true);
     }
 
     public static void installContentProviders(Context context, List<ProviderInfo> providers) {
@@ -174,15 +175,12 @@ public class ActivityThread {
         try {
             ApplicationInfo info = hostContext.getPackageManager().getApplicationInfo(pluginId, PackageManager.GET_SHARED_LIBRARY_FILES);
             Object compatibilityInfo = getResCompatibilityInfo();//Not Sure
-            ClassLoader baseLoader = null;//MUST
-            boolean securityViolation = false;
-            boolean includeCode = true;
             //先保存
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             //会触发替换
-            Object pluginLoadedApk = RefInvoker.invokeMethod(currentActivityThread(), android_app_ActivityThread, "getPackageInfo",
-                    new Class[]{ApplicationInfo.class, Class.forName("android.content.res.CompatibilityInfo"), ClassLoader.class, boolean.class, boolean.class},
-                    new Object[]{info, compatibilityInfo, baseLoader, securityViolation, includeCode});
+            Object pluginLoadedApk = RefInvoker.invokeMethod(currentActivityThread(), android_app_ActivityThread, "getPackageInfoNoCheck",
+                    new Class[]{ApplicationInfo.class, Class.forName("android.content.res.CompatibilityInfo")},
+                    new Object[]{info, compatibilityInfo});
             //再还原
             Thread.currentThread().setContextClassLoader(classLoader);
         } catch (PackageManager.NameNotFoundException e) {
