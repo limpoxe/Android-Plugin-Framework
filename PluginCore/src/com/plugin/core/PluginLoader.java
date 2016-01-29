@@ -278,6 +278,7 @@ public class PluginLoader {
 			} else {
 				//通过创建classloader来触发dexopt，但不加载
 				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
+				//ActivityThread.getPackageManager().performDexOptIfNeeded()
 				FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
 				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null);
 				LogUtil.d("DEXOPT完毕");
@@ -287,7 +288,10 @@ public class PluginLoader {
 				}
 
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-				LogUtil.e("安装插件成功," + (isNeedPending?" 重启进程生效":" 立即生效"), destApkPath);
+				LogUtil.e("安装插件成功," + (isNeedPending ? " 重启进程生效" : " 立即生效"), destApkPath);
+
+				//打印一下目录结构
+				FileUtil.printAll(new File(PluginLoader.getApplicatoin().getApplicationInfo().dataDir));
 
 				return SUCCESS;
 			}

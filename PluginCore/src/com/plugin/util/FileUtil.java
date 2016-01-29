@@ -271,6 +271,20 @@ public class FileUtil {
 		return file.delete();
 	}
 
+	public static void printAll(File file) {
+		if (DEBUG) {
+			LogUtil.d("printAll", file.getAbsolutePath());
+			if (file.isDirectory()) {
+				File[] childFiles = file.listFiles();
+				if (childFiles != null && childFiles.length > 0) {
+					for (int i = 0; i < childFiles.length; i++) {
+						printAll(childFiles[i]);
+					}
+				}
+			}
+		}
+	}
+
 	public static String streamToString(InputStream input) throws IOException {
 
 		InputStreamReader isr = new InputStreamReader(input);
