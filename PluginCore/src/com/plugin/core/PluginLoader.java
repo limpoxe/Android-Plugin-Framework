@@ -91,12 +91,12 @@ public class PluginLoader {
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
 			AndroidWidgetToast.installProxy();
 			//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
-			new Handler().postDelayed(new Runnable() {
+			new Handler().post(new Runnable() {
 				@Override
 				public void run() {
 					AndroidWebkitWebViewFactoryProvider.installProxy();
 				}
-			}, 50);
+			});
 
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectHandlerCallback();
