@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -21,7 +20,7 @@ import com.plugin.core.annotation.FragmentContainer;
  * 
  */
 @FragmentContainer(fragmentId = TestFragmentActivity.FRAGMENT_ID_IN_PLUGIN)
-public class TestFragmentActivity extends AppCompatActivity {
+public class TestFragmentActivity extends FragmentActivity {
 
 	public static final String FRAGMENT_ID_IN_PLUGIN = "PluginDispatcher.fragmentId";
 	private static final String LOG_TAG = TestFragmentActivity.class.getSimpleName();
