@@ -486,13 +486,15 @@ public class PluginLoader {
 				pluginDescriptor.setPluginContext(pluginContext);
 				pluginDescriptor.setPluginClassLoader(pluginClassLoader);
 
+				callPluginApplicationOnCreate(pluginDescriptor);
+
 				try {
-					ActivityThread.installPackageInfo(getApplicatoin(), pluginDescriptor.getPackageName());
+					ActivityThread.installPackageInfo(getApplicatoin(), pluginDescriptor.getPackageName(), pluginDescriptor);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 
-				callPluginApplicationOnCreate(pluginDescriptor);
+				changeListener.onPluginStarted(pluginDescriptor.getPackageName());
 
 				LogUtil.e("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 			}
@@ -525,7 +527,6 @@ public class PluginLoader {
 			application.onCreate();
 		}
 
-		changeListener.onPluginStarted(pluginDescriptor.getPackageName());
 	}
 
 	public static boolean isInstalled(String pluginId, String pluginVersion) {

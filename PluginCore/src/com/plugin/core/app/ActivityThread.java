@@ -54,6 +54,7 @@ public class ActivityThread {
     }
 
     public static Object getResCompatibilityInfo() {
+        //貌似没啥用
         Object mBoundApplication = RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, "mBoundApplication");
         Object compatInfo = RefInvoker.getFieldObject(mBoundApplication, android_app_ActivityThread_AppBindData, "compatInfo");
         return compatInfo;
@@ -166,7 +167,7 @@ public class ActivityThread {
 //            42                parent = baseParent;
 //            43            }
 //
-    public static void installPackageInfo(Context hostContext, String pluginId) throws ClassNotFoundException {
+    public static void installPackageInfo(Context hostContext, String pluginId, PluginDescriptor pluginDescriptor) throws ClassNotFoundException {
         enableLog();
         Object applicationLoaders = RefInvoker.invokeStaticMethod("android.app.ApplicationLoaders", "getDefault", (Class[]) null, (Object[]) null);
         Map mLoaders = (Map)RefInvoker.getFieldObject(applicationLoaders, "android.app.ApplicationLoaders", "mLoaders");
@@ -181,6 +182,15 @@ public class ActivityThread {
             Object pluginLoadedApk = RefInvoker.invokeMethod(currentActivityThread(), android_app_ActivityThread, "getPackageInfoNoCheck",
                     new Class[]{ApplicationInfo.class, Class.forName("android.content.res.CompatibilityInfo")},
                     new Object[]{info, compatibilityInfo});
+            if (pluginLoadedApk != null) {
+                Class loadedAPKClass = pluginLoadedApk.getClass();
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mApplication", pluginDescriptor.getPluginApplication());
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mResources", pluginDescriptor.getPluginContext().getResources());
+                //TODO
+                //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mLibDir", );
+                //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDirFile", );
+                //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDir", );
+            }
             //再还原
             Thread.currentThread().setContextClassLoader(classLoader);
         } catch (PackageManager.NameNotFoundException e) {
