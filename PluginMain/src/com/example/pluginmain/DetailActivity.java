@@ -64,16 +64,16 @@ public class DetailActivity extends Activity {
 
 		LinearLayout pluginView = (LinearLayout) mRoot.findViewById(R.id.plugin_items);
 
-		addButton(pluginView, pluginDescriptor.getFragments(), "Fragment");
+		addButton(pluginView, pluginDescriptor.isStandalone(), pluginDescriptor.getFragments(), "Fragment");
 
-		addButton(pluginView, pluginDescriptor.getActivitys(), "Activity");
+		addButton(pluginView, pluginDescriptor.isStandalone(), pluginDescriptor.getActivitys(), "Activity");
 
-		addButton(pluginView, pluginDescriptor.getServices(), "Service");
+		addButton(pluginView, pluginDescriptor.isStandalone(), pluginDescriptor.getServices(), "Service");
 
-		addButton(pluginView, pluginDescriptor.getReceivers(), "Receiver");
+		addButton(pluginView, pluginDescriptor.isStandalone(), pluginDescriptor.getReceivers(), "Receiver");
 	}
 
-	private void addButton(LinearLayout pluginView, HashMap map, final String type) {
+	private void addButton(LinearLayout pluginView, final boolean isStandalone, HashMap map, final String type) {
 		Iterator<String> keys = map.keySet().iterator();
 		while (keys.hasNext()) {
 
@@ -101,7 +101,9 @@ public class DetailActivity extends Activity {
 						Intent intent = new Intent();
 						intent.setClassName(DetailActivity.this, entry);
 						intent.putExtra("testParam", "testParam");
-						intent.putExtra("paramVO", new SharePOJO("测试VO"));
+						if (!isStandalone) {
+							intent.putExtra("paramVO", new SharePOJO("测试VO"));
+						}
 						startService(intent);
 						// stopService(intent);
 
@@ -110,7 +112,9 @@ public class DetailActivity extends Activity {
 						Intent intent = new Intent();
 						intent.setClassName(DetailActivity.this, entry);
 						intent.putExtra("testParam", "testParam");
-						intent.putExtra("paramVO", new SharePOJO("测试VO"));
+						if (!isStandalone) {
+							intent.putExtra("paramVO", new SharePOJO("测试VO"));
+						}
 						sendBroadcast(intent);
 
 					} else if (type.equals("Activity")) {// 这个判断仅仅是为了方便debug，在实际开发中，类型一定是已知的
@@ -118,7 +122,9 @@ public class DetailActivity extends Activity {
 						Intent intent = new Intent();
 						intent.setClassName(DetailActivity.this, entry);
 						intent.putExtra("testParam", "testParam");
-						intent.putExtra("paramVO", new SharePOJO("测试VO"));
+						if (!isStandalone) {
+							intent.putExtra("paramVO", new SharePOJO("测试VO"));
+						}
 						startActivity(intent);
 
 					} else if (type.equals("Fragment")) {
