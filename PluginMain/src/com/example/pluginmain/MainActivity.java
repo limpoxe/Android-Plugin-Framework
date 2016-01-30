@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,7 @@ import com.plugin.util.FileUtil;
  *
  */
 @ComponentContainer
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
 	private ViewGroup mList;
 	private Button install;

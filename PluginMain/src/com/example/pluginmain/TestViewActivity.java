@@ -2,6 +2,7 @@ package com.example.pluginmain;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -13,7 +14,7 @@ import com.plugin.core.annotation.ComponentContainer;
  * 添加这个注解@ComponentContainer是为了通知插件框架在当前Activity中启用控件级插件
  */
 @ComponentContainer
-public class TestViewActivity extends Activity {
+public class TestViewActivity extends AppCompatActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
