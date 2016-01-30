@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="ShareBaseTheme" parent="android:Theme.Light">
+    <style name="ShareBaseTheme" parent="@style/Theme.AppCompat.Light">
     </style>
 
     <style name="ShareTheme" parent="ShareBaseTheme">
