@@ -63,10 +63,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getPackageInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
-            PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(args[0].toString());
-            if (pd != null) {
-                return PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(pd.getInstalledPath(), (int) args[1]);
+            String packageName = (String)args[0];
+            LogUtil.d("beforeInvoke", method.getName(), packageName);
+            PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(packageName);
+            if (pluginDescriptor != null) {
+                return PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
             }
             return super.beforeInvoke(target, method, args);
         }
@@ -116,8 +117,9 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getApplicationInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
-            PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(args[0].toString());
+            String packageName = (String)args[0];
+            LogUtil.d("beforeInvoke", method.getName(), packageName);
+            PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(packageName);
             if (pluginDescriptor != null) {
                 return getApplicationInfo(pluginDescriptor);
             }
