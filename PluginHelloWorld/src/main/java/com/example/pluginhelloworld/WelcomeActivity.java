@@ -2,6 +2,8 @@ package com.example.pluginhelloworld;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,6 +22,14 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try {
+            ApplicationInfo info = getPackageManager().getApplicationInfo("com.example.pluginhelloworld", PackageManager.GET_META_DATA);
+            String hellowMeta = (String)info.metaData.get("hello_meta");
+            Toast.makeText(this, hellowMeta, Toast.LENGTH_SHORT).show();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         Log.e("xxx1", "activity_welcome ID= " + R.layout.activity_welcome);
         Log.e("xxx2", getResources().getResourceEntryName(R.layout.activity_welcome));
