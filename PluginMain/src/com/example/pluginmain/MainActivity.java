@@ -132,8 +132,10 @@ public class MainActivity extends Activity {
 						startActivity(intent);
 					} else {
 						//打开插件的Launcher界面
-						//测向插件中传参数
-						launchIntent.putExtra("paramVO", new SharePOJO("宿主传过来的测试VO"));
+						if (!pluginDescriptor.isStandalone()) {
+							//测试向非独立插件传宿主中定义的VO对象
+							launchIntent.putExtra("paramVO", new SharePOJO("宿主传过来的测试VO"));
+						}
 						startActivity(launchIntent);
 					}
 
