@@ -14,6 +14,7 @@ import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -186,10 +187,10 @@ public class ActivityThread {
                 Class loadedAPKClass = pluginLoadedApk.getClass();
                 RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mApplication", pluginDescriptor.getPluginApplication());
                 RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mResources", pluginDescriptor.getPluginContext().getResources());
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDirFile", new File(PluginLoader.getApplicatoin().getApplicationInfo().dataDir));
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDir", PluginLoader.getApplicatoin().getApplicationInfo().dataDir);
                 //TODO
                 //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mLibDir", );
-                //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDirFile", );
-                //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDir", );
             }
             //再还原
             Thread.currentThread().setContextClassLoader(classLoader);
