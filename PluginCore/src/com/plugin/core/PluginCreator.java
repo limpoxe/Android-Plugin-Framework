@@ -48,7 +48,12 @@ public class PluginCreator {
 					absolutePluginApkPath,
 					optDir.getAbsolutePath(),
 					libDir.getAbsolutePath(),
-					PluginLoader.class.getClassLoader().getParent(),//系统classloader
+					/*
+			         * In theory this should be the "system" class loader; in practice we
+			         * don't use that and can happily (and more efficiently) use the
+			         * bootstrap class loader.
+			         */
+					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
 					null);//独立插件无依赖
 		}
 

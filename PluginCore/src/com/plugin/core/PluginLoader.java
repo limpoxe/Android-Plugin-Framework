@@ -36,6 +36,7 @@ import com.plugin.core.manager.PluginManager;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.plugin.core.systemservice.AndroidAppIPackageManager;
+import com.plugin.core.systemservice.AndroidViewLayoutInflater;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
@@ -90,6 +91,7 @@ public class PluginLoader {
 			AndroidAppINotificationManager.installProxy();
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
 			AndroidWidgetToast.installProxy();
+			AndroidViewLayoutInflater.installPluginCustomViewConstructorCache();
 			//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
 			new Handler().post(new Runnable() {
 				@Override
