@@ -7,6 +7,6 @@
    <!-- 指定需要换肤的属性
         id的值来源于宿主的build/outputs/generated_exported_all_resouces.xml文件
    -->
-   <public name="layoutbg" type = "attr" id="0x7f010101"/>
+   <public name="layoutbg" type = "attr" id="0x7f010104"/>
 
 </resources>
