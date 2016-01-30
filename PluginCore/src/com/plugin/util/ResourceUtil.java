@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.plugin.core.PluginPublicXmlConst;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 /**
  * Created by cailiming
  */
@@ -83,5 +86,36 @@ public class ResourceUtil {
         //如果使用的使openatlasextention
         //默认宿主的资源id以0x7f3X开头
         return PluginPublicXmlConst.resourceMap.get(resid>>16) != null;
+    }
+
+    public static void rewriteRValues(ClassLoader cl, String packageName, int id) {
+        final Class<?> rClazz;
+        try {
+            rClazz = cl.loadClass(packageName + ".R");
+        } catch (ClassNotFoundException e) {
+            LogUtil.d("No resource references to update in package " + packageName);
+            return;
+        }
+
+        final Method callback;
+        try {
+            callback = rClazz.getMethod("onResourcesLoaded", int.class);
+        } catch (NoSuchMethodException e) {
+            // No rewriting to be done.
+            return;
+        }
+
+        Throwable cause;
+        try {
+            callback.invoke(null, id);
+            return;
+        } catch (IllegalAccessException e) {
+            cause = e;
+        } catch (InvocationTargetException e) {
+            cause = e.getCause();
+        }
+
+        throw new RuntimeException("Failed to rewrite resource references for " + packageName,
+                cause);
     }
 }
