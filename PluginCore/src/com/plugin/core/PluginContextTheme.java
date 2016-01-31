@@ -114,12 +114,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public String getPackageName() {
-		//如果是独立插件 返回插件本身的packageName
-		//但是只返回插件本身的packageName可能会引起其他问题
-		//例如：
-		//1、会导致toast无法弹出，原因是toast弹出时会检查packageName是否时当前用户的
-		//2、会导致NotificationManager发送通知时crash、原因同上
-		//还有其他等等
+		//如果返回插件本身的packageName可能会引起一些问题。
+		//如packagemanager、activitymanager、wifi、window、inputservice
+		//等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
+		//除非再增加对系统服务方法hook才能解决
+		//最简单的办法还是这里保留返回宿主的packageName，
+		//在代码中自行区分是需要使用插件自己的还是宿主的
 		//if (mPluginDescriptor.isStandalone()) {
 		//	return mPluginDescriptor.getPackageName();
 		//} else {
