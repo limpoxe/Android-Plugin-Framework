@@ -108,7 +108,7 @@ tasks.whenTaskAdded { task ->
         task.doLast {
             copy {
                 from(project.getProjectDir()) {
-                    include 'public.xml'
+                    include 'public*.xml'
                 }
                 into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
             }

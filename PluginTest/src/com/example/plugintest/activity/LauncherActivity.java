@@ -1,10 +1,12 @@
 package com.example.plugintest.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.View;
 
 import com.example.pluginsharelib.SharePOJO;
@@ -12,13 +14,20 @@ import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
 
-public class LauncherActivity extends Activity implements View.OnClickListener {
+public class LauncherActivity extends AppCompatActivity implements View.OnClickListener {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTitle("这是插件首屏");
 		setContentView(R.layout.plugin_launcher);
+
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle("这是插件首屏");
+		actionBar.setSubtitle("这是副标题");
+		actionBar.setLogo(R.drawable.ic_launcher);
+		actionBar.setIcon(R.drawable.ic_launcher);
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
+				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		findViewById( R.id.onClickHellowrld).setOnClickListener(this);
 		findViewById( R.id.onClickPluginNormalFragment).setOnClickListener(this);
@@ -243,4 +252,9 @@ public class LauncherActivity extends Activity implements View.OnClickListener {
 		//stopService(intent);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add("cc");
+		return super.onCreateOptionsMenu(menu);
+	}
 }

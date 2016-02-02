@@ -33,7 +33,8 @@
         <!-- 通知插件框架本插件向外提供的业务服务接口 -->
         <exported-service android:name="login_service" android:value="com.example.plugintest.PluginLoginService" />
 
-        <activity android:name=".activity.LauncherActivity">
+        <activity android:name=".activity.LauncherActivity"
+                  android:theme="@style/PluginTheme5">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
