@@ -88,7 +88,6 @@ public class PluginCreator {
 	}
 
 	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin, String[] dependencies) {
-		dependencies = null;//暂不支持资源多级依赖, 会导致插件难以维护
 		String[] assetPaths = new String[isStandalone ? 1 : (2 + (dependencies==null?0:dependencies.length))];
 
 //		if (!isStandalone) {
