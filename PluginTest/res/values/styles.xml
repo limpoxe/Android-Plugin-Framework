@@ -48,5 +48,4 @@
         <item name="layoutbg">#ffC000CC</item>
     </style>
 
-    <attr name = "layoutbg" format="color|reference" />
 </resources>

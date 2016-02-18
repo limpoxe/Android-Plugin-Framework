@@ -112,6 +112,64 @@ tasks.whenTaskAdded { task ->
                 }
                 into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
             }
+
+            //太蠢了 这里最好改成循环遍历
+            //将宿主工程导出的主题也复制过来
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'public*.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v11.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v11/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v12.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v12/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v14.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v14/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v17.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v17/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v18.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v18/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v21.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v21/")
+            }
         }
         //task.enabled = false
     }
