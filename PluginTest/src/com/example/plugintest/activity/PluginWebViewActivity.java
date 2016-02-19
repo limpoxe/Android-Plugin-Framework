@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,7 +42,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 @SuppressWarnings("ALL")
-public class PluginWebViewActivity extends Activity implements OnClickListener {
+public class PluginWebViewActivity extends AppCompatActivity implements OnClickListener {
 	WebView web;
 
 	@Override

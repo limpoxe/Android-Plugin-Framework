@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,7 +16,7 @@ import com.example.pluginsharelib.SharePOJO;
 import com.example.plugintest.service.PluginTestService;
 import com.example.plugintest.vo.ParamVO;
 
-public class PluginTestOpenPluginActivity extends Activity implements OnClickListener {
+public class PluginTestOpenPluginActivity extends AppCompatActivity implements OnClickListener {
 
 	NestReceiver nestReceiver;
 	NestReceiver2 nestReceiver2;

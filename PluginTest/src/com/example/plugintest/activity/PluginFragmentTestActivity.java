@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +18,7 @@ import com.example.plugintest.fragment.PluginNormalFragment;
  * 
  * @author cailiming
  */
-public class PluginFragmentTestActivity extends FragmentActivity {
+public class PluginFragmentTestActivity extends AppCompatActivity {
 
 	private static final String LOG_TAG = PluginFragmentTestActivity.class.getSimpleName();
 
