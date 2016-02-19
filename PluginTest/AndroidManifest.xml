@@ -141,7 +141,8 @@
         </activity>
 
         <activity
-            android:name="com.example.plugintest.activity.PluginTestTabActivity">
+            android:name="com.example.plugintest.activity.PluginTestTabActivity"
+            android:theme="@style/PluginTheme6">
         </activity>
 
         <activity

@@ -48,4 +48,9 @@
         <item name="layoutbg">#ffC000CC</item>
     </style>
 
+    <style name="PluginTheme6" parent="android:Theme.Holo.Light">
+        <item name="android:buttonStyle">@style/MyButton2</item>
+        <item name="layoutbg">#ffC000CC</item>
+    </style>
+
 </resources>
