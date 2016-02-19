@@ -1,5 +1,6 @@
 package com.plugin.core.systemservice;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
@@ -42,16 +43,23 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             // com.android.webview.chromium.WebViewChromium implements WebViewProvider
             //所以这里可以再次进行Proxy
             final WebView webView = (WebView) args[0];
-            return ProxyUtil.createProxy(invokeResult, new MethodDelegate() {
-
-                @Override
-                public Object beforeInvoke(Object target, Method method, Object[] args) {
-                    fixWebViewAsset(webView.getContext());
-                    return super.beforeInvoke(target, method, args);
-                }
-
-            });
+            fixWebViewAsset(webView.getContext());
+            return super.afterInvoke(target, method, args, beforeInvoke, invokeResult);
+//            return ProxyUtil.createProxy(invokeResult, new MethodDelegate() {
+//
+//                @Override
+//                public Object beforeInvoke(Object target, Method method, Object[] args) {
+//                    fixWebViewAsset(webView.getContext());
+//                    return super.beforeInvoke(target, method, args);
+//                }
+//
+//            });
         }
+    }
+
+    public static void switchWebViewContext(Activity pluginActivity) {
+        WebView wb = new WebView(pluginActivity);
+        wb.loadUrl("");
     }
 
     private static void fixWebViewAsset(Context context) {

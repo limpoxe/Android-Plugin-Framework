@@ -16,6 +16,7 @@ import android.os.UserHandle;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.ComponentContainer;
+import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.viewfactory.PluginViewFactory;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
@@ -144,6 +145,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		if (componentContainer != null) {
 			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
 		}
+
+		AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
 
 		super.callActivityOnCreate(activity, icicle);
 	}
