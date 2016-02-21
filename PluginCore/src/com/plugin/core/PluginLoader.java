@@ -15,6 +15,7 @@ import android.app.Application;
 import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -146,6 +147,14 @@ public class PluginLoader {
 				});
 			}
 			LogUtil.d("插件框架初始化完成");
+		}
+	}
+
+	public static Context fixBaseContextForReceiver(Context superApplicationContext) {
+		if (superApplicationContext instanceof ContextWrapper) {
+			return ((ContextWrapper)superApplicationContext).getBaseContext();
+		} else {
+			return superApplicationContext;
 		}
 	}
 

@@ -21,6 +21,6 @@ public class PluginApplication extends Application {
 	 */
 	@Override
 	public Context getBaseContext() {
-		return ((ContextWrapper)super.getBaseContext()).getBaseContext();
+		return PluginLoader.fixBaseContextForReceiver(super.getBaseContext());
 	}
 }
