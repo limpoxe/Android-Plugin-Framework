@@ -22,6 +22,7 @@
             android:id="@+id/plugin_test_btn1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/MyButton2"
             android:text="@string/hello_world1" />
 
         <Button
