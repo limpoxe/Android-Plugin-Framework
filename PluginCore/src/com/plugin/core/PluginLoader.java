@@ -143,7 +143,9 @@ public class PluginLoader {
 		}
 	}
 
-
+	public static int installPlugin(String srcFile) {
+		return pluginManager.installPlugin(srcFile);
+	}
 
 	/**
 	 * 通过插件Id唤起插件
@@ -462,6 +464,10 @@ public class PluginLoader {
 
 		}
 		return result;
+	}
+
+	public static boolean isPluginProcess() {
+		return sApplication.getApplicationInfo().processName.endsWith(":plugin");
 	}
 
 }

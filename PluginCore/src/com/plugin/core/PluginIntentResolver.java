@@ -22,7 +22,6 @@ public class PluginIntentResolver {
 	public static void resolveService(Intent service) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
-			PluginInjector.hackHostClassLoaderIfNeeded();
 			String stubServiceName = PluginStubBinding.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
 				service.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubServiceName));
@@ -36,8 +35,6 @@ public class PluginIntentResolver {
 		ArrayList<Intent> result = new ArrayList<Intent>();
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.BROADCAST);
 		if (classNameList != null && classNameList.size() > 0) {
-			PluginInjector.hackHostClassLoaderIfNeeded();
-
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
 				newIntent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
@@ -52,7 +49,7 @@ public class PluginIntentResolver {
 		return result;
 	}
 
-	/* package */static Class hackReceiverForClassLoader(Object msgObj) {
+	/* package */static Class resolveReceiverForClassLoader(Object msgObj) {
 		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
 		if (intent.getComponent().getClassName().equals(PluginStubBinding.bindStubReceiver())) {
 			String action = intent.getAction();
@@ -87,7 +84,7 @@ public class PluginIntentResolver {
 		return null;
 	}
 
-	/* package */static String hackServiceName(Object msgObj) {
+	/* package */static String resolveServiceForClassLoader(Object msgObj) {
 		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
 		//通过映射查找
 		String targetClassName = PluginStubBinding.getBindedPluginServiceName(info.name);

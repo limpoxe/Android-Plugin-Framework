@@ -67,9 +67,11 @@ public class PluginAppTrace implements Handler.Callback {
 	}
 
 	private static Result beforeReceiver(Message msg) {
-		Class clazz = PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
+		Class clazz = PluginIntentResolver.resolveReceiverForClassLoader(msg.obj);
 
 		if (clazz != null) {
+			PluginInjector.hackHostClassLoaderIfNeeded();
+
 			Context baseContext = PluginLoader.getApplicatoin().getBaseContext();
 			PluginInjector.replaceReceiverContext(baseContext, clazz);
 
@@ -82,7 +84,7 @@ public class PluginAppTrace implements Handler.Callback {
 	}
 
 	private static Result beforeCreateService(Message msg) {
-		String serviceName = PluginIntentResolver.hackServiceName(msg.obj);
+		String serviceName = PluginIntentResolver.resolveServiceForClassLoader(msg.obj);
 
 		if (serviceName != null) {
 			PluginInjector.hackHostClassLoaderIfNeeded();

@@ -5,6 +5,7 @@ import java.util.Collection;
 
 public interface PluginManager {
 	////管理接口
+	int installPlugin(String srcFile);
 	void loadInstalledPlugins();
 	boolean addOrReplace(PluginDescriptor pluginDescriptor);
 	boolean pending(PluginDescriptor pluginDescriptor);
