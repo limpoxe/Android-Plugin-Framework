@@ -72,6 +72,7 @@
         <!-- 微信插件需要支持外部唤起，所有需要在宿主中预注册一个跳板，intentfilte中的STUB_EXACT用来标记这是个跳板 -->
         <activity
             android:name="com.example.pluginmain.wxapi.WXEntryActivity"
+            android:process=":plugin"
             android:exported="true">
             <intent-filter>
                 <action
