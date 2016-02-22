@@ -25,6 +25,7 @@ import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.app.ActivityThread;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
 
@@ -108,8 +109,8 @@ public class PluginInjector {
 		Intent intent = activity.getIntent();
 		FragmentContainer fragmentContainer = AnnotationProcessor.getFragmentContainer(activity.getClass());
 		// 如果是打开插件中的activity, 或者是打开的用来显示插件fragment的宿主activity
-		if (fragmentContainer != null ||
-				PluginStubBinding.isStubActivity(intent.getComponent().getClassName())) {
+		if (ProcessUtil.isPluginProcess() && (fragmentContainer != null ||
+				PluginStubBinding.isStubActivity(intent.getComponent().getClassName()))) {
 			// 为了不需要重写插件Activity的attachBaseContext方法为：
 			// 我们在activityoncreate之前去完成attachBaseContext的事情
 

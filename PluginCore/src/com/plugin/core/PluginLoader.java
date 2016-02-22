@@ -1,38 +1,25 @@
 package com.plugin.core;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.app.Instrumentation;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.app.ActivityThread;
 import com.plugin.core.localservice.LocalServiceManager;
-import com.plugin.core.manager.PluginCallbackImpl;
 import com.plugin.core.manager.PluginManagerImpl;
-import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManager;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
@@ -41,15 +28,13 @@ import com.plugin.core.systemservice.AndroidViewLayoutInflater;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
-import com.plugin.util.FileUtil;
-import com.plugin.util.PackageVerifyer;
+import com.plugin.util.ProcessUtil;
 
 import dalvik.system.DexClassLoader;
 
 public class PluginLoader {
 
 	private static Application sApplication;
-
 	private static boolean isLoaderInited = false;
 
 	private static PluginManager pluginManager;
@@ -70,7 +55,6 @@ public class PluginLoader {
 
 		if (!isLoaderInited) {
 			LogUtil.d("插件框架初始化中...");
-
 			isLoaderInited = true;
 			sApplication = app;
 			pluginManager = manager;
@@ -78,58 +62,63 @@ public class PluginLoader {
 			AndroidAppIActivityManager.installProxy();
 			AndroidAppINotificationManager.installProxy();
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
-			AndroidWidgetToast.installProxy();
-			AndroidViewLayoutInflater.installPluginCustomViewConstructorCache();
-			//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
-			new Handler().post(new Runnable() {
-				@Override
-				public void run() {
-					AndroidWebkitWebViewFactoryProvider.installProxy();
-				}
-			});
+
+			if (ProcessUtil.isPluginProcess()) {
+				AndroidWidgetToast.installProxy();
+				AndroidViewLayoutInflater.installPluginCustomViewConstructorCache();
+				//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
+				new Handler().post(new Runnable() {
+					@Override
+					public void run() {
+						AndroidWebkitWebViewFactoryProvider.installProxy();
+					}
+				});
+				PluginInjector.injectHandlerCallback();
+			}
 
 			PluginInjector.injectInstrumentation();
-			PluginInjector.injectHandlerCallback();
 			PluginInjector.injectBaseContext(sApplication);
 
 			pluginManager.loadInstalledPlugins();
-			Iterator<PluginDescriptor> itr = getPlugins().iterator();
-			while (itr.hasNext()) {
-				PluginDescriptor plugin = itr.next();
-				LocalServiceManager.registerService(plugin);
-			}
 
-			if (Build.VERSION.SDK_INT >= 14) {
-				sApplication.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-					@Override
-					public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-					}
+			if (ProcessUtil.isPluginProcess()) {
+				Iterator<PluginDescriptor> itr = getPlugins().iterator();
+				while (itr.hasNext()) {
+					PluginDescriptor plugin = itr.next();
+					LocalServiceManager.registerService(plugin);
+				}
+				if (Build.VERSION.SDK_INT >= 14) {
+					sApplication.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+						@Override
+						public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+						}
 
-					@Override
-					public void onActivityStarted(Activity activity) {
-					}
+						@Override
+						public void onActivityStarted(Activity activity) {
+						}
 
-					@Override
-					public void onActivityResumed(Activity activity) {
-					}
+						@Override
+						public void onActivityResumed(Activity activity) {
+						}
 
-					@Override
-					public void onActivityPaused(Activity activity) {
-					}
+						@Override
+						public void onActivityPaused(Activity activity) {
+						}
 
-					@Override
-					public void onActivityStopped(Activity activity) {
-					}
+						@Override
+						public void onActivityStopped(Activity activity) {
+						}
 
-					@Override
-					public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-					}
+						@Override
+						public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+						}
 
-					@Override
-					public void onActivityDestroyed(Activity activity) {
-						PluginStubBinding.unBindLaunchModeStubActivity(activity.getClass().getName(), activity.getIntent());
-					}
-				});
+						@Override
+						public void onActivityDestroyed(Activity activity) {
+							PluginStubBinding.unBindLaunchModeStubActivity(activity.getClass().getName(), activity.getIntent());
+						}
+					});
+				}
 			}
 			LogUtil.d("插件框架初始化完成");
 		}
@@ -464,10 +453,6 @@ public class PluginLoader {
 
 		}
 		return result;
-	}
-
-	public static boolean isPluginProcess() {
-		return sApplication.getApplicationInfo().processName.endsWith(":plugin");
 	}
 
 }

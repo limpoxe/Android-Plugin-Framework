@@ -32,7 +32,7 @@ public class PluginResourceWrapper extends Resources {
 		try {
 			return super.getResourcePackageName(resid);
 		} catch(NotFoundException e) {
-			LogUtil.e("NotFoundException Try Following");
+			LogUtil.e("NotFoundException Try Following", Integer.toHexString(resid));
 
 			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
 			//华为、三星、小米等手机不会到这里来。
