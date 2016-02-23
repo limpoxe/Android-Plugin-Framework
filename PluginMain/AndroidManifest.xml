@@ -65,9 +65,16 @@
             </intent-filter>
         </activity>
         <activity android:name=".DetailActivity" />
-        <activity android:name=".TestFragmentActivity" />
+
+        <!-- 要展示插件中的fragment，所以配成插件进程 -->
+        <activity android:name=".TestFragmentActivity"
+            android:process=":plugin"/>
+
         <activity android:name=".TestSkinActivity" />
-        <activity android:name=".TestViewActivity" />
+
+        <!-- 要展示插件中的View，所以配成插件进程 -->
+        <activity android:name=".TestViewActivity"
+            android:process=":plugin"/>
 
         <!-- 微信插件需要支持外部唤起，所有需要在宿主中预注册一个跳板，intentfilte中的STUB_EXACT用来标记这是个跳板 -->
         <activity
