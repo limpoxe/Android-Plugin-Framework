@@ -29,6 +29,10 @@ public class ActivityThread {
 
     private static final String android_os_Handler_mCallback = "mCallback";
 
+    private static final String android_app_ContextImpl = "android.app.ContextImpl";
+    private static final String android_app_ContextImpl_getImpl = "getImpl";
+    private static final String android_app_ContextImpl_mMainThread = "mMainThread";
+
     private static Object sCurrentActivityThread;
     private static Class sClass;
 
@@ -50,6 +54,15 @@ public class ActivityThread {
             sCurrentActivityThread = RefInvoker.invokeStaticMethod(android_app_ActivityThread,
                     android_app_ActivityThread_currentActivityThread,
                     (Class[]) null, (Object[]) null);
+
+            //有些情况下上面的方法拿不到，下面再换个方法尝试一次
+            if (sCurrentActivityThread == null) {
+                Object impl = RefInvoker.invokeStaticMethod(android_app_ContextImpl, android_app_ContextImpl_getImpl,
+                        new Class[]{Context.class}, new Object[]{PluginLoader.getApplicatoin()});
+                if (impl != null) {
+                    sCurrentActivityThread = RefInvoker.getFieldObject(impl, android_app_ContextImpl, android_app_ContextImpl_mMainThread);
+                }
+            }
         }
         return sCurrentActivityThread;
     }
