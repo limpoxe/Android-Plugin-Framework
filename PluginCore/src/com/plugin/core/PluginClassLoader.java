@@ -39,7 +39,7 @@ public class PluginClassLoader extends DexClassLoader {
 		if (clazz == null && !className.startsWith("android.view")) {//这里判断android.view 是为了解决webview的问题
 			if (dependencies != null) {
 				for (String dependencePluginId: dependencies) {
-					PluginDescriptor pd = PluginLoader.initPluginByPluginId(dependencePluginId);
+					PluginDescriptor pd = PluginLoader.ensurePluginInited(dependencePluginId);
 					if (pd != null) {
 						try {
 							clazz = pd.getPluginClassLoader().loadClass(className);

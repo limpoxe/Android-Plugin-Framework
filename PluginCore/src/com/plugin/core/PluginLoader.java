@@ -141,7 +141,7 @@ public class PluginLoader {
 	 * @param pluginId
 	 * @return
 	 */
-	public static PluginDescriptor initPluginByPluginId(String pluginId) {
+	public static PluginDescriptor ensurePluginInited(String pluginId) {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
 		if (pluginDescriptor != null) {
 			ensurePluginInited(pluginDescriptor);
@@ -396,7 +396,7 @@ public class PluginLoader {
 
 	/**
 	 * for Fragment
-	 * 
+	 *
 	 * @param clazzId
 	 * @return
 	 */

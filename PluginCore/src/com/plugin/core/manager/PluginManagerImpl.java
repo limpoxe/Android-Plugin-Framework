@@ -57,8 +57,7 @@ public class PluginManagerImpl implements PluginManager {
 	/**
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
 	 */
-	@Override
-	public String genInstallPath(String pluginId, String pluginVersoin) {
+	private String genInstallPath(String pluginId, String pluginVersoin) {
 		return PluginLoader.getApplicatoin().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath() + "/" + pluginId + "/"
 				+ pluginVersoin + "/base-1.apk";
 	}
@@ -92,14 +91,12 @@ public class PluginManagerImpl implements PluginManager {
 		}
 	}
 
-	@Override
-	public boolean addOrReplace(PluginDescriptor pluginDescriptor) {
+	private boolean addOrReplace(PluginDescriptor pluginDescriptor) {
 		sInstalledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
 		return savePlugins(INSTALLED_KEY, sInstalledPlugins);
 	}
 
-	@Override
-	public boolean pending(PluginDescriptor pluginDescriptor) {
+	private boolean pending(PluginDescriptor pluginDescriptor) {
 		sPendingPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
 		return savePlugins(PENDING_KEY, sPendingPlugins);
 	}

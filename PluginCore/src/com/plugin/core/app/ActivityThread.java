@@ -172,7 +172,7 @@ public class ActivityThread {
         enableLog();
         Object applicationLoaders = RefInvoker.invokeStaticMethod("android.app.ApplicationLoaders", "getDefault", (Class[]) null, (Object[]) null);
         Map mLoaders = (Map)RefInvoker.getFieldObject(applicationLoaders, "android.app.ApplicationLoaders", "mLoaders");
-        PluginDescriptor pd = PluginLoader.initPluginByPluginId(pluginId);
+        PluginDescriptor pd = PluginLoader.ensurePluginInited(pluginId);
         mLoaders.put(pd.getInstalledPath(), pd.getPluginClassLoader());
         try {
             ApplicationInfo info = hostContext.getPackageManager().getApplicationInfo(pluginId, PackageManager.GET_SHARED_LIBRARY_FILES);

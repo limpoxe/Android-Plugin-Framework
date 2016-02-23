@@ -203,7 +203,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@Override
 	public Context createPackageContext(String packageName, int flags) throws PackageManager.NameNotFoundException {
 		if (PluginLoader.getPluginDescriptorByPluginId(packageName) != null) {
-			PluginLoader.initPluginByPluginId(packageName);
+			PluginLoader.ensurePluginInited(packageName);
 			return PluginLoader.getNewPluginApplicationContext(packageName);
 		}
 		return super.createPackageContext(packageName, flags);

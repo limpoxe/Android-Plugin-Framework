@@ -59,7 +59,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 	private View createView(Context Context, String pluginId, String name, AttributeSet atts)
 			throws ClassNotFoundException, InflateException {
 		try {
-			PluginDescriptor pd = PluginLoader.initPluginByPluginId(pluginId);
+			PluginDescriptor pd = PluginLoader.ensurePluginInited(pluginId);
 			if (pd != null) {
 				Context baseContext = Context;
 				if (!(baseContext instanceof PluginContextTheme)) {

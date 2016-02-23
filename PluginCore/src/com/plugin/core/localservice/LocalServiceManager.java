@@ -36,7 +36,7 @@ public class LocalServiceManager {
                 @Override
                 public Object createService(int serviceId) {
                     mPluginId = pluginId;
-                    PluginDescriptor pd = PluginLoader.initPluginByPluginId(pluginId);
+                    PluginDescriptor pd = PluginLoader.ensurePluginInited(pluginId);
                     if (pd != null) {
                         try {
                             Class clazz = pd.getPluginClassLoader().loadClass(serviceClass);

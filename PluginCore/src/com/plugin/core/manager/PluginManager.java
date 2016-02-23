@@ -7,12 +7,9 @@ public interface PluginManager {
 	////管理接口
 	int installPlugin(String srcFile);
 	void loadInstalledPlugins();
-	boolean addOrReplace(PluginDescriptor pluginDescriptor);
-	boolean pending(PluginDescriptor pluginDescriptor);
 	boolean remove(String packageName);
 	boolean removeAll();
 	void enablePlugin(String pluginId, boolean enable);
-	String genInstallPath(String pluginId, String pluginVersoin);
 
 	////查询接口
 	Collection<PluginDescriptor> getPlugins();
