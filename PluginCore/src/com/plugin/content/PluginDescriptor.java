@@ -97,6 +97,8 @@ public class PluginDescriptor implements Serializable {
 
 	private String[] dependencies;
 
+	private ArrayList<String> muliDexList;
+
 	private transient Application pluginApplication;
 	
 	private transient DexClassLoader pluginClassLoader;
@@ -233,6 +235,14 @@ public class PluginDescriptor implements Serializable {
 
 	public void setDependencies(String[] dependencies) {
 		this.dependencies = dependencies;
+	}
+
+	public List<String> getMuliDexList() {
+		return muliDexList;
+	}
+
+	public void setMuliDexList(ArrayList<String> muliDexList) {
+		this.muliDexList = muliDexList;
 	}
 
 	public void setDescription(String description) {

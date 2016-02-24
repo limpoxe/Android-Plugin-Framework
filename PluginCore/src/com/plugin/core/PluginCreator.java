@@ -2,6 +2,7 @@ package com.plugin.core;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.util.LogUtil;
@@ -26,7 +27,7 @@ public class PluginCreator {
 	 * @return
 	 */
 	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
-														 String[] dependences) {
+														 String[] dependences, List<String> multDex) {
 
 		String apkParentDir = new File(absolutePluginApkPath).getParent();
 
@@ -42,7 +43,8 @@ public class PluginCreator {
 					optDir.getAbsolutePath(),
 					libDir.getAbsolutePath(),
 					PluginLoader.class.getClassLoader(),//宿主classloader
-					dependences);//插件依赖的插件
+					dependences,//插件依赖的插件
+					null);
 		} else {//独立插件
 			return new PluginClassLoader(
 					absolutePluginApkPath,
@@ -54,7 +56,8 @@ public class PluginCreator {
 			         * bootstrap class loader.
 			         */
 					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
-					null);//独立插件无依赖
+					null,//独立插件无依赖
+					multDex);
 		}
 
 	}

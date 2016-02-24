@@ -29,6 +29,7 @@ import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
+import com.plugin.util.RefInvoker;
 
 import dalvik.system.DexClassLoader;
 
@@ -315,7 +316,7 @@ public class PluginLoader {
 				Resources pluginRes = PluginCreator.createPluginResource(sApplication, pluginDescriptor);
 
 				pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
-						pluginDescriptor.isStandalone(), pluginDescriptor.getDependencies());
+						pluginDescriptor.isStandalone(), pluginDescriptor.getDependencies(), pluginDescriptor.getMuliDexList());
 				Context pluginContext = PluginCreator
 						.createPluginContext(pluginDescriptor, sApplication, pluginRes, pluginClassLoader);
 
@@ -344,6 +345,12 @@ public class PluginLoader {
 		if (pluginDescriptor.getPluginApplication() == null && pluginDescriptor.getPluginClassLoader() != null) {
 			try {
 				LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
+				//阻止自动安装multidex
+				try {
+					Class mulitDex = pluginDescriptor.getPluginClassLoader().loadClass("android.support.multidex.MultiDex");
+					RefInvoker.setFieldObject(null, mulitDex, "IS_VM_MULTIDEX_CAPABLE", true);
+				} catch (Exception e) {
+				}
 				application = Instrumentation.newApplication(pluginDescriptor.getPluginClassLoader().loadClass(pluginDescriptor.getApplicationName()) , pluginDescriptor.getPluginContext());
 				pluginDescriptor.setPluginApplication(application);
 			} catch (ClassNotFoundException e) {

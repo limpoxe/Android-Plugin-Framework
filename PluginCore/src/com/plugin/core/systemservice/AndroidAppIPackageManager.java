@@ -281,7 +281,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             while (entryIterator.hasNext()) {
                 Map.Entry<String, String> item = entryIterator.next();
                 //TODO 这里的类型还有很多其他情况
-                if (TextUtils.isDigitsOnly(item.getValue())) {
+                if (!TextUtils.isEmpty(item.getValue()) && TextUtils.isDigitsOnly(item.getValue())) {
                     meta.putInt(item.getKey(), Integer.valueOf(item.getValue()));
                 } else {
                     meta.putString(item.getKey(), item.getValue());

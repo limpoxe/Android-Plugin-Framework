@@ -15,6 +15,7 @@ import com.plugin.core.PluginCreator;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginManifestParser;
 import com.plugin.core.localservice.LocalServiceManager;
+import com.plugin.core.multidex.PluginMultiDexExtractor;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.PackageVerifyer;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -88,6 +90,7 @@ public class PluginManagerImpl implements PluginManager {
 				//清除pending
 				getSharedPreference().edit().remove(PENDING_KEY).commit();
 			}
+
 		}
 	}
 
@@ -290,6 +293,13 @@ public class PluginManagerImpl implements PluginManager {
 				FileUtil.deleteAll(tempSoDir);
 			}
 
+			try {
+				ArrayList<String> multiDexFiles = PluginMultiDexExtractor.performExtractions(new File(destApkPath), new File(apkParent, "secondDexes"));
+				pluginDescriptor.setMuliDexList(multiDexFiles);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 			// 第6步 添加到已安装插件列表
 			pluginDescriptor.setInstalledPath(destApkPath);
 			boolean isInstallSuccess = false;
@@ -312,7 +322,7 @@ public class PluginManagerImpl implements PluginManager {
 				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 				//ActivityThread.getPackageManager().performDexOptIfNeeded()
 				FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
-				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null);
+				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null, null);
 				LogUtil.d("DEXOPT完毕");
 
 				if (!isNeedPending) {
