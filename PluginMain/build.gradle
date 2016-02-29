@@ -96,7 +96,7 @@ dependencies {
 
 
 tasks.whenTaskAdded { task ->
-    if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
+    if (task.name.startsWith("merge") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
 
         task.doLast {
             copy {
@@ -117,7 +117,7 @@ tasks.whenTaskAdded { task ->
         //task.enabled = false
     }
 
-    if (task.name.startsWith("process") && task.name.endsWith("Resources")) {
+    if (task.name.startsWith("process") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
 
         task.doLast {
             copy {
