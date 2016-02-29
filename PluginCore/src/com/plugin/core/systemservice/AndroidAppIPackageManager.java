@@ -23,6 +23,7 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -306,6 +307,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
         info.dataDir = null;//需要时再添加
         info.theme = pluginDescriptor.getApplicationTheme();
         info.flags = info.flags | ApplicationInfo.FLAG_HAS_CODE;
+        //需要时再添加
+        //info.nativeLibraryDir = new File(pluginDescriptor.getInstalledPath()).getParentFile().getAbsolutePath() + "/lib";
         return info;
     }
 
