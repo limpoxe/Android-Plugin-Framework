@@ -38,6 +38,8 @@
   3、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。
      第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接，方法请参看wxsdklibrary工程的用法
 
+  4、不支持android.app.NativeActivity
+
 # 开发注意事项
 
     1、非独立插件开发需要解决插件资源id和宿主资源id重复产生的冲突问题。
@@ -67,14 +69,8 @@
     4、插件依赖插件时，被插件依赖的插件暂不支持包含资源（技术上可行，但为了降低复杂度不做支持）
     
     5、在插件中调用getPackageName方法返回的是宿主的包名，不是插件包名。
-    
-    6、插件工程中的Public.xml并非必须。仅是为了支持换肤。
-       如无需支持换肤可删除插件工程中的Public.xml，并将PluginMain中的Public.xml中的attr格式修改为和其他项一致，
-       xml中有注释
        
-    7、若想将插件切换到单独的插件进程，仅需将core工程的Manifest中配置的若干组件添加上process宿主即可
-       
-        
+    6、若想将插件切换到单独的插件进程，仅需将core工程的Manifest中配置的若干组件添加上process配置即可
 
 # 目录结构说明：
 
@@ -111,10 +107,21 @@
      3、若使用For－eclipse－ide分支：
         需要使用ant编译，关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,若编译失败，请升级androidSDK。
 
+    4、编译方法
 
-    待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（参看插件工程的build.gradle）,然后重新打包安装PluginMain。
-    或者也可将插件复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
+       a）如果是命令行中：
+       cd  Android-Plugin-Framework
+       ./gradlew clean
+       ./gradlew build
 
+       b）如果是studio中：
+       打开studio右侧gradle面板区，点clean、点build
+
+       由于编译脚本依赖build.doLast, 使用其他编译方法可能不会触发build.doLast导致编译失败
+       所以使用其他编译方法前请务必仔细阅读build.gradle，了解编译过程后自行调整编译脚本。
+
+       待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新打包安装PluginMain。
+       或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
 
 # 实现原理简介：
   1、插件apk的class
