@@ -243,7 +243,7 @@ public class XmlHandler extends DefaultHandler {
         try {
             outXmlStream = new BufferedWriter(new FileWriter(destFile));
             outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            outXmlStream.write("\n<!-- 此文件是由脚本生成，请勿更改 -->");
+            outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
