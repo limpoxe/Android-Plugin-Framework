@@ -12,8 +12,8 @@ import java.util.Stack;
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     aaptOptions {
         additionalParameters "-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml"

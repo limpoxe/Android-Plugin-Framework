@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "com.example.pluginhelloworld"
@@ -10,10 +10,21 @@ android {
         targetSdkVersion 22
         versionCode 2
         versionName "1.0.1"
+
+        //for 1.5.0-
+        //generatedDensities = []
+
+        //for 2.0.0+
+        //vectorDrawables.useSupportLibrary = true;
     }
 
     lintOptions {
         abortOnError false
+    }
+
+    aaptOptions {
+        //for 1.5.0- Flag that tells aapt to keep attribute ids
+        //additionalParameters "--no-version-vectors"
     }
 
 }
@@ -21,4 +32,15 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:22.1.1'
     compile 'com.android.support:appcompat-v7:22.1.1'
+}
+
+build.doLast {
+    //将编译好的插件apk复制到Main工程的assets目录下, 便于测试
+    copy {
+        println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginHelloWorld-debug.apk'
+        from(buildDir.absolutePath + '/outputs/apk/') {
+            include 'PluginHelloWorld-debug.apk'
+        }
+        into(project(':PluginMain').getProjectDir().absolutePath + '/assets/')
+    }
 }
