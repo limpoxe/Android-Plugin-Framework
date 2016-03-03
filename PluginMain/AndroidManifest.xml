@@ -49,6 +49,10 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <!-- 悬浮窗权限 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- 自启权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 相机权限-->
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name="com.plugin.core.PluginApplication"
