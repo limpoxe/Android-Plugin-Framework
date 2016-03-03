@@ -365,10 +365,21 @@ public class PluginLoader {
 		//安装ContentProvider
 		PluginInjector.installContentProviders(sApplication, pluginDescriptor.getProviderInfos().values());
 
+		//先拿到宿主的crashHandler
+		Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
+
 		//执行onCreate
 		if (application != null) {
 			application.onCreate();
 		}
+
+		// 再还原宿主的crashHandler，这里之所以需要还原CrashHandler，
+		// 是因为如果插件中自己设置了自己的crashHandler（通常是在oncreate中），
+		// 会导致当前进程的主线程的handler被意外修改。
+		// 如果有多个插件都有设置自己的crashHandler，也会导致混乱
+		// 所以这里直接屏蔽掉插件的crashHandler
+		//TODO 或许也可以做成消息链进行分发？
+		Thread.setDefaultUncaughtExceptionHandler(old);
 
 	}
 
