@@ -173,6 +173,9 @@ def createThemePatch() {
     XmlHandler.exportThemeStyle(new File(parenDir + "values-v12/values-v12.xml"),
             new File(patchDir, "patch_values-v12.xml"), android.defaultConfig.applicationId)
 
+    XmlHandler.exportThemeStyle(new File(parenDir + "values-v13/values-v13.xml"),
+            new File(patchDir, "patch_values-v13.xml"), android.defaultConfig.applicationId)
+
     XmlHandler.exportThemeStyle(new File(parenDir + "values-v14/values-v14.xml"),
             new File(patchDir, "patch_values-v14.xml"), android.defaultConfig.applicationId)
 
@@ -184,6 +187,12 @@ def createThemePatch() {
 
     XmlHandler.exportThemeStyle(new File(parenDir + "values-v21/values-v21.xml"),
             new File(patchDir, "patch_values-v21.xml"), android.defaultConfig.applicationId)
+
+    XmlHandler.exportThemeStyle(new File(parenDir + "values-v22/values-v22.xml"),
+            new File(patchDir, "patch_values-v22.xml"), android.defaultConfig.applicationId)
+
+    XmlHandler.exportThemeStyle(new File(parenDir + "values-v23/values-v23.xml"),
+            new File(patchDir, "patch_values-v23.xml"), android.defaultConfig.applicationId)
 
     XmlHandler.exportThemeStyle(new File(project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml"),
             new File(patchDir, "public_theme.xml"), android.defaultConfig.applicationId)
