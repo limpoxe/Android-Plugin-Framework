@@ -70,11 +70,16 @@ public class MainActivity extends AppCompatActivity {
 				if (!isInstalled) {
 					isInstalled = true;
 
-					copyAndInstall("PluginBase-debug.apk");
-					copyAndInstall("PluginTest-debug.apk");
-					copyAndInstall("PluginHelloWorld-debug.apk");
-					copyAndInstall("wxsdklibrary-debug.apk");
-
+					try {
+						String[] files = getAssets().list("");
+						for (String apk : files) {
+							if (apk.endsWith(".apk")) {
+								copyAndInstall(apk);
+							}
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				} else {
 					Toast.makeText(MainActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
 				}
