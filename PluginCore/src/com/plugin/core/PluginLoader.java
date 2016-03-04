@@ -318,7 +318,7 @@ public class PluginLoader {
 				pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
 						pluginDescriptor.isStandalone(), pluginDescriptor.getDependencies(), pluginDescriptor.getMuliDexList());
 				Context pluginContext = PluginCreator
-						.createPluginContext(pluginDescriptor, sApplication, pluginRes, pluginClassLoader);
+						.createPluginContext(pluginDescriptor, sApplication.getBaseContext(), pluginRes, pluginClassLoader);
 
 				//插件Context默认主题设置为插件application主题
 				pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
