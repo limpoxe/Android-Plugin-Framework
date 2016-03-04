@@ -7,9 +7,16 @@ import com.plugin.core.PluginLoader;
 
 public class ProcessUtil {
 
+    private static final boolean sIsMultiProcessEnabled = true;
+
     private static Boolean isPluginProcess;
 
     public static boolean isPluginProcess() {
+
+        if (!sIsMultiProcessEnabled) {
+            return true;
+        }
+
         if (isPluginProcess == null) {
             String processName = getCurProcessName(PluginLoader.getApplicatoin());
             isPluginProcess = processName.endsWith(":plugin");
