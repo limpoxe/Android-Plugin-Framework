@@ -60,6 +60,26 @@
             </intent-filter>
         </service>
 
+        <service android:name="com.plugin.core.stub.PluginStubService4"
+            android:process=":plugin">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.plugin.core.stub.PluginStubService5"
+            android:process=":plugin">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <activity
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name="com.plugin.core.stub.PluginStubActivity0"
@@ -112,7 +132,7 @@
             android:name="com.plugin.core.stub.PluginStubActivity3"
             android:process=":plugin"
             android:exported="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action
                     android:name="com.plugin.core.STUB_DEFAULT" />
@@ -123,6 +143,84 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity4"
+            android:process=":plugin"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.PluginStubActivity5"
+            android:process=":plugin"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.PluginStubActivity6"
+            android:process=":plugin"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.PluginStubActivity7"
+            android:process=":plugin"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.PluginStubActivity8"
+            android:process=":plugin"
+            android:exported="true"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.PluginStubActivity9"
+            android:process=":plugin"
+            android:exported="true"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action
+                    android:name="com.plugin.core.STUB_DEFAULT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.plugin.core.stub.PluginStubActivity10"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleInstance">
