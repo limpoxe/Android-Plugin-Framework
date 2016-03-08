@@ -18,24 +18,28 @@ public class PluginActivityMonitor {
 	private HashMap<Activity, BroadcastReceiver> receivers = new HashMap<Activity, BroadcastReceiver>();
 
 	public void onActivityCreate(final Activity activity) {
-		if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
-			String pluginId = ((PluginContextTheme)activity.getApplication().getBaseContext()).getPluginDescriptor().getPackageName();
-			BroadcastReceiver br = new BroadcastReceiver() {
-				@Override
-				public void onReceive(Context context, Intent intent) {
-					activity.finish();
-				}
-			};
-			receivers.put(activity, br);
+		if (activity.getParent() == null) {
+			if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
+				String pluginId = ((PluginContextTheme)activity.getApplication().getBaseContext()).getPluginDescriptor().getPackageName();
+				BroadcastReceiver br = new BroadcastReceiver() {
+					@Override
+					public void onReceive(Context context, Intent intent) {
+						activity.finish();
+					}
+				};
+				receivers.put(activity, br);
 
-			activity.registerReceiver(br, new IntentFilter(pluginId + ACTION_UN_INSTALL_PLUGIN));
+				activity.registerReceiver(br, new IntentFilter(pluginId + ACTION_UN_INSTALL_PLUGIN));
+			}
 		}
 	}
 
 	public void onActivityDestory(Activity activity) {
-		if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
-			BroadcastReceiver br = receivers.remove(activity);
-			activity.unregisterReceiver(br);
+		if (activity.getParent() == null) {
+			if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
+				BroadcastReceiver br = receivers.remove(activity);
+				activity.unregisterReceiver(br);
+			}
 		}
 	}
 }
