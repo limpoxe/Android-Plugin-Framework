@@ -16,7 +16,9 @@ public class MainService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
 		Log.d("MainService", "打开插件PluginTestService");
-		startService(new Intent("test.lmn"));
+		Intent serviceIntent = new Intent("test.lmn");
+		serviceIntent.setPackage("com.example.plugintest");
+		startService(serviceIntent);
 
 		return super.onStartCommand(intent, flags, startId);
 	}
