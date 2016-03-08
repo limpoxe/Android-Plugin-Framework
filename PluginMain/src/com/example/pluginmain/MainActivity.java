@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
 		// 监听插件安装 安装新插件后刷新当前页面
 		registerReceiver(pluginInstallEvent, new IntentFilter(PluginCallback.ACTION_PLUGIN_CHANGED));
+
+		startService(new Intent(this, MainService.class));
 	}
 
 	private void initView() {
