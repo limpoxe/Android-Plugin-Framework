@@ -29,6 +29,7 @@ import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -50,12 +51,12 @@ public class PluginInjector {
 	 * 替换宿主程序Application对象的mBase是为了修改它的几个StartActivity、
 	 * StartService和SendBroadcast方法
 	 */
-	static void injectBaseContext(Application application) {
+	static void injectBaseContext(Context context) {
 		LogUtil.d("替换宿主程序Application对象的mBase");
-		Context base = (Context)RefInvoker.getFieldObject(application, ContextWrapper.class.getName(),
+		Context base = (Context)RefInvoker.getFieldObject(context, ContextWrapper.class.getName(),
 				android_content_ContextWrapper_mBase);
 		Context newBase = new PluginBaseContextWrapper(base);
-		RefInvoker.setFieldObject(application, ContextWrapper.class.getName(),
+		RefInvoker.setFieldObject(context, ContextWrapper.class.getName(),
 				android_content_ContextWrapper_mBase, newBase);
 	}
 
@@ -278,38 +279,53 @@ public class PluginInjector {
 		}
 	}
 
-	/*package*/static void replaceReceiverContext(Context baseContext, Class clazz) {
+	/*package*/static void replaceReceiverContext(Context baseContext, Context newBase) {
 
 		if (baseContext.getClass().getName().equals("android.app.ContextImpl")) {
 			ContextWrapper receiverRestrictedContext = (ContextWrapper) RefInvoker.invokeMethod(baseContext, "android.app.ContextImpl", "getReceiverRestrictedContext", (Class[]) null, (Object[]) null);
-			RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", PluginLoader.getDefaultPluginContext(clazz));
+			RefInvoker.setFieldObject(receiverRestrictedContext, ContextWrapper.class.getName(), "mBase", newBase);
 		}
 	}
 
-	/*package*/static void replaceServiceContext(String serviceName) {
-		Object activityThread = ActivityThread.currentActivityThread();
-		if (activityThread != null) {
-			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
-			if (services != null) {
-				Iterator<Service> itr = services.values().iterator();
-				while(itr.hasNext()) {
-					Service service = itr.next();
-					if (service != null && service.getClass().getName().equals(serviceName) ) {
+	/*package*/static void replacePluginServiceContext(String serviceName) {
+		Map<IBinder, Service> services = ActivityThread.getAllServices();
+		if (services != null) {
+			Iterator<Service> itr = services.values().iterator();
+			while(itr.hasNext()) {
+				Service service = itr.next();
+				if (service != null && service.getClass().getName().equals(serviceName) ) {
 
-						PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
+					PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
 
-						RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
-								PluginLoader.getNewPluginComponentContext(pd.getPluginContext(),
-												service.getBaseContext(), pd.getApplicationTheme()));
+					RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
+							PluginLoader.getNewPluginComponentContext(pd.getPluginContext(),
+									service.getBaseContext(), pd.getApplicationTheme()));
 
-						if (pd.getPluginApplication() != null) {
-							RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());
-						}
+					if (pd.getPluginApplication() != null) {
+						RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());
 					}
 
-				}
-			}
+					RefInvoker.setFieldObject(service, Service.class, "mClassName", PluginStubBinding.bindStubService(service.getClass().getName()));
 
+					break;
+				}
+
+			}
+		}
+	}
+
+	/*package*/static void replaceHostServiceContext(String serviceName) {
+		Map<IBinder, Service> services = ActivityThread.getAllServices();
+		if (services != null) {
+			Iterator<Service> itr = services.values().iterator();
+			while(itr.hasNext()) {
+				Service service = itr.next();
+				if (service != null && service.getClass().getName().equals(serviceName) ) {
+					PluginInjector.injectBaseContext(service);
+					break;
+				}
+
+			}
 		}
 	}
 

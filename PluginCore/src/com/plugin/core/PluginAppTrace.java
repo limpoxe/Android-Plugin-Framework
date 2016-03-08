@@ -73,12 +73,17 @@ public class PluginAppTrace implements Handler.Callback {
 			PluginInjector.hackHostClassLoaderIfNeeded();
 
 			Context baseContext = PluginLoader.getApplicatoin().getBaseContext();
-			PluginInjector.replaceReceiverContext(baseContext, clazz);
+			Context newBase = PluginLoader.getDefaultPluginContext(clazz);
+
+			PluginInjector.replaceReceiverContext(baseContext, newBase);
 
 			Result result = new Result();
 			result.baseContext = baseContext;
 
 			return result;
+		} else {
+			//宿主的receiver的context不需要处理，在framework中receiver的context本身是对appliction的包装。
+			//而宿主的application的base已经本更换过了
 		}
 		return null;
 	}
@@ -86,7 +91,7 @@ public class PluginAppTrace implements Handler.Callback {
 	private static Result beforeCreateService(Message msg) {
 		String serviceName = PluginIntentResolver.resolveServiceForClassLoader(msg.obj);
 
-		if (serviceName != null) {
+		if (serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX)) {
 			PluginInjector.hackHostClassLoaderIfNeeded();
 		}
 		Result result = new Result();
@@ -99,7 +104,7 @@ public class PluginAppTrace implements Handler.Callback {
 		//销毁service时回收映射关系
 		Object activityThread = ActivityThread.currentActivityThread();
 		if (activityThread != null) {
-			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
+			Map<IBinder, Service> services = ActivityThread.getAllServices();
 			if (services != null) {
 				Service service = services.get(msg.obj);
 				if (service != null) {
@@ -136,9 +141,14 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static void afterCreateService(Result result) {
 		if (result != null) {
-			//拿到创建好的service，重新 设置mBase和mApplicaiton
-			//由于这步操作是再service得oncreate之后执行，所以再插件service得oncreate中不应尝试通过此service的context执行操作
-			PluginInjector.replaceServiceContext(result.serviceName);
+			if (result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX)) {
+				//拿到创建好的service，重新 设置mBase和mApplicaiton
+				//由于这步操作是再service得oncreate之后执行，所以再插件service得oncreate中不应尝试通过此service的context执行操作
+				PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX, ""));
+			} else {
+				//注入一个无害的BaseContext, 主要是为了重写宿主Service的sentBroadCast和startService方法
+				PluginInjector.replaceHostServiceContext(result.serviceName);
+			}
 		}
 	}
 
