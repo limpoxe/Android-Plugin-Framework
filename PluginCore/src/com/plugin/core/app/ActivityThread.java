@@ -1,11 +1,13 @@
 package com.plugin.core.app;
 
 import android.app.Instrumentation;
+import android.app.Service;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Handler;
+import android.os.IBinder;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginAppTrace;
@@ -26,6 +28,7 @@ public class ActivityThread {
     private static final String android_app_ActivityThread_getHandler = "getHandler";
     private static final String android_app_ActivityThread_installContentProviders = "installContentProviders";
     private static final String android_app_ActivityThread_AppBindData = "android.app.ActivityThread$AppBindData";
+    private static final String android_app_ActivityThread_mServices = "mServices";
 
     private static final String android_os_Handler_mCallback = "mCallback";
 
@@ -210,6 +213,11 @@ public class ActivityThread {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Map<IBinder, Service> getAllServices() {
+        Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, android_app_ActivityThread_mServices);
+        return services;
     }
 
 }

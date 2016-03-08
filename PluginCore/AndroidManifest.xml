@@ -14,7 +14,6 @@
             对Receiver的类全名没有要求，可随意指定，框架中是通过action来查询。
         -->
         <receiver android:name="com.plugin.core.stub.PluginStubReceiver"
-            android:process=":plugin"
             android:exported="true">
             <intent-filter>
                 <action
@@ -30,8 +29,7 @@
             只是占个位置，运行实动态绑定到实际的插件Service
             对service的类全名没有要求，可随意指定，框架中是通过action来查询。
         -->
-        <service android:name="com.plugin.core.stub.PluginStubService1"
-            android:process=":plugin">
+        <service android:name="com.plugin.core.stub.PluginStubService1">
             <intent-filter>
                 <action
                     android:name="com.plugin.core.STUB_DEFAULT" />
@@ -40,8 +38,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService2"
-            android:process=":plugin">
+        <service android:name="com.plugin.core.stub.PluginStubService2">
             <intent-filter>
                 <action
                     android:name="com.plugin.core.STUB_DEFAULT" />
@@ -50,8 +47,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService3"
-            android:process=":plugin">
+        <service android:name="com.plugin.core.stub.PluginStubService3">
             <intent-filter>
                 <action
                     android:name="com.plugin.core.STUB_DEFAULT" />
@@ -60,8 +56,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService4"
-            android:process=":plugin">
+        <service android:name="com.plugin.core.stub.PluginStubService4">
             <intent-filter>
                 <action
                     android:name="com.plugin.core.STUB_DEFAULT" />
@@ -70,8 +65,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService5"
-            android:process=":plugin">
+        <service android:name="com.plugin.core.stub.PluginStubService5">
             <intent-filter>
                 <action
                     android:name="com.plugin.core.STUB_DEFAULT" />
@@ -83,7 +77,6 @@
         <activity
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name="com.plugin.core.stub.PluginStubActivity0"
-            android:process=":plugin"
             android:exported="true">
             <intent-filter>
                 <action
@@ -104,7 +97,6 @@
             -->
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity1"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -117,7 +109,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity2"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -130,7 +121,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity3"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -143,7 +133,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity4"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
@@ -156,7 +145,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity5"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
@@ -169,7 +157,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity6"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
@@ -182,7 +169,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity7"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
@@ -195,7 +181,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity8"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>
@@ -208,7 +193,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity9"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>
@@ -221,7 +205,6 @@
 
         <activity
             android:name="com.plugin.core.stub.PluginStubActivity10"
-            android:process=":plugin"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>

@@ -1,6 +1,9 @@
 package com.plugin.core;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.res.AssetManager;
@@ -15,6 +18,7 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
@@ -25,6 +29,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	private final ClassLoader mClassLoader;
 
 	protected final PluginDescriptor mPluginDescriptor;
+
+	private ArrayList<BroadcastReceiver> receivers = new ArrayList<BroadcastReceiver>();
 
 	public PluginContextTheme(PluginDescriptor pluginDescriptor, Context base, Resources resources, ClassLoader classLoader) {
 		super(base);
@@ -204,5 +210,25 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	public PluginDescriptor getPluginDescriptor() {
 		return mPluginDescriptor;
+	}
+
+	@Override
+	public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+		receivers.add(receiver);
+		return super.registerReceiver(receiver, filter);
+	}
+
+	@Override
+	public void unregisterReceiver(BroadcastReceiver receiver) {
+		super.unregisterReceiver(receiver);
+		receivers.remove(receiver);
+	}
+
+	public void unregisterAllReceiver() {
+		for (BroadcastReceiver br:
+			 receivers) {
+			super.unregisterReceiver(br);
+		}
+		receivers.clear();
 	}
 }

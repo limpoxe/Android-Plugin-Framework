@@ -16,6 +16,7 @@ import android.os.UserHandle;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.ComponentContainer;
+import com.plugin.core.manager.PluginActivityMonitor;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.viewfactory.PluginViewFactory;
 import com.plugin.util.LogUtil;
@@ -36,9 +37,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	private static final String RELAUNCH_FLAG = "relaunch.category.";
 
 	private final Instrumentation realInstrumention;
+	private PluginActivityMonitor monitor;
 
 	public PluginInstrumentionWrapper(Instrumentation instrumentation) {
 		this.realInstrumention = instrumentation;
+		this.monitor = new PluginActivityMonitor();
 	}
 
 	@Override
@@ -156,12 +159,18 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		}
 
 		super.callActivityOnCreate(activity, icicle);
+
+		monitor.onActivityCreate(activity);
+
 	}
 
 
 	@Override
 	public void callActivityOnDestroy(Activity activity) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
+
+		monitor.onActivityDestory(activity);
+
 		super.callActivityOnDestroy(activity);
 	}
 

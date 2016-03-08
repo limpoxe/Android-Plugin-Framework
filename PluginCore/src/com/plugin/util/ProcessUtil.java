@@ -7,7 +7,7 @@ import com.plugin.core.PluginLoader;
 
 public class ProcessUtil {
 
-    private static final boolean sIsMultiProcessEnabled = true;
+    private static final boolean sIsMultiProcessEnabled = false;
 
     private static Boolean isPluginProcess;
 

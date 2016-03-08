@@ -1,24 +1,35 @@
 package com.plugin.core.manager;
 
+import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Build;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.webkit.WebView;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginClassLoader;
+import com.plugin.core.PluginContextTheme;
 import com.plugin.core.PluginCreator;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginManifestParser;
+import com.plugin.core.app.ActivityThread;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.multidex.PluginMultiDexExtractor;
+import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.PackageVerifyer;
+import com.plugin.util.RefInvoker;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +40,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -60,8 +72,11 @@ public class PluginManagerImpl implements PluginManager {
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
 	 */
 	private String genInstallPath(String pluginId, String pluginVersoin) {
-		return PluginLoader.getApplicatoin().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath() + "/" + pluginId + "/"
-				+ pluginVersoin + "/base-1.apk";
+		return  getPluginRootDir() + "/" + pluginId + "/" + pluginVersoin + "/base-1.apk";
+	}
+
+	private String getPluginRootDir() {
+		return PluginLoader.getApplicatoin().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -109,6 +124,8 @@ public class PluginManagerImpl implements PluginManager {
 		sInstalledPlugins.clear();
 		boolean isSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 
+		FileUtil.deleteAll(new File(getPluginRootDir()));
+
 		changeListener.onPluginRemoveAll();
 
 		return isSuccess;
@@ -116,7 +133,13 @@ public class PluginManagerImpl implements PluginManager {
 
 	@Override
 	public synchronized boolean remove(String pluginId) {
+
 		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
+
+		if (old.getPluginContext() != null) {
+			exitPlugin(old);
+		}
+
 		boolean result = false;
 		if (old != null) {
 			result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
@@ -127,6 +150,68 @@ public class PluginManagerImpl implements PluginManager {
 		changeListener.onPluginRemoved(pluginId);
 
 		return result;
+	}
+
+	private void exitPlugin(PluginDescriptor pluginDescriptor) {
+		//
+		//退出WebView, LocalService、Activity、BroadcastReceiver、LocalBroadcastManager, Service、AssetManager、ContentProvider、fragment
+		//
+
+		//退出webview
+		AndroidWebkitWebViewFactoryProvider.switchWebViewContext(PluginLoader.getApplicatoin());
+
+		//退出LocalService
+		LocalServiceManager.unRegistService(pluginDescriptor);
+
+		//退出Activity
+		PluginLoader.getApplicatoin().sendBroadcast(new Intent(pluginDescriptor.getPackageName() + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
+
+		//退出BroadcastReceiver
+		//广播一般有个注册方式
+		//1、activity注册
+		//		这种方式，在上一步Activitiy退出时会退出，所以不用处理
+		//2、application注册
+		//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
+		((PluginContextTheme)pluginDescriptor.getPluginApplication().getBaseContext()).unregisterAllReceiver();
+
+		//退出 LocalBroadcastManager
+		Object mInstance = RefInvoker.getStaticFieldObject("android.support.v4.content.LocalBroadcastManager", "mInstance");
+		if (mInstance != null) {
+			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = (HashMap<BroadcastReceiver, ArrayList<IntentFilter>>)RefInvoker.getFieldObject(mInstance, "android.support.v4.content.LocalBroadcastManager", "mReceivers");
+			if (mReceivers != null) {
+				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
+				while(ir.hasNext()) {
+					BroadcastReceiver item = ir.next();
+					if (item.getClass().getClassLoader() == pluginDescriptor.getPluginClassLoader()) {
+						RefInvoker.invokeMethod(mInstance, "android.support.v4.content.LocalBroadcastManager", "unregisterReceiver", new Class[]{BroadcastReceiver.class}, new Object[]{item});
+					}
+				}
+			}
+		}
+
+		//退出Service
+		//bindservie启动的service应该不需要处理，退出activity的时候会unbind
+		Map<IBinder, Service> map = ActivityThread.getAllServices();
+		if (map != null) {
+			Collection<Service> list = map.values();
+			for (Service s :list) {
+				if (s.getClass().getClassLoader() == pluginDescriptor.getPluginClassLoader()) {
+					s.stopSelf();
+				}
+			}
+		}
+
+		//退出AssetManager
+		//pluginDescriptor.getPluginContext().getResources().getAssets().close();
+
+		//退出ContentProvider
+		//TODO
+		//ActivityThread.releaseProvider(IContentProvider provider, boolean stable)
+
+		//退出fragment
+		//即退出由FragmentManager保存的Fragment
+		//TODO
+
 	}
 
 	@Override
@@ -247,7 +332,6 @@ public class PluginManagerImpl implements PluginManager {
 			pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
 		}
 
-		boolean isNeedPending = false;
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
@@ -256,8 +340,8 @@ public class PluginManagerImpl implements PluginManager {
 			//检查插件是否已经加载
 			if (oldPluginDescriptor.getPluginContext() != null) {
 				if (!oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
-					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本不同，进入pending状态，新版插件将在安装后进程重启再生效");
-					isNeedPending = true;
+					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，尝试安装新版");
+					remove(oldPluginDescriptor.getPackageName());
 				} else {
 					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
 					new File(srcPluginFile).delete();
@@ -303,11 +387,9 @@ public class PluginManagerImpl implements PluginManager {
 			// 第6步 添加到已安装插件列表
 			pluginDescriptor.setInstalledPath(destApkPath);
 			boolean isInstallSuccess = false;
-			if (!isNeedPending) {
-				isInstallSuccess = addOrReplace(pluginDescriptor);
-			} else {
-				isInstallSuccess = pending(pluginDescriptor);
-			}
+
+			isInstallSuccess = addOrReplace(pluginDescriptor);
+
 			//删掉临时文件
 			new File(srcPluginFile).delete();
 
@@ -325,12 +407,10 @@ public class PluginManagerImpl implements PluginManager {
 				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null, null);
 				LogUtil.d("DEXOPT完毕");
 
-				if (!isNeedPending) {
-					LocalServiceManager.registerService(pluginDescriptor);
-				}
+				LocalServiceManager.registerService(pluginDescriptor);
 
 				changeListener.onPluginInstalled(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-				LogUtil.e("安装插件成功," + (isNeedPending ? " 重启进程生效" : " 立即生效"), destApkPath);
+				LogUtil.e("安装插件成功", destApkPath);
 
 				//打印一下目录结构
 				FileUtil.printAll(new File(PluginLoader.getApplicatoin().getApplicationInfo().dataDir));

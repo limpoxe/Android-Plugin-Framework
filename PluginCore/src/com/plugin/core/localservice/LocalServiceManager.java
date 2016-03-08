@@ -63,4 +63,14 @@ public class LocalServiceManager {
         return fetcher == null ? null : fetcher.getService();
     }
 
+    public static void unRegistService(PluginDescriptor plugin) {
+        Iterator<Map.Entry<String, LocalServiceFetcher>> itr = SYSTEM_SERVICE_MAP.entrySet().iterator();
+        while(itr.hasNext()) {
+            Map.Entry<String, LocalServiceFetcher> item = itr.next();
+            if(plugin.getPackageName().equals(item.getValue().mPluginId)) {
+                itr.remove();
+            }
+        }
+    }
+
 }

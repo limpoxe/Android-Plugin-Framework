@@ -98,7 +98,7 @@ public class PluginIntentResolver {
 		} else {
 			LogUtil.e("hackServiceName 没有找到映射关系, 说明是宿主service（也可能是映射表出了异常）", info.name);
 		}
-		return targetClassName;
+		return info.name;
 	}
 
 	public static void resolveActivity(Intent intent) {
