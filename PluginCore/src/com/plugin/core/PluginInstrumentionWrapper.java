@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.UserHandle;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.content.PluginRuntime;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.manager.PluginActivityMonitor;
@@ -60,7 +61,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		if (ProcessUtil.isPluginProcess()) {
 			PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
 			if (pluginDescriptor != null) {
-				return pluginDescriptor.getPluginApplication();
+				return PluginRuntime.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginApplication;
 			}
 		}
 		return super.newApplication(cl, className, context);
@@ -74,6 +75,9 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			if (PluginStubBinding.isStubActivity(className)) {
 
 				String action = intent.getAction();
+
+				LogUtil.d(action, className);
+
 				if (action != null && action.contains(PluginIntentResolver.CLASS_SEPARATOR)) {
 					String[] targetClassName  = action.split(PluginIntentResolver.CLASS_SEPARATOR);
 					String pluginClassName = targetClassName[0];

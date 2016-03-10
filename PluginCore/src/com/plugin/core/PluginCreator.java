@@ -1,14 +1,12 @@
 package com.plugin.core;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -141,7 +139,7 @@ public class PluginCreator {
 	 * 创建插件的Context
 	 * @return
 	 */
-	static Context createPluginContext(PluginDescriptor pluginDescriptor, Context base, Resources pluginRes,
+	public static Context createPluginContext(PluginDescriptor pluginDescriptor, Context base, Resources pluginRes,
 												  DexClassLoader pluginClassLoader) {
 		return new PluginContextTheme(pluginDescriptor, base, pluginRes, pluginClassLoader);
 	}

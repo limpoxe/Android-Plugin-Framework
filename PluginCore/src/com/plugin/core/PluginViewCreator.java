@@ -1,6 +1,5 @@
 package com.plugin.core;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.util.AttributeSet;
@@ -8,7 +7,9 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.content.PluginRuntime;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Constructor;
@@ -59,8 +60,13 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 	private View createView(Context Context, String pluginId, String name, AttributeSet atts)
 			throws ClassNotFoundException, InflateException {
 		try {
-			PluginDescriptor pd = PluginLoader.ensurePluginInited(pluginId);
+			PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+
 			if (pd != null) {
+
+				//插件可能尚未初始化，确保使用前已经初始化
+				LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+
 				Context baseContext = Context;
 				if (!(baseContext instanceof PluginContextTheme)) {
 					baseContext = ((ContextWrapper)baseContext).getBaseContext();
@@ -68,7 +74,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 				if (baseContext instanceof PluginContextTheme) {
 					baseContext = ((PluginContextTheme) baseContext).getBaseContext();
 				}
-				Context pluginViewContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), baseContext, pd.getApplicationTheme());
+				Context pluginViewContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, baseContext, pd.getApplicationTheme());
 				Class<? extends View> clazz = pluginViewContext.getClassLoader()
 						.loadClass(name).asSubclass(View.class);
 

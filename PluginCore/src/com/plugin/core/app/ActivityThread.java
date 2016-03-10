@@ -1,11 +1,13 @@
 package com.plugin.core.app;
 
+import android.app.Application;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -75,11 +77,6 @@ public class ActivityThread {
         Object mBoundApplication = RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, "mBoundApplication");
         Object compatInfo = RefInvoker.getFieldObject(mBoundApplication, android_app_ActivityThread_AppBindData, "compatInfo");
         return compatInfo;
-    }
-
-    public static void enableLog() {
-        RefInvoker.setStaticOjbect(android_app_ActivityThread, "TAG", "Plugin_ActivityThread");
-        RefInvoker.setStaticOjbect(android_app_ActivityThread, "localLOGV", true);
     }
 
     public static void installContentProviders(Context context, List<ProviderInfo> providers) {
@@ -184,12 +181,14 @@ public class ActivityThread {
 //            42                parent = baseParent;
 //            43            }
 //
-    public static void installPackageInfo(Context hostContext, String pluginId, PluginDescriptor pluginDescriptor) throws ClassNotFoundException {
-        enableLog();
+    public static void installPackageInfo(Context hostContext, String pluginId, PluginDescriptor pluginDescriptor,
+                                          ClassLoader pluginClassLoader, Resources pluginResource,
+                                          Application pluginApplication) throws ClassNotFoundException {
+
         Object applicationLoaders = RefInvoker.invokeStaticMethod("android.app.ApplicationLoaders", "getDefault", (Class[]) null, (Object[]) null);
         Map mLoaders = (Map)RefInvoker.getFieldObject(applicationLoaders, "android.app.ApplicationLoaders", "mLoaders");
-        PluginDescriptor pd = PluginLoader.ensurePluginInited(pluginId);
-        mLoaders.put(pd.getInstalledPath(), pd.getPluginClassLoader());
+
+        mLoaders.put(pluginDescriptor.getInstalledPath(), pluginClassLoader);
         try {
             ApplicationInfo info = hostContext.getPackageManager().getApplicationInfo(pluginId, PackageManager.GET_SHARED_LIBRARY_FILES);
             Object compatibilityInfo = getResCompatibilityInfo();//Not Sure
@@ -201,11 +200,11 @@ public class ActivityThread {
                     new Object[]{info, compatibilityInfo});
             if (pluginLoadedApk != null) {
                 Class loadedAPKClass = pluginLoadedApk.getClass();
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mApplication", pluginDescriptor.getPluginApplication());
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mResources", pluginDescriptor.getPluginContext().getResources());
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mApplication", pluginApplication);
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mResources", pluginResource);
                 RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDirFile", new File(PluginLoader.getApplicatoin().getApplicationInfo().dataDir));
                 RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDir", PluginLoader.getApplicatoin().getApplicationInfo().dataDir);
-                //TODO
+                //TODO 需要时再说
                 //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mLibDir", );
             }
             //再还原

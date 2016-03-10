@@ -142,7 +142,6 @@ public class RefInvoker {
 	}
 
 	public static Method findMethod(Object object, String methodName, Class[] clazzes) {
-		//TODO
 		try {
 			return object.getClass().getDeclaredMethod(methodName, clazzes);
 		} catch (NoSuchMethodException e) {

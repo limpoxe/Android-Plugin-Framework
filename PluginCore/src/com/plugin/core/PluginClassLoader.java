@@ -1,6 +1,7 @@
 package com.plugin.core;
 
-import com.plugin.content.PluginDescriptor;
+import com.plugin.content.LoadedPlugin;
+import com.plugin.content.PluginRuntime;
 import com.plugin.util.LogUtil;
 
 import java.util.ArrayList;
@@ -66,10 +67,13 @@ public class PluginClassLoader extends DexClassLoader {
 
 			if (clazz == null && dependencies != null) {
 				for (String dependencePluginId: dependencies) {
-					PluginDescriptor pd = PluginLoader.ensurePluginInited(dependencePluginId);
-					if (pd != null) {
+
+					//插件可能尚未初始化，确保使用前已经初始化
+					LoadedPlugin plugin = PluginRuntime.instance().startPlugin(dependencePluginId);
+
+					if (plugin != null) {
 						try {
-							clazz = pd.getPluginClassLoader().loadClass(className);
+							clazz = plugin.pluginClassLoader.loadClass(className);
 						} catch (ClassNotFoundException e) {
 						}
 						if (clazz != null) {

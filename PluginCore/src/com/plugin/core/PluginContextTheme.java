@@ -1,5 +1,6 @@
 package com.plugin.core;
 
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,16 +28,22 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	Resources mResources;
 	private final ClassLoader mClassLoader;
-
+	private Application mPluginApplication;
 	protected final PluginDescriptor mPluginDescriptor;
 
 	private ArrayList<BroadcastReceiver> receivers = new ArrayList<BroadcastReceiver>();
 
-	public PluginContextTheme(PluginDescriptor pluginDescriptor, Context base, Resources resources, ClassLoader classLoader) {
+	public PluginContextTheme(PluginDescriptor pluginDescriptor,
+							  Context base, Resources resources,
+							  ClassLoader classLoader) {
 		super(base);
 		mPluginDescriptor = pluginDescriptor;
 		mResources = resources;
 		mClassLoader = classLoader;
+	}
+
+	public void setPluginApplication(Application pluginApplication) {
+		this.mPluginApplication = pluginApplication;
 	}
 
 	@Override
@@ -190,7 +197,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public Context getApplicationContext() {
-		return mPluginDescriptor.getPluginApplication();
+		return mPluginApplication;
 	}
 
 	@Override

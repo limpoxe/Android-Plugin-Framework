@@ -10,10 +10,8 @@ import java.util.Map;
 import com.plugin.util.LogUtil;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 
-import dalvik.system.DexClassLoader;
 
 /**
  * <Pre>
@@ -99,31 +97,7 @@ public class PluginDescriptor implements Serializable {
 
 	private ArrayList<String> muliDexList;
 
-	private transient Application pluginApplication;
-	
-	private transient DexClassLoader pluginClassLoader;
-
-	private transient Context pluginContext;
-
-
 	//=============getter and setter======================
-
-
-	public Context getPluginContext() {
-		return pluginContext;
-	}
-
-	public void setPluginContext(Context pluginContext) {
-		this.pluginContext = pluginContext;
-	}
-
-	public DexClassLoader getPluginClassLoader() {
-		return pluginClassLoader;
-	}
-
-	public void setPluginClassLoader(DexClassLoader pluginLoader) {
-		this.pluginClassLoader = pluginLoader;
-	}
 
 	public String getPackageName() {
 		return packageName;
@@ -139,6 +113,14 @@ public class PluginDescriptor implements Serializable {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public int getApplicationIcon() {
@@ -245,10 +227,6 @@ public class PluginDescriptor implements Serializable {
 		this.muliDexList = muliDexList;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
 	public String getApplicationName() {
 		return applicationName;
 	}
@@ -265,14 +243,6 @@ public class PluginDescriptor implements Serializable {
 		this.isEnabled = isEnabled;
 	}
 
-	public Application getPluginApplication() {
-		return pluginApplication;
-	}
-
-	public void setPluginApplication(Application pluginApplication) {
-		this.pluginApplication = pluginApplication;
-	}
-
 	public boolean isStandalone() {
 		return isStandalone;
 	}
@@ -287,27 +257,6 @@ public class PluginDescriptor implements Serializable {
 
 	public void setProviderInfos(HashMap<String, PluginProviderInfo> providerInfos) {
 		this.providerInfos = providerInfos;
-	}
-
-	public String getDescription() {
-		if (description != null && description.startsWith("@") && description.length() == 9) {
-			String idHex = description.replace("@", "");
-			try {
-				int id = Integer.parseInt(idHex, 16);
-				//此时context可能还没有初始化
-				if (pluginContext != null) {
-					String des = pluginContext.getString(id);
-					return des;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return description;
-	}
-
-	public boolean isRunning() {
-		return getPluginContext() != null;
 	}
 
 	/**

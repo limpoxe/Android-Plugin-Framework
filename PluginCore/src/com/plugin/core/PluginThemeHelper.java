@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 
+import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.content.PluginRuntime;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Field;
@@ -16,9 +18,10 @@ public class PluginThemeHelper {
 		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			PluginLoader.ensurePluginInited(pd);
-			if (pd.getPluginContext() != null) {
-				return pd.getPluginContext().getResources().getIdentifier(themeName, "style", pd.getPackageName());
+			LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+
+			if (plugin != null) {
+				return plugin.pluginResource.getIdentifier(themeName, "style", pd.getPackageName());
 			}
 		}
 		return 0;
@@ -29,10 +32,10 @@ public class PluginThemeHelper {
 		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			PluginLoader.ensurePluginInited(pd);
+			LoadedPlugin pluing = PluginRuntime.instance().startPlugin(pluginId);
 
 			try {
-				Class pluginRstyle = pd.getPluginClassLoader().loadClass(pluginId + ".R$style");
+				Class pluginRstyle = pluing.pluginClassLoader.loadClass(pluginId + ".R$style");
 				if (pluginRstyle != null) {
 					Field[] fields = pluginRstyle.getDeclaredFields();
 					if (fields != null) {
@@ -69,11 +72,12 @@ public class PluginThemeHelper {
 				if (pd != null) {
 
 					//插件可能尚未初始化，确保使用前已经初始化
-					PluginLoader.ensurePluginInited(pd);
+					LoadedPlugin pluing = PluginRuntime.instance().startPlugin(pluginId);
 
 					//注入插件上下文和主题
-					Context defaultContext = pd.getPluginContext();
-					Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext, ((PluginBaseContextWrapper)activity.getBaseContext()).getBaseContext(), 0);
+					Context defaultContext = pluing.pluginContext;
+					Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext,
+							((PluginBaseContextWrapper)activity.getBaseContext()).getBaseContext(), 0);
 					PluginInjector.resetActivityContext(pluginContext, activity, themeResId);
 
 				}

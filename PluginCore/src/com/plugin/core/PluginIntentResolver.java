@@ -1,6 +1,5 @@
 package com.plugin.core;
 
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
@@ -88,7 +87,7 @@ public class PluginIntentResolver {
 		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
 		//通过映射查找
 		String targetClassName = PluginStubBinding.getBindedPluginServiceName(info.name);
-		//TODO
+		//TODO 或许可以通过这个方式来处理service
 		//info.applicationInfo = XXX
 
 		LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName, info.applicationInfo.packageName);

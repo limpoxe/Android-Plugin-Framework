@@ -7,17 +7,16 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.app.ActivityThread;
+import com.plugin.content.PluginRuntime;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginManagerImpl;
 import com.plugin.core.manager.PluginManager;
@@ -29,7 +28,6 @@ import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
-import com.plugin.util.RefInvoker;
 
 import dalvik.system.DexClassLoader;
 
@@ -138,19 +136,6 @@ public class PluginLoader {
 	}
 
 	/**
-	 * 通过插件Id唤起插件
-	 * @param pluginId
-	 * @return
-	 */
-	public static PluginDescriptor ensurePluginInited(String pluginId) {
-		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
-		if (pluginDescriptor != null) {
-			ensurePluginInited(pluginDescriptor);
-		}
-		return pluginDescriptor;
-	}
-
-	/**
 	 * 根据插件中的classId加载一个插件中的class
 	 * 
 	 * @param clazzId
@@ -162,10 +147,10 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByFragmenetId(clazzId);
 
 		if (pluginDescriptor != null) {
+			//插件可能尚未初始化，确保使用前已经初始化
+			LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginDescriptor.getPackageName());
 
-			ensurePluginInited(pluginDescriptor);
-
-			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
+			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
 
 			String clazzName = pluginDescriptor.getPluginClassNameById(clazzId);
 			if (clazzName != null) {
@@ -191,10 +176,10 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazzName);
 
 		if (pluginDescriptor != null) {
+			//插件可能尚未初始化，确保使用前已经初始化
+			LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginDescriptor.getPackageName());
 
-			ensurePluginInited(pluginDescriptor);
-
-			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
+			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
 
 			try {
 				Class pluginClazz = ((ClassLoader) pluginClassLoader).loadClass(clazzName);
@@ -231,30 +216,13 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazz.getName());
 
 		if (pluginDescriptor != null) {
-			pluginContext = pluginDescriptor.getPluginContext();
+			pluginContext = PluginRuntime.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginContext;;
 		} else {
 			LogUtil.e("PluginDescriptor Not Found for ", clazz.getName());
 		}
 
 		if (pluginContext == null) {
 			LogUtil.e("Context Not Found for ", clazz.getName());
-		}
-
-		return pluginContext;
-	}
-
-	public static Context getDefaultPluginContext(String pluginId) {
-		Context pluginContext = null;
-		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
-
-		if (pluginDescriptor != null) {
-			pluginContext = pluginDescriptor.getPluginContext();
-		} else {
-			LogUtil.e("PluginDescriptor Not Found for ", pluginId);
-		}
-
-		if (pluginContext == null) {
-			LogUtil.e("Context Not Found for ", pluginId);
 		}
 
 		return pluginContext;
@@ -268,123 +236,39 @@ public class PluginLoader {
 	 * @return
 	 */
 	/*package*/ static Context getNewPluginComponentContext(Context pluginContext, Context base, int theme) {
-		Context newContext = null;
+		PluginContextTheme newContext = null;
 		if (pluginContext != null) {
-			newContext = PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
+			newContext = (PluginContextTheme)PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
 					base, pluginContext.getResources(),
 					(DexClassLoader) pluginContext.getClassLoader());
+
+			newContext.setPluginApplication((Application) ((PluginContextTheme) pluginContext).getApplicationContext());
+
 			newContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
 		}
 		return newContext;
 	}
 
-	public static Context getNewPluginApplicationContext(Class clazz) {
-		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazz.getName());
-		return newDefaultAppContext(pluginDescriptor);
-	}
-
 	public static Context getNewPluginApplicationContext(String pluginId) {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
-		return newDefaultAppContext(pluginDescriptor);
-	}
 
-	private static Context newDefaultAppContext(PluginDescriptor pluginDescriptor) {
-		Context newContext = null;
-		if (pluginDescriptor != null && pluginDescriptor.getPluginContext() != null) {
-			Context originContext = pluginDescriptor.getPluginContext();
-			newContext = PluginCreator.createPluginContext(((PluginContextTheme) originContext).getPluginDescriptor(),
-					sApplication, originContext.getResources(),
-					(DexClassLoader) originContext.getClassLoader());
+		//插件可能尚未初始化，确保使用前已经初始化
+		LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+
+		if (plugin != null) {
+			PluginContextTheme newContext = (PluginContextTheme)PluginCreator.createPluginContext(
+					((PluginContextTheme) plugin.pluginContext).getPluginDescriptor(),
+					sApplication.getBaseContext(), plugin.pluginResource, plugin.pluginClassLoader);
+
+			newContext.setPluginApplication(plugin.pluginApplication);
+
 			newContext.setTheme(pluginDescriptor.getApplicationTheme());
-		}
-		return newContext;
-	}
-
-	/**
-	 * 构造插件信息
-	 * 
-	 * @param
-	 */
-	static void ensurePluginInited(PluginDescriptor pluginDescriptor) {
-		if (pluginDescriptor != null) {
-			DexClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
-			if (pluginClassLoader == null) {
-				LogUtil.e("正在初始化插件" + pluginDescriptor.getPackageName() + "Resources, DexClassLoader, Context, Application");
-
-				LogUtil.d("是否为独立插件", pluginDescriptor.isStandalone());
 
 
-
-				Resources pluginRes = PluginCreator.createPluginResource(
-						sApplication.getApplicationInfo().sourceDir,
-						sApplication.getResources(), pluginDescriptor);
-
-				pluginClassLoader = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(),
-						pluginDescriptor.isStandalone(), pluginDescriptor.getDependencies(), pluginDescriptor.getMuliDexList());
-				Context pluginContext = PluginCreator
-						.createPluginContext(pluginDescriptor, sApplication.getBaseContext(), pluginRes, pluginClassLoader);
-
-				//插件Context默认主题设置为插件application主题
-				pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
-				pluginDescriptor.setPluginContext(pluginContext);
-				pluginDescriptor.setPluginClassLoader(pluginClassLoader);
-
-				callPluginApplicationOnCreate(pluginDescriptor);
-
-				try {
-					ActivityThread.installPackageInfo(getApplicatoin(), pluginDescriptor.getPackageName(), pluginDescriptor);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-
-				LogUtil.e("初始化插件" + pluginDescriptor.getPackageName() + "完成");
-			}
-		}
-	}
-
-	private static void callPluginApplicationOnCreate(PluginDescriptor pluginDescriptor) {
-
-		Application application = null;
-
-		if (pluginDescriptor.getPluginApplication() == null && pluginDescriptor.getPluginClassLoader() != null) {
-			try {
-				LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
-				//阻止自动安装multidex
-				try {
-					Class mulitDex = pluginDescriptor.getPluginClassLoader().loadClass("android.support.multidex.MultiDex");
-					RefInvoker.setFieldObject(null, mulitDex, "IS_VM_MULTIDEX_CAPABLE", true);
-				} catch (Exception e) {
-				}
-				application = Instrumentation.newApplication(pluginDescriptor.getPluginClassLoader().loadClass(pluginDescriptor.getApplicationName()) , pluginDescriptor.getPluginContext());
-				pluginDescriptor.setPluginApplication(application);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} 	catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
+			return newContext;
 		}
 
-		//安装ContentProvider
-		PluginInjector.installContentProviders(sApplication, pluginDescriptor.getProviderInfos().values());
-
-		//先拿到宿主的crashHandler
-		Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
-
-		//执行onCreate
-		if (application != null) {
-			application.onCreate();
-		}
-
-		// 再还原宿主的crashHandler，这里之所以需要还原CrashHandler，
-		// 是因为如果插件中自己设置了自己的crashHandler（通常是在oncreate中），
-		// 会导致当前进程的主线程的handler被意外修改。
-		// 如果有多个插件都有设置自己的crashHandler，也会导致混乱
-		// 所以这里直接屏蔽掉插件的crashHandler
-		//TODO 或许也可以做成消息链进行分发？
-		Thread.setDefaultUncaughtExceptionHandler(old);
-
+		return null;
 	}
 
 	public static boolean isInstalled(String pluginId, String pluginVersion) {

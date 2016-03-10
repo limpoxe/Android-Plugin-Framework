@@ -1,7 +1,8 @@
 package com.plugin.core.localservice;
 
+import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginLoader;
+import com.plugin.content.PluginRuntime;
 import com.plugin.util.LogUtil;
 
 import java.util.HashMap;
@@ -36,10 +37,13 @@ public class LocalServiceManager {
                 @Override
                 public Object createService(int serviceId) {
                     mPluginId = pluginId;
-                    PluginDescriptor pd = PluginLoader.ensurePluginInited(pluginId);
-                    if (pd != null) {
+
+                    //插件可能尚未初始化，确保使用前已经初始化
+                    LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+
+                    if (plugin != null) {
                         try {
-                            Class clazz = pd.getPluginClassLoader().loadClass(serviceClass);
+                            Class clazz = plugin.pluginClassLoader.loadClass(serviceClass);
                             return clazz.newInstance();
                         } catch (Exception e) {
                             LogUtil.printException("获取服务失败", e);

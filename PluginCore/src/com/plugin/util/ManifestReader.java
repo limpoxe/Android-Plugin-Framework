@@ -181,7 +181,7 @@ public class ManifestReader {
  * @author Dmitry Skiba Binary xml files parser. Parser has only two states: (1) Operational state, which parser obtains
  * after first successful call to next() and retains until open(), close(), or failed call to next(). (2) Closed state,
  * which parser obtains after open(), close(), or failed call to next(). In this state methods return invalid values or
- * throw exceptions. TODO: * check all methods in closed state
+ * throw exceptions.
  */
 class XmlResourceParser implements android.content.res.XmlResourceParser {
 
@@ -1174,7 +1174,7 @@ final class NamespaceStack {
 }
 
 /**
- * @author Dmitry Skiba Block of strings, used in binary xml and arsc. TODO: - implement get()
+ * @author Dmitry Skiba Block of strings, used in binary xml and arsc.
  */
 class StringBlock {
 

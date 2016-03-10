@@ -11,16 +11,17 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Window;
 
+import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
+import com.plugin.content.PluginRuntime;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.app.ActivityThread;
@@ -29,7 +30,6 @@ import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -74,7 +74,7 @@ public class PluginInjector {
 		ActivityThread.wrapHandler();
 	}
 
-	static void installContentProviders(Context context, Collection<PluginProviderInfo> pluginProviderInfos) {
+	public static void installContentProviders(Context context, Collection<PluginProviderInfo> pluginProviderInfos) {
 		LogUtil.d("安装插件ContentProvider", pluginProviderInfos.size());
 		PluginInjector.hackHostClassLoaderIfNeeded();
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
@@ -126,7 +126,10 @@ public class PluginInjector {
 				if (!TextUtils.isEmpty(fragmentContainer.pluginId())) {
 
 					pd = PluginLoader.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
-					pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext(), 0);
+
+					LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(fragmentContainer.pluginId());
+
+					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 				} else if (!TextUtils.isEmpty(fragmentContainer.fragmentId())) {
 					String classId = null;
@@ -142,7 +145,10 @@ public class PluginInjector {
 						Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
 
 						pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
-						pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext(), 0);
+
+						LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(pd.getPackageName());
+
+						pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 					} else {
 						return;
@@ -155,15 +161,17 @@ public class PluginInjector {
 			} else {
 				//是打开插件中的activity
 				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
-				pluginContext = PluginLoader.getNewPluginComponentContext(pd.getPluginContext(), activity.getBaseContext(), 0);
+
+				LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(pd.getPackageName());
+
+				pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 				//获取插件Application对象
-				Application pluginApp = pd.getPluginApplication();
-				if (pluginApp != null) {
-					//重设mApplication
-					RefInvoker.setFieldObject(activity, Activity.class.getName(),
-							"mApplication", pluginApp);
-				}
+				Application pluginApp = plugin.pluginApplication;
+
+				//重设mApplication
+				RefInvoker.setFieldObject(activity, Activity.class.getName(),
+						"mApplication", pluginApp);
 
 			}
 
@@ -297,13 +305,13 @@ public class PluginInjector {
 
 					PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
 
+					LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(pd.getPackageName());
+
 					RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
-							PluginLoader.getNewPluginComponentContext(pd.getPluginContext(),
+							PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
 									service.getBaseContext(), pd.getApplicationTheme()));
 
-					if (pd.getPluginApplication() != null) {
-						RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", pd.getPluginApplication());
-					}
+					RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", plugin.pluginApplication);
 
 					RefInvoker.setFieldObject(service, Service.class, "mClassName", PluginStubBinding.bindStubService(service.getClass().getName()));
 
