@@ -27,7 +27,7 @@ public class PluginCreator {
 	 * @return
 	 */
 	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
-														 String[] dependences, List<String> multDex) {
+														 String[] dependences, List<String> pluginApkMultDexPath) {
 
 		String apkParentDir = new File(absolutePluginApkPath).getParent();
 
@@ -57,7 +57,7 @@ public class PluginCreator {
 			         */
 					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
 					null,//独立插件无依赖
-					multDex);
+					pluginApkMultDexPath);
 		}
 
 	}
@@ -67,19 +67,18 @@ public class PluginCreator {
 	 *
 	 * @return
 	 */
-	public static Resources createPluginResource(Application application, PluginDescriptor pluginDescriptor) {
+	public static Resources createPluginResource(String mainApkPath, Resources mainRes, PluginDescriptor pluginDescriptor) {
 		String absolutePluginApkPath = pluginDescriptor.getInstalledPath();
 		boolean isStandalone = pluginDescriptor.isStandalone();
 		String[] dependencies = pluginDescriptor.getDependencies();
 
 		try {
-			String[] assetPaths = buildAssetPath(isStandalone, application.getApplicationInfo().sourceDir,
+			String[] assetPaths = buildAssetPath(isStandalone, mainApkPath,
 					absolutePluginApkPath, dependencies);
 			AssetManager assetMgr = AssetManager.class.newInstance();
 			RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
 					new Class[] { String[].class }, new Object[] { assetPaths });
 
-			Resources mainRes = application.getResources();
 			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
 					mainRes.getConfiguration(), pluginDescriptor);
 
