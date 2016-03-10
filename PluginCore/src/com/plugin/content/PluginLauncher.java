@@ -39,13 +39,13 @@ import dalvik.system.DexClassLoader;
  * </Pre>
  *
  */
-public class PluginRuntime implements Serializable {
+public class PluginLauncher implements Serializable {
 
-	private static PluginRuntime runtime;
+	private static PluginLauncher runtime;
 
 	private HashMap<String, LoadedPlugin> loadedPluginMap = new HashMap<String, LoadedPlugin>();
 
-	private PluginRuntime() {
+	private PluginLauncher() {
 		checkIfWithPluginProcess();
 	}
 
@@ -53,11 +53,11 @@ public class PluginRuntime implements Serializable {
 
 	}
 
-	public static PluginRuntime instance() {
+	public static PluginLauncher instance() {
 		if (runtime == null) {
-			synchronized (PluginRuntime.class) {
+			synchronized (PluginLauncher.class) {
 				if (runtime == null) {
-					runtime = new PluginRuntime();
+					runtime = new PluginLauncher();
 				}
 			}
 		}

@@ -21,7 +21,7 @@ import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
-import com.plugin.content.PluginRuntime;
+import com.plugin.content.PluginLauncher;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.app.ActivityThread;
@@ -127,7 +127,7 @@ public class PluginInjector {
 
 					pd = PluginLoader.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
 
-					LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(fragmentContainer.pluginId());
+					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(fragmentContainer.pluginId());
 
 					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
@@ -146,7 +146,7 @@ public class PluginInjector {
 
 						pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
 
-						LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(pd.getPackageName());
+						LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
 						pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
@@ -162,7 +162,7 @@ public class PluginInjector {
 				//是打开插件中的activity
 				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
 
-				LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(pd.getPackageName());
+				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
 				pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
@@ -305,7 +305,7 @@ public class PluginInjector {
 
 					PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
 
-					LoadedPlugin plugin = PluginRuntime.instance().getRunningPlugin(pd.getPackageName());
+					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
 					RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
 							PluginLoader.getNewPluginComponentContext(plugin.pluginContext,

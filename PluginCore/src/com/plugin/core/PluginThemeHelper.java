@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginRuntime;
+import com.plugin.content.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Field;
@@ -18,7 +18,7 @@ public class PluginThemeHelper {
 		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
 
 			if (plugin != null) {
 				return plugin.pluginResource.getIdentifier(themeName, "style", pd.getPackageName());
@@ -32,7 +32,7 @@ public class PluginThemeHelper {
 		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin pluing = PluginRuntime.instance().startPlugin(pluginId);
+			LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginId);
 
 			try {
 				Class pluginRstyle = pluing.pluginClassLoader.loadClass(pluginId + ".R$style");
@@ -72,7 +72,7 @@ public class PluginThemeHelper {
 				if (pd != null) {
 
 					//插件可能尚未初始化，确保使用前已经初始化
-					LoadedPlugin pluing = PluginRuntime.instance().startPlugin(pluginId);
+					LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginId);
 
 					//注入插件上下文和主题
 					Context defaultContext = pluing.pluginContext;

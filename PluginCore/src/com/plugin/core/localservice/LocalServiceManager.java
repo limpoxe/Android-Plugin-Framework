@@ -2,7 +2,7 @@ package com.plugin.core.localservice;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginRuntime;
+import com.plugin.content.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class LocalServiceManager {
                     mPluginId = pluginId;
 
                     //插件可能尚未初始化，确保使用前已经初始化
-                    LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+                    LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
 
                     if (plugin != null) {
                         try {

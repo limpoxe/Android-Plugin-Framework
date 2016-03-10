@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginRuntime;
+import com.plugin.content.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Constructor;
@@ -65,7 +65,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 			if (pd != null) {
 
 				//插件可能尚未初始化，确保使用前已经初始化
-				LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+				LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
 
 				Context baseContext = Context;
 				if (!(baseContext instanceof PluginContextTheme)) {

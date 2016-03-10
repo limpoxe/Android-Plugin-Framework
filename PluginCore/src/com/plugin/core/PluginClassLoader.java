@@ -1,7 +1,7 @@
 package com.plugin.core;
 
 import com.plugin.content.LoadedPlugin;
-import com.plugin.content.PluginRuntime;
+import com.plugin.content.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class PluginClassLoader extends DexClassLoader {
 				for (String dependencePluginId: dependencies) {
 
 					//插件可能尚未初始化，确保使用前已经初始化
-					LoadedPlugin plugin = PluginRuntime.instance().startPlugin(dependencePluginId);
+					LoadedPlugin plugin = PluginLauncher.instance().startPlugin(dependencePluginId);
 
 					if (plugin != null) {
 						try {

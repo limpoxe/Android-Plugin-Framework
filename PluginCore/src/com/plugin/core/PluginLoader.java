@@ -16,7 +16,7 @@ import android.os.Handler;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginRuntime;
+import com.plugin.content.PluginLauncher;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginManagerImpl;
 import com.plugin.core.manager.PluginManager;
@@ -148,7 +148,7 @@ public class PluginLoader {
 
 		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginDescriptor.getPackageName());
+			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor.getPackageName());
 
 			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
 
@@ -177,7 +177,7 @@ public class PluginLoader {
 
 		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginDescriptor.getPackageName());
+			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor.getPackageName());
 
 			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
 
@@ -216,7 +216,7 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByClassName(clazz.getName());
 
 		if (pluginDescriptor != null) {
-			pluginContext = PluginRuntime.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginContext;;
+			pluginContext = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginContext;;
 		} else {
 			LogUtil.e("PluginDescriptor Not Found for ", clazz.getName());
 		}
@@ -253,7 +253,7 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = getPluginDescriptorByPluginId(pluginId);
 
 		//插件可能尚未初始化，确保使用前已经初始化
-		LoadedPlugin plugin = PluginRuntime.instance().startPlugin(pluginId);
+		LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
 
 		if (plugin != null) {
 			PluginContextTheme newContext = (PluginContextTheme)PluginCreator.createPluginContext(

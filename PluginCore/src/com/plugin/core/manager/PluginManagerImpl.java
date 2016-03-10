@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginRuntime;
+import com.plugin.content.PluginLauncher;
 import com.plugin.core.PluginCreator;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginManifestParser;
@@ -125,7 +125,7 @@ public class PluginManagerImpl implements PluginManager {
 
 		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
 
-		PluginRuntime.instance().stopPlugin(pluginId, old);
+		PluginLauncher.instance().stopPlugin(pluginId, old);
 
 		boolean result = false;
 		if (old != null) {
@@ -263,7 +263,7 @@ public class PluginManagerImpl implements PluginManager {
 			LogUtil.e("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath(), oldPluginDescriptor.getVersion(), pluginDescriptor.getVersion());
 
 			//检查插件是否已经加载
-			if (PluginRuntime.instance().isRunning(oldPluginDescriptor.getPackageName())) {
+			if (PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName())) {
 				if (!oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
 					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，进行热更新");
 					remove(oldPluginDescriptor.getPackageName());
