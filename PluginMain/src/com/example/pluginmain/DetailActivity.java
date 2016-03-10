@@ -54,7 +54,7 @@ public class DetailActivity extends AppCompatActivity {
 		pluginVerView.setText("插件Version：" + pluginDescriptor.getVersion());
 
 		TextView pluginDescipt = (TextView) mRoot.findViewById(R.id.plugin_description);
-		pluginDescipt.setText("插件Description：" + pluginDescriptor.getDescription() + ", 是否已启动：" + pluginDescriptor.isRunning());
+		pluginDescipt.setText("插件Description：" + pluginDescriptor.getDescription());
 
 		TextView pluginInstalled = (TextView) mRoot.findViewById(R.id.plugin_installedPath);
 		pluginInstalled.setText("插件安装路径：" + pluginDescriptor.getInstalledPath());
