@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.example.pluginsharelib.SharePOJO;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginLoader;
+import com.plugin.core.manager.PluginManagerHelper;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -40,7 +40,7 @@ public class DetailActivity extends AppCompatActivity {
 			return;
 		}
 
-		PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 		if (pluginDescriptor != null) {
 			initViews(pluginDescriptor);
 		}

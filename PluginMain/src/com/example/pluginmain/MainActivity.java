@@ -23,9 +23,9 @@ import android.widget.Toast;
 
 import com.example.pluginsharelib.SharePOJO;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginLoader;
 import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.manager.PluginCallback;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.FileUtil;
 
 /**
@@ -94,12 +94,12 @@ public class MainActivity extends AppCompatActivity {
 			InputStream assestInput = getAssets().open(name);
 			String dest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + name;
 			if (FileUtil.copyFile(assestInput, dest)) {
-				PluginLoader.installPlugin(dest);
+				PluginManagerHelper.installPlugin(dest);
 			} else {
 				assestInput = getAssets().open(name);
 				dest = getCacheDir().getAbsolutePath() + "/" + name;
 				if (FileUtil.copyFile(assestInput, dest)) {
-					PluginLoader.installPlugin(dest);
+					PluginManagerHelper.installPlugin(dest);
 				} else {
 					Toast.makeText(MainActivity.this, "解压Apk失败" + dest, Toast.LENGTH_LONG).show();
 				}
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 		ViewGroup root = mList;
 		root.removeAllViews();
 		// 列出所有已经安装的插件
-		Collection<PluginDescriptor> plugins = PluginLoader.getPlugins();
+		Collection<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
 		Iterator<PluginDescriptor> itr = plugins.iterator();
 		while (itr.hasNext()) {
 			final PluginDescriptor pluginDescriptor = itr.next();
