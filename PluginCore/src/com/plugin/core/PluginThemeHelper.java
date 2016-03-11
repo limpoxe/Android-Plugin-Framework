@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Field;

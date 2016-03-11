@@ -16,7 +16,6 @@ import android.os.Handler;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginLauncher;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginManagerImpl;
 import com.plugin.core.manager.PluginManager;

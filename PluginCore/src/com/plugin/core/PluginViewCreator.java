@@ -9,7 +9,6 @@ import android.view.View;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Constructor;

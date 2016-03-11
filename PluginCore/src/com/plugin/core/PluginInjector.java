@@ -21,7 +21,6 @@ import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
-import com.plugin.content.PluginLauncher;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.app.ActivityThread;

@@ -1,4 +1,4 @@
-package com.plugin.content;
+package com.plugin.core;
 
 
 import android.app.Application;
@@ -13,10 +13,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
-import com.plugin.core.PluginContextTheme;
-import com.plugin.core.PluginCreator;
-import com.plugin.core.PluginInjector;
-import com.plugin.core.PluginLoader;
+import com.plugin.content.LoadedPlugin;
+import com.plugin.content.PluginDescriptor;
 import com.plugin.core.app.ActivityThread;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginActivityMonitor;

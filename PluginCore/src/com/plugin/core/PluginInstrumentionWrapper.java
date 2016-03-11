@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.os.UserHandle;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginLauncher;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.manager.PluginActivityMonitor;

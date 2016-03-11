@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginLauncher;
+import com.plugin.core.PluginLauncher;
 import com.plugin.core.PluginCreator;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginManifestParser;

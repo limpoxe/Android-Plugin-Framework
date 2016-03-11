@@ -2,7 +2,7 @@ package com.plugin.core.localservice;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.content.PluginLauncher;
+import com.plugin.core.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.util.HashMap;
