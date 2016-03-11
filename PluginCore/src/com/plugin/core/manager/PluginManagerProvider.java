@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
@@ -89,11 +90,13 @@ public class PluginManagerProvider extends ContentProvider {
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
 
-        LogUtil.d("Thead : id = " + Thread.currentThread().getId()
-                + ", name = " + Thread.currentThread().getName()
-                + ", callingPackage = " + getCallingPackage()
-                + ", method = " + method
-                + ", arg = " + arg);
+        if (Build.VERSION.SDK_INT >= 19) {
+            LogUtil.d("Thead : id = " + Thread.currentThread().getId()
+                    + ", name = " + Thread.currentThread().getName()
+                    + ", callingPackage = " + getCallingPackage()
+                    + ", method = " + method
+                    + ", arg = " + arg);
+        }
 
         synchronized (mLockObject) {
             Bundle bundle = new Bundle();

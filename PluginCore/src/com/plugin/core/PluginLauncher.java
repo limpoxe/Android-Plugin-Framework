@@ -20,6 +20,7 @@ import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginActivityMonitor;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 
 import java.io.Serializable;
@@ -44,11 +45,9 @@ public class PluginLauncher implements Serializable {
 	private HashMap<String, LoadedPlugin> loadedPluginMap = new HashMap<String, LoadedPlugin>();
 
 	private PluginLauncher() {
-		checkIfWithPluginProcess();
-	}
-
-	private void checkIfWithPluginProcess() {
-
+		if (!ProcessUtil.isPluginProcess()) {
+			throw new IllegalAccessError("本类仅在插件进程使用");
+		}
 	}
 
 	public static PluginLauncher instance() {

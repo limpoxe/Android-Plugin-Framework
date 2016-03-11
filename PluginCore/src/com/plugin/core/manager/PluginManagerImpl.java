@@ -20,6 +20,7 @@ import com.plugin.core.multidex.PluginMultiDexExtractor;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.PackageVerifyer;
+import com.plugin.util.ProcessUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +36,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class PluginManagerImpl {
+class PluginManagerImpl {
 
 	private static final boolean NEED_VERIFY_CERT = true;
 	private static final int SUCCESS = 0;
@@ -56,6 +57,12 @@ public class PluginManagerImpl {
 	private final Hashtable<String, PluginDescriptor> sPendingPlugins = new Hashtable<String, PluginDescriptor>();
 
 	private PluginCallback changeListener = new PluginCallbackImpl();
+
+	PluginManagerImpl() {
+		if (!ProcessUtil.isPluginProcess()) {
+			throw new IllegalAccessError("本类仅在插件进程使用");
+		}
+	}
 
 	/**
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
