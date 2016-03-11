@@ -8,8 +8,17 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="22" />
 
+    <permission android:name="com.plugin.core.permission.PLUGIN_MANAGE" />
+    <uses-permission android:name="com.plugin.core.permission.PLUGIN_MANAGE" />
+
     <application>
 
+        <provider
+            android:authorities="com.plugin.core.manager.PluginManagerProvider"
+            android:name="com.plugin.core.manager.PluginManagerProvider"
+            android:permission="com.plugin.core.permission.PLUGIN_MANAGE"
+            />
+        
         <!--
             对Receiver的类全名没有要求，可随意指定，框架中是通过action来查询。
         -->

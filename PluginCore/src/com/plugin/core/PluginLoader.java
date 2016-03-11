@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -17,8 +18,7 @@ import android.os.Handler;
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.localservice.LocalServiceManager;
-import com.plugin.core.manager.PluginManagerImpl;
-import com.plugin.core.manager.PluginManager;
+import com.plugin.core.manager.PluginManagerProvider;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.plugin.core.systemservice.AndroidAppIPackageManager;
@@ -35,13 +35,7 @@ public class PluginLoader {
 	private static Application sApplication;
 	private static boolean isLoaderInited = false;
 
-	private static PluginManager pluginManager;
-
 	private PluginLoader() {
-	}
-
-	public static synchronized void initLoader(Application app) {
-		initLoader(app, new PluginManagerImpl());
 	}
 
 	/**
@@ -49,13 +43,12 @@ public class PluginLoader {
 	 * 
 	 * @param app
 	 */
-	public static synchronized void initLoader(Application app, PluginManager manager) {
+	public static synchronized void initLoader(Application app) {
 
 		if (!isLoaderInited) {
 			LogUtil.d("插件框架初始化中...");
 			isLoaderInited = true;
 			sApplication = app;
-			pluginManager = manager;
 
 			AndroidAppIActivityManager.installProxy();
 			AndroidAppINotificationManager.installProxy();
@@ -76,8 +69,6 @@ public class PluginLoader {
 
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectBaseContext(sApplication);
-
-			pluginManager.loadInstalledPlugins();
 
 			if (ProcessUtil.isPluginProcess()) {
 				Iterator<PluginDescriptor> itr = getPlugins().iterator();
@@ -131,7 +122,9 @@ public class PluginLoader {
 	}
 
 	public static int installPlugin(String srcFile) {
-		return pluginManager.installPlugin(srcFile);
+		Bundle bundle = sApplication.getContentResolver().call(PluginManagerProvider.CONTENT_URI,
+				PluginManagerProvider.ACTION_INSTALL, srcFile, null);
+		return bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
 	}
 
 	/**
@@ -143,7 +136,8 @@ public class PluginLoader {
 	@SuppressWarnings("rawtypes")
 	public static Class loadPluginFragmentClassById(String clazzId) {
 
-		PluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorByFragmenetId(clazzId);;
+		Bundle bundle = sApplication.getContentResolver().call(PluginManagerProvider.CONTENT_URI, PluginManagerProvider.ACTION_QUERY_BY_FRAGMENT_ID, clazzId, null);
+		PluginDescriptor  pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_FRAGMENT_ID_RESULT);
 
 		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
@@ -286,25 +280,36 @@ public class PluginLoader {
 	/**
 	 * 清除列表并不能清除已经加载到内存当中的class,因为class一旦加载后后无法卸载
 	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static synchronized void removeAll() {
-		pluginManager.removeAll();
+		sApplication.getContentResolver().call(PluginManagerProvider.CONTENT_URI,
+				PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static synchronized void remove(String pluginId) {
-		pluginManager.remove(pluginId);
+		sApplication.getContentResolver().call(PluginManagerProvider.CONTENT_URI,
+				PluginManagerProvider.ACTION_REMOVE, pluginId, null);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@SuppressWarnings("unchecked")
 	public static Collection<PluginDescriptor> getPlugins() {
-		return pluginManager.getPlugins();
+		Bundle bundle = sApplication.getContentResolver().call(PluginManagerProvider.CONTENT_URI,
+				PluginManagerProvider.ACTION_QUERY_ALL, null, null);
+		return (Collection<PluginDescriptor>)bundle.getSerializable(PluginManagerProvider.QUERY_ALL_RESULT);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
-		return pluginManager.getPluginDescriptorByPluginId(pluginId);
+		Bundle bundle = sApplication.getContentResolver().call(PluginManagerProvider.CONTENT_URI, PluginManagerProvider.ACTION_QUERY_BY_ID, pluginId, null);
+		return (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
-		return pluginManager.getPluginDescriptorByClassName(clazzName);
+		Bundle bundle = sApplication.getContentResolver().call(PluginManagerProvider.CONTENT_URI, PluginManagerProvider.ACTION_QUERY_BY_CLASS_NAME, clazzName, null);
+		return (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_CLASS_NAME_RESULT);
 	}
 
 	/**

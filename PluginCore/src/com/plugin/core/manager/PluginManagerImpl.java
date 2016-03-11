@@ -35,7 +35,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class PluginManagerImpl implements PluginManager {
+public class PluginManagerImpl {
 
 	private static final boolean NEED_VERIFY_CERT = true;
 	private static final int SUCCESS = 0;
@@ -69,8 +69,7 @@ public class PluginManagerImpl implements PluginManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public synchronized void loadInstalledPlugins() {
+	synchronized void loadInstalledPlugins() {
 		if (sInstalledPlugins.size() == 0) {
 			Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(INSTALLED_KEY);
 			if (installedPlugin != null) {
@@ -108,8 +107,7 @@ public class PluginManagerImpl implements PluginManager {
 		return savePlugins(PENDING_KEY, sPendingPlugins);
 	}
 
-	@Override
-	public synchronized boolean removeAll() {
+	synchronized boolean removeAll() {
 		sInstalledPlugins.clear();
 		boolean isSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 
@@ -120,8 +118,7 @@ public class PluginManagerImpl implements PluginManager {
 		return isSuccess;
 	}
 
-	@Override
-	public synchronized boolean remove(String pluginId) {
+	synchronized boolean remove(String pluginId) {
 
 		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
 
@@ -139,8 +136,7 @@ public class PluginManagerImpl implements PluginManager {
 		return result;
 	}
 
-	@Override
-	public Collection<PluginDescriptor> getPlugins() {
+	Collection<PluginDescriptor> getPlugins() {
 		return sInstalledPlugins.values();
 	}
 
@@ -150,8 +146,7 @@ public class PluginManagerImpl implements PluginManager {
 	 * @param clazzId
 	 * @return
 	 */
-	@Override
-	public PluginDescriptor getPluginDescriptorByFragmenetId(String clazzId) {
+	PluginDescriptor getPluginDescriptorByFragmenetId(String clazzId) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
@@ -162,8 +157,7 @@ public class PluginManagerImpl implements PluginManager {
 		return null;
 	}
 
-	@Override
-	public PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
+	PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
 		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
 		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
 			return pluginDescriptor;
@@ -171,8 +165,7 @@ public class PluginManagerImpl implements PluginManager {
 		return null;
 	}
 
-	@Override
-	public PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
+	PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
 		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
@@ -189,7 +182,7 @@ public class PluginManagerImpl implements PluginManager {
 	 * @param srcPluginFile
 	 * @return
 	 */
-	public synchronized int installPlugin(String srcPluginFile) {
+	synchronized int installPlugin(String srcPluginFile) {
 		LogUtil.e("开始安装插件", srcPluginFile);
 		if (TextUtils.isEmpty(srcPluginFile) || !new File(srcPluginFile).exists()) {
 			return SRC_FILE_NOT_FOUND;
