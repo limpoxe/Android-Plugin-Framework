@@ -9,7 +9,6 @@ public interface PluginManager {
 	void loadInstalledPlugins();
 	boolean remove(String packageName);
 	boolean removeAll();
-	void enablePlugin(String pluginId, boolean enable);
 
 	////查询接口
 	Collection<PluginDescriptor> getPlugins();

@@ -143,7 +143,7 @@ public class PluginLoader {
 	@SuppressWarnings("rawtypes")
 	public static Class loadPluginFragmentClassById(String clazzId) {
 
-		PluginDescriptor pluginDescriptor = getPluginDescriptorByFragmenetId(clazzId);
+		PluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorByFragmenetId(clazzId);;
 
 		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
@@ -299,26 +299,12 @@ public class PluginLoader {
 		return pluginManager.getPlugins();
 	}
 
-	/**
-	 * for Fragment
-	 *
-	 * @param clazzId
-	 * @return
-	 */
-	public static PluginDescriptor getPluginDescriptorByFragmenetId(String clazzId) {
-		return pluginManager.getPluginDescriptorByFragmenetId(clazzId);
-	}
-
 	public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
 		return pluginManager.getPluginDescriptorByPluginId(pluginId);
 	}
 
 	public static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
 		return pluginManager.getPluginDescriptorByClassName(clazzName);
-	}
-
-	public static synchronized void enablePlugin(String pluginId, boolean enable) {
-		pluginManager.enablePlugin(pluginId, enable);
 	}
 
 	/**

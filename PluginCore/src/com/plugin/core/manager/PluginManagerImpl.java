@@ -144,15 +144,6 @@ public class PluginManagerImpl implements PluginManager {
 		return sInstalledPlugins.values();
 	}
 
-	@Override
-	public synchronized void enablePlugin(String pluginId, boolean enable) {
-		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
-		if (pluginDescriptor != null && !pluginDescriptor.isEnabled()) {
-			pluginDescriptor.setEnabled(enable);
-			savePlugins(INSTALLED_KEY, sInstalledPlugins);
-		}
-	}
-
 	/**
 	 * for Fragment
 	 *
