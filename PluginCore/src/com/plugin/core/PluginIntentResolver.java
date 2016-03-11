@@ -8,6 +8,7 @@ import android.os.Build;
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginReceiverIntent;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -106,7 +107,7 @@ public class PluginIntentResolver {
 		if (classNameList != null && classNameList.size() > 0) {
 
 			String className = classNameList.get(0);
-			PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(className);
+			PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
 			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
 

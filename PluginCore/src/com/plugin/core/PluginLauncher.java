@@ -18,6 +18,7 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.core.app.ActivityThread;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginActivityMonitor;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
@@ -71,7 +72,7 @@ public class PluginLauncher implements Serializable {
 		if (plugin == null) {
 			LogUtil.e("正在初始化插件 " + packageName + ": Resources, DexClassLoader, Context, Application");
 
-			PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByPluginId(packageName);
+			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
 
 			Resources pluginRes = PluginCreator.createPluginResource(
 					PluginLoader.getApplicatoin().getApplicationInfo().sourceDir,

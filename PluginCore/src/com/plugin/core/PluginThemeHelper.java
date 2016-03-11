@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Field;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 public class PluginThemeHelper {
 
 	public static int getPluginThemeIdByName(String pluginId, String themeName) {
-		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
 			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
@@ -28,7 +29,7 @@ public class PluginThemeHelper {
 
 	public static HashMap<String, Integer> getAllPluginThemes(String pluginId) {
 		HashMap<String, Integer> themes = new HashMap<String, Integer>();
-		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
 			LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginId);
@@ -67,7 +68,7 @@ public class PluginThemeHelper {
 		LayoutInflater layoutInflater = LayoutInflater.from(activity);
 		if (layoutInflater.getFactory() == null) {
 			if (!(activity.getBaseContext() instanceof PluginContextTheme)) {
-				PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+				PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 				if (pd != null) {
 
 					//插件可能尚未初始化，确保使用前已经初始化

@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Constructor;
@@ -59,7 +60,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 	private View createView(Context Context, String pluginId, String name, AttributeSet atts)
 			throws ClassNotFoundException, InflateException {
 		try {
-			PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+			PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 
 			if (pd != null) {
 

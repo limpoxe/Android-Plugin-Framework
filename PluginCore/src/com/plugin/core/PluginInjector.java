@@ -24,6 +24,7 @@ import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.app.ActivityThread;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
@@ -124,7 +125,7 @@ public class PluginInjector {
 
 				if (!TextUtils.isEmpty(fragmentContainer.pluginId())) {
 
-					pd = PluginLoader.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
+					pd = PluginManagerHelper.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
 
 					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(fragmentContainer.pluginId());
 
@@ -143,7 +144,7 @@ public class PluginInjector {
 						@SuppressWarnings("rawtypes")
 						Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
 
-						pd = PluginLoader.getPluginDescriptorByClassName(clazz.getName());
+						pd = PluginManagerHelper.getPluginDescriptorByClassName(clazz.getName());
 
 						LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
@@ -159,7 +160,7 @@ public class PluginInjector {
 
 			} else {
 				//是打开插件中的activity
-				pd = PluginLoader.getPluginDescriptorByClassName(activity.getClass().getName());
+				pd = PluginManagerHelper.getPluginDescriptorByClassName(activity.getClass().getName());
 
 				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 
@@ -302,7 +303,7 @@ public class PluginInjector {
 				Service service = itr.next();
 				if (service != null && service.getClass().getName().equals(serviceName) ) {
 
-					PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(serviceName);
+					PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(serviceName);
 
 					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
 

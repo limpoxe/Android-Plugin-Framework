@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 
 import java.util.ArrayList;
@@ -184,7 +185,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public Context createPackageContext(String packageName, int flags) throws PackageManager.NameNotFoundException {
-		if (PluginLoader.getPluginDescriptorByPluginId(packageName) != null) {
+		if (PluginManagerHelper.getPluginDescriptorByPluginId(packageName) != null) {
 			return PluginLoader.getNewPluginApplicationContext(packageName);
 		}
 		return super.createPackageContext(packageName, flags);

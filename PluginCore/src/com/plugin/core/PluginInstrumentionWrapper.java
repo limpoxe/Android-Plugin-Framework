@@ -17,6 +17,7 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.manager.PluginActivityMonitor;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.viewfactory.PluginViewFactory;
 import com.plugin.util.LogUtil;
@@ -58,7 +59,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		if (ProcessUtil.isPluginProcess()) {
-			PluginDescriptor pluginDescriptor = PluginLoader.getPluginDescriptorByClassName(className);
+			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 			if (pluginDescriptor != null) {
 				return PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginApplication;
 			}

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -116,7 +117,7 @@ public class PluginCreator {
 				//这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持
 				//插件依赖插件，如果被依赖的插件中包含资源文件，则需要在所有的插件中提供public.xml文件来分组资源id
 				for(int i = 0; i < dependencies.length; i++) {
-					PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(dependencies[i]);
+					PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(dependencies[i]);
 					if (pd != null) {
 						assetPaths[1+ i] = pd.getInstalledPath();
 					} else {

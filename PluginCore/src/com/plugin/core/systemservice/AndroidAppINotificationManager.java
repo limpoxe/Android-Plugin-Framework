@@ -12,6 +12,7 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginIntentResolver;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginPublicXmlConst;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.proxy.MethodDelegate;
 import com.plugin.core.proxy.MethodProxy;
 import com.plugin.core.proxy.ProxyUtil;
@@ -107,7 +108,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
                         if (intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
                             String className = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR)[0];
                             //通过重新构造ApplicationInfo来附加插件资源
-                            PluginDescriptor pd = PluginLoader.getPluginDescriptorByClassName(className);
+                            PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(className);
                             if (pd != null) {
                                 ApplicationInfo applicationInfo = PluginLoader.getApplicatoin().getApplicationInfo();
                                 ApplicationInfo newInfo = new ApplicationInfo();//重新构造一个，而不是修改原本的
