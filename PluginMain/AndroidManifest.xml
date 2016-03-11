@@ -71,16 +71,21 @@
         <activity android:name=".DetailActivity" />
 
         <!-- 要展示插件中的fragment，所以配成插件进程 -->
-        <activity android:name=".TestFragmentActivity"/>
+        <activity android:name=".TestFragmentActivity"
+            android:process=":plugin"/>
 
-        <activity android:name=".TestSkinActivity" />
+        <!-- 要展示插件中的皮肤，所以配成插件进程 -->
+        <activity android:name=".TestSkinActivity"
+            android:process=":plugin"/>
 
         <!-- 要展示插件中的View，所以配成插件进程 -->
-        <activity android:name=".TestViewActivity"/>
+        <activity android:name=".TestViewActivity"
+            android:process=":plugin"/>
 
         <!-- 微信插件需要支持外部唤起，所有需要在宿主中预注册一个跳板，intentfilte中的STUB_EXACT用来标记这是个跳板 -->
         <activity
             android:name="com.example.pluginmain.wxapi.WXEntryActivity"
+            android:process=":plugin"
             android:exported="true">
             <intent-filter>
                 <action
