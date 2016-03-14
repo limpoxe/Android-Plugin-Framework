@@ -111,7 +111,7 @@ public class PluginInjector {
 		FragmentContainer fragmentContainer = AnnotationProcessor.getFragmentContainer(activity.getClass());
 		// 如果是打开插件中的activity, 或者是打开的用来显示插件fragment的宿主activity
 		if (ProcessUtil.isPluginProcess() && (fragmentContainer != null ||
-				PluginStubBinding.isStubActivity(intent.getComponent().getClassName()))) {
+				PluginManagerHelper.isStubActivity(intent.getComponent().getClassName()))) {
 			// 为了不需要重写插件Activity的attachBaseContext方法为：
 			// 我们在activityoncreate之前去完成attachBaseContext的事情
 
@@ -313,9 +313,11 @@ public class PluginInjector {
 
 					RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", plugin.pluginApplication);
 
-					RefInvoker.setFieldObject(service, Service.class, "mClassName", PluginStubBinding.bindStubService(service.getClass().getName()));
+					RefInvoker.setFieldObject(service, Service.class, "mClassName", PluginManagerHelper.bindStubService(service.getClass().getName()));
 
-					break;
+					//这里不退出循环，是因为在多进程情况下，杀死插件进程，自动恢复service时有个bug导致一个service同时存在多个service实例
+					//这里做个遍历保护
+					//break;
 				}
 
 			}

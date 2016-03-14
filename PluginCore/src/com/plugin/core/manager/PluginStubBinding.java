@@ -1,4 +1,4 @@
-package com.plugin.core;
+package com.plugin.core.manager;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,8 +8,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
 
 import java.io.ByteArrayInputStream;
@@ -28,7 +30,7 @@ import java.util.Set;
 /**
  * 插件组件动态绑定到宿主的虚拟stub组件
  */
-public class PluginStubBinding {
+class PluginStubBinding {
 
 	private static final String STUB_DEFAULT = "com.plugin.core.STUB_DEFAULT";
 	private static final String STUB_EXACT = "com.plugin.core.STUB_EXACT";
@@ -239,24 +241,22 @@ public class PluginStubBinding {
 		return false;
 	}
 
-	public static void unBindLaunchModeStubActivity(String activityName, Intent intent) {
-		if (intent != null) {
-			ComponentName cn = intent.getComponent();
-			if (cn != null) {
-				String pluginActivityName = cn.getClassName();
+	public static void unBindLaunchModeStubActivity(String stubActivityName, String pluginActivityName) {
 
-				if (pluginActivityName.equals(singleTaskActivityMapping.get(activityName))) {
+		LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 
-					singleTaskActivityMapping.put(activityName, null);
+		if (pluginActivityName.equals(singleTaskActivityMapping.get(stubActivityName))) {
 
-				} else if (pluginActivityName.equals(singleInstanceActivityMapping.get(activityName))) {
+			LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+			singleTaskActivityMapping.put(stubActivityName, null);
 
-					singleInstanceActivityMapping.put(activityName, null);
+		} else if (pluginActivityName.equals(singleInstanceActivityMapping.get(stubActivityName))) {
 
-				} else {
-					//对于standard和singleTop的launchmode，不做处理。
-				}
-			}
+			LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+			singleInstanceActivityMapping.put(stubActivityName, null);
+
+		} else {
+			//对于standard和singleTop的launchmode，不做处理。
 		}
 	}
 

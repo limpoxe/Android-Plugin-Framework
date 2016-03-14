@@ -46,6 +46,32 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String ACTION_QUERY_ALL = "query_all";
     public static final String QUERY_ALL_RESULT = "query_all_result";
 
+    public static final String ACTION_BIND_ACTIVITY = "bind_activity";
+    public static final String BIND_ACTIVITY_RESULT = "bind_activity_result";
+
+    public static final String ACTION_UNBIND_ACTIVITY = "unbind_activity";
+    public static final String UNBIND_ACTIVITY_RESULT = "unbind_activity_result";
+
+    public static final String ACTION_BIND_SERVICE = "bind_service";
+    public static final String BIND_SERVICE_RESULT = "bind_service_result";
+
+    public static final String ACTION_GET_BINDED_SERVICE = "get_binded_service";
+    public static final String GET_BINDED_SERVICE_RESULT = "get_binded_service_result";
+
+    public static final String ACTION_UNBIND_SERVICE = "unbind_service";
+    public static final String UNBIND_SERVICE_RESULT = "unbind_service_result";
+
+    public static final String ACTION_BIND_RECEIVER = "bind_receiver";
+    public static final String BIND_RECEIVER_RESULT = "bind_receiver_result";
+
+    public static final String ACTION_IS_EXACT = "is_exact";
+    public static final String IS_EXACT_RESULT = "is_exact_result";
+
+    public static final String ACTION_IS_STUB_ACTIVITY = "is_stub_activity";
+    public static final String IS_STUB_ACTIVITY_RESULT = "is_stub_activity_result";
+
+
+
     private Object mLockObject = new Object();
 
     private PluginManagerImpl manager;
@@ -91,12 +117,13 @@ public class PluginManagerProvider extends ContentProvider {
     public Bundle call(String method, String arg, Bundle extras) {
 
         if (Build.VERSION.SDK_INT >= 19) {
-            LogUtil.d("Thead : id = " + Thread.currentThread().getId()
-                    + ", name = " + Thread.currentThread().getName()
-                    + ", callingPackage = " + getCallingPackage()
-                    + ", method = " + method
-                    + ", arg = " + arg);
+            LogUtil.d("callingPackage = ", getCallingPackage());
         }
+
+        LogUtil.d("Thead : id = " + Thread.currentThread().getId()
+                + ", name = " + Thread.currentThread().getName()
+                + ", method = " + method
+                + ", arg = " + arg);
 
         synchronized (mLockObject) {
             Bundle bundle = new Bundle();
@@ -148,6 +175,46 @@ public class PluginManagerProvider extends ContentProvider {
                 ArrayList<PluginDescriptor> result =  new ArrayList<PluginDescriptor>(pluginDescriptorList.size());
                 result.addAll(pluginDescriptorList);
                 bundle.putSerializable(QUERY_ALL_RESULT, result);
+
+                return bundle;
+
+            } else if (ACTION_BIND_ACTIVITY.equals(method)) {
+
+                bundle.putString(BIND_ACTIVITY_RESULT,
+                        PluginStubBinding.bindStubActivity(arg, extras.getInt("launchMode")));
+
+                return bundle;
+
+            } else if (ACTION_UNBIND_ACTIVITY.equals(method)) {
+
+                PluginStubBinding.unBindLaunchModeStubActivity(arg, extras.getString("className"));
+
+            } else if (ACTION_BIND_SERVICE.equals(method)) {
+                bundle.putString(BIND_SERVICE_RESULT, PluginStubBinding.bindStubService(arg));
+
+                return bundle;
+
+            } else if (ACTION_GET_BINDED_SERVICE.equals(method)) {
+                bundle.putString(GET_BINDED_SERVICE_RESULT, PluginStubBinding.getBindedPluginServiceName(arg));
+
+                return bundle;
+
+            } else if (ACTION_UNBIND_SERVICE.equals(method)) {
+
+                PluginStubBinding.unBindStubService(arg);
+
+            } else if (ACTION_BIND_RECEIVER.equals(method)) {
+                bundle.putString(BIND_RECEIVER_RESULT, PluginStubBinding.bindStubReceiver());
+
+                return bundle;
+
+            } else if (ACTION_IS_EXACT.equals(method)) {
+                bundle.putBoolean(IS_EXACT_RESULT, PluginStubBinding.isExact(arg, extras.getInt("type")));
+
+                return bundle;
+
+            } else if (ACTION_IS_STUB_ACTIVITY.equals(method)) {
+                bundle.putBoolean(IS_STUB_ACTIVITY_RESULT, PluginStubBinding.isStubActivity(arg));
 
                 return bundle;
 

@@ -1,6 +1,7 @@
 package com.plugin.core;
 
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.app.Service;
@@ -9,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -16,6 +19,7 @@ import android.os.Looper;
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.app.ActivityThread;
+import com.plugin.core.app.AndroidAppApplication;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginActivityMonitor;
 import com.plugin.core.manager.PluginManagerHelper;
@@ -161,6 +165,11 @@ public class PluginLauncher implements Serializable {
 			// 所以这里直接屏蔽掉插件的crashHandler
 			//TODO 或许也可以做成消息链进行分发？
 			Thread.setDefaultUncaughtExceptionHandler(old);
+
+			if (Build.VERSION.SDK_INT >= 14) {
+				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBrige());
+			}
+
 		}
 
 		return application;
@@ -247,4 +256,40 @@ public class PluginLauncher implements Serializable {
 		return loadedPluginMap.get(packageName) != null;
 	}
 
+	static class LifecycleCallbackBrige implements android.app.Application.ActivityLifecycleCallbacks {
+		@Override
+		public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+			AndroidAppApplication.dispatchActivityCreated(PluginLoader.getApplicatoin(), activity, savedInstanceState);
+		}
+
+		@Override
+		public void onActivityStarted(Activity activity) {
+			AndroidAppApplication.dispatchActivityStarted(PluginLoader.getApplicatoin(), activity);
+		}
+
+		@Override
+		public void onActivityResumed(Activity activity) {
+			AndroidAppApplication.dispatchActivityResumed(PluginLoader.getApplicatoin(), activity);
+		}
+
+		@Override
+		public void onActivityPaused(Activity activity) {
+			AndroidAppApplication.dispatchActivityPaused(PluginLoader.getApplicatoin(), activity);
+		}
+
+		@Override
+		public void onActivityStopped(Activity activity) {
+			AndroidAppApplication.dispatchActivityStopped(PluginLoader.getApplicatoin(), activity);
+		}
+
+		@Override
+		public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+			AndroidAppApplication.dispatchActivitySaveInstanceState(PluginLoader.getApplicatoin(), activity, outState);
+		}
+
+		@Override
+		public void onActivityDestroyed(Activity activity) {
+			AndroidAppApplication.dispatchActivityDestroyed(PluginLoader.getApplicatoin(), activity);
+		}
+	}
 }

@@ -72,7 +72,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			IllegalAccessException, ClassNotFoundException {
 		if (ProcessUtil.isPluginProcess()) {
 			// 将PluginStubActivity替换成插件中的activity
-			if (PluginStubBinding.isStubActivity(className)) {
+			if (PluginManagerHelper.isStubActivity(className)) {
 
 				String action = intent.getAction();
 
@@ -97,7 +97,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						//添加一个标记符
 						intent.addCategory(RELAUNCH_FLAG + className);
 					}
-				} else if (PluginStubBinding.isExact(className, PluginDescriptor.ACTIVITY)) {
+				} else if (PluginManagerHelper.isExact(className, PluginDescriptor.ACTIVITY)) {
 					//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
 					Class clazz = PluginLoader.loadPluginClassByName(className);
 					if (clazz != null) {

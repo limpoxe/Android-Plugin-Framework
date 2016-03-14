@@ -22,7 +22,7 @@ public class PluginIntentResolver {
 	public static void resolveService(Intent service) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
-			String stubServiceName = PluginStubBinding.bindStubService(classNameList.get(0));
+			String stubServiceName = PluginManagerHelper.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
 				service.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubServiceName));
 			}
@@ -38,7 +38,7 @@ public class PluginIntentResolver {
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
 				newIntent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
-						PluginStubBinding.bindStubReceiver()));
+						PluginManagerHelper.bindStubReceiver()));
 				//hackReceiverForClassLoader检测到这个标记后会进行替换
 				newIntent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
 				result.add(newIntent);
@@ -51,7 +51,7 @@ public class PluginIntentResolver {
 
 	/* package */static Class resolveReceiverForClassLoader(Object msgObj) {
 		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
-		if (intent.getComponent().getClassName().equals(PluginStubBinding.bindStubReceiver())) {
+		if (intent.getComponent().getClassName().equals(PluginManagerHelper.bindStubReceiver())) {
 			String action = intent.getAction();
 			LogUtil.d("action", action);
 			if (action != null) {
@@ -87,7 +87,7 @@ public class PluginIntentResolver {
 	/* package */static String resolveServiceForClassLoader(Object msgObj) {
 		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
 		//通过映射查找
-		String targetClassName = PluginStubBinding.getBindedPluginServiceName(info.name);
+		String targetClassName = PluginManagerHelper.getBindedPluginServiceName(info.name);
 		//TODO 或许可以通过这个方式来处理service
 		//info.applicationInfo = XXX
 
@@ -111,7 +111,7 @@ public class PluginIntentResolver {
 
 			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
 
-			String stubActivityName = PluginStubBinding.bindStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
+			String stubActivityName = PluginManagerHelper.bindStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
 
 			intent.setComponent(
 					new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubActivityName));

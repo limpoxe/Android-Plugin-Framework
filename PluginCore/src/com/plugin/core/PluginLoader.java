@@ -67,9 +67,9 @@ public class PluginLoader {
 						AndroidWebkitWebViewFactoryProvider.installProxy();
 					}
 				});
-				PluginInjector.injectHandlerCallback();
 			}
 
+			PluginInjector.injectHandlerCallback();
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectBaseContext(sApplication);
 
@@ -107,7 +107,10 @@ public class PluginLoader {
 
 						@Override
 						public void onActivityDestroyed(Activity activity) {
-							PluginStubBinding.unBindLaunchModeStubActivity(activity.getClass().getName(), activity.getIntent());
+							Intent intent = activity.getIntent();
+							if (intent != null && intent.getComponent() != null) {
+								PluginManagerHelper.unBindLaunchModeStubActivity(intent.getComponent().getClassName(), activity.getClass().getName());
+							}
 						}
 					});
 				}
