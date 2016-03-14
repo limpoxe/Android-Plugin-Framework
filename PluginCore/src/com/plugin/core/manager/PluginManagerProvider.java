@@ -70,7 +70,8 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String ACTION_IS_STUB_ACTIVITY = "is_stub_activity";
     public static final String IS_STUB_ACTIVITY_RESULT = "is_stub_activity_result";
 
-
+    public static final String ACTION_DUMP_SERVICE_INFO = "dump_service_info";
+    public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
 
     private Object mLockObject = new Object();
 
@@ -218,6 +219,9 @@ public class PluginManagerProvider extends ContentProvider {
 
                 return bundle;
 
+            } else if (ACTION_DUMP_SERVICE_INFO.equals(method)) {
+                bundle.putString(DUMP_SERVICE_INFO_RESULT, PluginStubBinding.dumpServieInfo());
+                return bundle;
             }
         }
         return null;

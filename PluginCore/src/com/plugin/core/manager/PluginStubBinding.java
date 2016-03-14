@@ -13,6 +13,7 @@ import android.util.Log;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -55,6 +56,11 @@ class PluginStubBinding {
 	private static boolean isPoolInited = false;
 
 	private static void initPool() {
+
+		if(!ProcessUtil.isPluginProcess()) {
+			throw new IllegalAccessError("此类只能在插件所在进程使用");
+		}
+
 		if (isPoolInited) {
 			return;
 		}
@@ -347,6 +353,10 @@ class PluginStubBinding {
 				break;
 			}
 		}
+	}
+
+	public static String dumpServieInfo() {
+		return serviceMapping.toString();
 	}
 
 	private static boolean save(HashMap<String, String> mapping) {

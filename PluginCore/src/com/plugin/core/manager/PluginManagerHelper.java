@@ -124,4 +124,11 @@ public class PluginManagerHelper {
                 className, null);
         return bundle.getBoolean(PluginManagerProvider.IS_STUB_ACTIVITY_RESULT);
     }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static String dumpServiceInfo() {
+        Bundle bundle = PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.CONTENT_URI, PluginManagerProvider.ACTION_DUMP_SERVICE_INFO,
+                null, null);
+        return bundle.getString(PluginManagerProvider.DUMP_SERVICE_INFO_RESULT);
+    }
 }

@@ -96,7 +96,8 @@ public class PluginIntentResolver {
 		if (targetClassName != null) {
 			info.name =  CLASS_PREFIX + targetClassName;
 		} else {
-			LogUtil.e("hackServiceName 没有找到映射关系, 说明是宿主service（也可能是映射表出了异常）", info.name);
+			LogUtil.e("hackServiceName 没有找到映射关系, 有2个可能：1、确实是宿主service；2、映射表出了异常。如果是映射表出了异常会导致classNotFound", info.name);
+			PluginManagerHelper.dumpServiceInfo();
 		}
 		return info.name;
 	}
