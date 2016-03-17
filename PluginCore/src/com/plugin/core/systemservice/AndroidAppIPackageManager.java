@@ -60,6 +60,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         sMethods.put("resolveActivity", new resolveActivity());
         sMethods.put("resolveActivityAsUser", new resolveActivityAsUser());
         sMethods.put("resolveService", new resolveService());
+        sMethods.put("getComponentEnabledSetting", new getComponentEnabledSetting());
     }
 
     public static class getPackageInfo extends MethodDelegate {
@@ -271,6 +272,26 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
                 return info;
             }
+            return super.beforeInvoke(target, method, args);
+        }
+    }
+
+    public static class getComponentEnabledSetting extends MethodDelegate {
+        @Override
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            Object arg0 = args[0];
+            if (arg0 instanceof ComponentName) {
+                ComponentName mComponentName = ((ComponentName) args[0]);
+
+                LogUtil.d("beforeInvoke", method.getName(), mComponentName.getPackageName(), mComponentName.getClassName());
+
+                if ("com.htc.android.htcsetupwizard".equalsIgnoreCase(mComponentName.getPackageName())) {
+                    return PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+                }
+            } else {
+                LogUtil.d("beforeInvoke", method.getName(), arg0);
+            }
+
             return super.beforeInvoke(target, method, args);
         }
     }
