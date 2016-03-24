@@ -8,28 +8,24 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="22" />
 
-    <permission android:name="com.plugin.core.permission.PLUGIN_MANAGE"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="com.plugin.core.permission.PLUGIN_MANAGE" />
-
     <application>
 
         <provider
-            android:authorities="com.plugin.core.manager.PluginManagerProvider"
+            android:authorities="${applicationId}.manager.pluginmanager"
             android:name="com.plugin.core.manager.PluginManagerProvider"
-            android:permission="com.plugin.core.permission.PLUGIN_MANAGE"
             android:process=":plugin"
+            android:exported="false"
             />
         
         <!--
             对Receiver的类全名没有要求，可随意指定，框架中是通过action来查询。
         -->
-        <receiver android:name="com.plugin.core.stub.PluginStubReceiver"
+        <receiver android:name="${applicationId}.stub.PluginStubReceiver"
             android:process=":plugin"
             android:exported="true">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -41,51 +37,51 @@
             只是占个位置，运行实动态绑定到实际的插件Service
             对service的类全名没有要求，可随意指定，框架中是通过action来查询。
         -->
-        <service android:name="com.plugin.core.stub.PluginStubService1"
+        <service android:name="${applicationId}.stub.PluginStubService1"
             android:process=":plugin">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService2"
+        <service android:name="${applicationId}.stub.PluginStubService2"
             android:process=":plugin">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService3"
+        <service android:name="${applicationId}.stub.PluginStubService3"
             android:process=":plugin">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService4"
+        <service android:name="${applicationId}.stub.PluginStubService4"
             android:process=":plugin">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
 
-        <service android:name="com.plugin.core.stub.PluginStubService5"
+        <service android:name="${applicationId}.stub.PluginStubService5"
             android:process=":plugin">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -93,12 +89,12 @@
 
         <activity
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:name="com.plugin.core.stub.PluginStubActivity0"
+            android:name="${applicationId}.stub.PluginStubActivity0"
             android:process=":plugin"
             android:exported="true">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -114,130 +110,130 @@
             对Activity的类全名没有要求，可随意指定，框架中是通过action来查询。
             -->
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity1"
+            android:name="${applicationId}.stub.PluginStubActivity1"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity2"
+            android:name="${applicationId}.stub.PluginStubActivity2"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity3"
+            android:name="${applicationId}.stub.PluginStubActivity3"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity4"
+            android:name="${applicationId}.stub.PluginStubActivity4"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity5"
+            android:name="${applicationId}.stub.PluginStubActivity5"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity6"
+            android:name="${applicationId}.stub.PluginStubActivity6"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity7"
+            android:name="${applicationId}.stub.PluginStubActivity7"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity8"
+            android:name="${applicationId}.stub.PluginStubActivity8"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity9"
+            android:name="${applicationId}.stub.PluginStubActivity9"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.plugin.core.stub.PluginStubActivity10"
+            android:name="${applicationId}.stub.PluginStubActivity10"
             android:process=":plugin"
             android:exported="true"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_DEFAULT" />
+                    android:name="${applicationId}.STUB_DEFAULT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>

@@ -33,9 +33,6 @@ import java.util.Set;
  */
 class PluginStubBinding {
 
-	private static final String STUB_DEFAULT = "com.plugin.core.STUB_DEFAULT";
-	private static final String STUB_EXACT = "com.plugin.core.STUB_EXACT";
-
 	/**
 	 * key:stub Activity Name
 	 * value:plugin Activity Name
@@ -54,6 +51,14 @@ class PluginStubBinding {
 	private static Set<String> mExcatStubSet;
 
 	private static boolean isPoolInited = false;
+
+	private static String buildDefaultAction() {
+		return PluginLoader.getApplicatoin().getPackageName() + ".STUB_DEFAULT";
+	}
+
+	private static String buildExactAction() {
+		return PluginLoader.getApplicatoin().getPackageName() + ".STUB_EXACT";
+	}
 
 	private static void initPool() {
 
@@ -78,7 +83,7 @@ class PluginStubBinding {
 
 	private static void loadStubActivity() {
 		Intent launchModeIntent = new Intent();
-		launchModeIntent.setAction(STUB_DEFAULT);
+		launchModeIntent.setAction(buildDefaultAction());
 		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
 
 		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
@@ -111,7 +116,7 @@ class PluginStubBinding {
 
 	private static void loadStubService() {
 		Intent launchModeIntent = new Intent();
-		launchModeIntent.setAction(STUB_DEFAULT);
+		launchModeIntent.setAction(buildDefaultAction());
 		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
 
 		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
@@ -132,7 +137,7 @@ class PluginStubBinding {
 
 	private static void loadStubExactly() {
 		Intent exactStub = new Intent();
-		exactStub.setAction(STUB_EXACT);
+		exactStub.setAction(buildExactAction());
 		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
 
 		//精确匹配的activity
@@ -163,7 +168,7 @@ class PluginStubBinding {
 
 	private static void loadStubReceiver() {
 		Intent exactStub = new Intent();
-		exactStub.setAction(STUB_DEFAULT);
+		exactStub.setAction(buildDefaultAction());
 		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
 
 		List<ResolveInfo> resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);

@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
 
 import java.util.ArrayList;
@@ -21,9 +22,7 @@ import java.util.Collection;
  */
 public class PluginManagerProvider extends ContentProvider {
 
-    public static final String AUTHORITY = "com.plugin.core.manager.PluginManagerProvider";
-
-    public static final Uri CONTENT_URI = Uri.parse("content://"+ AUTHORITY + "/call");
+    private static Uri CONTENT_URI;
 
     public static final String ACTION_INSTALL = "install";
     public static final String INSTALL_RESULT = "install_result";
@@ -76,6 +75,13 @@ public class PluginManagerProvider extends ContentProvider {
     private Object mLockObject = new Object();
 
     private PluginManagerImpl manager;
+
+    public static Uri buildUri() {
+        if (CONTENT_URI == null) {
+            CONTENT_URI = Uri.parse("content://"+ PluginLoader.getApplicatoin().getPackageName() + ".manager.pluginmanager" + "/call");
+        }
+        return CONTENT_URI;
+    }
 
     @Override
     public boolean onCreate() {
