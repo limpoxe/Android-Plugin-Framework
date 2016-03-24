@@ -70,7 +70,18 @@
     
     5、在插件中调用getPackageName方法返回的是宿主的包名，不是插件包名。
        
-    6、若想将插件切换到单独的插件进程，仅需将core工程的Manifest中配置的若干组件添加上process配置即可
+    6、插件默认是在插件进程中运行，如需切到宿主进程，仅需将core工程的Manifest中配置的所有组件去都去掉掉process属性即可。
+       PluginMain工程下有几个插件进程的demo也需要去掉process属性
+
+    7、将配置插件为非独立插件、为插件配置依赖插件的方法。
+       插件框架识别一个插件是否为独立插件，是根据插件的Manifest文件中的android:sharedUserId属性。
+       将android:sharedUserId属性设置为宿主的packageName，则表示为非独立插件。不配置或配置为其他值表示为独立插件
+
+       插件如果依赖其他基础插件，需要在插件Manifest中配置如下信息
+       <uses-library android:name="XX.XX.XX" android:required="true" />
+       name是被依赖的插件的packageName
+
+    8、框架中对非独立插件做了签名校验。如果宿主是release模式，要求插件的签名和宿主的签名一致才允许安装。
 
 # 目录结构说明：
 
