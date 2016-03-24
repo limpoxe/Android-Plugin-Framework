@@ -17,6 +17,7 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.manager.PluginManagerHelper;
+import com.plugin.core.manager.PluginManagerProvider;
 import com.plugin.core.proxy.MethodDelegate;
 import com.plugin.core.proxy.MethodProxy;
 import com.plugin.core.proxy.ProxyUtil;
@@ -50,7 +51,10 @@ public class AndroidAppIPackageManager extends MethodProxy {
     static {
         sMethods.put("getInstalledPackages", new getInstalledPackages());
         sMethods.put("getPackageInfo", new getPackageInfo());
-        sMethods.put("getApplicationInfo", new getApplicationInfo());
+
+        //在部分华为手机上下面这个方法的钩子会导致crash，暂时不知道是什么原因
+        //sMethods.put("getApplicationInfo", new getApplicationInfo());
+
         sMethods.put("getActivityInfo", new getActivityInfo());
         sMethods.put("getReceiverInfo", new getReceiverInfo());
         sMethods.put("getServiceInfo", new getServiceInfo());
@@ -177,19 +181,21 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.d("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
-            PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
-            if (pluginDescriptor != null) {
-                PluginProviderInfo info = pluginDescriptor.getProviderInfos().get(className);
-                ProviderInfo providerInfo = new ProviderInfo();
-                providerInfo.name = info.getName();
-                providerInfo.packageName = getPackageName(pluginDescriptor);
-                providerInfo.icon = pluginDescriptor.getApplicationIcon();
-                providerInfo.metaData = getMeta(pluginDescriptor.getMetaData());
-                providerInfo.enabled = true;
-                providerInfo.exported = info.isExported();
-                providerInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
-                providerInfo.authority = info.getAuthority();
-                return providerInfo;
+            if (!className.equals(PluginManagerProvider.class.getName())) {
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+                if (pluginDescriptor != null) {
+                    PluginProviderInfo info = pluginDescriptor.getProviderInfos().get(className);
+                    ProviderInfo providerInfo = new ProviderInfo();
+                    providerInfo.name = info.getName();
+                    providerInfo.packageName = getPackageName(pluginDescriptor);
+                    providerInfo.icon = pluginDescriptor.getApplicationIcon();
+                    providerInfo.metaData = getMeta(pluginDescriptor.getMetaData());
+                    providerInfo.enabled = true;
+                    providerInfo.exported = info.isExported();
+                    providerInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
+                    providerInfo.authority = info.getAuthority();
+                    return providerInfo;
+                }
             }
             return super.beforeInvoke(target, method, args);
         }
