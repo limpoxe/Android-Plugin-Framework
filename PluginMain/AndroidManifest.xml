@@ -89,7 +89,7 @@
             android:exported="true">
             <intent-filter>
                 <action
-                    android:name="com.plugin.core.STUB_EXACT" />
+                    android:name="${applicationId}.STUB_EXACT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
