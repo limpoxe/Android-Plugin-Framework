@@ -9,6 +9,7 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * Created by cailiming on 16/3/11.
@@ -16,11 +17,22 @@ import java.util.Collection;
  */
 public class PluginManagerHelper {
 
+    //加个客户端进程的缓存，减少跨进程调用
+    private static final HashMap<String, PluginDescriptor> localCache = new HashMap<String, PluginDescriptor>();
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
-        Bundle bundle = PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.buildUri(),
-                PluginManagerProvider.ACTION_QUERY_BY_CLASS_NAME, clazzName, null);
-        return (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_CLASS_NAME_RESULT);
+
+        PluginDescriptor pluginDescriptor = localCache.get(clazzName);
+
+        if (pluginDescriptor == null) {
+            Bundle bundle = PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.buildUri(),
+                    PluginManagerProvider.ACTION_QUERY_BY_CLASS_NAME, clazzName, null);
+            pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_CLASS_NAME_RESULT);
+            localCache.put(clazzName, pluginDescriptor);
+        }
+
+        return pluginDescriptor;
     }
 
 
@@ -34,13 +46,22 @@ public class PluginManagerHelper {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
-        Bundle bundle = PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.buildUri(),
-                PluginManagerProvider.ACTION_QUERY_BY_ID, pluginId, null);
-        return (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
+
+        PluginDescriptor pluginDescriptor = localCache.get(pluginId);
+
+        if (pluginDescriptor == null) {
+            Bundle bundle = PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.buildUri(),
+                    PluginManagerProvider.ACTION_QUERY_BY_ID, pluginId, null);
+            pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
+            localCache.put(pluginId, pluginDescriptor);
+        }
+
+        return pluginDescriptor;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static int installPlugin(String srcFile) {
+        localCache.clear();
         Bundle bundle = PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_INSTALL, srcFile, null);
         return bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
@@ -48,6 +69,7 @@ public class PluginManagerHelper {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static synchronized void remove(String pluginId) {
+        localCache.clear();
         PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE, pluginId, null);
     }
@@ -57,6 +79,7 @@ public class PluginManagerHelper {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static synchronized void removeAll() {
+        localCache.clear();
         PluginLoader.getApplicatoin().getContentResolver().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
     }
