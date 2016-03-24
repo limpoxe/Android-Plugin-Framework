@@ -106,8 +106,6 @@ public class PluginLauncher implements Serializable {
 
 			Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader, pluginDescriptor);
 
-			((PluginContextTheme)pluginContext).setPluginApplication(pluginApplication);
-
 			plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
 
 			try {
@@ -152,6 +150,8 @@ public class PluginLauncher implements Serializable {
 
 		//执行onCreate
 		if (application != null) {
+
+			((PluginContextTheme)pluginContext).setPluginApplication(application);
 
 			//先拿到宿主的crashHandler
 			Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
