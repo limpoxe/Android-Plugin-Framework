@@ -51,10 +51,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     static {
         sMethods.put("getInstalledPackages", new getInstalledPackages());
         sMethods.put("getPackageInfo", new getPackageInfo());
-
-        //在部分华为手机上下面这个方法的钩子会导致crash，暂时不知道是什么原因
-        //sMethods.put("getApplicationInfo", new getApplicationInfo());
-
+        sMethods.put("getApplicationInfo", new getApplicationInfo());
         sMethods.put("getActivityInfo", new getActivityInfo());
         sMethods.put("getReceiverInfo", new getReceiverInfo());
         sMethods.put("getServiceInfo", new getServiceInfo());
@@ -72,9 +69,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
             LogUtil.d("beforeInvoke", method.getName(), packageName);
-            PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
-            if (pluginDescriptor != null) {
-                return PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
+            if (!packageName.equals(PluginLoader.getApplicatoin().getPackageName())) {
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+                if (pluginDescriptor != null) {
+                    return PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
+                }
             }
             return super.beforeInvoke(target, method, args);
         }
@@ -126,9 +125,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
             LogUtil.d("beforeInvoke", method.getName(), packageName);
-            PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
-            if (pluginDescriptor != null) {
-                return getApplicationInfo(pluginDescriptor);
+            if (!packageName.equals(PluginLoader.getApplicatoin().getPackageName())) {
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+                if (pluginDescriptor != null) {
+                    return getApplicationInfo(pluginDescriptor);
+                }
             }
             return super.beforeInvoke(target, method, args);
         }
