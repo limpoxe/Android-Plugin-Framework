@@ -8,7 +8,6 @@ import com.plugin.core.PluginLoader;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,16 +15,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 public class FileUtil {
 
@@ -119,7 +115,7 @@ public class FileUtil {
 			}
 
 			if (!isSuccess) {
-				Toast.makeText(PluginLoader.getApplicatoin(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+				Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();

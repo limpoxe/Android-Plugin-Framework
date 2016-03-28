@@ -72,7 +72,7 @@ class PluginManagerImpl {
 	}
 
 	private String getPluginRootDir() {
-		return PluginLoader.getApplicatoin().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
+		return PluginLoader.getApplication().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -196,8 +196,8 @@ class PluginManagerImpl {
 		}
 
 		//第0步，先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
-		if (!srcPluginFile.startsWith(PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath())) {
-			String tempFilePath = PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath()
+		if (!srcPluginFile.startsWith(PluginLoader.getApplication().getCacheDir().getAbsolutePath())) {
+			String tempFilePath = PluginLoader.getApplication().getCacheDir().getAbsolutePath()
 					+ File.separator + System.currentTimeMillis() + ".apk";
 			if (FileUtil.copyFile(srcPluginFile, tempFilePath)) {
 				srcPluginFile = tempFilePath;
@@ -210,7 +210,7 @@ class PluginManagerImpl {
 		// 第1步，验证插件APK签名，如果被篡改过，将获取不到证书
 		//sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
 		Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
-		boolean isDebugable = (0 != (PluginLoader.getApplicatoin().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+		boolean isDebugable = (0 != (PluginLoader.getApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 		if (pluginSignatures == null) {
 			LogUtil.e("插件签名验证失败", srcPluginFile);
 			new File(srcPluginFile).delete();
@@ -221,7 +221,7 @@ class PluginManagerImpl {
 			//公钥相同意味着是同一个作者发布的程序
 			Signature[] mainSignatures = null;
 			try {
-				PackageInfo pkgInfo = PluginLoader.getApplicatoin().getPackageManager().getPackageInfo(PluginLoader.getApplicatoin().getPackageName(), PackageManager.GET_SIGNATURES);
+				PackageInfo pkgInfo = PluginLoader.getApplication().getPackageManager().getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_SIGNATURES);
 				mainSignatures = pkgInfo.signatures;
 			} catch (PackageManager.NameNotFoundException e) {
 				e.printStackTrace();
@@ -241,7 +241,7 @@ class PluginManagerImpl {
 			return PARSE_MANIFEST_FAIL;
 		}
 
-		PackageInfo packageInfo = PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
+		PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
 		if (packageInfo != null) {
 			pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
 			pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
@@ -329,7 +329,7 @@ class PluginManagerImpl {
 				LogUtil.e("安装插件成功", destApkPath);
 
 				//打印一下目录结构
-				FileUtil.printAll(new File(PluginLoader.getApplicatoin().getApplicationInfo().dataDir));
+				FileUtil.printAll(new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
 
 				return SUCCESS;
 			}
@@ -337,7 +337,7 @@ class PluginManagerImpl {
 	}
 
 	private static SharedPreferences getSharedPreference() {
-		SharedPreferences sp = PluginLoader.getApplicatoin().getSharedPreferences("plugins.installed",
+		SharedPreferences sp = PluginLoader.getApplication().getSharedPreferences("plugins.installed",
 				Build.VERSION.SDK_INT < 11 ? Context.MODE_PRIVATE : Context.MODE_PRIVATE | 0x0004);
 		return sp;
 	}

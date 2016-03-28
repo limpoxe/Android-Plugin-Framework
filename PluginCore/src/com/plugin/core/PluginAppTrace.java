@@ -76,7 +76,7 @@ public class PluginAppTrace implements Handler.Callback {
 			if (clazz != null) {
 				PluginInjector.hackHostClassLoaderIfNeeded();
 
-				Context baseContext = PluginLoader.getApplicatoin().getBaseContext();
+				Context baseContext = PluginLoader.getApplication().getBaseContext();
 				Context newBase = PluginLoader.getDefaultPluginContext(clazz);
 
 				PluginInjector.replaceReceiverContext(baseContext, newBase);

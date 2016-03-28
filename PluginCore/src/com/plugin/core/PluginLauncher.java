@@ -79,8 +79,8 @@ public class PluginLauncher implements Serializable {
 			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
 
 			Resources pluginRes = PluginCreator.createPluginResource(
-					PluginLoader.getApplicatoin().getApplicationInfo().sourceDir,
-					PluginLoader.getApplicatoin().getResources(), pluginDescriptor);
+					PluginLoader.getApplication().getApplicationInfo().sourceDir,
+					PluginLoader.getApplication().getResources(), pluginDescriptor);
 
 			DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
 							pluginDescriptor.getInstalledPath(),
@@ -90,7 +90,7 @@ public class PluginLauncher implements Serializable {
 
 			Context pluginContext = PluginCreator.createPluginContext(
 					pluginDescriptor,
-					PluginLoader.getApplicatoin().getBaseContext(),
+					PluginLoader.getApplication().getBaseContext(),
 					pluginRes,
 					pluginClassLoader);
 
@@ -109,7 +109,7 @@ public class PluginLauncher implements Serializable {
 			plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
 
 			try {
-				ActivityThread.installPackageInfo(PluginLoader.getApplicatoin(), packageName, pluginDescriptor,
+				ActivityThread.installPackageInfo(PluginLoader.getApplication(), packageName, pluginDescriptor,
 						pluginClassLoader, pluginRes, pluginApplication);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -146,7 +146,7 @@ public class PluginLauncher implements Serializable {
 		}
 
 		//安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前
-		PluginInjector.installContentProviders(PluginLoader.getApplicatoin(), pluginDescriptor.getProviderInfos().values());
+		PluginInjector.installContentProviders(PluginLoader.getApplication(), pluginDescriptor.getProviderInfos().values());
 
 		//执行onCreate
 		if (application != null) {
@@ -190,7 +190,7 @@ public class PluginLauncher implements Serializable {
 		new Handler(Looper.getMainLooper()).post(new Runnable() {
 			@Override
 			public void run() {
-				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(PluginLoader.getApplicatoin());
+				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(PluginLoader.getApplication());
 			}
 		});
 
@@ -198,7 +198,7 @@ public class PluginLauncher implements Serializable {
 		LocalServiceManager.unRegistService(pluginDescriptor);
 
 		//退出Activity
-		PluginLoader.getApplicatoin().sendBroadcast(new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
+		PluginLoader.getApplication().sendBroadcast(new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
 
 		//退出BroadcastReceiver
 		//广播一般有个注册方式
@@ -259,37 +259,37 @@ public class PluginLauncher implements Serializable {
 	static class LifecycleCallbackBrige implements android.app.Application.ActivityLifecycleCallbacks {
 		@Override
 		public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-			AndroidAppApplication.dispatchActivityCreated(PluginLoader.getApplicatoin(), activity, savedInstanceState);
+			AndroidAppApplication.dispatchActivityCreated(PluginLoader.getApplication(), activity, savedInstanceState);
 		}
 
 		@Override
 		public void onActivityStarted(Activity activity) {
-			AndroidAppApplication.dispatchActivityStarted(PluginLoader.getApplicatoin(), activity);
+			AndroidAppApplication.dispatchActivityStarted(PluginLoader.getApplication(), activity);
 		}
 
 		@Override
 		public void onActivityResumed(Activity activity) {
-			AndroidAppApplication.dispatchActivityResumed(PluginLoader.getApplicatoin(), activity);
+			AndroidAppApplication.dispatchActivityResumed(PluginLoader.getApplication(), activity);
 		}
 
 		@Override
 		public void onActivityPaused(Activity activity) {
-			AndroidAppApplication.dispatchActivityPaused(PluginLoader.getApplicatoin(), activity);
+			AndroidAppApplication.dispatchActivityPaused(PluginLoader.getApplication(), activity);
 		}
 
 		@Override
 		public void onActivityStopped(Activity activity) {
-			AndroidAppApplication.dispatchActivityStopped(PluginLoader.getApplicatoin(), activity);
+			AndroidAppApplication.dispatchActivityStopped(PluginLoader.getApplication(), activity);
 		}
 
 		@Override
 		public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-			AndroidAppApplication.dispatchActivitySaveInstanceState(PluginLoader.getApplicatoin(), activity, outState);
+			AndroidAppApplication.dispatchActivitySaveInstanceState(PluginLoader.getApplication(), activity, outState);
 		}
 
 		@Override
 		public void onActivityDestroyed(Activity activity) {
-			AndroidAppApplication.dispatchActivityDestroyed(PluginLoader.getApplicatoin(), activity);
+			AndroidAppApplication.dispatchActivityDestroyed(PluginLoader.getApplication(), activity);
 		}
 	}
 }

@@ -380,14 +380,14 @@ public class PluginInjector {
 	 * 如果插件中不包含service、receiver和contentprovider，是不需要替换classloader的
 	 */
 	public static void hackHostClassLoaderIfNeeded() {
-		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplicatoin(), Application.class.getName(),
+		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplication(), Application.class.getName(),
 				"mLoadedApk");
 		ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(mLoadedApk, "android.app.LoadedApk",
 				"mClassLoader");
 		if (!(originalLoader instanceof HostClassLoader)) {
-			HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplicatoin()
+			HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplication()
 					.getCacheDir().getAbsolutePath(),
-					PluginLoader.getApplicatoin().getCacheDir().getAbsolutePath(), originalLoader);
+					PluginLoader.getApplication().getCacheDir().getAbsolutePath(), originalLoader);
 			RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk", "mClassLoader", newLoader);
 		}
 	}

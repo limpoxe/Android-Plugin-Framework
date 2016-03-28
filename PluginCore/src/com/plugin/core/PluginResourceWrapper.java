@@ -37,7 +37,7 @@ public class PluginResourceWrapper extends Resources {
 			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
 			//华为、三星、小米等手机不会到这里来。
 			if (ResourceUtil.isMainResId(resid)) {
-				return PluginLoader.getApplicatoin().getPackageName();
+				return PluginLoader.getApplication().getPackageName();
 			}
 			throw new NotFoundException("Unable to find resource ID #0x"
 	                + Integer.toHexString(resid));
@@ -54,7 +54,7 @@ public class PluginResourceWrapper extends Resources {
 			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
 			//华为、三星、小米等手机不会到这里来。
 			if (ResourceUtil.isMainResId(resid)) {
-				return PluginLoader.getApplicatoin().getResources().getResourceName(resid);
+				return PluginLoader.getApplication().getResources().getResourceName(resid);
 			}
 			throw new NotFoundException("Unable to find resource ID #0x"
 	                + Integer.toHexString(resid));
@@ -80,7 +80,7 @@ public class PluginResourceWrapper extends Resources {
 		}
 
 		//传了packageName，而且不是宿主的packageName， 则直接返回
-		if (!TextUtils.isEmpty(defPackage) && !PluginLoader.getApplicatoin().getPackageName().equals(defPackage)) {
+		if (!TextUtils.isEmpty(defPackage) && !PluginLoader.getApplication().getPackageName().equals(defPackage)) {
 			return super.getIdentifier(name, defType, defPackage);
 		}
 
@@ -114,7 +114,7 @@ public class PluginResourceWrapper extends Resources {
 			type = defType;
 		}
 
-		if (PluginLoader.getApplicatoin().getPackageName().equals(packageName)) {
+		if (PluginLoader.getApplication().getPackageName().equals(packageName)) {
 			if (mPluginDescriptor.isStandalone()) {
 				packageName = mPluginDescriptor.getPackageName();
 			} else {

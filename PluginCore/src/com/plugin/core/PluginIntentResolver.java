@@ -24,7 +24,7 @@ public class PluginIntentResolver {
 		if (classNameList != null && classNameList.size() > 0) {
 			String stubServiceName = PluginManagerHelper.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
-				service.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubServiceName));
+				service.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), stubServiceName));
 			}
 		}
 	}
@@ -37,7 +37,7 @@ public class PluginIntentResolver {
 		if (classNameList != null && classNameList.size() > 0) {
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
-				newIntent.setComponent(new ComponentName(PluginLoader.getApplicatoin().getPackageName(),
+				newIntent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(),
 						PluginManagerHelper.bindStubReceiver()));
 				//hackReceiverForClassLoader检测到这个标记后会进行替换
 				newIntent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
@@ -115,7 +115,7 @@ public class PluginIntentResolver {
 			String stubActivityName = PluginManagerHelper.bindStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
 
 			intent.setComponent(
-					new ComponentName(PluginLoader.getApplicatoin().getPackageName(), stubActivityName));
+					new ComponentName(PluginLoader.getApplication().getPackageName(), stubActivityName));
 			//PluginInstrumentationWrapper检测到这个标记后会进行替换
 			intent.setAction(className + CLASS_SEPARATOR + (intent.getAction()==null?"":intent.getAction()));
 		}

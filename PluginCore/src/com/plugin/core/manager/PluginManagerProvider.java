@@ -78,7 +78,7 @@ public class PluginManagerProvider extends ContentProvider {
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
-            CONTENT_URI = Uri.parse("content://"+ PluginLoader.getApplicatoin().getPackageName() + ".manager.pluginmanager" + "/call");
+            CONTENT_URI = Uri.parse("content://"+ PluginLoader.getApplication().getPackageName() + ".manager.pluginmanager" + "/call");
         }
         return CONTENT_URI;
     }

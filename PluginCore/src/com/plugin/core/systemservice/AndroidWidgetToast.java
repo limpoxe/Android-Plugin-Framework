@@ -37,7 +37,7 @@ public class AndroidWidgetToast extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
-            args[0] = PluginLoader.getApplicatoin().getPackageName();
+            args[0] = PluginLoader.getApplication().getPackageName();
             return super.beforeInvoke(target, method, args);
         }
     }
@@ -46,7 +46,7 @@ public class AndroidWidgetToast extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
-            args[0] = PluginLoader.getApplicatoin().getPackageName();
+            args[0] = PluginLoader.getApplication().getPackageName();
             return super.beforeInvoke(target, method, args);
         }
     }

@@ -17,7 +17,7 @@ public class ProcessUtil {
     public static boolean isPluginProcess() {
 
         if (isPluginProcess == null) {
-            Context context = PluginLoader.getApplicatoin();
+            Context context = PluginLoader.getApplication();
             String processName = getCurProcessName(context);
             String pluginProcessName = getPluginProcessName(context);
 

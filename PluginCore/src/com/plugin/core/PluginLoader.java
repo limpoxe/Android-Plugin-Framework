@@ -37,7 +37,7 @@ public class PluginLoader {
 	private PluginLoader() {
 	}
 
-	public static Application getApplicatoin() {
+	public static Application getApplication() {
 		return sApplication;
 	}
 
@@ -281,7 +281,7 @@ public class PluginLoader {
 		if (packageName == null && intent.getComponent() != null) {
 			packageName = intent.getComponent().getPackageName();
 		}
-		if (packageName != null && !packageName.equals(PluginLoader.getApplicatoin().getPackageName())) {
+		if (packageName != null && !packageName.equals(PluginLoader.getApplication().getPackageName())) {
 			PluginDescriptor dp = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
 			if (dp != null) {
 				List<String> list = dp.matchPlugin(intent, type);

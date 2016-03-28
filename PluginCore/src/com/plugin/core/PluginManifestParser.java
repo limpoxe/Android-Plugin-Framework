@@ -64,7 +64,7 @@ public class PluginManifestParser {
                             desciptor.setPackageName(packageName);
                             desciptor.setVersion(versionName + "_" + versionCode);
                             
-                            desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplicatoin().getPackageName().equals(sharedUserId));
+                            desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
 
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
                         } else if ("meta-data".equals(tag)) {

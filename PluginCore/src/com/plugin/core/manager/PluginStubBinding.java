@@ -1,6 +1,5 @@
 package com.plugin.core.manager;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -8,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
@@ -53,11 +51,11 @@ class PluginStubBinding {
 	private static boolean isPoolInited = false;
 
 	private static String buildDefaultAction() {
-		return PluginLoader.getApplicatoin().getPackageName() + ".STUB_DEFAULT";
+		return PluginLoader.getApplication().getPackageName() + ".STUB_DEFAULT";
 	}
 
 	private static String buildExactAction() {
-		return PluginLoader.getApplicatoin().getPackageName() + ".STUB_EXACT";
+		return PluginLoader.getApplication().getPackageName() + ".STUB_EXACT";
 	}
 
 	private static void initPool() {
@@ -84,9 +82,9 @@ class PluginStubBinding {
 	private static void loadStubActivity() {
 		Intent launchModeIntent = new Intent();
 		launchModeIntent.setAction(buildDefaultAction());
-		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		launchModeIntent.setPackage(PluginLoader.getApplication().getPackageName());
 
-		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = PluginLoader.getApplication().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
@@ -117,9 +115,9 @@ class PluginStubBinding {
 	private static void loadStubService() {
 		Intent launchModeIntent = new Intent();
 		launchModeIntent.setAction(buildDefaultAction());
-		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		launchModeIntent.setPackage(PluginLoader.getApplication().getPackageName());
 
-		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = PluginLoader.getApplication().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
@@ -138,10 +136,10 @@ class PluginStubBinding {
 	private static void loadStubExactly() {
 		Intent exactStub = new Intent();
 		exactStub.setAction(buildExactAction());
-		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		exactStub.setPackage(PluginLoader.getApplication().getPackageName());
 
 		//精确匹配的activity
-		List<ResolveInfo> resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> resolveInfos = PluginLoader.getApplication().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -153,7 +151,7 @@ class PluginStubBinding {
 		}
 
 		//精确匹配的service
-		resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		resolveInfos = PluginLoader.getApplication().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -169,9 +167,9 @@ class PluginStubBinding {
 	private static void loadStubReceiver() {
 		Intent exactStub = new Intent();
 		exactStub.setAction(buildDefaultAction());
-		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		exactStub.setPackage(PluginLoader.getApplication().getPackageName());
 
-		List<ResolveInfo> resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> resolveInfos = PluginLoader.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() >0) {
 			receiver = resolveInfos.get(0).activityInfo.name;
@@ -376,7 +374,7 @@ class PluginStubBinding {
 			byte[] data = byteArrayOutputStream.toByteArray();
 			String list = Base64.encodeToString(data, Base64.DEFAULT);
 
-			PluginLoader.getApplicatoin()
+			PluginLoader.getApplication()
 					.getSharedPreferences("plugins.serviceMapping", Context.MODE_PRIVATE)
 					.edit().putString("plugins.serviceMapping.map", list).commit();
 
@@ -403,7 +401,7 @@ class PluginStubBinding {
 	}
 
 	private static HashMap<String, String> restore() {
-		String list = PluginLoader.getApplicatoin()
+		String list = PluginLoader.getApplication()
 				.getSharedPreferences("plugins.serviceMapping", Context.MODE_PRIVATE)
 				.getString("plugins.serviceMapping.map", "");
 		Serializable object = null;

@@ -63,7 +63,7 @@ public class ActivityThread {
             //有些情况下上面的方法拿不到，下面再换个方法尝试一次
             if (sCurrentActivityThread == null) {
                 Object impl = RefInvoker.invokeStaticMethod(android_app_ContextImpl, android_app_ContextImpl_getImpl,
-                        new Class[]{Context.class}, new Object[]{PluginLoader.getApplicatoin()});
+                        new Class[]{Context.class}, new Object[]{PluginLoader.getApplication()});
                 if (impl != null) {
                     sCurrentActivityThread = RefInvoker.getFieldObject(impl, android_app_ContextImpl, android_app_ContextImpl_mMainThread);
                 }
@@ -202,8 +202,8 @@ public class ActivityThread {
                 Class loadedAPKClass = pluginLoadedApk.getClass();
                 RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mApplication", pluginApplication);
                 RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mResources", pluginResource);
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDirFile", new File(PluginLoader.getApplicatoin().getApplicationInfo().dataDir));
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDir", PluginLoader.getApplicatoin().getApplicationInfo().dataDir);
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDirFile", new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
+                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDir", PluginLoader.getApplication().getApplicationInfo().dataDir);
                 //TODO 需要时再说
                 //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mLibDir", );
             }

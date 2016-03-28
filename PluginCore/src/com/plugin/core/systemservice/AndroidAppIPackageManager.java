@@ -25,7 +25,6 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 import com.plugin.util.ResourceUtil;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,10 +68,10 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
             LogUtil.d("beforeInvoke", method.getName(), packageName);
-            if (!packageName.equals(PluginLoader.getApplicatoin().getPackageName())) {
+            if (!packageName.equals(PluginLoader.getApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
-                    return PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
+                    return PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
                 }
             }
             return super.beforeInvoke(target, method, args);
@@ -93,7 +92,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     result = new ArrayList<PackageInfo>();
                 }
                 for(PluginDescriptor pluginDescriptor:plugins) {
-                    PackageInfo info = PluginLoader.getApplicatoin().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
+                    PackageInfo info = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
                     result.add(info);
                 }
             }
@@ -125,7 +124,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
             LogUtil.d("beforeInvoke", method.getName(), packageName);
-            if (!packageName.equals(PluginLoader.getApplicatoin().getPackageName())) {
+            if (!packageName.equals(PluginLoader.getApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
                     return getApplicationInfo(pluginDescriptor);

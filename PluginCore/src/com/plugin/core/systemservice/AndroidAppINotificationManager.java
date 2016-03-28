@@ -110,13 +110,13 @@ public class AndroidAppINotificationManager extends MethodProxy {
                             //通过重新构造ApplicationInfo来附加插件资源
                             PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(className);
                             if (pd != null) {
-                                ApplicationInfo applicationInfo = PluginLoader.getApplicatoin().getApplicationInfo();
+                                ApplicationInfo applicationInfo = PluginLoader.getApplication().getApplicationInfo();
                                 ApplicationInfo newInfo = new ApplicationInfo();//重新构造一个，而不是修改原本的
                                 newInfo.packageName = applicationInfo.packageName;
                                 newInfo.sourceDir = applicationInfo.sourceDir;
                                 newInfo.dataDir = applicationInfo.dataDir;
                                 //要确保publicSourceDir这个路径可以被SystemUI应用读取，
-                                newInfo.publicSourceDir = getNotificationResourcePath(pd.getInstalledPath(), PluginLoader.getApplicatoin().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
+                                newInfo.publicSourceDir = getNotificationResourcePath(pd.getInstalledPath(), PluginLoader.getApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
                                 if (notification.tickerView != null) {
                                     RefInvoker.setFieldObject(notification.tickerView, RemoteViews.class.getName(), "mApplication", newInfo);
                                 }
