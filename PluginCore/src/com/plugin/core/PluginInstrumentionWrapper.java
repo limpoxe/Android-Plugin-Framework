@@ -55,6 +55,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		return super.onException(obj, e);
 	}
 
+	@Override
 	public Application newApplication(ClassLoader cl, String className, Context context)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
