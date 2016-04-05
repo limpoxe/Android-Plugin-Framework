@@ -54,6 +54,14 @@ public class PluginAppTrace implements Handler.Callback {
 	private Result beforeHandle(Message msg) {
 
 		switch (msg.what) {
+
+			case CodeConst.LAUNCH_ACTIVITY:
+			case CodeConst.RELAUNCH_ACTIVITY:
+
+				beforeLaunchActivityFor360Safe();
+
+				return null;
+
 			case CodeConst.RECEIVER:
 
 				return beforeReceiver(msg);
@@ -67,6 +75,14 @@ public class PluginAppTrace implements Handler.Callback {
 				return beforeStopService(msg);
 		}
 		return null;
+	}
+
+	private static void beforeLaunchActivityFor360Safe() {
+		// 检查mInstrumention是否已经替换成功。
+		// 之所以要检查，是因为如果手机上安装了360手机卫士等app，它们可能会劫持用户app的ActivityThread对象，
+		// 导致在PluginApplication的onCreate方法里面替换mInstrumention可能会失败
+		// 所以这里再做一次检查
+		PluginInjector.injectInstrumentation();
 	}
 
 	private static Result beforeReceiver(Message msg) {

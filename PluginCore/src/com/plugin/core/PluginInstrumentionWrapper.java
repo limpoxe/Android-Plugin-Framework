@@ -52,6 +52,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		} else if (obj instanceof Service) {
 			((Service) obj).stopSelf();
 		}
+		LogUtil.printException("记录错误信息", e);
 		return super.onException(obj, e);
 	}
 

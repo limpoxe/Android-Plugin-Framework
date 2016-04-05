@@ -95,10 +95,12 @@ public class ActivityThread {
 
     public static void wrapInstrumentation() {
         Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getFieldObject(currentActivityThread(),
-                clazz(), android_app_ActivityThread_mInstrumentation);;
-        RefInvoker.setFieldObject(currentActivityThread(), clazz(),
-                android_app_ActivityThread_mInstrumentation,
-                new PluginInstrumentionWrapper(originalInstrumentation));
+                clazz(), android_app_ActivityThread_mInstrumentation);
+        if (!(originalInstrumentation instanceof PluginInstrumentionWrapper)) {
+            RefInvoker.setFieldObject(currentActivityThread(), clazz(),
+                    android_app_ActivityThread_mInstrumentation,
+                    new PluginInstrumentionWrapper(originalInstrumentation));
+        }
     }
 
     //getPackageInfo(ApplicationInfo aInfo, CompatibilityInfo compatInfo,
