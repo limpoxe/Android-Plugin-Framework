@@ -53,7 +53,7 @@ public class PluginDescriptor implements Serializable {
 	/**
 	 * 定义在插件Manifest中的meta-data标签
 	 */
-	private Bundle metaData;
+	private transient Bundle metaData;
 
 	private HashMap<String, PluginProviderInfo> providerInfos = new HashMap<String, PluginProviderInfo>();
 
