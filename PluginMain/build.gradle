@@ -62,14 +62,6 @@ android {
         release.setRoot('build-types/release')
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-
-    }
-
     signingConfigs {
         debug {
             storeFile file("limpoxe.keystore")
@@ -85,6 +77,22 @@ android {
             keyPassword "123456"
         }
     }
+
+    buildTypes {
+        debug {
+            debuggable true
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            debuggable true
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
 }
 
 dependencies {
