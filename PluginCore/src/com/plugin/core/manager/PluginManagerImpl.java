@@ -382,10 +382,10 @@ class PluginManagerImpl {
 		String list = getSharedPreference().getString(key, "");
 		Serializable object = null;
 		if (!TextUtils.isEmpty(list)) {
-			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-					Base64.decode(list, Base64.DEFAULT));
+			ByteArrayInputStream byteArrayInputStream = null;
 			ObjectInputStream objectInputStream = null;
 			try {
+				byteArrayInputStream = new ByteArrayInputStream(Base64.decode(list, Base64.DEFAULT));
 				objectInputStream = new ObjectInputStream(byteArrayInputStream);
 				object = (Serializable) objectInputStream.readObject();
 			} catch (Exception e) {
