@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
@@ -97,8 +99,14 @@ public class ResourceUtil {
             ApplicationInfo appInfo = info.applicationInfo;
             appInfo.sourceDir = pd.getInstalledPath();
             appInfo.publicSourceDir = pd.getInstalledPath();
-            String label = pm.getApplicationLabel(appInfo).toString();
-            if (label != null && label.equals(pd.getPackageName())) {
+            String label = null;
+            try {
+                if (!isMainResId(appInfo.labelRes)){
+                    label = pm.getApplicationLabel(appInfo).toString();
+                }
+            } catch (Resources.NotFoundException e) {
+            }
+            if (label == null || label.equals(pd.getPackageName())) {
                 //可能设置的lable是来自宿主的资源
                 if (pd.getDescription() != null) {
                     int id = ResourceUtil.getResourceId(pd.getDescription());
@@ -106,14 +114,25 @@ public class ResourceUtil {
                         //再宿主中查一次
                         try {
                             label = PluginLoader.getApplication().getResources().getString(id);
-                        } catch (Exception e) {
+                        } catch (Resources.NotFoundException e) {
                         }
                     }
                 }
             }
-            return label;
+            if (label != null) {
+                return label;
+            }
         }
         return pd.getDescription();
+    }
+
+    public static Bundle getApplicationMetaData(String apkPath) {
+        //暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
+        PackageInfo info = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
+        if (info.applicationInfo != null) {
+            return info.applicationInfo.metaData;
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)

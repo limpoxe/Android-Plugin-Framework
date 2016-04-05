@@ -74,22 +74,23 @@ public class PluginManifestParser {
 
                             if (name != null) {
 
-                                HashMap<String, String> metaData = desciptor.getMetaData();
-                                if (metaData == null) {
-                                    metaData = new HashMap<String, String>();
-                                    desciptor.setMetaData(metaData);
-                                }
-                                if (value != null && value.startsWith("@") && value.length() == 9) {
-                                    String idHex = value.replace("@", "");
-                                    try {
-                                        int id = Integer.parseInt(idHex, 16);
-                                        value = Integer.toString(id);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                metaData.put(name, value);
-                                LogUtil.d(name, value);
+//                                HashMap<String, String> metaData = desciptor.getMetaData();
+//                                if (metaData == null) {
+//                                    metaData = new HashMap<String, String>();
+//                                    desciptor.setMetaData(metaData);
+//                                }
+//                                if (value != null && value.startsWith("@") && value.length() == 9) {
+//                                    String idHex = value.replace("@", "");
+//                                    try {
+//                                        int id = Integer.parseInt(idHex, 16);
+//                                        value = Integer.toString(id);
+//                                    } catch (Exception e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                metaData.put(name, value);
+
+                                LogUtil.d("meta-data", name, value);
 
                             }
 

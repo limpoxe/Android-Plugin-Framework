@@ -9,8 +9,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
-import android.os.Bundle;
-import android.text.TextUtils;
 
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
@@ -28,10 +26,7 @@ import com.plugin.util.ResourceUtil;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by cailiming on 16/1/15.
@@ -189,7 +184,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     providerInfo.name = info.getName();
                     providerInfo.packageName = getPackageName(pluginDescriptor);
                     providerInfo.icon = pluginDescriptor.getApplicationIcon();
-                    providerInfo.metaData = getMeta(pluginDescriptor.getMetaData());
+                    providerInfo.metaData = pluginDescriptor.getMetaData();
                     providerInfo.enabled = true;
                     providerInfo.exported = info.isExported();
                     providerInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
@@ -302,28 +297,10 @@ public class AndroidAppIPackageManager extends MethodProxy {
         }
     }
 
-    private static Bundle getMeta(HashMap<String, String> map) {
-        //TODO 可以缓存起来
-        Bundle meta = new Bundle();
-        if (map != null) {
-            Iterator<Map.Entry<String, String>> entryIterator = map.entrySet().iterator();
-            while (entryIterator.hasNext()) {
-                Map.Entry<String, String> item = entryIterator.next();
-                //TODO 这里的类型还有很多其他情况
-                if (!TextUtils.isEmpty(item.getValue()) && TextUtils.isDigitsOnly(item.getValue())) {
-                    meta.putInt(item.getKey(), Integer.valueOf(item.getValue()));
-                } else {
-                    meta.putString(item.getKey(), item.getValue());
-                }
-            }
-        }
-        return meta;
-    }
-
     private static ApplicationInfo getApplicationInfo(PluginDescriptor pluginDescriptor) {
         ApplicationInfo info = new ApplicationInfo();
         info.packageName = getPackageName(pluginDescriptor);
-        info.metaData = getMeta(pluginDescriptor.getMetaData());
+        info.metaData = pluginDescriptor.getMetaData();
         info.name = pluginDescriptor.getApplicationName();
         info.className = pluginDescriptor.getApplicationName();
         info.enabled = true;
@@ -345,7 +322,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         activityInfo.name = className;
         activityInfo.packageName = getPackageName(pluginDescriptor);
         activityInfo.icon = pluginDescriptor.getApplicationIcon();
-        activityInfo.metaData = getMeta(pluginDescriptor.getMetaData());
+        activityInfo.metaData = pluginDescriptor.getMetaData();
         activityInfo.enabled = true;
         activityInfo.exported = false;
         activityInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
@@ -368,7 +345,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         serviceInfo.name = className;
         serviceInfo.packageName = getPackageName(pluginDescriptor);
         serviceInfo.icon = pluginDescriptor.getApplicationIcon();
-        serviceInfo.metaData = getMeta(pluginDescriptor.getMetaData());
+        serviceInfo.metaData = pluginDescriptor.getMetaData();
         serviceInfo.enabled = true;
         serviceInfo.exported = false;
         serviceInfo.applicationInfo = getApplicationInfo(pluginDescriptor);

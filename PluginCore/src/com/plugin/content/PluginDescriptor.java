@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.plugin.util.LogUtil;
+import com.plugin.util.ResourceUtil;
 
 import android.app.Application;
 import android.content.Intent;
+import android.os.Bundle;
 
 
 /**
@@ -51,7 +53,7 @@ public class PluginDescriptor implements Serializable {
 	/**
 	 * 定义在插件Manifest中的meta-data标签
 	 */
-	private HashMap<String, String> metaData;
+	private Bundle metaData;
 
 	private HashMap<String, PluginProviderInfo> providerInfos = new HashMap<String, PluginProviderInfo>();
 
@@ -147,12 +149,16 @@ public class PluginDescriptor implements Serializable {
 		this.applicationTheme = theme;
 	}
 
-	public HashMap<String, String> getMetaData() {
+	public Bundle getMetaData() {
+		if (metaData == null) {
+			if (installedPath != null) {
+				metaData = ResourceUtil.getApplicationMetaData(installedPath);
+				if (metaData == null) {
+					metaData = new Bundle();
+				}
+			}
+		}
 		return metaData;
-	}
-
-	public void setMetaData(HashMap<String, String> metaData) {
-		this.metaData = metaData;
 	}
 
 	public HashMap<String, String> getFragments() {
