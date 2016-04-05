@@ -1,7 +1,15 @@
 package com.plugin.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 
+import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginPublicXmlConst;
 
 import java.lang.reflect.InvocationTargetException;
@@ -80,6 +88,46 @@ public class ResourceUtil {
             }
         }
         return 0;
+    }
+
+    public static String getLabel(PluginDescriptor pd) {
+        PackageManager pm = PluginLoader.getApplication().getPackageManager();
+        PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+        if (info != null) {
+            ApplicationInfo appInfo = info.applicationInfo;
+            appInfo.sourceDir = pd.getInstalledPath();
+            appInfo.publicSourceDir = pd.getInstalledPath();
+            String label = pm.getApplicationLabel(appInfo).toString();
+            if (label != null && label.equals(pd.getPackageName())) {
+                //可能设置的lable是来自宿主的资源
+                if (pd.getDescription() != null) {
+                    int id = ResourceUtil.getResourceId(pd.getDescription());
+                    if (id != 0) {
+                        //再宿主中查一次
+                        try {
+                            label = PluginLoader.getApplication().getResources().getString(id);
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+            }
+            return label;
+        }
+        return pd.getDescription();
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    public static Drawable getLogo(PluginDescriptor pd) {
+        PackageManager pm = PluginLoader.getApplication().getPackageManager();
+        PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+        if (info != null) {
+            ApplicationInfo appInfo = info.applicationInfo;
+            appInfo.sourceDir = pd.getInstalledPath();
+            appInfo.publicSourceDir = pd.getInstalledPath();
+            Drawable logo = pm.getApplicationLogo(appInfo);
+            return logo;
+        }
+        return null;
     }
 
     public static boolean isMainResId(int resid) {
