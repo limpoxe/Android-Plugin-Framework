@@ -27,6 +27,8 @@ import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.FileUtil;
+import com.plugin.util.LogUtil;
+import com.plugin.util.ResourceUtil;
 
 /**
  * 添加这个注解@ComponentContainer是为了控制宿主的当前Activity是否需要支持控件级插件
@@ -131,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
 			layoutParam.bottomMargin = 25;
 			layoutParam.gravity = Gravity.LEFT;
 			root.addView(button, layoutParam);
+
+			LogUtil.d("插件名称：", ResourceUtil.getLabel(pluginDescriptor));
 
 			button.setText("打开插件：" + pluginDescriptor.getPackageName());
 			button.setOnClickListener(new View.OnClickListener() {
