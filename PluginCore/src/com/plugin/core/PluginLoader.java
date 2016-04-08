@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
@@ -53,11 +54,15 @@ public class PluginLoader {
 			isLoaderInited = true;
 			sApplication = app;
 
+			//这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行。
+			//原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
+			boolean isPluginProcess = ProcessUtil.isPluginProcess();
+
 			AndroidAppIActivityManager.installProxy();
 			AndroidAppINotificationManager.installProxy();
 			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
 
-			if (ProcessUtil.isPluginProcess()) {
+			if (isPluginProcess) {
 				AndroidWidgetToast.installProxy();
 				AndroidViewLayoutInflater.installPluginCustomViewConstructorCache();
 				//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
@@ -73,7 +78,7 @@ public class PluginLoader {
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectBaseContext(sApplication);
 
-			if (ProcessUtil.isPluginProcess()) {
+			if (isPluginProcess) {
 				Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
 				while (itr.hasNext()) {
 					PluginDescriptor plugin = itr.next();

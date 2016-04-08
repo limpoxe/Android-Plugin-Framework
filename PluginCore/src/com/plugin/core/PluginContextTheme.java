@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
@@ -32,6 +33,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	protected final PluginDescriptor mPluginDescriptor;
 
 	private ArrayList<BroadcastReceiver> receivers = new ArrayList<BroadcastReceiver>();
+
+	private boolean crackPackageManager = false;
 
 	public PluginContextTheme(PluginDescriptor pluginDescriptor,
 							  Context base, Resources resources,
@@ -237,5 +240,17 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			super.unregisterReceiver(br);
 		}
 		receivers.clear();
+	}
+
+	@Override
+	public PackageManager getPackageManager() {
+		if (crackPackageManager) {
+			return null;
+		}
+		return super.getPackageManager();
+	}
+
+	public void setCrackPackageManager(boolean crackPackageManager) {
+		this.crackPackageManager = crackPackageManager;
 	}
 }

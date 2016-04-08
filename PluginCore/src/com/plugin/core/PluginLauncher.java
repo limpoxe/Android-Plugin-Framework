@@ -135,14 +135,12 @@ public class PluginLauncher implements Serializable {
 
 		try {
 			LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
-			//阻止自动安装multidex
-			try {
-				Class mulitDex = classLoader.loadClass("android.support.multidex.MultiDex");
-				RefInvoker.setFieldObject(null, mulitDex, "IS_VM_MULTIDEX_CAPABLE", true);
-			} catch (Exception e) {
-			}
+			//阻止自动安装multidex， 如果插件application对象的attachContext
+			//方法中使用了packagemanager， 这里会导致异常
+			((PluginContextTheme)pluginContext).setCrackPackageManager(true);
 			application = Instrumentation.newApplication(classLoader.loadClass(pluginDescriptor.getApplicationName()),
 					pluginContext);
+			((PluginContextTheme)pluginContext).setCrackPackageManager(false);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} 	catch (InstantiationException e) {
