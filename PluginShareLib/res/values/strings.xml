@@ -3,5 +3,5 @@
     
     <string name="share_string_1">这是宿主程序共享库资源1</string>
     <string name="share_string_2">这是宿主程序共享库自定义控件</string>
-
+    <string name="share_app_name">PluginTest</string>
 </resources>

@@ -17,7 +17,7 @@
 
  	<application 
  	    android:name="com.example.plugintest.PluginTestApplication"
-        android:label="@*com.example.pluginmain:string/share_string_2"
+        android:label="@*com.example.pluginmain:string/share_app_name"
         android:theme="@style/PluginTheme2">
 
         <!-- uses-library作用是用来通知插件框架此插件依赖哪些其他插件 -->

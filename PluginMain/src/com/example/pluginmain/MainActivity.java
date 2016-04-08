@@ -134,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
 			layoutParam.gravity = Gravity.LEFT;
 			root.addView(button, layoutParam);
 
-			LogUtil.d("插件名称：", ResourceUtil.getLabel(pluginDescriptor));
+			LogUtil.d("插件id：", pluginDescriptor.getPackageName());
 
-			button.setText("打开插件：" + pluginDescriptor.getPackageName());
+			button.setText("打开插件：" + ResourceUtil.getLabel(pluginDescriptor) + ", V" + pluginDescriptor.getVersion());
 			button.setOnClickListener(new View.OnClickListener() {
 
 				@Override
