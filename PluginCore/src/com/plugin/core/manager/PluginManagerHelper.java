@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
+import com.plugin.util.LogUtil;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,6 +54,8 @@ public class PluginManagerHelper {
                     PluginManagerProvider.ACTION_QUERY_BY_ID, pluginId, null);
             pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
             localCache.put(pluginId, pluginDescriptor);
+        } else {
+            LogUtil.d("取本端缓存", pluginDescriptor.getInstalledPath());
         }
 
         return pluginDescriptor;
@@ -60,7 +63,7 @@ public class PluginManagerHelper {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static int installPlugin(String srcFile) {
-        localCache.clear();
+        clearLocalCache();
         Bundle bundle = PluginLoader.getApplication().getContentResolver().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_INSTALL, srcFile, null);
         return bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
@@ -68,7 +71,7 @@ public class PluginManagerHelper {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static synchronized void remove(String pluginId) {
-        localCache.clear();
+        clearLocalCache();
         PluginLoader.getApplication().getContentResolver().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE, pluginId, null);
     }
@@ -78,9 +81,13 @@ public class PluginManagerHelper {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static synchronized void removeAll() {
-        localCache.clear();
+        clearLocalCache();
         PluginLoader.getApplication().getContentResolver().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
+    }
+
+    public static void clearLocalCache() {
+        localCache.clear();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

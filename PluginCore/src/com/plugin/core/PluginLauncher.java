@@ -78,9 +78,15 @@ public class PluginLauncher implements Serializable {
 
 			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
 
+			LogUtil.e("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
+
 			Resources pluginRes = PluginCreator.createPluginResource(
 					PluginLoader.getApplication().getApplicationInfo().sourceDir,
 					PluginLoader.getApplication().getResources(), pluginDescriptor);
+
+			if (pluginRes == null) {
+				LogUtil.e("初始化插件失败");
+			}
 
 			DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
 							pluginDescriptor.getInstalledPath(),
@@ -180,6 +186,7 @@ public class PluginLauncher implements Serializable {
 		LoadedPlugin plugin = getRunningPlugin(packageName);
 
 		if (plugin == null) {
+			LogUtil.d("插件未运行", packageName);
 			return;
 		}
 		//
@@ -187,6 +194,7 @@ public class PluginLauncher implements Serializable {
 		//
 
 		//退出webview
+		LogUtil.d("退出webview");
 		new Handler(Looper.getMainLooper()).post(new Runnable() {
 			@Override
 			public void run() {
@@ -195,21 +203,15 @@ public class PluginLauncher implements Serializable {
 		});
 
 		//退出LocalService
+		LogUtil.d("退出退出LocalService");
 		LocalServiceManager.unRegistService(pluginDescriptor);
 
 		//退出Activity
+		LogUtil.d("退出Activity");
 		PluginLoader.getApplication().sendBroadcast(new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
 
-		//退出BroadcastReceiver
-		//广播一般有个注册方式
-		//1、activity注册
-		//		这种方式，在上一步Activitiy退出时会退出，所以不用处理
-		//2、application注册
-		//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
-
-		((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
-
 		//退出 LocalBroadcastManager
+		LogUtil.d("退出LocalBroadcastManager");
 		Object mInstance = RefInvoker.getStaticFieldObject("android.support.v4.content.LocalBroadcastManager", "mInstance");
 		if (mInstance != null) {
 			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = (HashMap<BroadcastReceiver, ArrayList<IntentFilter>>)RefInvoker.getFieldObject(mInstance,
@@ -237,6 +239,15 @@ public class PluginLauncher implements Serializable {
 				}
 			}
 		}
+
+		//退出BroadcastReceiver
+		//广播一般有个注册方式
+		//1、activity、service注册
+		//		这种方式，在上一步Activitiy、service退出时会自然退出，所以不用处理
+		//2、application注册
+		//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
+		LogUtil.d("退出BroadcastReceiver");
+		((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
 
 		//退出AssetManager
 		//pluginDescriptor.getPluginContext().getResources().getAssets().close();

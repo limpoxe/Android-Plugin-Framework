@@ -115,6 +115,7 @@ class PluginManagerImpl {
 	}
 
 	synchronized boolean removeAll() {
+		PluginManagerHelper.clearLocalCache();
 		sInstalledPlugins.clear();
 		boolean isSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 
@@ -126,6 +127,7 @@ class PluginManagerImpl {
 	}
 
 	synchronized boolean remove(String pluginId) {
+		PluginManagerHelper.clearLocalCache();
 
 		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
 

@@ -68,23 +68,28 @@ public class PluginCreator {
 	 */
 	public static Resources createPluginResource(String mainApkPath, Resources mainRes, PluginDescriptor pluginDescriptor) {
 		String absolutePluginApkPath = pluginDescriptor.getInstalledPath();
-		boolean isStandalone = pluginDescriptor.isStandalone();
-		String[] dependencies = pluginDescriptor.getDependencies();
+		if (new File(absolutePluginApkPath).exists()) {
+			boolean isStandalone = pluginDescriptor.isStandalone();
+			String[] dependencies = pluginDescriptor.getDependencies();
 
-		try {
-			String[] assetPaths = buildAssetPath(isStandalone, mainApkPath,
-					absolutePluginApkPath, dependencies);
-			AssetManager assetMgr = AssetManager.class.newInstance();
-			RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
-					new Class[] { String[].class }, new Object[] { assetPaths });
+			try {
+				String[] assetPaths = buildAssetPath(isStandalone, mainApkPath,
+						absolutePluginApkPath, dependencies);
+				AssetManager assetMgr = AssetManager.class.newInstance();
+				RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
+						new Class[] { String[].class }, new Object[] { assetPaths });
 
-			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
-					mainRes.getConfiguration(), pluginDescriptor);
+				Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
+						mainRes.getConfiguration(), pluginDescriptor);
 
-			return pluginRes;
-		} catch (Exception e) {
-			e.printStackTrace();
+				return pluginRes;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			LogUtil.e("插件文件不存在", absolutePluginApkPath);
 		}
+
 		return null;
 	}
 
