@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.localservice.LocalServiceManager;
+import com.plugin.core.multidex.PluginMultiDexHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
@@ -245,12 +246,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public PackageManager getPackageManager() {
 		if (crackPackageManager) {
-			return null;
+			//欺骗MultDexInstaller， 使MultDexInstaller能得到正确的插件信息
+			return PluginMultiDexHelper.fixPackageManagerForMultDexInstaller(mPluginDescriptor.getPackageName(), super.getPackageManager());
 		}
 		return super.getPackageManager();
 	}
 
 	public void setCrackPackageManager(boolean crackPackageManager) {
 		this.crackPackageManager = crackPackageManager;
+	}
+
+	@Override
+	public File getFilesDir() {
+		return new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile(), "files");
 	}
 }

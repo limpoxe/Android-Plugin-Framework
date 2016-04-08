@@ -33,9 +33,9 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Exposes application secondary dex files as files in the application data
- * directory.
+ * 这个类已经弃用 @2016-4-8
  */
+@Deprecated
 public final class PluginMultiDexExtractor {
 
     private static final String SECONDARY_FOLDER_NAME = "code_cache" + File.separator +
