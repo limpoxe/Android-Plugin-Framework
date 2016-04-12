@@ -203,12 +203,23 @@ public class PluginManifestParser {
 
                         } else if ("service".equals(tag)) {
 
+                            String process = parser.getAttributeValue(namespaceAndroid, "process");
+
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getServices();
                             if (map == null) {
                                 map = new HashMap<String, ArrayList<PluginIntentFilter>>();
                                 desciptor.setServices(map);
                             }
-                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "service");
+                        	String name = addIntentFilter(map, packageName, namespaceAndroid, parser, "service");
+
+                            if (process != null) {
+                                HashMap<String, String> infos = desciptor.getServiceInfos();
+                                if (infos == null) {
+                                    infos = new HashMap<String, String>();
+                                    desciptor.setServiceInfos(infos);
+                                }
+                                infos.put(name, process);
+                            }
 
                         } else if ("provider".equals(tag)) {
 

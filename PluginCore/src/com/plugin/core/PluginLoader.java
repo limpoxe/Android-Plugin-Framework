@@ -51,6 +51,9 @@ public class PluginLoader {
 
 		if (!isLoaderInited) {
 			LogUtil.d("插件框架初始化中...");
+
+			long t1 = System.currentTimeMillis();
+
 			isLoaderInited = true;
 			sApplication = app;
 
@@ -120,7 +123,8 @@ public class PluginLoader {
 					});
 				}
 			}
-			LogUtil.d("插件框架初始化完成");
+			long t2 = System.currentTimeMillis();
+			LogUtil.e("插件框架初始化完成", "耗时：" + (t2-t1));
 		}
 	}
 

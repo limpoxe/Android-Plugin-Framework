@@ -87,6 +87,8 @@ public class PluginDescriptor implements Serializable {
 	 */
 	private HashMap<String, ArrayList<PluginIntentFilter>> services = new HashMap<String, ArrayList<PluginIntentFilter>>();
 
+	private HashMap<String, String> serviceInfos = new HashMap<String, String>();
+
 	/**
 	 * key: receiver class name
 	 * value: intentfilter list
@@ -199,6 +201,14 @@ public class PluginDescriptor implements Serializable {
 
 	public void setActivityInfos(HashMap<String, PluginActivityInfo> activityInfos) {
 		this.activityInfos = activityInfos;
+	}
+
+	public HashMap<String, String> getServiceInfos() {
+		return serviceInfos;
+	}
+
+	public void setServiceInfos(HashMap<String, String> serviceInfos) {
+		this.serviceInfos = serviceInfos;
 	}
 
 	public HashMap<String, ArrayList<PluginIntentFilter>> getServices() {

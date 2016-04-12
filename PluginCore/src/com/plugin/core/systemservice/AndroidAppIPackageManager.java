@@ -349,9 +349,15 @@ public class AndroidAppIPackageManager extends MethodProxy {
         serviceInfo.metaData = pluginDescriptor.getMetaData();
         serviceInfo.enabled = true;
         serviceInfo.exported = false;
-        //需要时再加上这里或许应该再加上插件中配置进程名称后缀
-        //TODO
-        serviceInfo.processName = PluginLoader.getApplication().getPackageName();
+        //加上插件中配置进程名称后缀
+        String process = pluginDescriptor.getServiceInfos().get(className);
+        if (process == null) {
+            serviceInfo.processName = PluginLoader.getApplication().getPackageName();
+        } else if (process.startsWith(":")) {
+            serviceInfo.processName = PluginLoader.getApplication().getPackageName() + process;
+        } else {
+            serviceInfo.processName = process;
+        }
         serviceInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
         return serviceInfo;
     }
