@@ -17,7 +17,7 @@ public class PluginTestService2 extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d("xx", "PluginTestService2 onCreate2");
+		Log.d("xx", "PluginTestService2 onCreate2" + getApplication() + " "+ getApplicationContext());
 	}
 
 	@Override
