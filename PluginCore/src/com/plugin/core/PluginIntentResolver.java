@@ -17,7 +17,8 @@ import java.util.ArrayList;
 public class PluginIntentResolver {
 
 	public static final String CLASS_SEPARATOR = "_RECEIVER_AND_ACTIVITY_";
-	public static final String CLASS_PREFIX = "_RECEIVER_AND_SERVICE_";
+	public static final String CLASS_PREFIX_RECEIVER = "_RECEIVER_";
+	public static final String CLASS_PREFIX_SERVICE = "_SERVICE_";
 
 	public static void resolveService(Intent service) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
@@ -69,7 +70,7 @@ public class PluginIntentResolver {
 				}
 				// PluginClassLoader检测到这个特殊标记后会进行替换
 				intent.setComponent(new ComponentName(intent.getComponent().getPackageName(),
-						CLASS_PREFIX + targetClassName[0]));
+						CLASS_PREFIX_RECEIVER + targetClassName[0]));
 
 				if (Build.VERSION.SDK_INT >= 21) {
 					if (intent.getExtras() != null) {
@@ -94,7 +95,7 @@ public class PluginIntentResolver {
 		LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName, info.applicationInfo.packageName);
 
 		if (targetClassName != null) {
-			info.name =  CLASS_PREFIX + targetClassName;
+			info.name =  CLASS_PREFIX_SERVICE + targetClassName;
 		} else {
 			LogUtil.e("hackServiceName 没有找到映射关系, 有2个可能：1、确实是宿主service；2、映射表出了异常。如果是映射表出了异常会导致classNotFound", info.name);
 			PluginManagerHelper.dumpServiceInfo();

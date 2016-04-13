@@ -74,9 +74,21 @@ public class ActivityThread {
 
     public static Object getResCompatibilityInfo() {
         //貌似没啥用
-        Object mBoundApplication = RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, "mBoundApplication");
+        Object mBoundApplication = getBoundApplicationData();
         Object compatInfo = RefInvoker.getFieldObject(mBoundApplication, android_app_ActivityThread_AppBindData, "compatInfo");
         return compatInfo;
+    }
+
+    public static Object getLoadedApk() {
+        //貌似没啥用
+        Object mBoundApplication = getBoundApplicationData();
+        Object info = RefInvoker.getFieldObject(mBoundApplication, android_app_ActivityThread_AppBindData, "info");
+        return info;
+    }
+
+    public static Object getBoundApplicationData() {
+        Object mBoundApplication = RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, "mBoundApplication");
+        return mBoundApplication;
     }
 
     public static void installContentProviders(Context context, List<ProviderInfo> providers) {

@@ -115,7 +115,7 @@ public class PluginAppTrace implements Handler.Callback {
 		if (ProcessUtil.isPluginProcess()) {
 			String serviceName = PluginIntentResolver.resolveServiceForClassLoader(msg.obj);
 
-			if (serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX)) {
+			if (serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 				PluginInjector.hackHostClassLoaderIfNeeded();
 			}
 
@@ -174,10 +174,10 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static void afterCreateService(Result result) {
 
-		if (result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX)) {
+		if (result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 			//拿到创建好的service，重新 设置mBase和mApplicaiton
 			//由于这步操作是再service得oncreate之后执行，所以再插件service得oncreate中不应尝试通过此service的context执行操作
-			PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX, ""));
+			PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE, ""));
 		} else {
 			//注入一个无害的BaseContext, 主要是为了重写宿主Service的sentBroadCast和startService方法
 			PluginInjector.replaceHostServiceContext(result.serviceName);

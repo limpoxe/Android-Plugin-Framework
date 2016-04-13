@@ -382,13 +382,26 @@ public class PluginInjector {
 	public static void hackHostClassLoaderIfNeeded() {
 		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplication(), Application.class.getName(),
 				"mLoadedApk");
-		ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(mLoadedApk, "android.app.LoadedApk",
-				"mClassLoader");
-		if (!(originalLoader instanceof HostClassLoader)) {
-			HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplication()
-					.getCacheDir().getAbsolutePath(),
-					PluginLoader.getApplication().getCacheDir().getAbsolutePath(), originalLoader);
-			RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk", "mClassLoader", newLoader);
+		if (mLoadedApk == null) {
+			//重试一次
+			mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplication(), Application.class.getName(),
+					"mLoadedApk");
+		}
+		if(mLoadedApk == null) {
+			//换个方式再试一次
+			mLoadedApk = ActivityThread.getLoadedApk();
+		}
+		if (mLoadedApk != null) {
+			ClassLoader originalLoader = (ClassLoader) RefInvoker.getFieldObject(mLoadedApk, "android.app.LoadedApk",
+					"mClassLoader");
+			if (!(originalLoader instanceof HostClassLoader)) {
+				HostClassLoader newLoader = new HostClassLoader("", PluginLoader.getApplication()
+						.getCacheDir().getAbsolutePath(),
+						PluginLoader.getApplication().getCacheDir().getAbsolutePath(), originalLoader);
+				RefInvoker.setFieldObject(mLoadedApk, "android.app.LoadedApk", "mClassLoader", newLoader);
+			}
+		} else {
+			LogUtil.e("What!!Why?");
 		}
 	}
 }
