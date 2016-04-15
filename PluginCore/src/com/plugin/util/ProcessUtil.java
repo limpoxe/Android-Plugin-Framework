@@ -14,16 +14,19 @@ public class ProcessUtil {
 
     private static Boolean isPluginProcess;
 
-    public static boolean isPluginProcess() {
+    public static boolean isPluginProcess(Context context) {
 
         if (isPluginProcess == null) {
-            Context context = PluginLoader.getApplication();
             String processName = getCurProcessName(context);
             String pluginProcessName = getPluginProcessName(context);
 
             isPluginProcess = processName.equals(pluginProcessName);
         }
         return isPluginProcess;
+    }
+
+    public static boolean isPluginProcess() {
+        return isPluginProcess(PluginLoader.getApplication());
     }
 
     private static String getCurProcessName(Context context) {

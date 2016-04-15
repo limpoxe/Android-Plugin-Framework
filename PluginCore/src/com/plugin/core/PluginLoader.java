@@ -39,6 +39,9 @@ public class PluginLoader {
 	}
 
 	public static Application getApplication() {
+		if (sApplication == null) {
+			throw new IllegalStateException("框架尚未初始化，请确定在当前进程中，PluginLoader.initLoader方法已执行！");
+		}
 		return sApplication;
 	}
 
