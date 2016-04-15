@@ -60,7 +60,7 @@
         android:label="@string/app_name"
         android:theme="@style/ShareTheme" >
 
-        <activity android:name=".MainActivity" >
+        <activity android:name=".SplashActivity" >
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
@@ -68,6 +68,10 @@
                     android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".MainActivity" >
+        </activity>
+
         <activity android:name=".DetailActivity" />
 
         <!-- 要展示插件中的fragment，所以配成插件进程 -->
