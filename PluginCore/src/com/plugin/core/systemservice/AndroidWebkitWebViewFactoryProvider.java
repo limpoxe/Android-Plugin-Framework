@@ -25,8 +25,12 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             //在4。4及以上，这里的WebViewFactoryProvider的实际类型是
             // com.android.webview.chromium.WebViewChromiumFactoryProvider implements WebViewFactoryProvider
             Object webViewFactoryProvider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
-            Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
-            RefInvoker.setStaticOjbect("android.webkit.WebViewFactory", "sProviderInstance", webViewFactoryProviderProxy);
+            if (webViewFactoryProvider != null) {
+                Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
+                RefInvoker.setStaticOjbect("android.webkit.WebViewFactory", "sProviderInstance", webViewFactoryProviderProxy);
+            } else {
+                //如果取不到值，原因可能是不同版本差异
+            }
             LogUtil.d("安装完成");
         }
     }

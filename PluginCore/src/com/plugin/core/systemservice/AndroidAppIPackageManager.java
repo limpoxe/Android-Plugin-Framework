@@ -80,6 +80,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeResult, Object invokeResult) {
             LogUtil.d("afterInvoke", method.getName());
 
+            //注意：android 4.1.2及以下没有getList方法
             List<PackageInfo> result = (List<PackageInfo> )RefInvoker.invokeMethod(invokeResult, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
 
             Collection<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
