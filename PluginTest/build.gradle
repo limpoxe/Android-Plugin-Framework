@@ -81,9 +81,9 @@ dependencies {
     //依赖库的依赖裤（当supportV4在依赖库V的libs目录下时）
     //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
     //依赖库的依赖裤（当supportV4通过仓库依赖时）
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/classes.jar')
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/libs/internal_impl-22.1.1.jar')
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.1/jars/classes.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.2.0/jars/classes.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.2.0/jars/libs/internal_impl-23.2.0.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/23.2.0/jars/classes.jar')
 
     //如果插件需要依赖一些私有库，可放开下面的注释，并修改为私有库的名称
     //compile project(':PluginPrivateLib1')
