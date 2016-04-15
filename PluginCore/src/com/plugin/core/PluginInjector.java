@@ -24,6 +24,7 @@ import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.app.ActivityThread;
+import com.plugin.core.compat.CompatForSupportv7_23_2;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
@@ -207,10 +208,12 @@ public class PluginInjector {
 		// 重设BaseContext
 		RefInvoker.setFieldObject(activity, ContextWrapper.class.getName(), android_content_ContextWrapper_mBase, null);
 		RefInvoker.invokeMethod(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_attachBaseContext,
-				new Class[]{Context.class }, new Object[] { pluginContext });
+				new Class[]{Context.class}, new Object[]{pluginContext});
 
 		// 由于在attach的时候Resource已经被初始化了，所以需要重置Resource
 		RefInvoker.setFieldObject(activity, ContextThemeWrapper.class.getName(), android_content_ContextThemeWrapper_mResources, null);
+
+		CompatForSupportv7_23_2.fixResource(pluginContext, activity);
 
 		// 重设theme
 		if (pluginAppTheme != 0) {
