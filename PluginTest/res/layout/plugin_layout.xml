@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:id="@+id/content"
@@ -58,7 +59,15 @@
             android:layout_height="300dp"
             android:layout_alignParentBottom="true"
             android:background="@color/light_btn_normal_color" />
-        
+
+        <!-- 测试来自宿主的自定义控件的自定义属性 -->
+        <com.example.pluginsharelib.RectImageView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:widthToheight="0.25"
+            android:background="@android:color/black" />
+
         <com.example.plugintest.view.PluginTestLayout
             android:layout_width="fill_parent"
             android:layout_height="300dp"
