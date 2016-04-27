@@ -17,6 +17,7 @@ public class SplashActivity extends AppCompatActivity {
 
 	public void open(View view) {
 
+		//initloader最好还是放在application中去做，这里只是做个演示，表明initloader方法可以需要时再执行
 		PluginLoader.initLoader(getApplication());
 
 		startActivity(new Intent(this, MainActivity.class));
