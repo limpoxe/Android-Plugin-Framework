@@ -97,9 +97,8 @@ public class PluginManifestParser {
                         } else if ("exported-fragment".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
-                            name = getName(name, packageName);
                             String value = parser.getAttributeValue(namespaceAndroid, "value");
-
+                            value = getName(value, packageName);
                             if (name != null) {
 
                                 HashMap<String, String> fragments = desciptor.getFragments();
@@ -115,9 +114,8 @@ public class PluginManifestParser {
                         } else if ("exported-service".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
-                            name = getName(name, packageName);
                             String value = parser.getAttributeValue(namespaceAndroid, "value");
-
+                            value = getName(value, packageName);
                             if (name != null) {
 
                                 HashMap<String, String> functions = desciptor.getFunctions();
