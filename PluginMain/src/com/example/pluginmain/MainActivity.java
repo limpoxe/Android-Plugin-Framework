@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		LogProxy l = new LogProxy();
 		setContentView(R.layout.main_activity);
 
 		setTitle("插件列表");

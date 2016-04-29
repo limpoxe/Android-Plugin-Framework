@@ -30,6 +30,13 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+
+        //此配置和插件框架无关，可去掉
+        ndk {
+            moduleName "log4a" //这个jni仅仅是为了测试日志拦截的可行性。和插件框架无关。
+            ldLibs 'log' //表示这个库依赖的其他库,这里并不需要
+            abiFilters 'armeabi', "armeabi-v7a"
+        }
     }
 
     lintOptions {
@@ -47,6 +54,13 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+
+            //此配置和插件框架无关，可去掉
+            jni {
+                srcDir "jni"
+                include "*.cpp"  // 其实不需要配置，默认就已经包含了*.cpp
+            }
+
         }
 
         // Move the tests to tests/java, tests/res, etc...
