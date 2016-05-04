@@ -18,7 +18,7 @@
             />
         
         <!--
-            对Receiver的类全名没有要求，可随意指定，框架中是通过action来查询。
+            对Receiver的类全名没有要求，可随意指定，框架中是通过action来查询。注册1个即可
         -->
         <receiver android:name="${applicationId}.stub.PluginStubReceiver"
             android:process=":plugin"
@@ -32,7 +32,8 @@
         </receiver>
 
         <!--
-            所有的插件中共有多少个Service, 这里就注册多少个对应的虚拟Service，
+            所有的插件中共有多少个Service, 这里就至少需要注册多少个对应的虚拟Service(也可以大于，实际上这里的数量只需>=可能同
+            时处于运行状态的service数量，一般预注册十来个应该绰绰有余了)，
             这里的虚拟Service并不需要真实存在，
             只是占个位置，运行实动态绑定到实际的插件Service
             对service的类全名没有要求，可随意指定，框架中是通过action来查询。
@@ -105,8 +106,8 @@
         <!--为了支持非standard的launchMode，
             所有的插件中共有多少个非standard模式的Activity，就在这里注册多少个对应的虚拟的Activity(standard的只需要1个)，
             这些虚拟Activity并不需要真实存在，
-            （实际情况中注册的虚拟activity个数可以比插件中的非standard的activity个数少。
-            因为不太可能所有的插件activity都同时被唤起）
+            （实际情况中注册的虚拟非standard的activity个数可以比插件中的非standard的activity总个数少。
+            因为不太可能所有的插件activity都同时被唤起，每种非standard的注册十几个绰绰有余）
             对Activity的类全名没有要求，可随意指定，框架中是通过action来查询。
             -->
         <activity
