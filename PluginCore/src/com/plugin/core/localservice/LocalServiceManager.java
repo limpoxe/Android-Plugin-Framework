@@ -1,7 +1,8 @@
 package com.plugin.core.localservice;
 
+import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginLoader;
+import com.plugin.core.PluginLauncher;
 import com.plugin.util.LogUtil;
 
 import java.util.HashMap;
@@ -36,10 +37,13 @@ public class LocalServiceManager {
                 @Override
                 public Object createService(int serviceId) {
                     mPluginId = pluginId;
-                    PluginDescriptor pd = PluginLoader.initPluginByPluginId(pluginId);
-                    if (pd != null) {
+
+                    //插件可能尚未初始化，确保使用前已经初始化
+                    LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
+
+                    if (plugin != null) {
                         try {
-                            Class clazz = pd.getPluginClassLoader().loadClass(serviceClass);
+                            Class clazz = plugin.pluginClassLoader.loadClass(serviceClass);
                             return clazz.newInstance();
                         } catch (Exception e) {
                             LogUtil.printException("获取服务失败", e);
@@ -61,6 +65,16 @@ public class LocalServiceManager {
     public static Object getService(String name) {
         LocalServiceFetcher fetcher = SYSTEM_SERVICE_MAP.get(name);
         return fetcher == null ? null : fetcher.getService();
+    }
+
+    public static void unRegistService(PluginDescriptor plugin) {
+        Iterator<Map.Entry<String, LocalServiceFetcher>> itr = SYSTEM_SERVICE_MAP.entrySet().iterator();
+        while(itr.hasNext()) {
+            Map.Entry<String, LocalServiceFetcher> item = itr.next();
+            if(plugin.getPackageName().equals(item.getValue().mPluginId)) {
+                itr.remove();
+            }
+        }
     }
 
 }

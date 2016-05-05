@@ -7,26 +7,31 @@
 # 已支持的功能：
   1、插件apk无需安装，由宿主程序动态加载运行。
   
-  2、支持fragment、activity、service、receiver、contentprovider、jni so、application、组件。
+  2、支持fragment、activity、service、receiver、contentprovider、so、application、notification。
   
   3、支持插件自定义控件、宿主自定控件。
   
   4、开发插件apk和开发普通apk时代码编写方式无区别。对插件apk和宿主程序来说，插件框架完全透明，开发插件apk时无约定、无规范约束。
   
-  5、插件中的组件拥有真正生命周期，完全交由系统管理、非反射无代理
+  5、插件中的组件拥有真正生命周期，完全交由系统管理、非反射代理
   
-  6、支持插件引用宿主程序的依赖库、插件资源、宿主资源。
+  6、支持插件引用宿主程序的依赖库、插件资源、宿主资源、以及插件依赖插件。
   
-  7、支持插件使用宿主程序主题（部分系统暂不支持，如MX5）、系统主题、插件自身主题以及style（插件主题不支持透明）、轻松支持皮肤切换
+  7、支持插件使用宿主主题、系统主题、插件自身主题以及style、轻松支持皮肤切换
   
   8、支持非独立插件和独立插件（非独立插件指自己编译的需要依赖宿主中的公共类和资源的插件，不可独立安装运行。独立插件又分为两种：
-     一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装运行，这种只做了简单支持。）
+     一种是自己编译的不需要依赖宿主中的类和资源的插件，可独立安装运行；一种是第三方发布的apk，如从应用市场下载的apk，可独立安装
+     运行，这种只做了简单支持。）
   
   9、支持插件Activity的4个LaunchMode
 
   10、支持插件资源文件中直接通过@xxx方式引用共享依赖库中的资源
 
-  11、支持插件发送notification时在RemoteViews使用插件自定义的布局资源（只支持5.x及以上）
+  11、支持插件发送notification时在RemoteViews携带插件自定义的布局资源（只支持5.x及以上）
+
+  12、支持插件热更新：即在插件模块已经被唤起的情况先安装新版本插件，无需重启进程
+
+  13、支持在插件中注册全局服务：即在某个插件中注册一个服务，在其他插件中通过LocalServiceManager或者直接使用getSystemService获取这个服务
 
 # 暂不支持的功能：
 
@@ -34,7 +39,10 @@
   
   2、不支持插件申请权限，权限必须预埋到宿主中。
   
-  3、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接。
+  3、不支持第三方app试图唤起插件中的组件时直接使用插件app的Intent。即插件app不能认为自己是一个正常安装的app。
+     第三方app要唤起插件中的静态组件时必须由宿主程序进行桥接，方法请参看wxsdklibrary工程的用法
+
+  4、不支持android.app.NativeActivity
 
 # 开发注意事项
 
@@ -46,7 +54,8 @@
 
         b）通过定制过的aapt在编译插件时指定id范围来解决冲突（For-gradle-with-aapt分支采用的方案）
            此方案需要替换sdk原生的aapt，且要区分多平台，buildTools版本更新后需同步升级aapt。
-           定制的aapt由 openAtlasExtention@github 项目提供，目前的版本是基于22.0.1，将项目中的BuildTools替换到本地Android Sdk中相应版本的BuildTools中，
+           定制的aapt由 openAtlasExtention@github 项目提供，目前的版本是基于22.0.1，将项目中的BuildTools替换
+           到本地Android Sdk中相应版本的BuildTools中，
            并指定gradle的buildTools version为对应版本即可。
 
     2、非独立插件中的class不能同时存在于宿主和插件程序中，因此其引用的公共库仅参与编译，不参与打包，参看demo中的gradle脚本。
@@ -54,13 +63,34 @@
     3、若插件中包含so，则需要在宿主中添加一个占位的so文件。占位so可随意创建，随意命名，关键在于so所在的cpuarch目录要正确。
        在pluginMain工程。pluginMain工程中的libstub.so其实只是一个txt文件。
 
-       需要占位so的原因是，宿主在安装时，系统会扫描宿主中的so的（根据文件夹判断）类型，决定宿主在哪种cpu模式下运行。
+       需要占位so的原因是，宿主在安装时，系统会扫描宿主中的so的（根据文件夹判断）类型，决定宿主在哪种cpu模式下运行、并保持到系统设置里面。
+       (系统源码可查看com.android.server.pm.PackageManagerService.setBundledAppAbisAndRoots()方法)
        例如32、64、还是x86等等。如果宿主中不包含so，系统默认会选择一个最适合当前设备的模式。
        那么问题来了，如果系统默认选择的模式，和将来下载安装的插件中的so支持的模式不匹配，则会出现so异常。
 
        因此需要提前通知系统，宿主需要在哪些cpu模式下运行。提前通知的方式即内置占位so。
 
-    4、插件间依赖时，被插件依赖的插件暂不支持包含资源
+    4、插件依赖插件时，被插件依赖的插件暂不支持包含资源（技术上可行，但为了降低复杂度不做支持）
+    
+    5、在插件中调用getPackageName方法返回的是宿主的包名，不是插件包名。
+
+       这一点非常重要。在插件中需要使用此api的地方应当直接换成插件包名
+       这一点也是为何在上述＃已支持的功能第8条中指出只对第三方应用做了简单支持的原因。
+       若需要支持任意第三方应用，则“插件中调用getPackageName方法返回的是插件包名”是必要条件。
+       而本项目中不返回插件包名的原因，在代码中有注释说明，不赘述。
+       
+    6、插件默认是在插件进程中运行，如需切到宿主进程，仅需将core工程的Manifest中配置的所有组件去都去掉掉process属性即可。
+       PluginMain工程下有几个插件进程的demo也需要去掉process属性
+
+    7、将配置插件为非独立插件、为插件配置依赖插件的方法。
+       插件框架识别一个插件是否为独立插件，是根据插件的Manifest文件中的android:sharedUserId属性。
+       将android:sharedUserId属性设置为宿主的packageName，则表示为非独立插件。不配置或配置为其他值表示为独立插件
+
+       插件如果依赖其他基础插件，需要在插件Manifest中配置如下信息
+       <uses-library android:name="XX.XX.XX" android:required="true" />
+       name是被依赖的插件的packageName
+
+    8、框架中对非独立插件做了签名校验。如果宿主是release模式，要求插件的签名和宿主的签名一致才允许安装。
 
 # 目录结构说明：
 
@@ -97,10 +127,21 @@
      3、若使用For－eclipse－ide分支：
         需要使用ant编译，关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,若编译失败，请升级androidSDK。
 
+    4、编译方法
 
-    待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（参看插件工程的build.gradle）,然后重新打包安装PluginMain。
-    或者也可将插件复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
+       a）如果是命令行中：
+       cd  Android-Plugin-Framework
+       ./gradlew clean
+       ./gradlew build
 
+       b）如果是studio中：
+       打开studio右侧gradle面板区，点clean、点build
+
+       重要：由于编译脚本依赖build.doLast, 使用其他编译方法可能不会触发build.doLast导致编译失败
+       所以使用其他编译方法前请务必仔细阅读build.gradle，了解编译过程后自行调整编译脚本。
+
+       待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新打包安装PluginMain。
+       或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
 
 # 实现原理简介：
   1、插件apk的class
@@ -195,7 +236,8 @@
 
     对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
     
-    对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getPluginContext()获取的context，
+    对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
+    通过context.createPackageContext(插件包名)获取的插件context，
     那么这种fragment对其运行容器没有特殊要求
     
     第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
@@ -208,7 +250,8 @@
     
   12、插件Activity的LaunchMode
   
-    要实现插件Activity的LaunchMode，需要在宿主程序中预埋若干个相应launchMode的Activity（预注册的组件可实际存在也可不存在），在运行时进行动态映射选择
+    要实现插件Activity的LaunchMode，需要在宿主程序中预埋若干个（standard只需1个）相应launchMode的Activity（预注
+    册的组件可实际存在也可不存在），在运行时进行动态映射选择。core工程的manifest中配置
 
   13、对多Service的支持
   
@@ -216,14 +259,28 @@
 
 # 需要注意的问题
 
-   1、项目插件化后，特别需要注意的是宿主程序混淆问题。公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
-   所以公共库一定要排除混淆或者使用稳定的mapping混淆。
+   1、项目插件化后，特别需要注意的是宿主程序混淆问题。
+      若公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
+      所以公共库一定要排除混淆或者使用稳定的mapping混淆。
+      若需要混淆core工程，请参考PluginMain工程下的混淆配置
 
    2、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
 
    3、本项目除master分支外，其他分支不会更新维护。
 
 # 更新纪录：
+
+    2016-04-08： 修复若干bug，优化
+
+    2016-02-24： 1、添加插件进程
+                 2、添加插件MultiDex支持
+
+    2016-02-18： 增加对插件使用宿主主题的支持，例如supportV7主题
+
+    2016-01-27： 1、修复几个bug
+                 2、增加对插件Activity透明主题支持
+
+    2016-01-16： 对系统服务增加了一层Proxy，以支持拦截系统服务的方法调用
 
     2016-01-01： 1、添加对插件依赖插件的支持
                  2、添加localservice
@@ -233,9 +290,11 @@
     2015-12-05： 1、修复插件so在多cpu平台下模式选择错误的问题
                  2、添加对基于主题style和自定义属性的换肤功能
 
-    2015-11-22： 1、gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，因此master分支切回到利用public.xml分组的实现
+    2015-11-22： 1、gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，
+                    因此master分支切回到利用public.xml分组的实现
                  2、支持插件资源文件直接通过@package:type/name方式引用宿主资源
 
 联系作者：
-  Q：15871365851， 添加时请注明插件开发。
-  Q群：207397154
+  Q：15871365851，添加时请注明插件开发
+
+  Q群：116993004、207397154(已满)，重要：添加前请务必仔细阅读此ReadMe！请务必仔细阅读Demo！

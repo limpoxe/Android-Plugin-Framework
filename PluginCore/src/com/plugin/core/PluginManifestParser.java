@@ -64,7 +64,7 @@ public class PluginManifestParser {
                             desciptor.setPackageName(packageName);
                             desciptor.setVersion(versionName + "_" + versionCode);
                             
-                            desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplicatoin().getPackageName().equals(sharedUserId));
+                            desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
 
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
                         } else if ("meta-data".equals(tag)) {
@@ -74,22 +74,23 @@ public class PluginManifestParser {
 
                             if (name != null) {
 
-                                HashMap<String, String> metaData = desciptor.getMetaData();
-                                if (metaData == null) {
-                                    metaData = new HashMap<String, String>();
-                                    desciptor.setMetaData(metaData);
-                                }
-                                if (value != null && value.startsWith("@") && value.length() == 9) {
-                                    String idHex = value.replace("@", "");
-                                    try {
-                                        int id = Integer.parseInt(idHex, 16);
-                                        value = Integer.toString(id);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                metaData.put(name, value);
-                                LogUtil.d(name, value);
+//                                HashMap<String, String> metaData = desciptor.getMetaData();
+//                                if (metaData == null) {
+//                                    metaData = new HashMap<String, String>();
+//                                    desciptor.setMetaData(metaData);
+//                                }
+//                                if (value != null && value.startsWith("@") && value.length() == 9) {
+//                                    String idHex = value.replace("@", "");
+//                                    try {
+//                                        int id = Integer.parseInt(idHex, 16);
+//                                        value = Integer.toString(id);
+//                                    } catch (Exception e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                metaData.put(name, value);
+
+                                LogUtil.d("meta-data", name, value);
 
                             }
 
@@ -97,7 +98,7 @@ public class PluginManifestParser {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             String value = parser.getAttributeValue(namespaceAndroid, "value");
-
+                            value = getName(value, packageName);
                             if (name != null) {
 
                                 HashMap<String, String> fragments = desciptor.getFragments();
@@ -114,7 +115,7 @@ public class PluginManifestParser {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             String value = parser.getAttributeValue(namespaceAndroid, "value");
-
+                            value = getName(value, packageName);
                             if (name != null) {
 
                                 HashMap<String, String> functions = desciptor.getFunctions();
@@ -146,6 +147,8 @@ public class PluginManifestParser {
                             desciptor.setApplicationName(applicationName);
 
                     		desciptor.setDescription(parser.getAttributeValue(namespaceAndroid, "label"));
+
+                            //这里不解析主题，后面会通过packageManager查询
 
                             LogUtil.d("applicationName", applicationName, " Description ", desciptor.getDescription());
 
@@ -200,16 +203,28 @@ public class PluginManifestParser {
 
                         } else if ("service".equals(tag)) {
 
+                            String process = parser.getAttributeValue(namespaceAndroid, "process");
+
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getServices();
                             if (map == null) {
                                 map = new HashMap<String, ArrayList<PluginIntentFilter>>();
                                 desciptor.setServices(map);
                             }
-                        	addIntentFilter(map, packageName, namespaceAndroid, parser, "service");
+                        	String name = addIntentFilter(map, packageName, namespaceAndroid, parser, "service");
+
+                            if (process != null) {
+                                HashMap<String, String> infos = desciptor.getServiceInfos();
+                                if (infos == null) {
+                                    infos = new HashMap<String, String>();
+                                    desciptor.setServiceInfos(infos);
+                                }
+                                infos.put(name, process);
+                            }
 
                         } else if ("provider".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
+                            name = getName(name, packageName);
                             String author = parser.getAttributeValue(namespaceAndroid, "authorities");
                             String exported = parser.getAttributeValue(namespaceAndroid, "exported");
                             HashMap<String, PluginProviderInfo> providers = desciptor.getProviderInfos();

@@ -8,7 +8,6 @@ import com.plugin.core.PluginLoader;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,18 +15,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 public class FileUtil {
+
+	private static final boolean DEBUG = false;
 
 	public static boolean copyFile(String source, String dest) {
 		try {
@@ -85,7 +83,7 @@ public class FileUtil {
 				String[] abis = Build.SUPPORTED_ABIS;
 				if (abis != null) {
 					for (String abi: abis) {
-						LogUtil.d(abi);
+						LogUtil.d("try supported abi:", abi);
 						String name = "lib" + File.separator + abi + File.separator + so;
 						File sourceFile = new File(sourceDir, name);
 						if (sourceFile.exists()) {
@@ -97,7 +95,7 @@ public class FileUtil {
 					}
 				}
 			} else {
-				LogUtil.d(Build.CPU_ABI, Build.CPU_ABI2);
+				LogUtil.d("supported api:", Build.CPU_ABI, Build.CPU_ABI2);
 
 				String name = "lib" + File.separator + Build.CPU_ABI + File.separator + so;
 				File sourceFile = new File(sourceDir, name);
@@ -117,7 +115,7 @@ public class FileUtil {
 			}
 
 			if (!isSuccess) {
-				Toast.makeText(PluginLoader.getApplicatoin(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+				Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -150,13 +148,17 @@ public class FileUtil {
 				String relativePath = ze.getName();
 
 				if (!relativePath.startsWith("lib" + File.separator)) {
-					LogUtil.d("不是lib目录，跳过", relativePath);
+					if (DEBUG) {
+						LogUtil.d("不是lib目录，跳过", relativePath);
+					}
 					continue;
 				}
 
 				if (ze.isDirectory()) {
 					File folder = new File(tempDir, relativePath);
-					LogUtil.d("正在创建目录", folder.getAbsolutePath());
+					if (DEBUG) {
+						LogUtil.d("正在创建目录", folder.getAbsolutePath());
+					}
 					if (!folder.exists()) {
 						folder.mkdirs();
 					}
@@ -261,7 +263,22 @@ public class FileUtil {
 				}
 			}
 		}
+		LogUtil.d("delete", file.getAbsolutePath());
 		return file.delete();
+	}
+
+	public static void printAll(File file) {
+		if (DEBUG) {
+			LogUtil.d("printAll", file.getAbsolutePath());
+			if (file.isDirectory()) {
+				File[] childFiles = file.listFiles();
+				if (childFiles != null && childFiles.length > 0) {
+					for (int i = 0; i < childFiles.length; i++) {
+						printAll(childFiles[i]);
+					}
+				}
+			}
+		}
 	}
 
 	public static String streamToString(InputStream input) throws IOException {

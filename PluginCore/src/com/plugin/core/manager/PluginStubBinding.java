@@ -1,6 +1,5 @@
-package com.plugin.core;
+package com.plugin.core.manager;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -10,7 +9,9 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,10 +29,7 @@ import java.util.Set;
 /**
  * 插件组件动态绑定到宿主的虚拟stub组件
  */
-public class PluginStubBinding {
-
-	private static final String STUB_DEFAULT = "com.plugin.core.STUB_DEFAULT";
-	private static final String STUB_EXACT = "com.plugin.core.STUB_EXACT";
+class PluginStubBinding {
 
 	/**
 	 * key:stub Activity Name
@@ -52,7 +50,20 @@ public class PluginStubBinding {
 
 	private static boolean isPoolInited = false;
 
+	private static String buildDefaultAction() {
+		return PluginLoader.getApplication().getPackageName() + ".STUB_DEFAULT";
+	}
+
+	private static String buildExactAction() {
+		return PluginLoader.getApplication().getPackageName() + ".STUB_EXACT";
+	}
+
 	private static void initPool() {
+
+		if(!ProcessUtil.isPluginProcess()) {
+			throw new IllegalAccessError("此类只能在插件所在进程使用");
+		}
+
 		if (isPoolInited) {
 			return;
 		}
@@ -70,10 +81,10 @@ public class PluginStubBinding {
 
 	private static void loadStubActivity() {
 		Intent launchModeIntent = new Intent();
-		launchModeIntent.setAction(STUB_DEFAULT);
-		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		launchModeIntent.setAction(buildDefaultAction());
+		launchModeIntent.setPackage(PluginLoader.getApplication().getPackageName());
 
-		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = PluginLoader.getApplication().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
@@ -103,10 +114,10 @@ public class PluginStubBinding {
 
 	private static void loadStubService() {
 		Intent launchModeIntent = new Intent();
-		launchModeIntent.setAction(STUB_DEFAULT);
-		launchModeIntent.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		launchModeIntent.setAction(buildDefaultAction());
+		launchModeIntent.setPackage(PluginLoader.getApplication().getPackageName());
 
-		List<ResolveInfo> list = PluginLoader.getApplicatoin().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = PluginLoader.getApplication().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
@@ -124,11 +135,11 @@ public class PluginStubBinding {
 
 	private static void loadStubExactly() {
 		Intent exactStub = new Intent();
-		exactStub.setAction(STUB_EXACT);
-		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		exactStub.setAction(buildExactAction());
+		exactStub.setPackage(PluginLoader.getApplication().getPackageName());
 
 		//精确匹配的activity
-		List<ResolveInfo> resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> resolveInfos = PluginLoader.getApplication().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -140,7 +151,7 @@ public class PluginStubBinding {
 		}
 
 		//精确匹配的service
-		resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		resolveInfos = PluginLoader.getApplication().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -155,10 +166,10 @@ public class PluginStubBinding {
 
 	private static void loadStubReceiver() {
 		Intent exactStub = new Intent();
-		exactStub.setAction(STUB_DEFAULT);
-		exactStub.setPackage(PluginLoader.getApplicatoin().getPackageName());
+		exactStub.setAction(buildDefaultAction());
+		exactStub.setPackage(PluginLoader.getApplication().getPackageName());
 
-		List<ResolveInfo> resolveInfos = PluginLoader.getApplicatoin().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> resolveInfos = PluginLoader.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() >0) {
 			receiver = resolveInfos.get(0).activityInfo.name;
@@ -239,24 +250,22 @@ public class PluginStubBinding {
 		return false;
 	}
 
-	public static void unBindLaunchModeStubActivity(String activityName, Intent intent) {
-		if (intent != null) {
-			ComponentName cn = intent.getComponent();
-			if (cn != null) {
-				String pluginActivityName = cn.getClassName();
+	public static void unBindLaunchModeStubActivity(String stubActivityName, String pluginActivityName) {
 
-				if (pluginActivityName.equals(singleTaskActivityMapping.get(activityName))) {
+		LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 
-					singleTaskActivityMapping.put(activityName, null);
+		if (pluginActivityName.equals(singleTaskActivityMapping.get(stubActivityName))) {
 
-				} else if (pluginActivityName.equals(singleInstanceActivityMapping.get(activityName))) {
+			LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+			singleTaskActivityMapping.put(stubActivityName, null);
 
-					singleInstanceActivityMapping.put(activityName, null);
+		} else if (pluginActivityName.equals(singleInstanceActivityMapping.get(stubActivityName))) {
 
-				} else {
-					//对于standard和singleTop的launchmode，不做处理。
-				}
-			}
+			LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+			singleInstanceActivityMapping.put(stubActivityName, null);
+
+		} else {
+			//对于standard和singleTop的launchmode，不做处理。
 		}
 	}
 
@@ -349,6 +358,10 @@ public class PluginStubBinding {
 		}
 	}
 
+	public static String dumpServieInfo() {
+		return serviceMapping.toString();
+	}
+
 	private static boolean save(HashMap<String, String> mapping) {
 
 		ObjectOutputStream objectOutputStream = null;
@@ -361,7 +374,7 @@ public class PluginStubBinding {
 			byte[] data = byteArrayOutputStream.toByteArray();
 			String list = Base64.encodeToString(data, Base64.DEFAULT);
 
-			PluginLoader.getApplicatoin()
+			PluginLoader.getApplication()
 					.getSharedPreferences("plugins.serviceMapping", Context.MODE_PRIVATE)
 					.edit().putString("plugins.serviceMapping.map", list).commit();
 
@@ -388,7 +401,7 @@ public class PluginStubBinding {
 	}
 
 	private static HashMap<String, String> restore() {
-		String list = PluginLoader.getApplicatoin()
+		String list = PluginLoader.getApplication()
 				.getSharedPreferences("plugins.serviceMapping", Context.MODE_PRIVATE)
 				.getString("plugins.serviceMapping.map", "");
 		Serializable object = null;

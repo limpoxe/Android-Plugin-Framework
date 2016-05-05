@@ -2,7 +2,10 @@ package com.example.pluginhelloworld;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -21,12 +24,30 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.e("xxx", "activity_welcome ID= " + R.layout.activity_welcome);
-        Log.e("xxx", getResources().getResourceEntryName(R.layout.activity_welcome));
-        Log.e("xxx", getResources().getString(R.string.app_name));
-        Log.e("xxx", getPackageName() + ", " + getText(R.string.app_name));
-        Log.e("xxx", getResources().getString(android.R.string.httpErrorBadUrl));
-        Log.e("xxx", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginhelloworld")));
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("这是App首屏");
+        actionBar.setSubtitle("这是副标题");
+        actionBar.setLogo(R.drawable.ic_launcher);
+        actionBar.setIcon(R.drawable.ic_launcher);
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
+                | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
+
+
+        try {
+            ApplicationInfo info = getPackageManager().getApplicationInfo("com.example.pluginhelloworld", PackageManager.GET_META_DATA);
+            String hellowMeta = (String)info.metaData.get("hello_meta");
+            Toast.makeText(this, hellowMeta, Toast.LENGTH_SHORT).show();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Log.e("xxx1", "activity_welcome ID= " + R.layout.activity_welcome);
+        Log.e("xxx2", getResources().getResourceEntryName(R.layout.activity_welcome));
+        Log.e("xxx3", getResources().getString(R.string.app_name));
+        Log.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
+        Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
+        Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginhelloworld")));
+        Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
 
         setContentView(R.layout.activity_welcome);
 
@@ -34,7 +55,7 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " +  HelloJni.calculate(3, 4), Toast.LENGTH_LONG).show();
+                Toast.makeText(WelcomeActivity.this, "测试JNI：3 + 4 = " + HelloJni.calculate(3, 4), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -42,6 +63,13 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+            }
+        });
+
+        findViewById(R.id.test_transparent_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(WelcomeActivity.this, TransparentActivity.class));
             }
         });
 

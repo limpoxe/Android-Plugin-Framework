@@ -174,7 +174,6 @@ public class PluginIntentFilter implements Serializable {
      *
      * @return A new IntentFilter for the given action and type.
      *
-     * @see #IntentFilter(String, String)
      */
     public static PluginIntentFilter create(String action, String dataType) {
         try {
@@ -1125,7 +1124,7 @@ public class PluginIntentFilter implements Serializable {
                     addDataPath(path, PluginPatternMatcher.PATTERN_SIMPLE_GLOB);
                 } 
             } else {
-                LogUtil.d("IntentFilter", "Not a IntentFilter tag : ", tagName);
+                //LogUtil.d("IntentFilter", "Not a IntentFilter tag : ", tagName);
             }
     }
 

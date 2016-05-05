@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 
 import java.util.ArrayList;
@@ -37,24 +38,6 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	public PluginBaseContextWrapper(Context base) {
 		super(base);
-	}
-
-	/**
-	 * startActivity有很多重载的方法，如有必要，可以相应的重写
-	 */
-	@Override
-	public void startActivity(Intent intent) {
-		LogUtil.d(intent);
-		PluginIntentResolver.resolveActivity(intent);
-		super.startActivity(intent);
-	}
-
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	@Override
-	public void startActivity(Intent intent, Bundle options) {
-		LogUtil.d(intent);
-		PluginIntentResolver.resolveActivity(intent);
-		super.startActivity(intent, options);
 	}
 
 	@Override
@@ -202,8 +185,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public Context createPackageContext(String packageName, int flags) throws PackageManager.NameNotFoundException {
-		if (PluginLoader.getPluginDescriptorByPluginId(packageName) != null) {
-			PluginLoader.initPluginByPluginId(packageName);
+		if (PluginManagerHelper.getPluginDescriptorByPluginId(packageName) != null) {
 			return PluginLoader.getNewPluginApplicationContext(packageName);
 		}
 		return super.createPackageContext(packageName, flags);

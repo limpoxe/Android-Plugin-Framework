@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,7 +42,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 @SuppressWarnings("ALL")
-public class PluginWebViewActivity extends Activity implements OnClickListener {
+public class PluginWebViewActivity extends AppCompatActivity implements OnClickListener {
 	WebView web;
 
 	@Override
@@ -77,6 +78,16 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		} else {
 			Toast.makeText(this, "ILoginService == null", Toast.LENGTH_SHORT).show();
 		}
+
+		try {
+			String currentPackageName = getPackageManager().getActivityInfo(new ComponentName(this.getPackageName(), this.getClass().getName()), 0).packageName;
+			Toast.makeText(this, "测试PackageManager查询插件信息" + currentPackageName, Toast.LENGTH_SHORT).show();
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		web.loadUrl("file:///android_asset/local_web_test.html");
+
 	}
 
 	@Override
@@ -125,8 +136,9 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 			testNotification();
 		} else if (v.getId() == R.id.weixin) {
 
-			//通过packageManager查询其他插件信息, 微信插件中没有配置launcher，所以这里用字符串“Send”来匹配
-			PackageManager packageManager = (PackageManager)getSystemService("package_manager");
+			//通过packageManager查询其他插件信息并打开,
+			// 微信插件中没有配置launcher，所以这里假定用字符串“Send”来匹配
+			PackageManager packageManager = getPackageManager();
 			try {
 				PackageInfo info = packageManager.getPackageInfo("com.example.wxsdklibrary", PackageManager.GET_ACTIVITIES);
 
@@ -145,8 +157,8 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 			}
 
 		} else if (v.getId() == R.id.hellow) {
-			//通过packageManager查询其他插件信息
-			PackageManager packageManager = (PackageManager)getSystemService("package_manager");
+			//通过packageManager查询其他插件信息并打开
+			PackageManager packageManager = getPackageManager();
 			Intent intent = packageManager.getLaunchIntentForPackage("com.example.pluginhelloworld");
 			startActivity(intent);
 		}
@@ -167,7 +179,6 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 		//还可以支持唤起service、receiver等等。
 
 		intent.putExtra("param1", "这是来自通知栏的参数");
-		intent = NotificationHelper.resolveNotificationIntent(intent, 2/*PluginDescriptor.ACTIVITY*/);
 
 		PendingIntent contentIndent = PendingIntent.getActivity(this, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
@@ -180,19 +191,8 @@ public class PluginWebViewActivity extends Activity implements OnClickListener {
 				.setContentText("来自插件ContentText");//设置上下文内容
 
 		if (Build.VERSION.SDK_INT >=21) {
-			try {
-				//获取当前插件的packageName
-				String currentPackageName = ((PackageManager)getSystemService("package_manager")).getActivityInfo(new ComponentName(this.getPackageName(), this.getClass().getName()), 0).packageName;
-
-				RemoteViews remoteViews = NotificationHelper.createRemoteViews(
-						R.layout.plugin_notification,
-						new File(Environment.getExternalStorageDirectory(), "tempNotificationRes.apk").getAbsolutePath(),
-						currentPackageName);
-				builder.setContent(remoteViews);
-
-			} catch (PackageManager.NameNotFoundException e) {
-				e.printStackTrace();
-			}
+			//api大于等于21时，测试通知栏携带插件布局资源文件
+			builder.setContent(new RemoteViews(getPackageName(), R.layout.plugin_notification));
 
 		}
 

@@ -3,22 +3,31 @@
     package="com.example.pluginhelloworld" >
 
     <application
+        android:name=".HellowWorldApplication"
         android:allowBackup="true"
         android:icon="@mipmap/custom_plugin_icon"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light" >
+
+        <meta-data android:name="hello_meta" android:value="hello_meta_1234" ></meta-data>
         <activity
             android:name=".WelcomeActivity"
             android:label="@string/app_name" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action
+                    android:name="android.intent.action.MAIN" />
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".MainActivity" >
+        </activity>
+
+        <activity
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:name=".TransparentActivity" >
         </activity>
     </application>
 

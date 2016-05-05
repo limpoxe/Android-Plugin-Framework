@@ -1,8 +1,13 @@
 package com.plugin.core;
 
+import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
@@ -11,12 +16,12 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.localservice.LocalServiceManager;
-import com.plugin.core.systemservice.PackageManagerCompat;
-import com.plugin.core.systemservice.PluginPackageManager;
+import com.plugin.core.multidex.PluginMultiDexHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
@@ -25,14 +30,24 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	Resources mResources;
 	private final ClassLoader mClassLoader;
-
+	private Application mPluginApplication;
 	protected final PluginDescriptor mPluginDescriptor;
 
-	public PluginContextTheme(PluginDescriptor pluginDescriptor, Context base, Resources resources, ClassLoader classLoader) {
+	private ArrayList<BroadcastReceiver> receivers = new ArrayList<BroadcastReceiver>();
+
+	private boolean crackPackageManager = false;
+
+	public PluginContextTheme(PluginDescriptor pluginDescriptor,
+							  Context base, Resources resources,
+							  ClassLoader classLoader) {
 		super(base);
 		mPluginDescriptor = pluginDescriptor;
 		mResources = resources;
 		mClassLoader = classLoader;
+	}
+
+	public void setPluginApplication(Application pluginApplication) {
+		this.mPluginApplication = pluginApplication;
 	}
 
 	@Override
@@ -95,17 +110,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		Object service = getBaseContext().getSystemService(name);
 
 		if (service == null) {
-
-			if ("package_manager".equals(name)) {
-				service = new PluginPackageManager(new PackageManagerCompat(getPackageManager()));
-			} else {
-				service = LocalServiceManager.getService(name);
-			}
-
+			service = LocalServiceManager.getService(name);
 		}
 
 		return service;
 	}
+
 
 	private void initializeTheme() {
 		final boolean first = mTheme == null;
@@ -121,12 +131,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public String getPackageName() {
-		//如果是独立插件 返回插件本身的packageName
-		//但是只返回插件本身的packageName可能会引起其他问题
-		//例如：
-		//1、会导致toast无法弹出，原因是toast弹出时会检查packageName是否时当前用户的
-		//2、会导致NotificationManager发送通知时crash、原因同上
-		//还有其他等等
+		//如果返回插件本身的packageName可能会引起一些问题。
+		//如packagemanager、activitymanager、wifi、window、inputservice
+		//等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
+		//除非再增加对系统服务方法hook才能解决
+		//最简单的办法还是这里保留返回宿主的packageName，
+		//在代码中自行区分是需要使用插件自己的还是宿主的
 		//if (mPluginDescriptor.isStandalone()) {
 		//	return mPluginDescriptor.getPackageName();
 		//} else {
@@ -191,7 +201,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public Context getApplicationContext() {
-		return mPluginDescriptor.getPluginApplication();
+		return mPluginApplication;
 	}
 
 	@Override
@@ -211,5 +221,43 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	public PluginDescriptor getPluginDescriptor() {
 		return mPluginDescriptor;
+	}
+
+	@Override
+	public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+		receivers.add(receiver);
+		return super.registerReceiver(receiver, filter);
+	}
+
+	@Override
+	public void unregisterReceiver(BroadcastReceiver receiver) {
+		super.unregisterReceiver(receiver);
+		receivers.remove(receiver);
+	}
+
+	public void unregisterAllReceiver() {
+		for (BroadcastReceiver br:
+			 receivers) {
+			super.unregisterReceiver(br);
+		}
+		receivers.clear();
+	}
+
+	@Override
+	public PackageManager getPackageManager() {
+		if (crackPackageManager) {
+			//欺骗MultDexInstaller， 使MultDexInstaller能得到正确的插件信息
+			return PluginMultiDexHelper.fixPackageManagerForMultDexInstaller(mPluginDescriptor.getPackageName(), super.getPackageManager());
+		}
+		return super.getPackageManager();
+	}
+
+	public void setCrackPackageManager(boolean crackPackageManager) {
+		this.crackPackageManager = crackPackageManager;
+	}
+
+	@Override
+	public File getFilesDir() {
+		return new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile(), "files");
 	}
 }

@@ -1,6 +1,21 @@
 package com.plugin.util;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.os.Bundle;
+
+import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginLoader;
+import com.plugin.core.PluginPublicXmlConst;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Created by cailiming
@@ -75,5 +90,99 @@ public class ResourceUtil {
             }
         }
         return 0;
+    }
+
+    public static String getLabel(PluginDescriptor pd) {
+        PackageManager pm = PluginLoader.getApplication().getPackageManager();
+        PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+        if (info != null) {
+            ApplicationInfo appInfo = info.applicationInfo;
+            appInfo.sourceDir = pd.getInstalledPath();
+            appInfo.publicSourceDir = pd.getInstalledPath();
+            String label = null;
+            try {
+                if (!isMainResId(appInfo.labelRes)){
+                    label = pm.getApplicationLabel(appInfo).toString();
+                }
+            } catch (Resources.NotFoundException e) {
+            }
+            if (label == null || label.equals(pd.getPackageName())) {
+                //可能设置的lable是来自宿主的资源
+                if (pd.getDescription() != null) {
+                    int id = ResourceUtil.getResourceId(pd.getDescription());
+                    if (id != 0) {
+                        //再宿主中查一次
+                        try {
+                            label = PluginLoader.getApplication().getResources().getString(id);
+                        } catch (Resources.NotFoundException e) {
+                        }
+                    }
+                }
+            }
+            if (label != null) {
+                return label;
+            }
+        }
+        return pd.getDescription();
+    }
+
+    public static Bundle getApplicationMetaData(String apkPath) {
+        //暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
+        PackageInfo info = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
+        if (info.applicationInfo != null) {
+            return info.applicationInfo.metaData;
+        }
+        return null;
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    public static Drawable getLogo(PluginDescriptor pd) {
+        PackageManager pm = PluginLoader.getApplication().getPackageManager();
+        PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+        if (info != null) {
+            ApplicationInfo appInfo = info.applicationInfo;
+            appInfo.sourceDir = pd.getInstalledPath();
+            appInfo.publicSourceDir = pd.getInstalledPath();
+            Drawable logo = pm.getApplicationLogo(appInfo);
+            return logo;
+        }
+        return null;
+    }
+
+    public static boolean isMainResId(int resid) {
+        //如果使用的使openatlasextention
+        //默认宿主的资源id以0x7f3X开头
+        return PluginPublicXmlConst.resourceMap.get(resid>>16) != null;
+    }
+
+    public static void rewriteRValues(ClassLoader cl, String packageName, int id) {
+        final Class<?> rClazz;
+        try {
+            rClazz = cl.loadClass(packageName + ".R");
+        } catch (ClassNotFoundException e) {
+            LogUtil.d("No resource references to update in package " + packageName);
+            return;
+        }
+
+        final Method callback;
+        try {
+            callback = rClazz.getMethod("onResourcesLoaded", int.class);
+        } catch (NoSuchMethodException e) {
+            // No rewriting to be done.
+            return;
+        }
+
+        Throwable cause;
+        try {
+            callback.invoke(null, id);
+            return;
+        } catch (IllegalAccessException e) {
+            cause = e;
+        } catch (InvocationTargetException e) {
+            cause = e.getCause();
+        }
+
+        throw new RuntimeException("Failed to rewrite resource references for " + packageName,
+                cause);
     }
 }

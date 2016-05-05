@@ -21,7 +21,7 @@
         <item name="android:textColor">#00ffA3</item>
     </style>
 
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
         <item name="android:buttonStyle">@style/MyButton</item>
     </style>
 
@@ -43,5 +43,14 @@
         <item name="layoutbg">#ff0000CC</item>
     </style>
 
-    <attr name = "layoutbg" format="color|reference" />
+    <style name="PluginTheme5" parent="AppBaseTheme">
+        <item name="android:buttonStyle">@style/MyButton2</item>
+        <item name="layoutbg">#ffC000CC</item>
+    </style>
+
+    <style name="PluginTheme6" parent="android:Theme.Holo.Light">
+        <item name="android:buttonStyle">@style/MyButton2</item>
+        <item name="layoutbg">#ffC000CC</item>
+    </style>
+
 </resources>

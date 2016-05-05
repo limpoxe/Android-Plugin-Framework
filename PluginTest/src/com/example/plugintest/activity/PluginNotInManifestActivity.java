@@ -3,6 +3,7 @@ package com.example.plugintest.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +25,7 @@ import com.example.plugintest.vo.ParamVO;
  * @author cailiming
  *
  */
-public class PluginNotInManifestActivity extends Activity implements OnClickListener {
+public class PluginNotInManifestActivity extends AppCompatActivity implements OnClickListener {
 
 	private ViewGroup mRoot;
 	private LayoutInflater mInflater;

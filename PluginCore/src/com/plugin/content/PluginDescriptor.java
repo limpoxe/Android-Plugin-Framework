@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.plugin.util.LogUtil;
+import com.plugin.util.ResourceUtil;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
-import dalvik.system.DexClassLoader;
 
 /**
  * <Pre>
@@ -53,7 +53,7 @@ public class PluginDescriptor implements Serializable {
 	/**
 	 * 定义在插件Manifest中的meta-data标签
 	 */
-	private HashMap<String, String> metaData;
+	private transient Bundle metaData;
 
 	private HashMap<String, PluginProviderInfo> providerInfos = new HashMap<String, PluginProviderInfo>();
 
@@ -87,6 +87,8 @@ public class PluginDescriptor implements Serializable {
 	 */
 	private HashMap<String, ArrayList<PluginIntentFilter>> services = new HashMap<String, ArrayList<PluginIntentFilter>>();
 
+	private HashMap<String, String> serviceInfos = new HashMap<String, String>();
+
 	/**
 	 * key: receiver class name
 	 * value: intentfilter list
@@ -97,31 +99,9 @@ public class PluginDescriptor implements Serializable {
 
 	private String[] dependencies;
 
-	private transient Application pluginApplication;
-	
-	private transient DexClassLoader pluginClassLoader;
-
-	private transient Context pluginContext;
-
+	private ArrayList<String> muliDexList;
 
 	//=============getter and setter======================
-
-
-	public Context getPluginContext() {
-		return pluginContext;
-	}
-
-	public void setPluginContext(Context pluginContext) {
-		this.pluginContext = pluginContext;
-	}
-
-	public DexClassLoader getPluginClassLoader() {
-		return pluginClassLoader;
-	}
-
-	public void setPluginClassLoader(DexClassLoader pluginLoader) {
-		this.pluginClassLoader = pluginLoader;
-	}
 
 	public String getPackageName() {
 		return packageName;
@@ -137,6 +117,14 @@ public class PluginDescriptor implements Serializable {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public int getApplicationIcon() {
@@ -163,12 +151,16 @@ public class PluginDescriptor implements Serializable {
 		this.applicationTheme = theme;
 	}
 
-	public HashMap<String, String> getMetaData() {
+	public Bundle getMetaData() {
+		if (metaData == null) {
+			if (installedPath != null) {
+				metaData = ResourceUtil.getApplicationMetaData(installedPath);
+				if (metaData == null) {
+					metaData = new Bundle();
+				}
+			}
+		}
 		return metaData;
-	}
-
-	public void setMetaData(HashMap<String, String> metaData) {
-		this.metaData = metaData;
 	}
 
 	public HashMap<String, String> getFragments() {
@@ -211,6 +203,14 @@ public class PluginDescriptor implements Serializable {
 		this.activityInfos = activityInfos;
 	}
 
+	public HashMap<String, String> getServiceInfos() {
+		return serviceInfos;
+	}
+
+	public void setServiceInfos(HashMap<String, String> serviceInfos) {
+		this.serviceInfos = serviceInfos;
+	}
+
 	public HashMap<String, ArrayList<PluginIntentFilter>> getServices() {
 		return services;
 	}
@@ -235,10 +235,14 @@ public class PluginDescriptor implements Serializable {
 		this.dependencies = dependencies;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public List<String> getMuliDexList() {
+		return muliDexList;
 	}
-	
+
+	public void setMuliDexList(ArrayList<String> muliDexList) {
+		this.muliDexList = muliDexList;
+	}
+
 	public String getApplicationName() {
 		return applicationName;
 	}
@@ -255,14 +259,6 @@ public class PluginDescriptor implements Serializable {
 		this.isEnabled = isEnabled;
 	}
 
-	public Application getPluginApplication() {
-		return pluginApplication;
-	}
-
-	public void setPluginApplication(Application pluginApplication) {
-		this.pluginApplication = pluginApplication;
-	}
-
 	public boolean isStandalone() {
 		return isStandalone;
 	}
@@ -277,23 +273,6 @@ public class PluginDescriptor implements Serializable {
 
 	public void setProviderInfos(HashMap<String, PluginProviderInfo> providerInfos) {
 		this.providerInfos = providerInfos;
-	}
-
-	public String getDescription() {
-		if (description != null && description.startsWith("@") && description.length() == 9) {
-			String idHex = description.replace("@", "");
-			try {
-				int id = Integer.parseInt(idHex, 16);
-				//此时context可能还没有初始化
-				if (pluginContext != null) {
-					String des = pluginContext.getString(id);
-					return des;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return description;
 	}
 
 	/**
@@ -340,6 +319,8 @@ public class PluginDescriptor implements Serializable {
 			return true;
 		} else if (getProviderInfos().containsKey(clazzName) && isEnabled()) {
 			return true;
+		} else if (getApplicationName().equals(clazzName) && !clazzName.equals(Application.class.getName()) && isEnabled()) {
+			return true;
 		}
 		return false;
 	}
@@ -367,7 +348,7 @@ public class PluginDescriptor implements Serializable {
 		PluginDescriptor plugin = this;
 		List<String> result = null;
 		String clazzName = null;
-		// 如果是通过组件进行匹配的
+		// 如果是通过组件进行匹配的, 这里忽略了packageName
 		if (intent.getComponent() != null) {
 			if (plugin.containsName(intent.getComponent().getClassName())) {
 				clazzName = intent.getComponent().getClassName();

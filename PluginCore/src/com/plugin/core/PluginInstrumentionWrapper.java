@@ -2,6 +2,7 @@ package com.plugin.core;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Application;
 import android.app.Fragment;
 import android.app.Instrumentation;
 import android.app.Service;
@@ -15,8 +16,12 @@ import android.os.UserHandle;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.ComponentContainer;
+import com.plugin.core.manager.PluginActivityMonitor;
+import com.plugin.core.manager.PluginManagerHelper;
+import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.viewfactory.PluginViewFactory;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 
 import java.util.Iterator;
@@ -33,9 +38,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	private static final String RELAUNCH_FLAG = "relaunch.category.";
 
 	private final Instrumentation realInstrumention;
+	private PluginActivityMonitor monitor;
 
 	public PluginInstrumentionWrapper(Instrumentation instrumentation) {
 		this.realInstrumention = instrumentation;
+		this.monitor = new PluginActivityMonitor();
 	}
 
 	@Override
@@ -45,58 +52,85 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		} else if (obj instanceof Service) {
 			((Service) obj).stopSelf();
 		}
+		LogUtil.printException("记录错误日志", e);
 		return super.onException(obj, e);
+	}
+
+	@Override
+	public Application newApplication(ClassLoader cl, String className, Context context)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		if (ProcessUtil.isPluginProcess()) {
+			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+			if (pluginDescriptor != null) {
+				return PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginApplication;
+			}
+		}
+		return super.newApplication(cl, className, context);
 	}
 
 	@Override
 	public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		// 将PluginStubActivity替换成插件中的activity
-		if (PluginStubBinding.isStubActivity(className)) {
+		if (ProcessUtil.isPluginProcess()) {
+			// 将PluginStubActivity替换成插件中的activity
+			if (PluginManagerHelper.isStubActivity(className)) {
 
-			String action = intent.getAction();
-			if (action != null && action.contains(PluginIntentResolver.CLASS_SEPARATOR)) {
-				String[] targetClassName  = action.split(PluginIntentResolver.CLASS_SEPARATOR);
-				String pluginClassName = targetClassName[0];
+				String action = intent.getAction();
 
-				Class clazz = PluginLoader.loadPluginClassByName(pluginClassName);
-				if (clazz != null) {
-					className = pluginClassName;
-					cl = clazz.getClassLoader();
+				LogUtil.d(action, className);
 
-					intent.setExtrasClassLoader(cl);
-					if (targetClassName.length >1) {
-						//之前为了传递classNae，intent的action被修改过 这里再把Action还原到原始的Action
-						intent.setAction(targetClassName[1]);
-					} else {
-						intent.setAction(null);
+				if (action != null && action.contains(PluginIntentResolver.CLASS_SEPARATOR)) {
+					String[] targetClassName  = action.split(PluginIntentResolver.CLASS_SEPARATOR);
+					String pluginClassName = targetClassName[0];
+
+					Class clazz = PluginLoader.loadPluginClassByName(pluginClassName);
+					if (clazz != null) {
+						className = pluginClassName;
+						cl = clazz.getClassLoader();
+
+						intent.setExtrasClassLoader(cl);
+						if (targetClassName.length >1) {
+							//之前为了传递classNae，intent的action被修改过 这里再把Action还原到原始的Action
+							intent.setAction(targetClassName[1]);
+						} else {
+							intent.setAction(null);
+						}
+						//添加一个标记符
+						intent.addCategory(RELAUNCH_FLAG + className);
 					}
-					//添加一个标记符
-					intent.addCategory(RELAUNCH_FLAG + className);
-				}
-			} else if (PluginStubBinding.isExact(className, PluginDescriptor.ACTIVITY)) {
-				//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
-				Class clazz = PluginLoader.loadPluginClassByName(className);
-				if (clazz != null) {
-					cl = clazz.getClassLoader();
-				}
-			} else {
-				//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了
-				//这里只能通过之前添加的标记符来查找className
-				Set<String> category = intent.getCategories();
-				if (category != null) {
-					Iterator<String> itr = category.iterator();
-					while (itr.hasNext()) {
-						String cate = itr.next();
+				} else if (PluginManagerHelper.isExact(className, PluginDescriptor.ACTIVITY)) {
+					//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
+					Class clazz = PluginLoader.loadPluginClassByName(className);
+					if (clazz != null) {
+						cl = clazz.getClassLoader();
+					}
+				} else {
+					//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了
+					//这里只能通过之前添加的标记符来查找className
+					Set<String> category = intent.getCategories();
+					if (category != null) {
+						Iterator<String> itr = category.iterator();
+						while (itr.hasNext()) {
+							String cate = itr.next();
 
-						if (cate.startsWith(RELAUNCH_FLAG)) {
-							className = cate.replace(RELAUNCH_FLAG, "");
+							if (cate.startsWith(RELAUNCH_FLAG)) {
+								className = cate.replace(RELAUNCH_FLAG, "");
 
-							Class clazz = PluginLoader.loadPluginClassByName(className);
-							cl = clazz.getClassLoader();
-							break;
+								Class clazz = PluginLoader.loadPluginClassByName(className);
+								cl = clazz.getClassLoader();
+								break;
+							}
 						}
 					}
+				}
+			} else {
+				//到这里有2中种情况
+				//1、确实是宿主Activity
+				//2、是插件Activity，但是上面的if没有识别出来（这种情况目前只发现在ActivityGroup情况下会出现，因为ActivityGroup不会触发resolveActivity方法，导致Intent没有更换）
+				//判断上述两种情况可以通过ClassLoader的类型来判断, 判断出来以后补一个resolveActivity方法
+				if (cl instanceof PluginClassLoader) {
+					PluginIntentResolver.resolveActivity(intent);
 				}
 			}
 		}
@@ -117,22 +151,32 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			intent.setExtrasClassLoader(activity.getClassLoader());
 		}
 
-		//是否启用控件级插件功能
-		//控件级插件功能默认是关闭的
-		//在宿主的需要支持控件级插件的Activity上配置下面这个注解，用来启用此功能
-		//之所以默认关闭此功能，是因为控件级插件和换肤不能共存
-		ComponentContainer componentContainer = AnnotationProcessor.getComponentContainer(activity.getClass());
-		if (componentContainer != null) {
-			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
+		if (ProcessUtil.isPluginProcess()) {
+			//是否启用控件级插件功能
+			//控件级插件功能默认是关闭的
+			//在宿主的需要支持控件级插件的Activity上配置下面这个注解，用来启用此功能
+			//之所以默认关闭此功能，是因为控件级插件和换肤不能共存
+			ComponentContainer componentContainer = AnnotationProcessor.getComponentContainer(activity.getClass());
+			if (componentContainer != null) {
+				new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
+			}
+
+			AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
 		}
 
 		super.callActivityOnCreate(activity, icicle);
+
+		monitor.onActivityCreate(activity);
+
 	}
 
 
 	@Override
 	public void callActivityOnDestroy(Activity activity) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
+
+		monitor.onActivityDestory(activity);
+
 		super.callActivityOnDestroy(activity);
 	}
 

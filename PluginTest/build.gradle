@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     aaptOptions {
         //将宿主资源添加到编译时，仅参与编译，不参与打包
@@ -81,9 +81,9 @@ dependencies {
     //依赖库的依赖裤（当supportV4在依赖库V的libs目录下时）
     //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
     //依赖库的依赖裤（当supportV4通过仓库依赖时）
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/classes.jar')
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/libs/internal_impl-22.1.1.jar')
-
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.2.0/jars/classes.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.2.0/jars/libs/internal_impl-23.2.0.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/23.2.0/jars/classes.jar')
 
     //如果插件需要依赖一些私有库，可放开下面的注释，并修改为私有库的名称
     //compile project(':PluginPrivateLib1')
@@ -108,9 +108,88 @@ tasks.whenTaskAdded { task ->
         task.doLast {
             copy {
                 from(project.getProjectDir()) {
-                    include 'public.xml'
+                    include 'public*.xml'
                 }
                 into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+
+            //太蠢了 这里最好改成循环遍历
+            //将宿主工程导出的主题也复制过来
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'public*.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v11.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v11/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v12.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v12/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v13.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v13/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v14.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v14/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v17.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v17/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v18.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v18/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v21.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v21/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v22.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v22/")
+            }
+
+            copy {
+                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
+                    include 'patch_values-v23.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v23/")
             }
         }
         //task.enabled = false

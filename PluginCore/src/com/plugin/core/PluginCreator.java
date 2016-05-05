@@ -1,13 +1,13 @@
 package com.plugin.core;
 
 import java.io.File;
-import java.lang.reflect.Method;
+import java.util.List;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -26,58 +26,75 @@ public class PluginCreator {
 	 * @return
 	 */
 	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
-														 String[] dependences) {
+														 String[] dependences, List<String> pluginApkMultDexPath) {
+
+		String apkParentDir = new File(absolutePluginApkPath).getParent();
+
+		File optDir = new File(apkParentDir, "dalvik-cache");
+		optDir.mkdirs();
+
+		File libDir = new File(apkParentDir, "lib");
+		libDir.mkdirs();
+
 		if (!isStandalone) {//非独立插件
-			return new PluginClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
-					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
-					PluginLoader.class.getClassLoader(), dependences);//宿主classloader
+			return new PluginClassLoader(
+					absolutePluginApkPath,
+					optDir.getAbsolutePath(),
+					libDir.getAbsolutePath(),
+					PluginLoader.class.getClassLoader(),//宿主classloader
+					dependences,//插件依赖的插件
+					null);
 		} else {//独立插件
-			return new PluginClassLoader(absolutePluginApkPath, new File(absolutePluginApkPath).getParent(),
-					new File(absolutePluginApkPath).getParent() + File.separator + "lib",
-					PluginLoader.class.getClassLoader().getParent(), null);//系统classloader
+			return new PluginClassLoader(
+					absolutePluginApkPath,
+					optDir.getAbsolutePath(),
+					libDir.getAbsolutePath(),
+					/*
+			         * In theory this should be the "system" class loader; in practice we
+			         * don't use that and can happily (and more efficiently) use the
+			         * bootstrap class loader.
+			         */
+					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
+					null,//独立插件无依赖
+					pluginApkMultDexPath);
 		}
 
 	}
 
 	/**
 	 * 根据插件apk文件，创建插件资源文件，同时绑定宿主程序的资源，这样就可以在插件中使用宿主程序的资源。
-	 * 
-	 * @param application
-	 *            宿主程序的Application
-	 * @param absolutePluginApkPath
-	 *            插件apk文件路径
+	 *
 	 * @return
 	 */
-	public static Resources createPluginResource(Application application, String absolutePluginApkPath,
-			boolean isStandalone, String[] dependencies) {
-		try {
+	public static Resources createPluginResource(String mainApkPath, Resources mainRes, PluginDescriptor pluginDescriptor) {
+		String absolutePluginApkPath = pluginDescriptor.getInstalledPath();
+		if (new File(absolutePluginApkPath).exists()) {
+			boolean isStandalone = pluginDescriptor.isStandalone();
+			String[] dependencies = pluginDescriptor.getDependencies();
 
-			// 插件运行时可能会通过getActivityInfo等
-			// 会拿到到PluginStubActivity的ActivityInfo以及ApplicationInfo
-			// 这两个info里面有部分资源id是在宿主程序的Manifest中配置的，比如logo和icon
-			// 如果在独立插件中尝试通过Context获取上述这些资源会导致异常
-			// 所以为了解决这个问题，利用宿主程序的资源id已经通过public.xml分过组了，这里强制对独立插件也进行资源合并操作
-			isStandalone = false;
+			try {
+				String[] assetPaths = buildAssetPath(isStandalone, mainApkPath,
+						absolutePluginApkPath, dependencies);
+				AssetManager assetMgr = AssetManager.class.newInstance();
+				RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
+						new Class[] { String[].class }, new Object[] { assetPaths });
 
-			String[] assetPaths = buildAssetPath(isStandalone, application.getApplicationInfo().sourceDir,
-					absolutePluginApkPath, dependencies);
-			AssetManager assetMgr = AssetManager.class.newInstance();
-			RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
-					new Class[] { String[].class }, new Object[] { assetPaths });
+				Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
+						mainRes.getConfiguration(), pluginDescriptor);
 
-			Resources mainRes = application.getResources();
-			Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
-					mainRes.getConfiguration());
-
-			return pluginRes;
-		} catch (Exception e) {
-			e.printStackTrace();
+				return pluginRes;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			LogUtil.e("插件文件不存在", absolutePluginApkPath);
 		}
+
 		return null;
 	}
 
 	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin, String[] dependencies) {
-		dependencies = null;//暂不支持资源多级依赖
+		dependencies = null;//暂不支持资源多级依赖, 会导致插件难以维护
 		String[] assetPaths = new String[isStandalone ? 1 : (2 + (dependencies==null?0:dependencies.length))];
 
 //		if (!isStandalone) {
@@ -105,7 +122,7 @@ public class PluginCreator {
 				//这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持
 				//插件依赖插件，如果被依赖的插件中包含资源文件，则需要在所有的插件中提供public.xml文件来分组资源id
 				for(int i = 0; i < dependencies.length; i++) {
-					PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(dependencies[i]);
+					PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(dependencies[i]);
 					if (pd != null) {
 						assetPaths[1+ i] = pd.getInstalledPath();
 					} else {
@@ -128,7 +145,7 @@ public class PluginCreator {
 	 * 创建插件的Context
 	 * @return
 	 */
-	static Context createPluginContext(PluginDescriptor pluginDescriptor, Context base, Resources pluginRes,
+	public static Context createPluginContext(PluginDescriptor pluginDescriptor, Context base, Resources pluginRes,
 												  DexClassLoader pluginClassLoader) {
 		return new PluginContextTheme(pluginDescriptor, base, pluginRes, pluginClassLoader);
 	}

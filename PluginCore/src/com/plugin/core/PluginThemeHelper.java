@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 
+import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 
 import java.lang.reflect.Field;
@@ -13,12 +15,13 @@ import java.util.HashMap;
 public class PluginThemeHelper {
 
 	public static int getPluginThemeIdByName(String pluginId, String themeName) {
-		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			PluginLoader.ensurePluginInited(pd);
-			if (pd.getPluginContext() != null) {
-				return pd.getPluginContext().getResources().getIdentifier(themeName, "style", pd.getPackageName());
+			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
+
+			if (plugin != null) {
+				return plugin.pluginResource.getIdentifier(themeName, "style", pd.getPackageName());
 			}
 		}
 		return 0;
@@ -26,13 +29,13 @@ public class PluginThemeHelper {
 
 	public static HashMap<String, Integer> getAllPluginThemes(String pluginId) {
 		HashMap<String, Integer> themes = new HashMap<String, Integer>();
-		PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 		if (pd != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			PluginLoader.ensurePluginInited(pd);
+			LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginId);
 
 			try {
-				Class pluginRstyle = pd.getPluginClassLoader().loadClass(pluginId + ".R$style");
+				Class pluginRstyle = pluing.pluginClassLoader.loadClass(pluginId + ".R$style");
 				if (pluginRstyle != null) {
 					Field[] fields = pluginRstyle.getDeclaredFields();
 					if (fields != null) {
@@ -65,15 +68,16 @@ public class PluginThemeHelper {
 		LayoutInflater layoutInflater = LayoutInflater.from(activity);
 		if (layoutInflater.getFactory() == null) {
 			if (!(activity.getBaseContext() instanceof PluginContextTheme)) {
-				PluginDescriptor pd = PluginLoader.getPluginDescriptorByPluginId(pluginId);
+				PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 				if (pd != null) {
 
 					//插件可能尚未初始化，确保使用前已经初始化
-					PluginLoader.ensurePluginInited(pd);
+					LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginId);
 
 					//注入插件上下文和主题
-					Context defaultContext = pd.getPluginContext();
-					Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext, ((PluginBaseContextWrapper)activity.getBaseContext()).getBaseContext());
+					Context defaultContext = pluing.pluginContext;
+					Context pluginContext = PluginLoader.getNewPluginComponentContext(defaultContext,
+							((PluginBaseContextWrapper)activity.getBaseContext()).getBaseContext(), 0);
 					PluginInjector.resetActivityContext(pluginContext, activity, themeResId);
 
 				}

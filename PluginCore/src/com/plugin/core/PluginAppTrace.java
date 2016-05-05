@@ -2,12 +2,15 @@ package com.plugin.core;
 
 import android.app.Service;
 import android.content.Context;
+import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.plugin.util.ClassLoaderUtil;
+import com.plugin.core.app.ActivityThread;
+import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 
 import java.util.Map;
@@ -22,7 +25,7 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private final Handler mHandler;
 
-	protected PluginAppTrace(Handler handler) {
+	public PluginAppTrace(Handler handler) {
 		mHandler = handler;
 	}
 
@@ -51,6 +54,14 @@ public class PluginAppTrace implements Handler.Callback {
 	private Result beforeHandle(Message msg) {
 
 		switch (msg.what) {
+
+			case CodeConst.LAUNCH_ACTIVITY:
+			case CodeConst.RELAUNCH_ACTIVITY:
+
+				beforeLaunchActivityFor360Safe();
+
+				return null;
+
 			case CodeConst.RECEIVER:
 
 				return beforeReceiver(msg);
@@ -66,47 +77,74 @@ public class PluginAppTrace implements Handler.Callback {
 		return null;
 	}
 
+	private static void beforeLaunchActivityFor360Safe() {
+		// 检查mInstrumention是否已经替换成功。
+		// 之所以要检查，是因为如果手机上安装了360手机卫士等app，它们可能会劫持用户app的ActivityThread对象，
+		// 导致在PluginApplication的onCreate方法里面替换mInstrumention可能会失败
+		// 所以这里再做一次检查
+		PluginInjector.injectInstrumentation();
+	}
+
 	private static Result beforeReceiver(Message msg) {
-		Class clazz = PluginIntentResolver.hackReceiverForClassLoader(msg.obj);
+		if (ProcessUtil.isPluginProcess()) {
+			Class clazz = PluginIntentResolver.resolveReceiverForClassLoader(msg.obj);
 
-		if (clazz != null) {
-			Context baseContext = PluginLoader.getApplicatoin().getBaseContext();
-			PluginInjector.replaceReceiverContext(baseContext, clazz);
+			if (clazz != null) {
+				PluginInjector.hackHostClassLoaderIfNeeded();
 
-			Result result = new Result();
-			result.baseContext = baseContext;
+				Context baseContext = PluginLoader.getApplication().getBaseContext();
+				Context newBase = PluginLoader.getDefaultPluginContext(clazz);
 
-			return result;
+				PluginInjector.replaceReceiverContext(baseContext, newBase);
+
+				Result result = new Result();
+				result.baseContext = baseContext;
+
+				return result;
+			} else {
+				//宿主的receiver的context不需要处理，在framework中receiver的context本身是对appliction的包装。
+				//而宿主的application的base已经本更换过了
+			}
 		}
+
 		return null;
 	}
 
 	private static Result beforeCreateService(Message msg) {
-		String serviceName = PluginIntentResolver.hackServiceName(msg.obj);
-
-		if (serviceName != null) {
-			ClassLoaderUtil.hackHostClassLoaderIfNeeded();
-		}
 		Result result = new Result();
-		result.serviceName = serviceName;
+		if (ProcessUtil.isPluginProcess()) {
+			String serviceName = PluginIntentResolver.resolveServiceForClassLoader(msg.obj);
+
+			if (serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
+				PluginInjector.hackHostClassLoaderIfNeeded();
+			}
+
+			result.serviceName = serviceName;
+		} else {
+			ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msg.obj, "android.app.ActivityThread$CreateServiceData", "info");
+			result.serviceName = info.name;
+		}
 
 		return result;
 	}
 
 	private static Result beforeStopService(Message msg) {
-		//销毁service时回收映射关系
-		Object activityThread = PluginInjector.getActivityThread();
-		if (activityThread != null) {
-			Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(activityThread, "android.app.ActivityThread", "mServices");
-			if (services != null) {
-				Service service = services.get(msg.obj);
-				if (service != null) {
-					String pluginServiceClassName = service.getClass().getName();
-					LogUtil.d("STOP_SERVICE", pluginServiceClassName);
-					PluginStubBinding.unBindStubService(pluginServiceClassName);
+		if (ProcessUtil.isPluginProcess()) {
+			//销毁service时回收映射关系
+			Object activityThread = ActivityThread.currentActivityThread();
+			if (activityThread != null) {
+				Map<IBinder, Service> services = ActivityThread.getAllServices();
+				if (services != null) {
+					Service service = services.get(msg.obj);
+					if (service != null) {
+						String pluginServiceClassName = service.getClass().getName();
+						LogUtil.d("STOP_SERVICE", pluginServiceClassName);
+						PluginManagerHelper.unBindStubService(pluginServiceClassName);
+					}
 				}
 			}
 		}
+
 		return null;
 	}
 
@@ -127,16 +165,22 @@ public class PluginAppTrace implements Handler.Callback {
 	}
 
 	private static void afterReceiver(Result result) {
-		if (result != null && result.baseContext != null) {
-			RefInvoker.setFieldObject(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+		if (ProcessUtil.isPluginProcess()) {
+			if (result != null && result.baseContext != null) {
+				RefInvoker.setFieldObject(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+			}
 		}
 	}
 
 	private static void afterCreateService(Result result) {
-		if (result != null) {
+
+		if (result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 			//拿到创建好的service，重新 设置mBase和mApplicaiton
 			//由于这步操作是再service得oncreate之后执行，所以再插件service得oncreate中不应尝试通过此service的context执行操作
-			PluginInjector.replaceServiceContext(result.serviceName);
+			PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE, ""));
+		} else {
+			//注入一个无害的BaseContext, 主要是为了重写宿主Service的sentBroadCast和startService方法
+			PluginInjector.replaceHostServiceContext(result.serviceName);
 		}
 	}
 

@@ -2,6 +2,7 @@ package com.example.plugintest.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,7 +15,7 @@ import android.widget.Toast;
 
 import com.example.plugintest.R;
 
-public class PluginForOppoAndVivoActivity extends Activity implements OnClickListener {
+public class PluginForOppoAndVivoActivity extends AppCompatActivity implements OnClickListener {
 
 	private ViewGroup mRoot;
 

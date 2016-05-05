@@ -21,7 +21,8 @@ public class PluginPublicXmlConst {
 	public static final int public_static_final_host_int = 0x7f3d;
 	public static final int public_static_final_host_array = 0x7f3e;
 	public static final int public_static_final_host_menu = 0x7f3f;
-	
+	public static final int public_static_final_host_mipmap = 0x7f40;
+
 	public static SparseArray<String> resourceMap = new SparseArray<String>(16);
 	
 	static {
@@ -40,5 +41,6 @@ public class PluginPublicXmlConst {
 		resourceMap.put(public_static_final_host_int, "int");
 		resourceMap.put(public_static_final_host_array, "array");
 		resourceMap.put(public_static_final_host_menu, "menu");
+		resourceMap.put(public_static_final_host_mipmap, "mipmap");
 	}
 }
