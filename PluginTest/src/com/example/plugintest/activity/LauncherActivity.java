@@ -309,7 +309,6 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
 		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
 
 		String[] list = databaseList();
-		LogUtil.d(list);
 
 		try {
 			FileOutputStream fo = openFileOutput("ddd", 0);

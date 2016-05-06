@@ -1,11 +1,5 @@
 package com.example.pluginmain;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Iterator;
-
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +23,12 @@ import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ResourceUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * 添加这个注解@ComponentContainer是为了控制宿主的当前Activity是否需要支持控件级插件
@@ -219,4 +219,11 @@ public class MainActivity extends AppCompatActivity {
 		};
 	};
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		//打印一下目录结构
+		FileUtil.printAll(new File(getApplicationInfo().dataDir));
+	}
 }
