@@ -1,9 +1,5 @@
 package com.plugin.core;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
@@ -13,7 +9,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
@@ -27,6 +22,10 @@ import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import dalvik.system.DexClassLoader;
 
@@ -80,7 +79,7 @@ public class PluginLoader {
 				});
 			}
 
-			PluginInjector.injectHandlerCallback();
+			PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectBaseContext(sApplication);
 

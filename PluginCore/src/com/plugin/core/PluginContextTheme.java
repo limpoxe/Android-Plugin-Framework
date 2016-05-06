@@ -21,6 +21,9 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class PluginContextTheme extends PluginBaseContextWrapper {
@@ -144,61 +147,6 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		//}
 	}
 
-	/**
-	 * 隔离插件间的SharedPreferences
-	 * @param name
-	 * @param mode
-	 * @return
-	 */
-	@Override
-	public SharedPreferences getSharedPreferences(String name, int mode) {
-		String realName = mPluginDescriptor.getPackageName() + "_" + name;
-		LogUtil.d(realName);
-		return super.getSharedPreferences(realName, mode);
-	}
-
-	/**
-	 * 隔离插件间的Database
-	 * @param name
-	 * @param mode
-	 * @param factory
-	 * @return
-	 */
-	@Override
-	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory) {
-		String realName = mPluginDescriptor.getPackageName() + "_" + name;
-		LogUtil.d(realName);
-		return super.openOrCreateDatabase(realName, mode, factory);
-	}
-
-	/**
-	 * 隔离插件间的Database
-	 * @param name
-	 * @param mode
-	 * @param factory
-	 * @return
-	 */
-	@Override
-	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory, DatabaseErrorHandler errorHandler) {
-		String realName = mPluginDescriptor.getPackageName() + "_" + name;
-		LogUtil.d(realName);
-		return super.openOrCreateDatabase(realName, mode, factory, errorHandler);
-	}
-
-	@Override
-	public boolean deleteDatabase(String name) {
-		String realName = mPluginDescriptor.getPackageName() + "_" + name;
-		LogUtil.d(realName);
-		return super.deleteDatabase(realName);
-	}
-
-	@Override
-	public File getDatabasePath(String name) {
-		String realName = mPluginDescriptor.getPackageName() + "_" + name;
-		LogUtil.d(realName);
-		return super.getDatabasePath(realName);
-	}
-
 	@Override
 	public Context getApplicationContext() {
 		return mPluginApplication;
@@ -256,8 +204,159 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		this.crackPackageManager = crackPackageManager;
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * 隔离插件间的SharedPreferences
+	 * @param name
+	 * @param mode
+	 * @return
+	 */
+	@Override
+	public SharedPreferences getSharedPreferences(String name, int mode) {
+		//或许可以直接替换contextImpl中的成员mPreferencesDir
+		String realName = mPluginDescriptor.getPackageName() + "_" + name;
+		LogUtil.d(realName);
+		return super.getSharedPreferences(realName, mode);
+	}
+
+	@Override
+	public File getDir(String name, int mode) {
+		File dir = makeFilename(new File(mPluginDescriptor.getInstalledPath()).getParentFile(), "app_" + name);
+		if (!dir.exists()) {
+			dir.mkdirs();
+			//setpermisssion
+		}
+		return  dir;
+	}
+
 	@Override
 	public File getFilesDir() {
-		return new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile(), "files");
+		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "files");
+		if (!dir.exists()) {
+			dir.mkdirs();
+			//setpermisssion
+		}
+		return dir;
 	}
+
+	@Override
+	public File getFileStreamPath(String name) {
+		return makeFilename(getFilesDir(), name);
+	}
+
+	@Override
+	public FileOutputStream openFileOutput(String name, int mode) throws FileNotFoundException {
+		final boolean append = (mode&MODE_APPEND) != 0;
+		File f = makeFilename(getFilesDir(), name);
+		try {
+			FileOutputStream fos = new FileOutputStream(f, append);
+			//setFilePermissionsFromMode(f.getPath(), mode, 0);
+			return fos;
+		} catch (FileNotFoundException e) {
+		}
+		return super.openFileOutput(name, mode);
+	}
+
+	@Override
+	public FileInputStream openFileInput(String name) throws FileNotFoundException {
+		File f = makeFilename(getFilesDir(), name);
+		return new FileInputStream(f);
+	}
+
+	@Override
+	public File getNoBackupFilesDir() {
+		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "no_backup");
+		if (!dir.exists()) {
+			dir.mkdirs();
+			//setpermisssion
+		}
+		return dir;
+	}
+
+	@Override
+	public File getCacheDir() {
+		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "cache");
+		if (!dir.exists()) {
+			dir.mkdirs();
+			//setpermisssion
+		}
+		return dir;
+	}
+
+	@Override
+	public File getCodeCacheDir() {
+		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "code_cache");
+		if (!dir.exists()) {
+			dir.mkdirs();
+			//setpermisssion
+		}
+		return dir;
+	}
+
+	@Override
+	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory) {
+		name = getAbsuloteDatabasePath(name);
+		return super.openOrCreateDatabase(name, mode, factory);
+	}
+
+	@Override
+	public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory,
+											   DatabaseErrorHandler errorHandler) {
+		name = getAbsuloteDatabasePath(name);
+		return super.openOrCreateDatabase(name, mode, factory, errorHandler);
+	}
+
+	@Override
+	public boolean deleteDatabase(String name) {
+		name = getAbsuloteDatabasePath(name);
+		return super.deleteDatabase(name);
+	}
+
+	@Override
+	public File getDatabasePath(String name) {
+		name = getAbsuloteDatabasePath(name);
+		return super.getDatabasePath(name);
+	}
+
+	@Override
+	public String[] databaseList() {
+		File f = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "databases");
+		final String[] list = f.list();
+		return (list != null) ? list : EMPTY_STRING_ARRAY;
+	}
+
+	@Override
+	public String[] fileList() {
+		final String[] list = getFilesDir().list();
+		return (list != null) ? list : EMPTY_STRING_ARRAY;
+	}
+
+	@Override
+	public boolean deleteFile(String name) {
+		File f = makeFilename(getFilesDir(), name);
+		return f.delete();
+	}
+
+
+	private String getAbsuloteDatabasePath(String name) {
+		if (name.charAt(0) != File.separatorChar) {
+			File f = makeFilename(new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "databases"), name);
+			name = f.getAbsolutePath();
+		}
+		return name;
+	}
+
+	private File makeFilename(File base, String name) {
+		if (name.indexOf(File.separatorChar) < 0) {
+			return new File(base, name);
+		}
+		throw new IllegalArgumentException(
+				"File " + name + " contains a path separator");
+	}
+
+	private static final String[] EMPTY_STRING_ARRAY = {};
+
 }
