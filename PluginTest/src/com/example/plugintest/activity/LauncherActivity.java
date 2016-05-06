@@ -2,7 +2,10 @@ package com.example.plugintest.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +16,12 @@ import com.example.pluginsharelib.SharePOJO;
 import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
+import com.plugin.util.LogUtil;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class LauncherActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -256,5 +265,64 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add("cc");
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		testDataApi();
+	}
+
+	private void testDataApi() {
+
+		SharedPreferences sp = getSharedPreferences("aaa", 0);
+		sp.edit().putString("xyz", "123").commit();
+		File f = getDir("bbb", 0);
+		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+
+		f = getFilesDir();
+		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+
+		if (Build.VERSION.SDK_INT >= 21) {
+			f = getNoBackupFilesDir();
+			LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+		}
+
+		f = getCacheDir();
+		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+
+		if (Build.VERSION.SDK_INT >= 21) {
+			f = getCodeCacheDir();
+		}
+		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+
+		SQLiteDatabase db = openOrCreateDatabase("ccc", 0, null);
+		try {
+			String sql = "create table IF NOT EXISTS  userDb (_id integer primary key autoincrement, column_one text not null);";
+			db.execSQL(sql);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		f = getDatabasePath("ccc");
+		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+
+		String[] list = databaseList();
+		LogUtil.d(list);
+
+		try {
+			FileOutputStream fo = openFileOutput("ddd", 0);
+			fo.write(122);
+			fo.flush();
+			fo.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		LogUtil.d(getFileStreamPath("eee").getAbsolutePath());
+
 	}
 }
