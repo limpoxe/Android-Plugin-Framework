@@ -413,6 +413,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	private File makeFilename(File base, String name) {
 		if (name.indexOf(File.separatorChar) < 0) {
+			if (!base.exists()) {
+				base.mkdirs();
+			}
 			return new File(base, name);
 		}
 		throw new IllegalArgumentException(

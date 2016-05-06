@@ -11,8 +11,6 @@ import java.io.Serializable;
  */
 public class PluginProviderInfo implements Serializable {
 
-	public static final String CLASS_PREFIX = "_CONTENT_PROVIDER_";
-
 	private String name;
 
 	private String packageName;

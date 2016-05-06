@@ -75,14 +75,14 @@ public class PluginInjector {
 		ActivityThread.wrapHandler();
 	}
 
-	public static void installContentProviders(Context context, Collection<PluginProviderInfo> pluginProviderInfos) {
+	public static void installContentProviders(Context context, Context plugin, Collection<PluginProviderInfo> pluginProviderInfos) {
 		LogUtil.d("安装插件ContentProvider", pluginProviderInfos.size());
 		PluginInjector.hackHostClassLoaderIfNeeded();
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 			ProviderInfo p = new ProviderInfo();
 			//name做上标记，表示是来自插件，方便classloader进行判断
-			p.name = PluginProviderInfo.CLASS_PREFIX + pluginProviderInfo.getName();
+			p.name = pluginProviderInfo.getName();
 			p.authority = pluginProviderInfo.getAuthority();
 			p.applicationInfo = context.getApplicationInfo();
 			p.exported = pluginProviderInfo.isExported();
@@ -90,7 +90,7 @@ public class PluginInjector {
 			providers.add(p);
 		}
 
-		ActivityThread.installContentProviders(context, providers);
+		ActivityThread.installContentProviders(plugin, providers);
 	}
 
 	static void injectInstrumetionFor360Safe(Activity activity, Instrumentation pluginInstrumentation) {

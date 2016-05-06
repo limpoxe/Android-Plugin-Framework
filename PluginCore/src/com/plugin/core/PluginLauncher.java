@@ -154,7 +154,7 @@ public class PluginLauncher implements Serializable {
 		}
 
 		//安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前
-		PluginInjector.installContentProviders(PluginLoader.getApplication(), pluginDescriptor.getProviderInfos().values());
+		PluginInjector.installContentProviders(PluginLoader.getApplication(), application, pluginDescriptor.getProviderInfos().values());
 
 		//执行onCreate
 		if (application != null) {
