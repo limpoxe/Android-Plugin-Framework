@@ -268,14 +268,12 @@ public class FileUtil {
 	}
 
 	public static void printAll(File file) {
-		if (DEBUG) {
-			LogUtil.d("printAll", file.getAbsolutePath());
-			if (file.isDirectory()) {
-				File[] childFiles = file.listFiles();
-				if (childFiles != null && childFiles.length > 0) {
-					for (int i = 0; i < childFiles.length; i++) {
-						printAll(childFiles[i]);
-					}
+		LogUtil.d("printAll", file.getAbsolutePath());
+		if (file.isDirectory()) {
+			File[] childFiles = file.listFiles();
+			if (childFiles != null && childFiles.length > 0) {
+				for (int i = 0; i < childFiles.length; i++) {
+					printAll(childFiles[i]);
 				}
 			}
 		}

@@ -12,19 +12,24 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
+import android.preference.PreferenceManager;
+import android.util.ArrayMap;
 import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.multidex.PluginMultiDexHelper;
-import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
@@ -216,15 +221,73 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	 */
 	@Override
 	public SharedPreferences getSharedPreferences(String name, int mode) {
-		//或许可以直接替换contextImpl中的成员mPreferencesDir
-		String realName = mPluginDescriptor.getPackageName() + "_" + name;
-		LogUtil.d(realName);
-		return super.getSharedPreferences(realName, mode);
+
+		//这里之所以需要追加前缀是因为ContextImpl类中的全局静态缓存sSharedPrefs
+		if (!name.startsWith(mPluginDescriptor.getPackageName() + "_")) {
+			name = mPluginDescriptor.getPackageName() + "_" + name;
+		}
+
+		//4.4以上版本缓存是延迟初始化的，这里增加这句调用是为了确保已经初始化，防止反射为空
+		PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+		Object cache = RefInvoker.getStaticFieldObject("android.app.ContextImpl", "sSharedPrefs");
+		if (Build.VERSION.SDK_INT >= 19 && cache instanceof ArrayMap) {
+			synchronized (PluginContextTheme.class) {
+				ArrayMap<String, ArrayMap<String, Object>> sSharedPrefs = (ArrayMap<String, ArrayMap<String, Object>>)cache;
+				final String packageName = getPackageName();
+				ArrayMap<String, Object> packagePrefs = sSharedPrefs.get(packageName);
+				if (packagePrefs == null) {
+					packagePrefs = new ArrayMap<String, Object>();
+					sSharedPrefs.put(packageName, packagePrefs);
+				}
+
+				Object sp = packagePrefs.get(name);
+				if (sp == null) {
+					packagePrefs.put(name, newSharedPreferencesImpl(getSharedPrefsFile(name), mode));
+				}
+			}
+		} else if (cache instanceof HashMap) {
+			HashMap<String, Object>  sSharedPrefs = (HashMap<String, Object>)cache;
+			Object sp = sSharedPrefs.get(name);
+			if (sp == null) {
+				sSharedPrefs.put(name, newSharedPreferencesImpl(getSharedPrefsFile(name), mode));
+			}
+		}
+
+		return super.getSharedPreferences(name, mode);
+	}
+
+	private Object newSharedPreferencesImpl(File prefsFile, int mode) {
+		try {
+			Class SharedPreferencesImpl = Class.forName("android.app.SharedPreferencesImpl");
+			Constructor constructor = SharedPreferencesImpl.getDeclaredConstructor(File.class, int.class);
+			constructor.setAccessible(true);
+			return constructor.newInstance(prefsFile, mode);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	//注意不要混淆此方法
+	public File getSharedPrefsFile(String name) {
+		if (!name.startsWith(mPluginDescriptor.getPackageName() + "_")) {
+			name = mPluginDescriptor.getPackageName() + "_" + name;
+		}
+		return makeFilename(new File(getDataDir(), "shared_prefs"), name + ".xml");
 	}
 
 	@Override
 	public File getDir(String name, int mode) {
-		File dir = makeFilename(new File(mPluginDescriptor.getInstalledPath()).getParentFile(), "app_" + name);
+		File dir = makeFilename(getDataDir(), "app_" + name);
 		if (!dir.exists()) {
 			dir.mkdirs();
 			//setpermisssion
@@ -234,7 +297,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public File getFilesDir() {
-		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "files");
+		File dir = new File(getDataDir(), "files");
 		if (!dir.exists()) {
 			dir.mkdirs();
 			//setpermisssion
@@ -268,7 +331,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public File getNoBackupFilesDir() {
-		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "no_backup");
+		File dir = new File(getDataDir(), "no_backup");
 		if (!dir.exists()) {
 			dir.mkdirs();
 			//setpermisssion
@@ -278,7 +341,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public File getCacheDir() {
-		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "cache");
+		File dir = new File(getDataDir(), "cache");
 		if (!dir.exists()) {
 			dir.mkdirs();
 			//setpermisssion
@@ -288,7 +351,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public File getCodeCacheDir() {
-		File dir = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "code_cache");
+		File dir = new File(getDataDir(), "code_cache");
 		if (!dir.exists()) {
 			dir.mkdirs();
 			//setpermisssion
@@ -323,7 +386,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public String[] databaseList() {
-		File f = new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "databases");
+		File f = new File(getDataDir(), "databases");
 		final String[] list = f.list();
 		return (list != null) ? list : EMPTY_STRING_ARRAY;
 	}
@@ -340,10 +403,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		return f.delete();
 	}
 
-
 	private String getAbsuloteDatabasePath(String name) {
 		if (name.charAt(0) != File.separatorChar) {
-			File f = makeFilename(new File(new File(mPluginDescriptor.getInstalledPath()).getParent(), "databases"), name);
+			File f = makeFilename(new File(getDataDir(), "databases"), name);
 			name = f.getAbsolutePath();
 		}
 		return name;
@@ -358,5 +420,14 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	}
 
 	private static final String[] EMPTY_STRING_ARRAY = {};
+
+	private File dataDir;
+
+	private File getDataDir() {
+		if (dataDir == null) {
+			dataDir = new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile().getParentFile(), "data");
+		}
+		return dataDir;
+	}
 
 }

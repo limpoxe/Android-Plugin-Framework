@@ -329,7 +329,9 @@ class PluginManagerImpl {
 				LogUtil.e("安装插件成功", destApkPath);
 
 				//打印一下目录结构
-				FileUtil.printAll(new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
+				if (isDebugable) {
+					FileUtil.printAll(new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
+				}
 
 				return SUCCESS;
 			}
