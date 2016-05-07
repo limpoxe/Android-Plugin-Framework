@@ -14,87 +14,91 @@ android.aaptOptions.additionalParameters('-I', host_output_dir + "/resources-deb
 
 tasks.whenTaskAdded { task ->
     if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
-
         task.doLast {
-
-            //太蠢了 这里最好改成循环遍历
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_theme.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v11.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v11/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v12.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v12/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v13.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v13/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v14.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v14/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v17.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v17/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v18.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v18/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v21.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v21/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v22.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v22/")
-            }
-
-            copy {
-                from(host_output_dir + "/theme_patch") {
-                    include 'patch_values-v23.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v23/")
-            }
+            applyThemePatch(task.name);
         }
-        //task.enabled = false
+    }
+}
+
+def applyThemePatch(taskName) {
+
+    def resourceDir = project.buildDir.absolutePath + "/intermediates/res/merged/" + taskName.replace("merge", "").replace("Resources", "").toLowerCase();
+
+    //太蠢了 这里最好改成循环遍历
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_theme.xml'
+        }
+        into(resourceDir + "/values/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values.xml'
+        }
+        into(resourceDir +  "/values/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v11.xml'
+        }
+        into(resourceDir +  "/values-v11/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v12.xml'
+        }
+        into(resourceDir +  "/values-v12/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v13.xml'
+        }
+        into(resourceDir +  "/values-v13/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v14.xml'
+        }
+        into(resourceDir +  "/values-v14/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v17.xml'
+        }
+        into(resourceDir +  "/values-v17/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v18.xml'
+        }
+        into(resourceDir +  "/values-v18/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v21.xml'
+        }
+        into(resourceDir +  "/values-v21/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v22.xml'
+        }
+        into(resourceDir +  "/values-v22/")
+    }
+
+    copy {
+        from(host_output_dir + "/theme_patch") {
+            include 'patch_values-v23.xml'
+        }
+        into(resourceDir +  "/values-v23/")
     }
 }
