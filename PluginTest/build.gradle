@@ -4,11 +4,6 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
-    aaptOptions {
-        //将宿主资源添加到编译时，仅参与编译，不参与打包
-        additionalParameters '-I', project(':PluginMain').getBuildDir().absolutePath + "/outputs/resources-debug.ap_"
-    }
-
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
@@ -65,15 +60,24 @@ android {
     }
 
 }
-
 dependencies {
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //如果插件需要依赖一些私有库，可放开下面的注释，并修改为私有库的名称
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    //compile project(':PluginPrivateLib1')
+    //compile project(':PluginPrivateLib2')
+    //compile file('xxx/xxx.jar');
+
+
+    ////////////////////////////////////////////
+    //下面这一堆provided的配置，是因为这些包在编译宿主的时候，已经被打包到宿主的apk中。
+    //所以这里打包非独立插件的时候，要通过provided配置防止这些包被打入非独立插件。
+    //如果是独立插件，无需任何特殊配置
+    ////////////////////////////////////////////
 
     //依赖库的src
     provided files(project(':PluginCore').getBuildDir().absolutePath + '/outputs/PluginCore.jar')
     provided files(project(':PluginBase').getBuildDir().absolutePath + '/outputs/PluginBase.jar')
-
     //依赖库的R
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
     //依赖库的src
@@ -85,10 +89,12 @@ dependencies {
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.2.0/jars/libs/internal_impl-23.2.0.jar')
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/23.2.0/jars/classes.jar')
 
-    //如果插件需要依赖一些私有库，可放开下面的注释，并修改为私有库的名称
-    //compile project(':PluginPrivateLib1')
-    //compile project(':PluginPrivateLib2')
-    //compile file('xxx/xxx.jar');
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy_MM_dd_HH_mm_ss')
+    return formattedDate
 }
 
 build.doLast {
@@ -102,102 +108,9 @@ build.doLast {
     }
 }
 
-tasks.whenTaskAdded { task ->
-    if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
-
-        task.doLast {
-            copy {
-                from(project.getProjectDir()) {
-                    include 'public*.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
-            }
-
-            //太蠢了 这里最好改成循环遍历
-            //将宿主工程导出的主题也复制过来
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'public*.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v11.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v11/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v12.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v12/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v13.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v13/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v14.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v14/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v17.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v17/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v18.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v18/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v21.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v21/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v22.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v22/")
-            }
-
-            copy {
-                from(project(':PluginMain').getBuildDir().absolutePath + "/outputs/theme_patch") {
-                    include 'patch_values-v23.xml'
-                }
-                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v23/")
-            }
-        }
-        //task.enabled = false
-    }
+ext {
+    //这个常量在最后apply的脚本中要用到
+    host_output_dir = project(':PluginMain').getBuildDir().absolutePath + "/outputs"
 }
 
-def getDate() {
-    def date = new Date()
-    def formattedDate = date.format('yyyy_MM_dd_HH_mm_ss')
-    return formattedDate
-}
+apply from: "./plugin.gradle"

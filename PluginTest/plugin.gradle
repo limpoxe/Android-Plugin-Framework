@@ -1,0 +1,100 @@
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//此脚本一共做了2件事
+//1、编译非独立插件时引入编译宿主时导出的资源包.ap_
+//2、编译非独立插件时引入编译宿主时导出的主题包
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+//将宿主资源添加到编译时，仅参与编译，不参与打包
+android.aaptOptions.additionalParameters('-I', host_output_dir + "/resources-debug.ap_")
+
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
+
+        task.doLast {
+
+            //太蠢了 这里最好改成循环遍历
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'public_theme.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v11.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v11/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v12.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v12/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v13.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v13/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v14.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v14/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v17.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v17/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v18.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v18/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v21.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v21/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v22.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v22/")
+            }
+
+            copy {
+                from(host_output_dir + "/theme_patch") {
+                    include 'patch_values-v23.xml'
+                }
+                into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values-v23/")
+            }
+        }
+        //task.enabled = false
+    }
+}

@@ -85,4 +85,4 @@ dependencies {
     compile project(':PluginCore')
 }
 
-apply from: "./plugin.gradle"
+apply from: "./host.gradle"
