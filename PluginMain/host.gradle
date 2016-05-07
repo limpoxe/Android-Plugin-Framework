@@ -86,7 +86,12 @@ def createThemePatch() {
     File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch");
     patchDir.mkdirs();
 
+
+    XmlHandler.exportThemeStyle(new File(project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml"),
+            new File(patchDir, "patch_theme.xml"), android.defaultConfig.applicationId)
+
     String parenDir = "${project.buildDir}/intermediates/res/merged/debug/";
+
     XmlHandler.exportThemeStyle(new File(parenDir + "values/values.xml"),
             new File(patchDir, "patch_values.xml"), android.defaultConfig.applicationId)
 
@@ -116,9 +121,6 @@ def createThemePatch() {
 
     XmlHandler.exportThemeStyle(new File(parenDir + "values-v23/values-v23.xml"),
             new File(patchDir, "patch_values-v23.xml"), android.defaultConfig.applicationId)
-
-    XmlHandler.exportThemeStyle(new File(project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml"),
-            new File(patchDir, "public_theme.xml"), android.defaultConfig.applicationId)
 }
 
 public class XmlHandler extends DefaultHandler {

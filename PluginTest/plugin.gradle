@@ -20,7 +20,7 @@ tasks.whenTaskAdded { task ->
             //太蠢了 这里最好改成循环遍历
             copy {
                 from(host_output_dir + "/theme_patch") {
-                    include 'public_theme.xml'
+                    include 'patch_theme.xml'
                 }
                 into("${project.buildDir}/intermediates/res/merged/" + task.name.replace("merge", "").replace("Resources", "").toLowerCase() + "/values/")
             }
