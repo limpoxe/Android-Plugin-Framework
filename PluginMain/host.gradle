@@ -18,66 +18,39 @@ import javax.xml.parsers.SAXParserFactory
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+//第3件事
 android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
 
-tasks.whenTaskAdded { task ->
-    if (task.name.startsWith("merge") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
-
-        //编译宿主资源时将public.xml插入各个buildtype中
-        task.doLast {
+afterEvaluate {
+    for (variant in android.applicationVariants) {
+        def scope = variant.getVariantData().getScope()
+        String mergeTaskName = scope.getMergeResourcesTask().name
+        def mergeTask = tasks.getByName(mergeTaskName)
+        //第1件事
+        mergeTask.doLast {
             copy {
                 from(project.getProjectDir()) {
                     include 'public.xml'
                 }
-                String dirName = task.name.replace("merge", "").replace("Resources", "");
-                //这里最好再增加一个buildType判断，而不是写死Debug和Release两种
-                if (dirName.equals("Debug") || dirName.equals("Release")) {
-                    into("${project.buildDir}/intermediates/res/merged/" + dirName.toLowerCase() + "/values/")
-                } else if (dirName.endsWith("Debug")) {
-                    into("${project.buildDir}/intermediates/res/merged/" + dirName.replace("Debug", "") + "/debug/values/")
-                } else if (dirName.endsWith("Release")) {
-                    into("${project.buildDir}/intermediates/res/merged/" + dirName.replace("Release", "") + "/release/values/")
-                }
+                into(mergeTask.outputDir.absolutePath + "/values/")
             }
         }
-    }
-
-    if (task.name.startsWith("process") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
-
-        //宿主资源编译完成后，将资源包复制到output目录备用，非独立插件编译时会读取这个资源 ap_ 文件
-        task.doLast {
-            copy {
-                String name = task.name.replace("process", "").replace("Resources", "");
-                //这里最好再增加一个buildType判断，而不是写死Debug和Release两种
-                if (name.equals("Debug") || name.equals("Release")) {
-                    name = "resources-" + name.toLowerCase() + ".ap_";
-                } else if (name.endsWith("Debug")) {
-                    name = "resources-" + name.replace("Debug", "") + "-debug.ap_";
-                } else if (name.endsWith("Release")) {
-                    name = "resources-" + name.replace("Release", "") + "-release.ap_";
-                }
-
-                from("${project.buildDir}/intermediates/res/") {
-                    include name
-                }
-                if (task.name.endsWith("DebugResources")) {
+        //第2件事
+        for (baseVariant in variant.outputs) {
+            def processResourcesTask = baseVariant.getProcessResources();
+            processResourcesTask.doLast {
+                copy {
+                    from processResourcesTask.packageOutputFile
                     into("${project.buildDir}/outputs/")
-                    rename { String fileName ->
-                        'resources-debug.ap_'
-                    }
-                } else if (task.name.endsWith("ReleaseResources")) {
-                    into("${project.buildDir}/outputs/")
-                    rename { String fileName ->
-                        'resources-release.ap_'
-                    }
                 }
             }
         }
     }
 }
 
+//第4件事
 build.doLast {
-    //导出主题patch，非独立插件编译时会依赖此patch
+    //导出主题debug patch，非独立插件编译时会依赖此patch
     createThemePatch();
 }
 
@@ -90,6 +63,7 @@ def createThemePatch() {
     ThemeProcessor.exportThemeStyle(new File(project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml"),
             new File(patchDir, "patch_theme.xml"), android.defaultConfig.applicationId)
 
+    //debug模式下的目录，这里hardcode太多啦。。。。囧
     String parenDir = "${project.buildDir}/intermediates/res/merged/debug/";
 
     ThemeProcessor.exportThemeStyle(new File(parenDir + "values/values.xml"),
