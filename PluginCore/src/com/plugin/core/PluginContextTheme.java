@@ -3,6 +3,7 @@ package com.plugin.core;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -433,4 +434,14 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		return dataDir;
 	}
 
+	public Context getOuterContext() {
+		Context base = getBaseContext();
+		while(base instanceof ContextWrapper) {
+			base = ((ContextWrapper)base).getBaseContext();
+		}
+		if (base.getClass().getName().equals("android.app.ContextImpl")) {
+			base = (Context) RefInvoker.invokeMethod(base, "android.app.ContextImpl", "getOuterContext", (Class[])null, (Object[])null);
+		}
+		return base;
+	}
 }
