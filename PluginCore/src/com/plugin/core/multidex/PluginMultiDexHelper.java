@@ -61,6 +61,16 @@ public class PluginMultiDexHelper {
                 return new int[0];
             }
 
+            //android-N
+            public int[] getPackageGids(String s, int i) throws NameNotFoundException {
+                return new int[0];
+            }
+
+            //android-N
+            public int getPackageUid(String s, int i) throws NameNotFoundException {
+                return 0;
+            }
+
             @Override
             public PermissionInfo getPermissionInfo(String name, int flags) throws NameNotFoundException {
                 return null;
@@ -432,6 +442,11 @@ public class PluginMultiDexHelper {
             @Override
             public PackageInstaller getPackageInstaller() {
                 return null;
+            }
+
+            //android-N
+            public boolean hasSystemFeature(String arg1, int agr2) {
+                return false;
             }
         };
     }
