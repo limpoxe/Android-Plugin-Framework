@@ -1,7 +1,6 @@
 package com.plugin.core.manager;
 
 import android.annotation.TargetApi;
-import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,13 +21,8 @@ public class PluginManagerHelper {
     //加个客户端进程的缓存，减少跨进程调用
     private static final HashMap<String, PluginDescriptor> localCache = new HashMap<String, PluginDescriptor>();
 
-    private static ContentResolver contentResolver;
-
     private static ContentResolver getManagerProvider() {
-        if (contentResolver == null) {
-            contentResolver = PluginLoader.getApplication().getContentResolver();
-        }
-        return contentResolver;
+        return PluginLoader.getApplication().getContentResolver();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -39,8 +33,10 @@ public class PluginManagerHelper {
         if (pluginDescriptor == null) {
             Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                     PluginManagerProvider.ACTION_QUERY_BY_CLASS_NAME, clazzName, null);
-            pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_CLASS_NAME_RESULT);
-            localCache.put(clazzName, pluginDescriptor);
+            if (bundle != null) {
+                pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_CLASS_NAME_RESULT);
+                localCache.put(clazzName, pluginDescriptor);
+            }
         }
 
         return pluginDescriptor;
@@ -52,7 +48,10 @@ public class PluginManagerHelper {
     public static Collection<PluginDescriptor> getPlugins() {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_QUERY_ALL, null, null);
-        return (Collection<PluginDescriptor>)bundle.getSerializable(PluginManagerProvider.QUERY_ALL_RESULT);
+        if (bundle != null) {
+            return (Collection<PluginDescriptor>)bundle.getSerializable(PluginManagerProvider.QUERY_ALL_RESULT);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -63,8 +62,10 @@ public class PluginManagerHelper {
         if (pluginDescriptor == null) {
             Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                     PluginManagerProvider.ACTION_QUERY_BY_ID, pluginId, null);
-            pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
-            localCache.put(pluginId, pluginDescriptor);
+            if (bundle != null) {
+                pluginDescriptor = (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_ID_RESULT);
+                localCache.put(pluginId, pluginDescriptor);
+            }
         } else {
             LogUtil.d("取本端缓存", pluginDescriptor.getInstalledPath());
         }
@@ -77,7 +78,10 @@ public class PluginManagerHelper {
         clearLocalCache();
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_INSTALL, srcFile, null);
-        return bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
+        if (bundle != null) {
+            return bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
+        }
+        return 7;//install-Fail
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -106,14 +110,20 @@ public class PluginManagerHelper {
 
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_QUERY_BY_FRAGMENT_ID, clazzId, null);
-        return (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_FRAGMENT_ID_RESULT);
+        if (bundle != null) {
+            return (PluginDescriptor)bundle.getSerializable(PluginManagerProvider.QUERY_BY_FRAGMENT_ID_RESULT);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static String bindStubReceiver() {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_BIND_RECEIVER, null, null);
-        return bundle.getString(PluginManagerProvider.BIND_RECEIVER_RESULT);
+        if (bundle != null) {
+            return bundle.getString(PluginManagerProvider.BIND_RECEIVER_RESULT);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -123,7 +133,10 @@ public class PluginManagerHelper {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_BIND_ACTIVITY,
                 pluginActivityClassName, arg);
-        return bundle.getString(PluginManagerProvider.BIND_ACTIVITY_RESULT);
+        if (bundle != null) {
+            return bundle.getString(PluginManagerProvider.BIND_ACTIVITY_RESULT);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -133,7 +146,10 @@ public class PluginManagerHelper {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_IS_EXACT,
                 name, arg);
-        return bundle.getBoolean(PluginManagerProvider.IS_EXACT_RESULT);
+        if (bundle != null) {
+            return bundle.getBoolean(PluginManagerProvider.IS_EXACT_RESULT);
+        }
+        return false;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -150,7 +166,10 @@ public class PluginManagerHelper {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_GET_BINDED_SERVICE,
                 stubServiceName, null);
-        return bundle.getString(PluginManagerProvider.GET_BINDED_SERVICE_RESULT);
+        if (bundle != null) {
+            return bundle.getString(PluginManagerProvider.GET_BINDED_SERVICE_RESULT);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -158,7 +177,10 @@ public class PluginManagerHelper {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_BIND_SERVICE,
                 pluginServiceClassName, null);
-        return bundle.getString(PluginManagerProvider.BIND_SERVICE_RESULT);
+        if (bundle != null) {
+            return bundle.getString(PluginManagerProvider.BIND_SERVICE_RESULT);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -173,7 +195,10 @@ public class PluginManagerHelper {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_IS_STUB_ACTIVITY,
                 className, null);
-        return bundle.getBoolean(PluginManagerProvider.IS_STUB_ACTIVITY_RESULT);
+        if (bundle != null) {
+            return bundle.getBoolean(PluginManagerProvider.IS_STUB_ACTIVITY_RESULT);
+        }
+        return false;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -181,6 +206,9 @@ public class PluginManagerHelper {
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_DUMP_SERVICE_INFO,
                 null, null);
-        return bundle.getString(PluginManagerProvider.DUMP_SERVICE_INFO_RESULT);
+        if (bundle != null) {
+            return bundle.getString(PluginManagerProvider.DUMP_SERVICE_INFO_RESULT);
+        }
+        return null;
     }
 }
