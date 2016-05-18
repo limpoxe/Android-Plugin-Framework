@@ -1,9 +1,11 @@
 package com.example.plugintestbase;
 
+import java.io.Serializable;
+
 /**
  * Created by cailiming on 16/1/1.
  */
-public class LoginVO {
+public class LoginVO implements Serializable {
 
     private String username;
 

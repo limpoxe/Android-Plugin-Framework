@@ -20,9 +20,11 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
 import com.example.pluginsharelib.SharePOJO;
+import com.example.pluginsharelib.ShareService;
 import com.example.plugintest.IMyAidlInterface;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.ComponentContainer;
+import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.FileUtil;
@@ -236,6 +238,13 @@ public class MainActivity extends AppCompatActivity {
 				@Override
 				public void onClick(View v) {
 					bindService(new Intent("test.lmn"), scn, Context.BIND_AUTO_CREATE);
+
+					//这里顺带测试一下localservice的跨进程效果
+					ShareService ss = (ShareService)LocalServiceManager.getService("share_service");
+					if (ss != null) {
+						SharePOJO pojo = ss.doSomething("测试跨进程localservice");
+						Toast.makeText(MainActivity.this, pojo.name, Toast.LENGTH_LONG).show();
+					}
 				}
 			});
 
