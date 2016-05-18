@@ -115,7 +115,11 @@ public class PluginManifestParser {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             String value = parser.getAttributeValue(namespaceAndroid, "value");
+                            String iface = parser.getAttributeValue(namespaceAndroid, "label");
                             value = getName(value, packageName);
+                            if (iface != null) {
+                                value = value + "|" + iface;
+                            }
                             if (name != null) {
 
                                 HashMap<String, String> functions = desciptor.getFunctions();

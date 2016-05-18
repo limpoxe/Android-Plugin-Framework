@@ -7,10 +7,12 @@ import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
+import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.util.LogUtil;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created by cailiming on 16/3/11.
@@ -78,10 +80,22 @@ public class PluginManagerHelper {
         clearLocalCache();
         Bundle bundle = getManagerProvider().call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_INSTALL, srcFile, null);
+
+        int result = 7;//install-Fail
         if (bundle != null) {
-            return bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
+            result = bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
         }
-        return 7;//install-Fail
+        if (result == 0) {//success
+
+            LocalServiceManager.unRegistAll();
+
+            Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
+            while (itr.hasNext()) {
+                PluginDescriptor plugin = itr.next();
+                LocalServiceManager.registerService(plugin);
+            }
+        }
+        return result;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

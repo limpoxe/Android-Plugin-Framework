@@ -205,8 +205,9 @@ public class PluginLauncher implements Serializable {
 		});
 
 		//退出LocalService
-		LogUtil.d("退出退出LocalService");
+		LogUtil.d("退出LocalService");
 		LocalServiceManager.unRegistService(pluginDescriptor);
+		//TODO 还要通知宿主进程退出localService，不过不通知其实本身也不会坏影响。
 
 		//退出Activity
 		LogUtil.d("退出Activity");

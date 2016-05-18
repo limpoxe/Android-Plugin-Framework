@@ -83,12 +83,13 @@ public class PluginLoader {
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectBaseContext(sApplication);
 
+			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
+			while (itr.hasNext()) {
+				PluginDescriptor plugin = itr.next();
+				LocalServiceManager.registerService(plugin);
+			}
+
 			if (isPluginProcess) {
-				Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
-				while (itr.hasNext()) {
-					PluginDescriptor plugin = itr.next();
-					LocalServiceManager.registerService(plugin);
-				}
 				if (Build.VERSION.SDK_INT >= 14) {
 					sApplication.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
 						@Override

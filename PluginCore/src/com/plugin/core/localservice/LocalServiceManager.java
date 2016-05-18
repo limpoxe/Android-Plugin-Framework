@@ -4,6 +4,7 @@ import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLauncher;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,25 +32,31 @@ public class LocalServiceManager {
         }
     }
 
-    public static void registerService(final String pluginId, String serviceName, final String serviceClass) {
+    public static void registerService(final String pluginId, final String serviceName, final String serviceClass) {
         if (!SYSTEM_SERVICE_MAP.containsKey(serviceName)) {
             LocalServiceFetcher fetcher = new LocalServiceFetcher() {
                 @Override
                 public Object createService(int serviceId) {
                     mPluginId = pluginId;
 
-                    //插件可能尚未初始化，确保使用前已经初始化
-                    LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
-
-                    if (plugin != null) {
-                        try {
-                            Class clazz = plugin.pluginClassLoader.loadClass(serviceClass);
-                            return clazz.newInstance();
-                        } catch (Exception e) {
-                            LogUtil.printException("获取服务失败", e);
+                    String[] classNames = serviceClass.split("\\|");
+                    if (ProcessUtil.isPluginProcess()) {
+                        //插件可能尚未初始化，确保使用前已经初始化
+                        LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
+                        if (plugin != null) {
+                            try {
+                                Class clazz = plugin.pluginClassLoader.loadClass(classNames[0]);
+                                return clazz.newInstance();
+                            } catch (Exception e) {
+                                LogUtil.printException("获取服务失败", e);
+                            }
+                        } else {
+                            LogUtil.e("未找到插件", pluginId);
                         }
+                    } else if (classNames.length == 2) {
+                        return ServiceBinderBridge.queryService(serviceName, classNames[1]);
                     } else {
-                        LogUtil.e("PluginClassLoader", "未找到插件", pluginId);
+                        LogUtil.e("不支持跨进程!!!", "插件", pluginId, "服务", serviceName, serviceClass);
                     }
                     return null;
                 }
@@ -75,6 +82,10 @@ public class LocalServiceManager {
                 itr.remove();
             }
         }
+    }
+
+    public static void unRegistAll() {
+        SYSTEM_SERVICE_MAP.clear();
     }
 
 }
