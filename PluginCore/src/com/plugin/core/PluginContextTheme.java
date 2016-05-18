@@ -415,6 +415,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		if (name.indexOf(File.separatorChar) < 0) {
 			if (!base.exists()) {
 				base.mkdirs();
+				//setpermisssion
 			}
 			return new File(base, name);
 		}
@@ -430,6 +431,10 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	public File getDataDir() {
 		if (dataDir == null) {
 			dataDir = new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile().getParentFile(), "data");
+			if (!dataDir.exists()) {
+				dataDir.mkdirs();
+				//setpermisssion
+			}
 		}
 		return dataDir;
 	}
