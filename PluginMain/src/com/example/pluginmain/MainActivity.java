@@ -1,12 +1,16 @@
 package com.example.pluginmain;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
 import com.example.pluginsharelib.SharePOJO;
+import com.example.plugintest.IMyAidlInterface;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.manager.PluginCallback;
@@ -198,8 +203,43 @@ public class MainActivity extends AppCompatActivity {
 					startActivity(intent);
 				}
 			});
-		}
 
+			button = new Button(this);
+			button.setPadding(10, 25, 10, 25);
+			layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layoutParam.topMargin = 25;
+			layoutParam.bottomMargin = 25;
+			layoutParam.gravity = Gravity.LEFT;
+			root.addView(button, layoutParam);
+			button.setText("测试插件Service AIDL");
+			if (scn == null) {
+				scn = new ServiceConnection() {
+					@Override
+					public void onServiceConnected(ComponentName name, IBinder service) {
+						IMyAidlInterface iMyAidlInterface = IMyAidlInterface.Stub.asInterface(service);
+						try {
+							iMyAidlInterface.basicTypes(1, 2L, true, 0.1f, 0.01d, "测试插件AIDL");
+							Toast.makeText(MainActivity.this, "onServiceConnected", Toast.LENGTH_LONG).show();
+						} catch (RemoteException e) {
+							e.printStackTrace();
+						}
+					}
+
+					@Override
+					public void onServiceDisconnected(ComponentName name) {
+
+					}
+				};
+			}
+			button.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					bindService(new Intent("test.lmn"), scn, Context.BIND_AUTO_CREATE);
+				}
+			});
+
+		}
 
 	}
 
@@ -207,7 +247,14 @@ public class MainActivity extends AppCompatActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		unregisterReceiver(pluginInstallEvent);
+
+		if (scn != null) {
+			unbindService(scn);
+			scn = null;
+		}
 	};
+
+	private ServiceConnection scn;
 
 	private final BroadcastReceiver pluginInstallEvent = new BroadcastReceiver() {
 		@Override
