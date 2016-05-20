@@ -43,6 +43,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
         sMethods.put("killBackgroundProcesses", new killBackgroundProcesses());
         sMethods.put("getServices", new getServices());
         sMethods.put("getIntentSender", new getIntentSender());
+        sMethods.put("overridePendingTransition", new overridePendingTransition());
     }
 
     //public List<RunningAppProcessInfo> getRunningAppProcesses()
@@ -120,6 +121,18 @@ public class AndroidAppIActivityManager extends MethodProxy {
             }
 
             return super.beforeInvoke(target, method, args);
+        }
+    }
+
+    public static class overridePendingTransition extends MethodDelegate {
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            if (ProcessUtil.isPluginProcess()) {
+                //屏蔽插件进程的Activity转场动画
+                String packageName = (String)args[1];
+                args[2] = 0;
+                args[3] = 0;
+            }
+            return null;
         }
     }
 }
