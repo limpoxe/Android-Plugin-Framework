@@ -32,6 +32,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * 注意：意外覆写父类方法可能会抛出LingageError
+ * 也就是说如果要在这个类里添加非override的public方法的话要小心了。
+ */
 public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
 	Resources.Theme mTheme;
@@ -439,7 +443,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		return dataDir;
 	}
 
-	public Context getOuterContext() {
+	public Context getOuter() {
 		Context base = getBaseContext();
 		while(base instanceof ContextWrapper) {
 			base = ((ContextWrapper)base).getBaseContext();
