@@ -135,10 +135,14 @@
        ./gradlew build
 
        b）如果是studio中：
-       打开studio右侧gradle面板区，点clean、点build
+       打开studio右侧gradle面板区，点clean、点build。不要使用菜单栏的菜单编译。
 
-       重要：由于编译脚本依赖build.doLast, 使用其他编译方法可能不会触发build.doLast导致编译失败
-       所以使用其他编译方法前请务必仔细阅读build.gradle，了解编译过程后自行调整编译脚本。
+       重要：
+            1、由于编译脚本依赖build.doLast, 使用其他编译方法（如菜单编译）可能不会触发build.doLast导致编译失败
+            2、必须先编译宿主，再编译非独立插件。（这也是使用菜单栏编译会失败的原因之一）
+               原因很简单，既然是非独立插件，肯定是需要引用宿主的类和资源的。所以编译非独立插件时会用到编译宿主时的输出物
+       
+            所以如果使用其他编译方法，请务必仔细阅读build.gradle，了解编译过程和依赖关系后可以自行调整编译脚本，否则可能会失败。
 
        待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新打包安装PluginMain。
        或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
@@ -262,7 +266,19 @@
    1、项目插件化后，特别需要注意的是宿主程序混淆问题。
       若公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
       所以公共库一定要排除混淆或者使用稳定的mapping混淆。
-      若需要混淆core工程，请参考PluginMain工程下的混淆配置
+      
+      具体方法：
+            1、开启混淆编译宿主，保留mapping文件
+            2、将插件的build.gradle文件中的provided配置换成compile， 因为provided方式提供的包不会被混淆
+            3、在插件的混淆配置中apply编译宿主时产生的mapping文件。
+            4、接着在插件编译脚本中开启multdex编译。并配置multdex的mainlist，使得原先所有provided的包的class被打入到副dex中。
+               这样插件编译完成后，会有2个dex，1个是插件自己需要的代码，1个是原先provided后来改成了compile的那些包。
+            5、再将这个原provided的包形成的dex，也就是副dex从apk中删除，再对插件apk重新签名。
+            
+            上述方法作者也未试过，理论上可以解决公共库混淆问题。
+            gradle插件在1.5版本以后去除了指定mainlist的功能，因此在高于这个版本时指定multidex分包需要使用其他分包插件。可使用这个项目：https://github.com/ceabie/DexKnifePlugin
+      
+      若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
 
    2、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
 
