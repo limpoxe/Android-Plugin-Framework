@@ -127,8 +127,8 @@ public class RefInvoker {
 				}
 				field.set(target, fieldValue);
 			} catch (Exception superE) {
-				e.printStackTrace();
-				superE.printStackTrace();
+				//e.printStackTrace();
+				//superE.printStackTrace();
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();

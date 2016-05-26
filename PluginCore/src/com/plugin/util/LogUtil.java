@@ -49,17 +49,12 @@ public class LogUtil {
                 }
 
                 tag =  (tag==null)?"Plugin":("Plugin_" + tag);
-                // use logcat log
+
                 while (str.length() > 0) {
-                    if (level == Log.DEBUG) {
-                        Log.d(tag, str.substring(0, Math.min(2000, str.length())).toString());
-                    } else if (level == Log.ERROR) {
-                        Log.e(tag, str.substring(0, Math.min(2000, str.length())).toString());
-                    } else {
-                        Log.v(tag, str.substring(0, Math.min(2000, str.length())).toString());
-                    }
+                    DEFAULT_LOGHANDLER.publish(tag, level, str.substring(0, Math.min(2000, str.length())).toString());
                     str.delete(0, 2000);
                 }
+
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
@@ -71,7 +66,7 @@ public class LogUtil {
             try {
                 StackTraceElement[] sts = Thread.currentThread().getStackTrace();
                 for (StackTraceElement stackTraceElement : sts) {
-                    Log.e("Log_trace", stackTraceElement.toString());
+                    DEFAULT_LOGHANDLER.publish("Log_StackTrace", Log.ERROR, stackTraceElement.toString());
                 }
             } catch (Exception exception) {
                 exception.printStackTrace();
@@ -81,7 +76,24 @@ public class LogUtil {
 
     public static void printException(String msg, Throwable e) {
         if (isDebug) {
-            Log.e("Log_trace", msg, e);
+            DEFAULT_LOGHANDLER.publish("Log_StackTrace", Log.ERROR, msg + '\n' + Log.getStackTraceString(e));
         }
+    }
+
+    public static interface LogHandler {
+
+        void publish(String tag, int level, String message);
+
+    }
+
+    public static LogHandler DEFAULT_LOGHANDLER = new LogHandler() {
+        @Override
+        public void publish(String tag, int level, String message) {
+            Log.println(level, tag, message);
+        }
+    };
+
+    public static void setLogHandler(LogHandler logHandler) {
+        DEFAULT_LOGHANDLER = logHandler;
     }
 }
