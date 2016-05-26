@@ -214,29 +214,30 @@ public class MainActivity extends AppCompatActivity {
 			layoutParam.gravity = Gravity.LEFT;
 			root.addView(button, layoutParam);
 			button.setText("测试插件Service AIDL");
-			if (scn == null) {
-				scn = new ServiceConnection() {
-					@Override
-					public void onServiceConnected(ComponentName name, IBinder service) {
-						IMyAidlInterface iMyAidlInterface = IMyAidlInterface.Stub.asInterface(service);
-						try {
-							iMyAidlInterface.basicTypes(1, 2L, true, 0.1f, 0.01d, "测试插件AIDL");
-							Toast.makeText(MainActivity.this, "onServiceConnected", Toast.LENGTH_LONG).show();
-						} catch (RemoteException e) {
-							e.printStackTrace();
-						}
-					}
 
-					@Override
-					public void onServiceDisconnected(ComponentName name) {
-
-					}
-				};
-			}
 			button.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
+					if (scn == null) {
+						scn = new ServiceConnection() {
+							@Override
+							public void onServiceConnected(ComponentName name, IBinder service) {
+								IMyAidlInterface iMyAidlInterface = IMyAidlInterface.Stub.asInterface(service);
+								try {
+									iMyAidlInterface.basicTypes(1, 2L, true, 0.1f, 0.01d, "测试插件AIDL");
+									Toast.makeText(MainActivity.this, "onServiceConnected", Toast.LENGTH_LONG).show();
+								} catch (RemoteException e) {
+									e.printStackTrace();
+								}
+							}
+
+							@Override
+							public void onServiceDisconnected(ComponentName name) {
+
+							}
+						};
+					}
 					bindService(new Intent("test.lmn"), scn, Context.BIND_AUTO_CREATE);
 
 					//这里顺带测试一下localservice的跨进程效果
