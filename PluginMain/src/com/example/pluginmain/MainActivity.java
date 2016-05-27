@@ -249,6 +249,23 @@ public class MainActivity extends AppCompatActivity {
 				}
 			});
 
+			button = new Button(this);
+			button.setPadding(10, 25, 10, 25);
+			layoutParam = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layoutParam.topMargin = 25;
+			layoutParam.bottomMargin = 25;
+			layoutParam.gravity = Gravity.LEFT;
+			root.addView(button, layoutParam);
+			button.setText("测试宿主tabActiviyt内嵌插件Activity");
+			button.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent(MainActivity.this, TestTabActivity.class);
+					startActivity(intent);
+				}
+			});
+
 		}
 
 	}

@@ -83,6 +83,10 @@
         <activity android:name=".TestViewActivity"
             android:process=":plugin"/>
 
+        <!-- 要展示插件中的Activity，所以配成插件进程 -->
+        <activity android:name=".TestTabActivity"
+            android:process=":plugin"/>
+
         <!-- 微信插件需要支持外部唤起，所有需要在宿主中预注册一个跳板，intentfilte中的STUB_EXACT用来标记这是个跳板 -->
         <activity
             android:name="com.example.pluginmain.wxapi.WXEntryActivity"
