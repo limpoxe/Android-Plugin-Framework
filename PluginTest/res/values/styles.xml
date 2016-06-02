@@ -23,6 +23,7 @@
 
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
         <item name="android:buttonStyle">@style/MyButton</item>
+        <item name="android:windowAnimationStyle">@*com.example.pluginmain:style/ActivityAnimationInHost</item>
     </style>
 
     <!-- Application theme. -->
