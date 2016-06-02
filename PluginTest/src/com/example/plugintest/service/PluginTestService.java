@@ -21,6 +21,10 @@ public class PluginTestService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Toast.makeText(
+				this,
+				" PluginTestService onCreate " + getResources().getText(R.string.hello_world3), Toast.LENGTH_LONG).show();
+
 		Log.d("xx", "PluginTestService onCreate" + getApplication() + " "+ getApplicationContext());
 	}
 
