@@ -1,10 +1,14 @@
 package com.plugin.core.systemservice;
 
 import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Intent;
+import android.os.IBinder;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
+import com.plugin.core.PluginShadowService;
+import com.plugin.core.app.ActivityThread;
 import com.plugin.core.proxy.MethodDelegate;
 import com.plugin.core.proxy.MethodProxy;
 import com.plugin.core.proxy.ProxyUtil;
@@ -15,6 +19,7 @@ import com.plugin.util.RefInvoker;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by cailiming on 16/1/15.
@@ -44,6 +49,8 @@ public class AndroidAppIActivityManager extends MethodProxy {
         sMethods.put("getServices", new getServices());
         sMethods.put("getIntentSender", new getIntentSender());
         sMethods.put("overridePendingTransition", new overridePendingTransition());
+        sMethods.put("serviceDoneExecuting", new serviceDoneExecuting());
+
     }
 
     //public List<RunningAppProcessInfo> getRunningAppProcesses()
@@ -135,4 +142,27 @@ public class AndroidAppIActivityManager extends MethodProxy {
             return null;
         }
     }
+
+    public static class serviceDoneExecuting extends MethodDelegate {
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            if (ProcessUtil.isPluginProcess()) {
+                for (Object obj: args) {
+                    if (obj instanceof IBinder) {
+                        Map<IBinder, Service> services = ActivityThread.getAllServices();
+                        Service service = services.get(obj);
+                        if (service instanceof PluginShadowService) {
+                            if (((PluginShadowService) service).realService != null) {
+                                services.put((IBinder) obj, ((PluginShadowService) service).realService);
+                            } else {
+                                throw new IllegalStateException("unable to create service");
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
 }

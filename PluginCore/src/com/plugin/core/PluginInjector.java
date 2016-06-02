@@ -298,6 +298,9 @@ public class PluginInjector {
 		}
 	}
 
+	//这里是因为在多进程情况下，杀死插件进程，自动恢复service时有个bug导致一个service同时存在多个service实例
+	//这里做个遍历保护
+	//break;
 	/*package*/static void replacePluginServiceContext(String serviceName) {
 		Map<IBinder, Service> services = ActivityThread.getAllServices();
 		if (services != null) {
@@ -306,25 +309,26 @@ public class PluginInjector {
 				Service service = itr.next();
 				if (service != null && service.getClass().getName().equals(serviceName) ) {
 
-					PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(serviceName);
-
-					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
-
-					RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
-							PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
-									service.getBaseContext(), pd.getApplicationTheme()));
-
-					RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", plugin.pluginApplication);
-
-					RefInvoker.setFieldObject(service, Service.class, "mClassName", PluginManagerHelper.bindStubService(service.getClass().getName()));
-
-					//这里不退出循环，是因为在多进程情况下，杀死插件进程，自动恢复service时有个bug导致一个service同时存在多个service实例
-					//这里做个遍历保护
-					//break;
+					replacePluginServiceContext(serviceName,service );
 				}
 
 			}
 		}
+	}
+
+	/*package*/static void replacePluginServiceContext(String servieName, Service service) {
+		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(servieName);
+
+		LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
+
+		RefInvoker.setFieldObject(service, ContextWrapper.class.getName(), "mBase",
+				PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
+						service.getBaseContext(), pd.getApplicationTheme()));
+
+		RefInvoker.setFieldObject(service, Service.class.getName(), "mApplication", plugin.pluginApplication);
+
+		RefInvoker.setFieldObject(service, Service.class, "mClassName", PluginManagerHelper.bindStubService(service.getClass().getName()));
+
 	}
 
 	/*package*/static void replaceHostServiceContext(String serviceName) {
