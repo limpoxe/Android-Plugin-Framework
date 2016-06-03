@@ -1,8 +1,10 @@
 package com.plugin.core;
 
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Application.ActivityLifecycleCallbacks;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -175,7 +177,11 @@ public class PluginLauncher implements Serializable {
 			Thread.setDefaultUncaughtExceptionHandler(old);
 
 			if (Build.VERSION.SDK_INT >= 14) {
-				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBrige());
+				// ActivityLifecycleCallbacks 的回调实际是由Activity内部在自己的声明周期函数内主动调用application的注册的callback触发的
+				//由于我们把插件Activity内部的application成员变量替换调用了  会导致不会触发宿主中注册的ActivityLifecycleCallbacks
+				//那么我们在这里给插件的Application对象注册一个callback bridge。将插件的call发给宿主的call，
+				//从而使得宿主application中注册的callback能监听到插件Activity的声明周期
+				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge());
 			}
 
 		}
@@ -270,7 +276,8 @@ public class PluginLauncher implements Serializable {
 		return loadedPluginMap.get(packageName) != null;
 	}
 
-	static class LifecycleCallbackBrige implements android.app.Application.ActivityLifecycleCallbacks {
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+	static class LifecycleCallbackBridge implements ActivityLifecycleCallbacks {
 		@Override
 		public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
 			AndroidAppApplication.dispatchActivityCreated(PluginLoader.getApplication(), activity, savedInstanceState);

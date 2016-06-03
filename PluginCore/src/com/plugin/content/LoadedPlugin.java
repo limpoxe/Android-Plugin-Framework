@@ -19,6 +19,8 @@ public class LoadedPlugin {
     public final String pluginPackageName;
     public final String pluginSourceDir;
 
+    public Application pluginApplication;
+
     public LoadedPlugin(String packageName,
                         String pluginSourceDir,
                         Context pluginContext,
@@ -30,5 +32,4 @@ public class LoadedPlugin {
         this.pluginResource = pluginContext.getResources();
     }
 
-    public Application pluginApplication;
 }
