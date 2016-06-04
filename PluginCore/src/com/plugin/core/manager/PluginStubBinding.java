@@ -112,7 +112,7 @@ class PluginStubBinding {
 
 	}
 
-	private static void loadStubService() {
+	private static synchronized void loadStubService() {
 		Intent launchModeIntent = new Intent();
 		launchModeIntent.setAction(buildDefaultAction());
 		launchModeIntent.setPackage(PluginLoader.getApplication().getPackageName());
@@ -182,7 +182,7 @@ class PluginStubBinding {
 		return receiver;
 	}
 
-	public static String bindStubActivity(String pluginActivityClassName, int launchMode) {
+	public static synchronized String bindStubActivity(String pluginActivityClassName, int launchMode) {
 
 		initPool();
 
@@ -250,7 +250,7 @@ class PluginStubBinding {
 		return false;
 	}
 
-	public static void unBindLaunchModeStubActivity(String stubActivityName, String pluginActivityName) {
+	public static synchronized void unBindLaunchModeStubActivity(String stubActivityName, String pluginActivityName) {
 
 		LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 
@@ -269,7 +269,7 @@ class PluginStubBinding {
 		}
 	}
 
-	public static String getBindedPluginServiceName(String stubServiceName) {
+	public static synchronized String getBindedPluginServiceName(String stubServiceName) {
 
 		initPool();
 
@@ -305,7 +305,7 @@ class PluginStubBinding {
 		return null;
 	}
 
-	public static String bindStubService(String pluginServiceClassName) {
+	public static synchronized String bindStubService(String pluginServiceClassName) {
 
 		initPool();
 
@@ -344,7 +344,7 @@ class PluginStubBinding {
 		return null;
 	}
 
-	public static void unBindStubService(String pluginServiceName) {
+	public static synchronized void unBindStubService(String pluginServiceName) {
 		Iterator<Map.Entry<String, String>> itr = serviceMapping.entrySet().iterator();
 		while (itr.hasNext()) {
 			Map.Entry<String, String> entry = itr.next();

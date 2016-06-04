@@ -72,8 +72,6 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String ACTION_DUMP_SERVICE_INFO = "dump_service_info";
     public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
 
-    private Object mLockObject = new Object();
-
     private PluginManagerImpl manager;
 
     public static Uri buildUri() {
@@ -132,104 +130,104 @@ public class PluginManagerProvider extends ContentProvider {
                 + ", method = " + method
                 + ", arg = " + arg);
 
-        synchronized (mLockObject) {
-            Bundle bundle = new Bundle();
-            if (ACTION_INSTALL.equals(method)) {
+        Bundle bundle = new Bundle();
 
-                int result = manager.installPlugin(arg);
-                bundle.putInt(INSTALL_RESULT, result);
+        if (ACTION_INSTALL.equals(method)) {
 
-                return bundle;
+            int result = manager.installPlugin(arg);
+            bundle.putInt(INSTALL_RESULT, result);
 
-            } else if (ACTION_REMOVE.equals(method)) {
+            return bundle;
 
-                boolean success = manager.remove(arg);
-                bundle.putBoolean(REMOVE_RESULT, success);
+        } else if (ACTION_REMOVE.equals(method)) {
 
-                return bundle;
+            boolean success = manager.remove(arg);
+            bundle.putBoolean(REMOVE_RESULT, success);
 
-            } else if (ACTION_REMOVE_ALL.equals(method)) {
+            return bundle;
 
-                boolean success = manager.removeAll();
-                bundle.putBoolean(REMOVE_ALL_RESULT, success);
+        } else if (ACTION_REMOVE_ALL.equals(method)) {
 
-                return bundle;
+            boolean success = manager.removeAll();
+            bundle.putBoolean(REMOVE_ALL_RESULT, success);
 
-            } else if (ACTION_QUERY_BY_ID.equals(method)) {
+            return bundle;
 
-                PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByPluginId(arg);
-                bundle.putSerializable(QUERY_BY_ID_RESULT, pluginDescriptor);
+        } else if (ACTION_QUERY_BY_ID.equals(method)) {
 
-                return bundle;
+            PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByPluginId(arg);
+            bundle.putSerializable(QUERY_BY_ID_RESULT, pluginDescriptor);
 
-            } else if (ACTION_QUERY_BY_CLASS_NAME.equals(method)) {
+            return bundle;
 
-                PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByClassName(arg);
-                bundle.putSerializable(QUERY_BY_CLASS_NAME_RESULT, pluginDescriptor);
+        } else if (ACTION_QUERY_BY_CLASS_NAME.equals(method)) {
 
-                return bundle;
+            PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByClassName(arg);
+            bundle.putSerializable(QUERY_BY_CLASS_NAME_RESULT, pluginDescriptor);
 
-            } else if (ACTION_QUERY_BY_FRAGMENT_ID.equals(method)) {
+            return bundle;
 
-                PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByFragmenetId(arg);
-                bundle.putSerializable(QUERY_BY_FRAGMENT_ID_RESULT, pluginDescriptor);
+        } else if (ACTION_QUERY_BY_FRAGMENT_ID.equals(method)) {
 
-                return bundle;
+            PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByFragmenetId(arg);
+            bundle.putSerializable(QUERY_BY_FRAGMENT_ID_RESULT, pluginDescriptor);
 
-            } else if (ACTION_QUERY_ALL.equals(method)) {
+            return bundle;
 
-                Collection<PluginDescriptor> pluginDescriptorList = manager.getPlugins();
-                ArrayList<PluginDescriptor> result =  new ArrayList<PluginDescriptor>(pluginDescriptorList.size());
-                result.addAll(pluginDescriptorList);
-                bundle.putSerializable(QUERY_ALL_RESULT, result);
+        } else if (ACTION_QUERY_ALL.equals(method)) {
 
-                return bundle;
+            Collection<PluginDescriptor> pluginDescriptorList = manager.getPlugins();
+            ArrayList<PluginDescriptor> result =  new ArrayList<PluginDescriptor>(pluginDescriptorList.size());
+            result.addAll(pluginDescriptorList);
+            bundle.putSerializable(QUERY_ALL_RESULT, result);
 
-            } else if (ACTION_BIND_ACTIVITY.equals(method)) {
+            return bundle;
 
-                bundle.putString(BIND_ACTIVITY_RESULT,
-                        PluginStubBinding.bindStubActivity(arg, extras.getInt("launchMode")));
+        } else if (ACTION_BIND_ACTIVITY.equals(method)) {
 
-                return bundle;
+            bundle.putString(BIND_ACTIVITY_RESULT,
+                    PluginStubBinding.bindStubActivity(arg, extras.getInt("launchMode")));
 
-            } else if (ACTION_UNBIND_ACTIVITY.equals(method)) {
+            return bundle;
 
-                PluginStubBinding.unBindLaunchModeStubActivity(arg, extras.getString("className"));
+        } else if (ACTION_UNBIND_ACTIVITY.equals(method)) {
 
-            } else if (ACTION_BIND_SERVICE.equals(method)) {
-                bundle.putString(BIND_SERVICE_RESULT, PluginStubBinding.bindStubService(arg));
+            PluginStubBinding.unBindLaunchModeStubActivity(arg, extras.getString("className"));
 
-                return bundle;
+        } else if (ACTION_BIND_SERVICE.equals(method)) {
+            bundle.putString(BIND_SERVICE_RESULT, PluginStubBinding.bindStubService(arg));
 
-            } else if (ACTION_GET_BINDED_SERVICE.equals(method)) {
-                bundle.putString(GET_BINDED_SERVICE_RESULT, PluginStubBinding.getBindedPluginServiceName(arg));
+            return bundle;
 
-                return bundle;
+        } else if (ACTION_GET_BINDED_SERVICE.equals(method)) {
+            bundle.putString(GET_BINDED_SERVICE_RESULT, PluginStubBinding.getBindedPluginServiceName(arg));
 
-            } else if (ACTION_UNBIND_SERVICE.equals(method)) {
+            return bundle;
 
-                PluginStubBinding.unBindStubService(arg);
+        } else if (ACTION_UNBIND_SERVICE.equals(method)) {
 
-            } else if (ACTION_BIND_RECEIVER.equals(method)) {
-                bundle.putString(BIND_RECEIVER_RESULT, PluginStubBinding.bindStubReceiver());
+            PluginStubBinding.unBindStubService(arg);
 
-                return bundle;
+        } else if (ACTION_BIND_RECEIVER.equals(method)) {
+            bundle.putString(BIND_RECEIVER_RESULT, PluginStubBinding.bindStubReceiver());
 
-            } else if (ACTION_IS_EXACT.equals(method)) {
-                bundle.putBoolean(IS_EXACT_RESULT, PluginStubBinding.isExact(arg, extras.getInt("type")));
+            return bundle;
 
-                return bundle;
+        } else if (ACTION_IS_EXACT.equals(method)) {
+            bundle.putBoolean(IS_EXACT_RESULT, PluginStubBinding.isExact(arg, extras.getInt("type")));
 
-            } else if (ACTION_IS_STUB_ACTIVITY.equals(method)) {
-                bundle.putBoolean(IS_STUB_ACTIVITY_RESULT, PluginStubBinding.isStubActivity(arg));
+            return bundle;
 
-                return bundle;
+        } else if (ACTION_IS_STUB_ACTIVITY.equals(method)) {
+            bundle.putBoolean(IS_STUB_ACTIVITY_RESULT, PluginStubBinding.isStubActivity(arg));
 
-            } else if (ACTION_DUMP_SERVICE_INFO.equals(method)) {
-                bundle.putString(DUMP_SERVICE_INFO_RESULT, PluginStubBinding.dumpServieInfo());
-                return bundle;
-            }
+            return bundle;
+
+        } else if (ACTION_DUMP_SERVICE_INFO.equals(method)) {
+            bundle.putString(DUMP_SERVICE_INFO_RESULT, PluginStubBinding.dumpServieInfo());
+            return bundle;
         }
+
         return null;
     }
 }
