@@ -165,6 +165,7 @@ public class PluginManifestParser {
                             String theme = parser.getAttributeValue(namespaceAndroid, "theme");//int
                             String immersive = parser.getAttributeValue(namespaceAndroid, "immersive");//int string
                             String uiOptions = parser.getAttributeValue(namespaceAndroid, "uiOptions");//int string
+                            String configChanges = parser.getAttributeValue(namespaceAndroid, "configChanges");//int string
 
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getActivitys();
                             if (map == null) {
@@ -195,6 +196,9 @@ public class PluginManifestParser {
                             pluginActivityInfo.setTheme(theme);
                             pluginActivityInfo.setWindowSoftInputMode(windowSoftInputMode);
                             pluginActivityInfo.setUiOptions(uiOptions);
+                            if (configChanges != null) {
+                                pluginActivityInfo.setConfigChanges(Integer.parseInt(configChanges.replace("0x", ""), 16));
+                            }
 
                         } else if ("receiver".equals(tag)) {
 

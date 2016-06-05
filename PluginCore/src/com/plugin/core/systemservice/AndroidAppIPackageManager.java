@@ -304,6 +304,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             if (detail.getUiOptions() != null) {
                 activityInfo.uiOptions = Integer.parseInt(detail.getUiOptions().replace("0x", ""), 16);
             }
+            activityInfo.configChanges = detail.getConfigChanges();
         }
         return activityInfo;
     }

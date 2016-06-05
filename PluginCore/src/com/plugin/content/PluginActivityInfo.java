@@ -20,6 +20,15 @@ public class PluginActivityInfo implements Serializable {
 	private String theme;//int
 	private String immersive;//int string
 	private String uiOptions;
+	private int configChanges;
+
+	public int getConfigChanges() {
+		return configChanges;
+	}
+
+	public void setConfigChanges(int configChanges) {
+		this.configChanges = configChanges;
+	}
 
 	public String getUiOptions() {
 		return uiOptions;
