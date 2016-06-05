@@ -53,8 +53,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         sMethods.put("getProviderInfo", new getProviderInfo());
         sMethods.put("queryIntentActivities", new queryIntentActivities());
         sMethods.put("queryIntentServices", new queryIntentServices());
-        sMethods.put("resolveActivity", new resolveActivity());
-        sMethods.put("resolveActivityAsUser", new resolveActivityAsUser());
+        sMethods.put("resolveIntent", new resolveIntent());
         sMethods.put("resolveService", new resolveService());
         sMethods.put("getComponentEnabledSetting", new getComponentEnabledSetting());
     }
@@ -215,18 +214,17 @@ public class AndroidAppIPackageManager extends MethodProxy {
         }
     }
 
+    //ResolveInfo resolveIntent(Intent intent, String resolvedType, int flags, int userId);
     public static class resolveIntent extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.d("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
-                List<ResolveInfo> result = new ArrayList<>();
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 ResolveInfo info = new ResolveInfo();
-                result.add(info);
                 info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
-                return result;
+                return info;
             }
             return super.beforeInvoke(target, method, args);
         }
@@ -241,38 +239,6 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 ResolveInfo info = new ResolveInfo();
                 info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
-                return info;
-            }
-            return super.beforeInvoke(target, method, args);
-        }
-    }
-
-    //public abstract ResolveInfo resolveActivity(Intent intent, int flags);
-    public static class resolveActivity extends MethodDelegate {
-        @Override
-        public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
-            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
-            if (classNames != null && classNames.size() > 0) {
-                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
-                ResolveInfo info = new ResolveInfo();
-                info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
-                return info;
-            }
-            return super.beforeInvoke(target, method, args);
-        }
-    }
-
-    //public abstract ResolveInfo resolveActivityAsUser(Intent intent, int flags, int userId);
-    public static class resolveActivityAsUser extends MethodDelegate {
-        @Override
-        public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
-            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
-            if (classNames != null && classNames.size() > 0) {
-                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
-                ResolveInfo info = new ResolveInfo();
-                info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
                 return info;
             }
             return super.beforeInvoke(target, method, args);
