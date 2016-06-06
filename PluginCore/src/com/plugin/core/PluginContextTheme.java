@@ -19,6 +19,7 @@ import android.util.ArrayMap;
 import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.compat.CompatForSharedPreferencesImpl;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.multidex.PluginMultiDexHelper;
 import com.plugin.util.RefInvoker;
@@ -27,8 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -248,38 +247,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 				Object sp = packagePrefs.get(name);
 				if (sp == null) {
-					packagePrefs.put(name, newSharedPreferencesImpl(getSharedPrefsFile(name), mode));
+					packagePrefs.put(name, CompatForSharedPreferencesImpl.newSharedPreferencesImpl(getSharedPrefsFile(name), mode, getPackageName()));
 				}
 			}
 		} else if (cache instanceof HashMap) {
 			HashMap<String, Object>  sSharedPrefs = (HashMap<String, Object>)cache;
 			Object sp = sSharedPrefs.get(name);
 			if (sp == null) {
-				sSharedPrefs.put(name, newSharedPreferencesImpl(getSharedPrefsFile(name), mode));
+				sSharedPrefs.put(name, CompatForSharedPreferencesImpl.newSharedPreferencesImpl(getSharedPrefsFile(name), mode, getPackageName()));
 			}
 		}
 
 		return super.getSharedPreferences(name, mode);
-	}
-
-	private Object newSharedPreferencesImpl(File prefsFile, int mode) {
-		try {
-			Class SharedPreferencesImpl = Class.forName("android.app.SharedPreferencesImpl");
-			Constructor constructor = SharedPreferencesImpl.getDeclaredConstructor(File.class, int.class);
-			constructor.setAccessible(true);
-			return constructor.newInstance(prefsFile, mode);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	private File getSharedPrefsFile(String name) {
