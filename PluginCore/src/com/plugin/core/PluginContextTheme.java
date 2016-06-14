@@ -152,7 +152,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		//if (mPluginDescriptor.isStandalone()) {
 		//	return mPluginDescriptor.getPackageName();
 		//} else {
-			return super.getPackageName();
+			return PluginLoader.getApplication().getPackageName();
 		//}
 	}
 

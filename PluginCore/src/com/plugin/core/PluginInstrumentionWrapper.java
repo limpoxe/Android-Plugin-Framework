@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -162,6 +163,18 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			}
 
 			AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
+
+			if (activity.isChild()) {
+				//修正TabActivity中的Activity的ContextImpl的packageName
+				Context base = activity.getBaseContext();
+				while(base instanceof ContextWrapper) {
+					base = ((ContextWrapper)base).getBaseContext();
+				}
+				if (base.getClass().getName().equals("android.app.ContextImpl")) {
+					RefInvoker.setFieldObject(base, "android.app.ContextImpl", "mBasePackageName", activity.getPackageName());
+					RefInvoker.setFieldObject(base, "android.app.ContextImpl", "mOpPackageName", activity.getPackageName());
+				}
+			}
 		}
 
 		super.callActivityOnCreate(activity, icicle);

@@ -18,7 +18,7 @@ public class PluginActivityMonitor {
 	private HashMap<Activity, BroadcastReceiver> receivers = new HashMap<Activity, BroadcastReceiver>();
 
 	public void onActivityCreate(final Activity activity) {
-		if (activity.getParent() == null) {
+		if (!activity.isChild()) {
 			if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
 				String pluginId = ((PluginContextTheme)activity.getApplication().getBaseContext()).getPluginDescriptor().getPackageName();
 				BroadcastReceiver br = new BroadcastReceiver() {
@@ -35,7 +35,7 @@ public class PluginActivityMonitor {
 	}
 
 	public void onActivityDestory(Activity activity) {
-		if (activity.getParent() == null) {
+		if (!activity.isChild()) {
 			if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
 				BroadcastReceiver br = receivers.remove(activity);
 				activity.unregisterReceiver(br);
