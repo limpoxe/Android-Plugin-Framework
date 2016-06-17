@@ -39,7 +39,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	private int mThemeResource;
 	Resources.Theme mTheme;
 	private LayoutInflater mInflater;
-
+	private ApplicationInfo mApplicationInfo;
 	Resources mResources;
 	private final ClassLoader mClassLoader;
 	private Application mPluginApplication;
@@ -163,7 +163,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public ApplicationInfo getApplicationInfo() {
-		return super.getApplicationInfo();
+		//这里的ApplicationInfo是从LoadedApk中取出来的
+		//由于目前插件之间是共用1个插件进程。LoadedApk只有1个，而ApplicationInfo每个插件都有一个，
+		// 所以不能通过直接修改loadedApk中的内容来修正这个方法的返回值，而是将修正的过程放在Context中去做，
+		//避免多个插件之间造成干扰
+		if (mApplicationInfo == null) {
+			try {
+				mApplicationInfo = getPackageManager().getApplicationInfo(mPluginDescriptor.getPackageName(), 0);
+			} catch (PackageManager.NameNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		return mApplicationInfo;
 	}
 
 	@Override

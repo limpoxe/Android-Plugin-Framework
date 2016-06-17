@@ -185,6 +185,9 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public Context createPackageContext(String packageName, int flags) throws PackageManager.NameNotFoundException {
+		//这个方法有2个作用
+		// 1、安装插件中的contentprovider时会用到它，被android.app.ActiviThread这个类调用。
+		// 2、可以方便的创建一个插件ApplicationContext副本。用于满足一些特定的业务需要
 		if (PluginManagerHelper.getPluginDescriptorByPluginId(packageName) != null) {
 			return PluginLoader.getNewPluginApplicationContext(packageName);
 		}
