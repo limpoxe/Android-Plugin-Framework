@@ -73,6 +73,8 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
 
     private PluginManagerImpl manager;
+    private PluginCallback changeListener;
+
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
@@ -84,6 +86,7 @@ public class PluginManagerProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         manager = new PluginManagerImpl();
+        changeListener = new PluginCallbackImpl();
         manager.loadInstalledPlugins();
         return false;
     }
@@ -134,8 +137,10 @@ public class PluginManagerProvider extends ContentProvider {
 
         if (ACTION_INSTALL.equals(method)) {
 
-            int result = manager.installPlugin(arg);
-            bundle.putInt(INSTALL_RESULT, result);
+            InstallResult result = manager.installPlugin(arg);
+            bundle.putInt(INSTALL_RESULT, result.getResult());
+
+            changeListener.onInstall(result.getResult(), result.getPackageName(), result.getVersion(), arg);
 
             return bundle;
 
@@ -144,12 +149,16 @@ public class PluginManagerProvider extends ContentProvider {
             boolean success = manager.remove(arg);
             bundle.putBoolean(REMOVE_RESULT, success);
 
+            changeListener.onRemove(arg, success);
+
             return bundle;
 
         } else if (ACTION_REMOVE_ALL.equals(method)) {
 
             boolean success = manager.removeAll();
             bundle.putBoolean(REMOVE_ALL_RESULT, success);
+
+            changeListener.onRemoveAll(success);
 
             return bundle;
 

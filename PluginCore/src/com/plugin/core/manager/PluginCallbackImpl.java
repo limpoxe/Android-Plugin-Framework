@@ -3,47 +3,57 @@ package com.plugin.core.manager;
 import android.content.Intent;
 
 import com.plugin.core.PluginLoader;
-import com.plugin.util.LogUtil;
 
 /**
  * Created by Administrator on 2015/9/13.
  */
 public class PluginCallbackImpl implements PluginCallback {
 
-    @Override
-    public void onPluginLoaderInited() {
-        LogUtil.d("PluginLoader inited");
-    }
+    private static final String extra_type = "type";
+    private static final String extra_id = "id";
+    private static final String extra_version = "version";
+    private static final String extra_install_code = "code";
+    private static final String extra_src = "src";
 
     @Override
-    public void onPluginInstalled(String packageName, String version) {
+    public void onInstall(int result, String packageName, String version,  String src) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-        intent.putExtra("type", "install");
-        intent.putExtra("id", packageName);
-        intent.putExtra("version", version);
+        intent.putExtra(extra_type, "install");
+        intent.putExtra(extra_id, packageName);
+        intent.putExtra(extra_version, version);
+        intent.putExtra(extra_install_code, result);
+        intent.putExtra(extra_src, src);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
     @Override
-    public void onPluginRemoved(String packageName) {
+    public void onRemove(String packageName, boolean success) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-        intent.putExtra("type", "remove");
-        intent.putExtra("id", packageName);
+        intent.putExtra(extra_type, "remove");
+        intent.putExtra(extra_id, packageName);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
     @Override
-    public void onPluginStarted(String packageName) {
+    public void onRemoveAll(boolean success) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-        intent.putExtra("type", "init");
-        intent.putExtra("id", packageName);
+        intent.putExtra(extra_type, "remove_all");
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
     @Override
-    public void onPluginRemoveAll() {
+    public void onStart(String packageName) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-        intent.putExtra("type", "remove_all");
+        intent.putExtra(extra_type, "start");
+        intent.putExtra(extra_id, packageName);
+        PluginLoader.getApplication().sendBroadcast(intent);
+    }
+
+    @Override
+    public void onStop(String packageName) {
+        Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+        intent.putExtra(extra_type, "stop");
+        intent.putExtra(extra_id, packageName);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
