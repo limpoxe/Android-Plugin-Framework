@@ -125,6 +125,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 if (pluginDescriptor != null) {
                     return getApplicationInfo(pluginDescriptor);
                 }
+            } else {
+                LogUtil.e("注意：使用了宿主包名：" + packageName);
             }
             return super.beforeInvoke(target, method, args);
         }
