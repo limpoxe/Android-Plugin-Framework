@@ -1,6 +1,5 @@
 package com.plugin.core;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
@@ -105,7 +104,6 @@ public class PluginInjector {
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	static void injectActivityContext(Activity activity) {
 		Intent intent = activity.getIntent();
 		FragmentContainer fragmentContainer = AnnotationProcessor.getFragmentContainer(activity.getClass());

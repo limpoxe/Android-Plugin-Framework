@@ -1,6 +1,5 @@
 package com.plugin.core;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -146,7 +145,6 @@ public class PluginLoader {
 	 * @param clazzId
 	 * @return
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@SuppressWarnings("rawtypes")
 	public static Class loadPluginFragmentClassById(String clazzId) {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByFragmentId(clazzId);

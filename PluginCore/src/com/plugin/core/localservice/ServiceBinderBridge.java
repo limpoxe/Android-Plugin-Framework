@@ -1,11 +1,10 @@
 package com.plugin.core.localservice;
 
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.ArrayMap;
 
-import com.plugin.core.PluginLoader;
+import com.plugin.core.compat.CompatForContentProvider;
 import com.plugin.util.RefInvoker;
 
 import java.lang.reflect.InvocationHandler;
@@ -25,12 +24,10 @@ public class ServiceBinderBridge {
             return Proxy.newProxyInstance(cl, new Class[]{clientClass},
                     new InvocationHandler() {
 
-                        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
                         @Override
                         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-                            Bundle bundle = PluginLoader.getApplication()
-                                    .getContentResolver().call(LocalServiceBinder.buildUri(),
+                            Bundle bundle = CompatForContentProvider.call(LocalServiceBinder.buildUri(),
                                             serviceName, method.toGenericString(), wrapperParams(args));
 
                             if (bundle != null) {
