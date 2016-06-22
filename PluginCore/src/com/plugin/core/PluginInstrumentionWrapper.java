@@ -73,6 +73,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	@Override
 	public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+
+		ClassLoader orignalCl = cl;
+		String orginalClassName = className;
+		String orignalIntent = intent.toString();
+
 		if (ProcessUtil.isPluginProcess()) {
 			// 将PluginStubActivity替换成插件中的activity
 			if (PluginManagerHelper.isStubActivity(className)) {
@@ -136,7 +141,21 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			}
 		}
 
-		return super.newActivity(cl, className, intent);
+		try {
+			return super.newActivity(cl, className, intent);
+		} catch (ClassNotFoundException e) {
+			//收集状态，便于异常分析
+			throw new ClassNotFoundException(
+					"  orignalCl : " + orignalCl.toString() +
+					", orginalClassName : " + orginalClassName +
+					", orignalIntent : " + orignalIntent +
+					", currentCl : " + cl.toString() +
+					", currentClassName : " + className +
+					", currentIntent : " + intent.toString() +
+					", process : " + ProcessUtil.isPluginProcess() +
+					", isStubActivity" + PluginManagerHelper.isStubActivity(orginalClassName) +
+					", isExact" + PluginManagerHelper.isExact(orginalClassName, PluginDescriptor.ACTIVITY), e);
+		}
 	}
 
 	@Override

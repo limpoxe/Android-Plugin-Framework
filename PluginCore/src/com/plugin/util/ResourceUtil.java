@@ -129,7 +129,7 @@ public class ResourceUtil {
     public static Bundle getApplicationMetaData(String apkPath) {
         //暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
         PackageInfo info = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
-        if (info.applicationInfo != null) {
+        if (info != null && info.applicationInfo != null) {
             return info.applicationInfo.metaData;
         }
         return null;
