@@ -1,6 +1,5 @@
 package com.plugin.util;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -135,16 +134,17 @@ public class ResourceUtil {
         return null;
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public static Drawable getLogo(PluginDescriptor pd) {
-        PackageManager pm = PluginLoader.getApplication().getPackageManager();
-        PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
-        if (info != null) {
-            ApplicationInfo appInfo = info.applicationInfo;
-            appInfo.sourceDir = pd.getInstalledPath();
-            appInfo.publicSourceDir = pd.getInstalledPath();
-            Drawable logo = pm.getApplicationLogo(appInfo);
-            return logo;
+        if (Build.VERSION.SDK_INT >= 9) {
+            PackageManager pm = PluginLoader.getApplication().getPackageManager();
+            PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+            if (info != null) {
+                ApplicationInfo appInfo = info.applicationInfo;
+                appInfo.sourceDir = pd.getInstalledPath();
+                appInfo.publicSourceDir = pd.getInstalledPath();
+                Drawable logo = pm.getApplicationLogo(appInfo);
+                return logo;
+            }
         }
         return null;
     }

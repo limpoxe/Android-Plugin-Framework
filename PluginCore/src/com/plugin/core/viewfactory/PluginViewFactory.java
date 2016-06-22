@@ -1,6 +1,5 @@
 package com.plugin.core.viewfactory;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -55,7 +54,6 @@ public class PluginViewFactory implements PluginFactoryInterface {
 		return createView(parent, name, context, attrs);
 	}
 
-	@TargetApi(11)
 	private View callActivityOnCreateView(View parent, String name, Context context, AttributeSet attrs) {
 		View view = null;
 		if (mOriginalWindowCallback instanceof LayoutInflater.Factory) {
@@ -67,9 +65,11 @@ public class PluginViewFactory implements PluginFactoryInterface {
 			return view;
 		}
 
-		if (mOriginalWindowCallback instanceof LayoutInflater.Factory2) {
-			return ((LayoutInflater.Factory2) mOriginalWindowCallback)
-					.onCreateView(parent, name, context, attrs);
+		if(Build.VERSION.SDK_INT >= 11) {
+			if (mOriginalWindowCallback instanceof LayoutInflater.Factory2) {
+				return ((LayoutInflater.Factory2) mOriginalWindowCallback)
+						.onCreateView(parent, name, context, attrs);
+			}
 		}
 
 		return null;

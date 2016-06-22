@@ -24,7 +24,7 @@ public class PluginApplication extends Application {
 			//插件进程，必须在这里执行initLoader
 			PluginLoader.initLoader(this);
 		} else {
-			//宿主进程，可以在这里执行，也可以选择在宿主的其他地方在需要时再启动插件框架，例如demo中的做法
+			//宿主进程，可以在这里执行，也可以选择在宿主的其他地方在需要时再启动插件框架
 			PluginLoader.initLoader(this);
 		}
 	}

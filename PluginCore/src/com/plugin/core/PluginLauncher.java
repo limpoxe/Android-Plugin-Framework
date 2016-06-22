@@ -182,6 +182,9 @@ public class PluginLauncher implements Serializable {
 				//那么我们在这里给插件的Application对象注册一个callback bridge。将插件的call发给宿主的call，
 				//从而使得宿主application中注册的callback能监听到插件Activity的声明周期
 				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge());
+			} else {
+				//对于小于14的版本，影响是，StubActivity的绑定关系不能被回收，
+				// 意味着宿主配置的非Stand的StubActivity的个数不能小于插件中对应的类型的个数的总数，否则可能会出现找不到映射的StubActivity
 			}
 
 		}
