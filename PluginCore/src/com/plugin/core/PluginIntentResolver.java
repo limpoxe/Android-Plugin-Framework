@@ -10,6 +10,7 @@ import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginReceiverIntent;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
+import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 
 import java.util.ArrayList;
@@ -86,20 +87,28 @@ public class PluginIntentResolver {
 	}
 
 	/* package */static String resolveServiceForClassLoader(Object msgObj) {
+
 		ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
-		//通过映射查找
-		String targetClassName = PluginManagerHelper.getBindedPluginServiceName(info.name);
-		//TODO 或许可以通过这个方式来处理service
-		//info.applicationInfo = XXX
 
-		LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName, info.applicationInfo.packageName);
+		if (ProcessUtil.isPluginProcess()) {
 
-		if (targetClassName != null) {
-			info.name =  CLASS_PREFIX_SERVICE + targetClassName;
-		} else {
-			LogUtil.e("hackServiceName 没有找到映射关系, 有2个可能：1、确实是宿主service；2、映射表出了异常。如果是映射表出了异常会导致classNotFound", info.name);
-			PluginManagerHelper.dumpServiceInfo();
+			PluginInjector.hackHostClassLoaderIfNeeded();
+
+			//通过映射查找
+			String targetClassName = PluginManagerHelper.getBindedPluginServiceName(info.name);
+			//TODO 或许可以通过这个方式来处理service
+			//info.applicationInfo = XXX
+
+			LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName, info.applicationInfo.packageName);
+
+			if (targetClassName != null) {
+				info.name =  CLASS_PREFIX_SERVICE + targetClassName;
+			} else {
+				String dumpString = PluginManagerHelper.dumpServiceInfo();
+				LogUtil.e("hackServiceName 没有找到映射关系, 有2个可能：1、确实是宿主service；2、映射表出了异常。如果是映射表出了异常会导致classNotFound", info.name, dumpString);
+			}
 		}
+
 		return info.name;
 	}
 

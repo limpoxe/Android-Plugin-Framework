@@ -2,7 +2,6 @@ package com.plugin.core;
 
 import android.app.Service;
 import android.content.Context;
-import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -112,19 +111,7 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static Result beforeCreateService(Message msg) {
 		Result result = new Result();
-		if (ProcessUtil.isPluginProcess()) {
-
-			String serviceName = PluginIntentResolver.resolveServiceForClassLoader(msg.obj);
-			if (serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
-				PluginInjector.hackHostClassLoaderIfNeeded();
-			}
-
-			result.serviceName = serviceName;
-		} else {
-			ServiceInfo info = (ServiceInfo) RefInvoker.getFieldObject(msg.obj, "android.app.ActivityThread$CreateServiceData", "info");
-			result.serviceName = info.name;
-		}
-
+		result.serviceName = PluginIntentResolver.resolveServiceForClassLoader(msg.obj);
 		return result;
 	}
 
