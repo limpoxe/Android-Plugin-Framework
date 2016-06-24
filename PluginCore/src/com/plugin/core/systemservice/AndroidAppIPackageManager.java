@@ -284,6 +284,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         info.flags = info.flags | ApplicationInfo.FLAG_HAS_CODE;
         //需要时再添加
         //info.nativeLibraryDir = new File(pluginDescriptor.getInstalledPath()).getParentFile().getAbsolutePath() + "/lib";
+        info.targetSdkVersion = PluginLoader.getApplication().getApplicationInfo().targetSdkVersion;
         return info;
     }
 
