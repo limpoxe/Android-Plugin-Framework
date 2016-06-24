@@ -334,7 +334,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     }
 
     private static String getPackageName(PluginDescriptor pluginDescriptor) {
-        //这里的packageName可能需要使用宿主的packageName，
+        //这里要使用插件包名
         return pluginDescriptor.getPackageName();
     }
 

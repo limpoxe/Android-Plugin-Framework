@@ -170,6 +170,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		if (mApplicationInfo == null) {
 			try {
 				mApplicationInfo = getPackageManager().getApplicationInfo(mPluginDescriptor.getPackageName(), 0);
+				//这里修正packageManager中hook时设置的插件packageName
+				mApplicationInfo.packageName = getPackageName();
 			} catch (PackageManager.NameNotFoundException e) {
 				e.printStackTrace();
 			}
