@@ -104,16 +104,21 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						}
 						//添加一个标记符
 						intent.addCategory(RELAUNCH_FLAG + className);
+					} else {
+						throw new ClassNotFoundException("pluginClassName : " + pluginClassName, new Throwable());
 					}
 				} else if (PluginManagerHelper.isExact(className, PluginDescriptor.ACTIVITY)) {
 					//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
 					Class clazz = PluginLoader.loadPluginClassByName(className);
 					if (clazz != null) {
 						cl = clazz.getClassLoader();
+					} else {
+						throw new ClassNotFoundException("className : " + className, new Throwable());
 					}
 				} else {
 					//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了
 					//这里只能通过之前添加的标记符来查找className
+					boolean found = false;
 					Set<String> category = intent.getCategories();
 					if (category != null) {
 						Iterator<String> itr = category.iterator();
@@ -125,9 +130,13 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 								Class clazz = PluginLoader.loadPluginClassByName(className);
 								cl = clazz.getClassLoader();
+								found = true;
 								break;
 							}
 						}
+					}
+					if (!found) {
+						throw new ClassNotFoundException("className : " + className + ", intent : " + intent.toString(), new Throwable());
 					}
 				}
 			} else {
@@ -137,6 +146,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				//判断上述两种情况可以通过ClassLoader的类型来判断, 判断出来以后补一个resolveActivity方法
 				if (cl instanceof PluginClassLoader) {
 					PluginIntentResolver.resolveActivity(intent);
+				} else {
+					//Do Nothing
 				}
 			}
 		}
@@ -153,8 +164,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					", currentClassName : " + className +
 					", currentIntent : " + intent.toString() +
 					", process : " + ProcessUtil.isPluginProcess() +
-					", isStubActivity" + PluginManagerHelper.isStubActivity(orginalClassName) +
-					", isExact" + PluginManagerHelper.isExact(orginalClassName, PluginDescriptor.ACTIVITY), e);
+					", isStubActivity : " + PluginManagerHelper.isStubActivity(orginalClassName) +
+					", isExact : " + PluginManagerHelper.isExact(orginalClassName, PluginDescriptor.ACTIVITY), e);
 		}
 	}
 

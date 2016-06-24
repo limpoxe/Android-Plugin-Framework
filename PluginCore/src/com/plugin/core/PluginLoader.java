@@ -198,7 +198,7 @@ public class PluginLoader {
 
 		}
 
-		LogUtil.e("loadPluginClass Fail for clazzName ", clazzName);
+		LogUtil.e("loadPluginClass Fail for clazzName ", clazzName, pluginDescriptor==null?"pluginDescriptor = null":"pluginDescriptor not null");
 
 		return null;
 
