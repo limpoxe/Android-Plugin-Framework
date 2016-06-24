@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -299,5 +300,17 @@ public class MainActivity extends AppCompatActivity {
 
 		//打印一下目录结构
 		FileUtil.printAll(new File(getApplicationInfo().dataDir));
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		LogUtil.d(keyCode);
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		LogUtil.d(keyCode);
+		return super.onKeyUp(keyCode, event);
 	}
 }

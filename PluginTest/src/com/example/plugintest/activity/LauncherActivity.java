@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 
@@ -303,6 +304,8 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
 			db.execSQL(sql);
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			db.close();
 		}
 
 		f = getDatabasePath("ccc");
@@ -324,4 +327,17 @@ public class LauncherActivity extends AppCompatActivity implements View.OnClickL
 		LogUtil.d(getFileStreamPath("eee").getAbsolutePath());
 
 	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		LogUtil.d(keyCode);
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		LogUtil.d(keyCode);
+		return super.onKeyUp(keyCode, event);
+	}
+
 }
