@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.IBinder;
@@ -74,21 +75,23 @@ public class PluginInjector {
 		ActivityThread.wrapHandler();
 	}
 
-	public static void installContentProviders(Context context, Context plugin, Collection<PluginProviderInfo> pluginProviderInfos) {
-		LogUtil.d("安装插件ContentProvider", pluginProviderInfos.size());
+	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
+		LogUtil.d("安装插件ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 			ProviderInfo p = new ProviderInfo();
 			//name做上标记，表示是来自插件，方便classloader进行判断
 			p.name = pluginProviderInfo.getName();
 			p.authority = pluginProviderInfo.getAuthority();
-			p.applicationInfo = context.getApplicationInfo();
+			p.applicationInfo = new ApplicationInfo(context.getApplicationInfo());
+			p.applicationInfo.packageName = pluginContext.getPackageName();
 			p.exported = pluginProviderInfo.isExported();
 			p.packageName = context.getApplicationInfo().packageName;
 			providers.add(p);
 		}
 
-		ActivityThread.installContentProviders(plugin, providers);
+		//pluginContext.getPackageName().equals(applicationInfo.packageName) == true
+		ActivityThread.installContentProviders(pluginContext, providers);
 	}
 
 	static void injectInstrumetionFor360Safe(Activity activity, Instrumentation pluginInstrumentation) {
