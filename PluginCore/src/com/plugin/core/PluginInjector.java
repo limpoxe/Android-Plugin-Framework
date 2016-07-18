@@ -247,6 +247,10 @@ public class PluginInjector {
 								  final PluginActivityInfo pluginActivityInfo) {
 
 		if (pluginActivityInfo != null) {
+
+			//如果PluginContextTheme的getPackageName返回了插件包名,需要在这里对attribute修正
+			activity.getWindow().getAttributes().packageName = PluginLoader.getApplication().getPackageName();
+
 			if (null != pluginActivityInfo.getWindowSoftInputMode()) {
 				activity.getWindow().setSoftInputMode(Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
 			}

@@ -2,9 +2,19 @@ package com.plugin.core;
 
 import android.app.Application;
 import android.content.Context;
+
+import com.plugin.core.hook.BinderProxy;
 import com.plugin.util.ProcessUtil;
 
 public class PluginApplication extends Application {
+
+	@Override
+	public void onCreate() {
+		if (ProcessUtil.isPluginProcess(this)) {
+			BinderProxy.hook();
+		}
+		super.onCreate();
+	}
 
 	@Override
 	protected void attachBaseContext(Context base) {

@@ -12,19 +12,18 @@ import java.lang.reflect.Method;
  */
 public class HookUtil {
 
-    public static void replaceMethod(Class<?> classToBeFix,
-                               String oldMethod, Method newMethod) {
+    public static void replaceMethod(Class<?> classToBeFix, Method fixedMethod) {
         if (Compat.isSupport()) {
                 Class<?> classToBeFixPreProcessed = AndFix.initTargetClass(classToBeFix);
                 if (classToBeFixPreProcessed != null) {
-                    Method src = null;
+                    Method methodToBeFix = null;
                     try {
-                        src = classToBeFixPreProcessed.getDeclaredMethod(oldMethod, newMethod.getParameterTypes());
+                        methodToBeFix = classToBeFixPreProcessed.getDeclaredMethod(fixedMethod.getName(), fixedMethod.getParameterTypes());
                     } catch (Exception e) {
                         Log.e("HookUtil", "replaceMethod", e.getCause());
                     }
-                    if (src != null) {
-                        AndFix.addReplaceMethod(src, newMethod);
+                    if (methodToBeFix != null) {
+                        AndFix.addReplaceMethod(methodToBeFix, fixedMethod);
                     }
                 }
         }

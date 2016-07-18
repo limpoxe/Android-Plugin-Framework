@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 
+import com.alipay.euler.andfix.Compat;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.compat.CompatForSharedPreferencesImpl;
 import com.plugin.core.localservice.LocalServiceManager;
@@ -143,6 +144,11 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public String getPackageName() {
+
+		if(Compat.isSupport()) {
+			return mPluginDescriptor.getPackageName();
+		}
+
 		//如果返回插件本身的packageName可能会引起一些问题。
 		//如packagemanager、activitymanager、wifi、window、inputservice
 		//等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
@@ -154,6 +160,13 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		//} else {
 			return PluginLoader.getApplication().getPackageName();
 		//}
+	}
+
+	//@hide
+	public String getBasePackageName() {
+		//ViewRootImpl中会调用这个方法, 这是个hide方法.
+		//如果这个方法也返回插件packageName, 则需要hook掉android.view.IWindowSession.relayout方法.
+		return PluginLoader.getApplication().getPackageName();
 	}
 
 	@Override
