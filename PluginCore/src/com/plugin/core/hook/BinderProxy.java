@@ -66,23 +66,43 @@ public class BinderProxy implements Serializable {
 
             //其他:
             //android.view.accessibility.IAccessibilityInteractionConnectionCallback
+            //android.view.accessibility.IAccessibilityManager
+            //android.view.IWindowManager
+            //android.view.IWindowSession
             //com.android.internal.view.IInputMethodSession
             //com.android.internal.view.IInputMethodManager
             //com.android.internal.view.IInputMethodClient
-            //android.hardware.input.IInputManager
-            //android.view.IWindowSession
-            //android.os.IPowerManager
-            //android.app.IUiModeManager
             //com.android.internal.telephony.ITelephony
             //com.android.internal.telephony.ITelephonyRegistry
+            //com.android.internal.telephony.ISub
+            //com.android.internal.app.IBatteryStats
+            //android.os.IBatteryPropertiesRegistrar
+            //android.hardware.input.IInputManager
+            //android.os.IPowerManager
+            //android.app.IUiModeManager
+            //android.app.IWallpaperManager
+            //android.bluetooth.IBluetoothManager
+            //android.content.IContentService
+            //android.content.IBulkCursor
+            //android.webkit.IWebViewUpdateService
 
             // 不过仍然会有一些其他服务hook不到, 是因为服务的remote对象,
             // 在执行replaceMethod方法前已经被获取到了, 即queryLocalInterface这个方法被hook之前已经被执行
 
-            if("android.content.IContentProvider".equals(descriptor)) {
+            if ("android.content.IContentProvider".equals(descriptor)) {
                 return null;
+            } else if ("IMountService".equals(descriptor)) {
+
+                stubProxy = Class.forName("android.os.storage.IMountService$Stub$Proxy", true, PluginLoader.class.getClassLoader());
+
+            } else if ("android.content.IBulkCursor".equals(descriptor)) {
+
+                stubProxy = Class.forName("android.database.BulkCursorProxy", true, PluginLoader.class.getClassLoader());
+
+            } else {
+
+                stubProxy = Class.forName(descriptor + "$Stub$Proxy", true, PluginLoader.class.getClassLoader());
             }
-            stubProxy = Class.forName(descriptor + "$Stub$Proxy", true, PluginLoader.class.getClassLoader());
             Constructor constructor = stubProxy.getDeclaredConstructor(IBinder.class);
             constructor.setAccessible(true);
             IInterface proxy = (IInterface)constructor.newInstance(this);

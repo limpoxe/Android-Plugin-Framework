@@ -106,8 +106,9 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.e("beforeInvoke", method.getName(), args[1]);
             int type = (int)args[0];
+            args[1] = PluginLoader.getApplication().getPackageName();
             if (type != INTENT_SENDER_ACTIVITY_RESULT) {
                 for (int i = 0; i < args.length; i++) {
                     if (args[i] != null && args[i].getClass().isAssignableFrom(Intent[].class)) {
