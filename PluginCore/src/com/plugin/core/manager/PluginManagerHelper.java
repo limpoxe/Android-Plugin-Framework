@@ -1,7 +1,5 @@
 package com.plugin.core.manager;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
@@ -9,6 +7,7 @@ import com.plugin.core.compat.CompatForContentProvider;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.util.LogUtil;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,10 +41,16 @@ public class PluginManagerHelper {
     public static Collection<PluginDescriptor> getPlugins() {
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_QUERY_ALL, null, null);
+
+        Collection<PluginDescriptor> list = null;
         if (bundle != null) {
-            return (Collection<PluginDescriptor>)bundle.getSerializable(PluginManagerProvider.QUERY_ALL_RESULT);
+            list = (Collection<PluginDescriptor>)bundle.getSerializable(PluginManagerProvider.QUERY_ALL_RESULT);
         }
-        return null;
+        //防止NPE
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        return list;
     }
 
     public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
