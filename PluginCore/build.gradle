@@ -25,6 +25,7 @@ android {
             //java.excludes = ['']
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
+            jniLibs.srcDirs = ['libs']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']

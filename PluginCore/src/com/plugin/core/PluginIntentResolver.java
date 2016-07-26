@@ -21,12 +21,16 @@ public class PluginIntentResolver {
 	public static final String CLASS_PREFIX_RECEIVER = "@";
 	public static final String CLASS_PREFIX_SERVICE = "@";
 
-	public static void resolveService(Intent service) {
-		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);
+	public static void resolveService(Intent intent) {
+		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
 			String stubServiceName = PluginManagerHelper.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
-				service.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), stubServiceName));
+				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), stubServiceName));
+			}
+		} else {
+			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
+				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
 			}
 		}
 	}
@@ -46,6 +50,9 @@ public class PluginIntentResolver {
 				result.add(newIntent);
 			}
 		} else {
+			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
+				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
+			}
 			result.add(intent);
 		}
 		return result;
@@ -128,6 +135,10 @@ public class PluginIntentResolver {
 					new ComponentName(PluginLoader.getApplication().getPackageName(), stubActivityName));
 			//PluginInstrumentationWrapper检测到这个标记后会进行替换
 			intent.setAction(className + CLASS_SEPARATOR + (intent.getAction()==null?"":intent.getAction()));
+		} else {
+			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
+				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
+			}
 		}
 	}
 

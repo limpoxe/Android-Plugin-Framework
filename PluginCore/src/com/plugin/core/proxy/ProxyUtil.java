@@ -8,6 +8,11 @@ import java.util.List;
 
 public class ProxyUtil {
 
+	public static Object createProxy2(Object target, Object delegate) {
+		MethodDelegate realDelegate = (MethodDelegate) delegate;
+		return createProxy(target,  realDelegate);
+	}
+
 	public static Object createProxy(Object target, MethodDelegate delegate) {
 		Class<?> clazz = target.getClass();
 		List<Class<?>> interfaces = getAllInterfaces(clazz);
