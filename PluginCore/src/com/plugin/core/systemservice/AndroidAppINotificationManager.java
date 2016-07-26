@@ -49,6 +49,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
+            args[0] = PluginLoader.getApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
@@ -63,6 +64,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
+            args[0] = PluginLoader.getApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
@@ -77,6 +79,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.e("beforeInvoke", method.getName());
+            args[0] = PluginLoader.getApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
