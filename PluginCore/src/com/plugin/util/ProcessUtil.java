@@ -42,6 +42,9 @@ public class ProcessUtil {
     private static String getPluginProcessName(Context context) {
         try {
             if (Build.VERSION.SDK_INT >= 9) {
+                //这里取个巧, 直接查询ContentProvider的信息中包含的processName
+                //因为Contentprovider是被配置在插件进程的.
+                //但是这个api只支持9及以上,
                 ProviderInfo pinfo = context.getPackageManager().getProviderInfo(new ComponentName(context, PluginManagerProvider.class), 0);
                 return pinfo.processName;
             }

@@ -18,11 +18,6 @@ import java.lang.reflect.Method;
  */
 public class BinderProxy implements Serializable {
 
-    //此方法应该尽可能早的执行, 以免错过被hook的方法调用
-    public static void hook() {
-        HookUtil.replaceMethod(BinderProxy.getTargetClass(), BinderProxy.getFixedMethod());
-    }
-
     public static Class getTargetClass() {
         try {
             return Class.forName("android.os.BinderProxy");
@@ -49,8 +44,6 @@ public class BinderProxy implements Serializable {
             Class thisClass = thisObject.getClass();
 
             LogUtil.e(descriptor, thisClass.getName());
-
-            Class stubProxy = null;
 
             //TODO
             // 通常情况下,如果是通过编译命令生成的接口, 类名如下
@@ -86,11 +79,16 @@ public class BinderProxy implements Serializable {
             //android.content.IBulkCursor
             //android.webkit.IWebViewUpdateService
 
-            // 不过仍然会有一些其他服务hook不到, 是因为服务的remote对象,
+            // 不过仍然可能会有一些其他服务hook不到, 是因为服务的remote对象,
             // 在执行replaceMethod方法前已经被获取到了, 即queryLocalInterface这个方法被hook之前已经被执行
+            // 所以BinderProxy.hook();这个方法应该尽可能早地执行
+
+            Class stubProxy = null;
 
             if ("android.content.IContentProvider".equals(descriptor)) {
+
                 return null;
+
             } else if ("IMountService".equals(descriptor)) {
 
                 stubProxy = Class.forName("android.os.storage.IMountService$Stub$Proxy", true, PluginLoader.class.getClassLoader());
@@ -100,7 +98,7 @@ public class BinderProxy implements Serializable {
                 stubProxy = Class.forName("android.database.BulkCursorProxy", true, PluginLoader.class.getClassLoader());
 
             } else {
-
+                //默认
                 stubProxy = Class.forName(descriptor + "$Stub$Proxy", true, PluginLoader.class.getClassLoader());
             }
             Constructor constructor = stubProxy.getDeclaredConstructor(IBinder.class);

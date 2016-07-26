@@ -18,11 +18,12 @@ import android.preference.PreferenceManager;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
 
-import com.alipay.euler.andfix.Compat;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.compat.CompatForSharedPreferencesImpl;
+import com.plugin.core.hook.HookUtil;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.multidex.PluginMultiDexHelper;
+import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 
 import java.io.File;
@@ -57,6 +58,10 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		mPluginDescriptor = pluginDescriptor;
 		mResources = resources;
 		mClassLoader = classLoader;
+
+		if (!ProcessUtil.isPluginProcess()) {
+			throw new IllegalAccessError("本类仅在插件进程使用");
+		}
 	}
 
 	public void setPluginApplication(Application pluginApplication) {
@@ -146,7 +151,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public String getPackageName() {
 
-		if(Compat.isSupport()) {
+		if(HookUtil.isSupport(this)) {
+			//利用hook解决packageName的问题以后,这里可以返回插件包名
 			return mPluginDescriptor.getPackageName();
 		}
 

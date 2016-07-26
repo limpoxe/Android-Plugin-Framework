@@ -3,16 +3,14 @@ package com.plugin.core;
 import android.app.Application;
 import android.content.Context;
 
-import com.plugin.core.hook.BinderProxy;
+import com.plugin.core.hook.HookUtil;
 import com.plugin.util.ProcessUtil;
 
 public class PluginApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		if (ProcessUtil.isPluginProcess(this)) {
-			BinderProxy.hook();
-		}
+		HookUtil.hook(this);
 		super.onCreate();
 	}
 

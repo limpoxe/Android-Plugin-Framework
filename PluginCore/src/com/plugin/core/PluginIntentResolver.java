@@ -17,9 +17,9 @@ import java.util.ArrayList;
 
 public class PluginIntentResolver {
 
-	public static final String CLASS_SEPARATOR = "@";
-	public static final String CLASS_PREFIX_RECEIVER = "@";
-	public static final String CLASS_PREFIX_SERVICE = "@";
+	public static final String CLASS_SEPARATOR = "@";//字符串越短,判断时效率越高
+	public static final String CLASS_PREFIX_RECEIVER = "#";//字符串越短,判断时效率越高
+	public static final String CLASS_PREFIX_SERVICE = "%";//字符串越短,判断时效率越高
 
 	public static void resolveService(Intent intent) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.SERVICE);
