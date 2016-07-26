@@ -17,9 +17,9 @@ import java.util.ArrayList;
 
 public class PluginIntentResolver {
 
-	public static final String CLASS_SEPARATOR = "_RECEIVER_AND_ACTIVITY_";
-	public static final String CLASS_PREFIX_RECEIVER = "_RECEIVER_";
-	public static final String CLASS_PREFIX_SERVICE = "_SERVICE_";
+	public static final String CLASS_SEPARATOR = "@";
+	public static final String CLASS_PREFIX_RECEIVER = "@";
+	public static final String CLASS_PREFIX_SERVICE = "@";
 
 	public static void resolveService(Intent service) {
 		ArrayList<String> classNameList = PluginLoader.matchPlugin(service, PluginDescriptor.SERVICE);

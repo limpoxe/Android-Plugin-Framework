@@ -388,7 +388,7 @@ public class PluginInjector {
 	}
 
 	/**
-	 * 如果插件中不包含service、receiver和contentprovider，是不需要替换classloader的
+	 * 如果插件中不包含service、receiver，是不需要替换classloader的
 	 */
 	public static void hackHostClassLoaderIfNeeded() {
 		Object mLoadedApk = RefInvoker.getFieldObject(PluginLoader.getApplication(), Application.class.getName(),

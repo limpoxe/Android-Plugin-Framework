@@ -83,7 +83,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	}
 
 	/**
-	 * 传0表示使用系统默认主题，最终的现实样式和客户端程序的minSdk应该有关系。 即系统针对不同的minSdk设置了不同的默认主题样式
+	 * 传0表示使用系统默认主题，最终的现实样式和客户端程序的minSdk应该有关系。
+	 * 即系统针对不同的minSdk设置了不同的默认主题样式
 	 * 传非0的话表示传过来什么主题就显示什么主题
 	 */
 	@Override

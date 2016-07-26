@@ -15,8 +15,8 @@ import com.plugin.util.RefInvoker;
 import java.util.Map;
 
 /**
- * 插件Receiver免注册的主要实现原理
- * 
+ * 用于拦截Activity  Service  Receiver的生命周期函数
+ * 同时可以跟踪一些其他消息
  * @author cailiming
  * 
  */
@@ -85,10 +85,12 @@ public class PluginAppTrace implements Handler.Callback {
 	}
 
 	private static Result beforeReceiver(Message msg) {
-		if (ProcessUtil.isPluginProcess()) {
-			Class clazz = PluginIntentResolver.resolveReceiverForClassLoader(msg.obj);
+		if (ProcessUtil.isPluginProcess()) {//判断进程是为了提高效率, 因为插件组件都是在插件进程中运行的.
 
+			Class clazz = PluginIntentResolver.resolveReceiverForClassLoader(msg.obj);
+			//找到class说明是插件中定义的receiver
 			if (clazz != null) {
+
 				PluginInjector.hackHostClassLoaderIfNeeded();
 
 				Context baseContext = PluginLoader.getApplication().getBaseContext();
@@ -101,8 +103,8 @@ public class PluginAppTrace implements Handler.Callback {
 
 				return result;
 			} else {
-				//宿主的receiver的context不需要处理，在framework中receiver的context本身是对appliction的包装。
-				//而宿主的application的base已经本更换过了
+				//宿主的Receiver的context不需要做特别处理，因为在framework中Receiver的context本身是对appliction的包装。
+				//而宿主的application的baseContext已经在插件框架init的时候替换过了
 			}
 		}
 
@@ -117,7 +119,8 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static Result beforeStopService(Message msg) {
 		if (ProcessUtil.isPluginProcess()) {
-			//销毁service时回收映射关系
+			//销毁service时回收映射关系, 之所以要回收映射关系是为了能在宿主中尽量少的注册占位组件.
+			//即回收映射关系并不是必须的, 只要预注册的占位组件数据足够即可.
 			Object activityThread = ActivityThread.currentActivityThread();
 			if (activityThread != null) {
 				Map<IBinder, Service> services = ActivityThread.getAllServices();
@@ -125,7 +128,7 @@ public class PluginAppTrace implements Handler.Callback {
 					Service service = services.get(msg.obj);
 					if (service != null) {
 						String pluginServiceClassName = service.getClass().getName();
-						LogUtil.d("STOP_SERVICE", pluginServiceClassName);
+						LogUtil.d("unBindStubService", pluginServiceClassName);
 						PluginManagerHelper.unBindStubService(pluginServiceClassName);
 					}
 				}
@@ -160,11 +163,14 @@ public class PluginAppTrace implements Handler.Callback {
 	}
 
 	private static void afterCreateService(Result result) {
-
+		//这里不做进程判断,是因为如果是宿主进程, 也需要为宿主service换context
 		if (result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
-			PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE, ""));
+			//替换service的context
+			//在引入了PluginShadowService以后,这个已经是多余的了, 注释掉先.
+			//PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE, ""));
 		} else {
 			//给宿主service注入一个无害的BaseContext, 主要是为了重写宿主Service的sentBroadCast和startService方法
+			//使得在宿主的service中通过intent可以打开插件的组件
 			PluginInjector.replaceHostServiceContext(result.serviceName);
 		}
 	}

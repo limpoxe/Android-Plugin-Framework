@@ -9,8 +9,8 @@ import java.util.List;
 import dalvik.system.DexClassLoader;
 
 /**
- * 为了支持插件间依赖，增加此类。
- * 
+ * 为了支持插件间依赖，增加此类。如果不需要使用插件依赖插件, 此类为多余。直接使用DexClassLoader即可
+ *
  * @author Administrator
  * 
  */
@@ -50,7 +50,8 @@ public class PluginClassLoader extends DexClassLoader {
 			suppressed = e;
 		}
 
-		if (clazz == null && !className.startsWith("android.view")) {//这里判断android.view 是为了解决webview的问题
+		//这里判断android.view 是为了解决webview的问题
+		if (clazz == null && !className.startsWith("android.view")) {
 
 			if (multiDexClassLoaderList != null) {
 				for(DexClassLoader dexLoader : multiDexClassLoaderList) {

@@ -188,7 +188,7 @@ public class PluginLoader {
 				LogUtil.d("loadPluginClass Success for clazzName ", clazzName);
 				return pluginClazz;
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				LogUtil.printException("ClassNotFound " + clazzName, e);
 			} catch (java.lang.IllegalAccessError illegalAccessError) {
 				illegalAccessError.printStackTrace();
 				throw new IllegalAccessError("出现这个异常最大的可能是插件dex和" +
