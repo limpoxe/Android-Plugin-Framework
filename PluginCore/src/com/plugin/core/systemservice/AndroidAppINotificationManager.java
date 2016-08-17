@@ -11,7 +11,6 @@ import android.widget.RemoteViews;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginIntentResolver;
 import com.plugin.core.PluginLoader;
-import com.plugin.core.PluginPublicXmlConst;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.proxy.MethodDelegate;
 import com.plugin.core.proxy.MethodProxy;
@@ -19,6 +18,7 @@ import com.plugin.core.proxy.ProxyUtil;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
+import com.plugin.util.ResourceUtil;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -104,7 +104,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
             }
             if (layoutId != 0) {
                 //检查资源布局资源Id是否属于宿主
-                if (PluginPublicXmlConst.resourceMap.get(layoutId>>16) == null) {
+                if (!ResourceUtil.isMainResId(layoutId)) {
                     //资源是来自插件
                     if (notification.contentIntent != null) {
                         Intent intent = (Intent)RefInvoker.invokeMethod(notification.contentIntent, PendingIntent.class.getName(), "getIntent", (Class[]) null, (Object[]) null);

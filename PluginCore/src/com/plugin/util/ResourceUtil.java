@@ -11,7 +11,6 @@ import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
-import com.plugin.core.PluginPublicXmlConst;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -150,9 +149,9 @@ public class ResourceUtil {
     }
 
     public static boolean isMainResId(int resid) {
-        //如果使用的使openatlasextention
-        //默认宿主的资源id以0x7f3X开头
-        return PluginPublicXmlConst.resourceMap.get(resid>>16) != null;
+        //这里之所以这样判断是因为 宿主的public.xml中限制了宿主的资源id范围
+        //如果public.xml配置在插件中, 这里需要将这个判断反过来
+        return resid>>16 > 0x7f20;//不包括属性
     }
 
     public static void rewriteRValues(ClassLoader cl, String packageName, int id) {
