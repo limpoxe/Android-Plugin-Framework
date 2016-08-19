@@ -53,8 +53,11 @@ public class PluginIntentResolver {
 			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
 				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
 			}
-			result.add(intent);
 		}
+
+		//fix 插件中对同一个广播同时注册了动态和静态广播的情况
+		result.add(intent);
+
 		return result;
 	}
 
