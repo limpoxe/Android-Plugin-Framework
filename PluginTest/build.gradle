@@ -106,7 +106,7 @@ build.doLast {
         from(buildDir.absolutePath + '/outputs/apk/') {
             include 'PluginTest-debug.apk'
         }
-        into(project(':PluginMain').getProjectDir().absolutePath + '/assets/')
+        into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
     }
 }
 

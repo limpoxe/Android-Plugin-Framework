@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
 //		intent.putExtra("testParam", "testParam");
 //		sendBroadcast(intent);
 
-//		//测试通过宿主service唤起插件service
-//		startService(new Intent(this, MainService.class));
+		//测试通过宿主service唤起插件service
+		startService(new Intent(this, MainService.class));
 	}
 
 	private void initView() {
