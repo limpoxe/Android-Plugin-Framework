@@ -27,12 +27,12 @@ dependencies {
 
 afterEvaluate {
     tasks.getByName("assembleDebug").doLast {
-        println '导出 debug jar包到build/outputs/目录'
-        exportJar.execute()
+        println '导出 R jar包到build/outputs/目录'
+        exportRJar.execute()
     }
 }
 
-task exportJar(type: Jar) {
+task exportRJar(type: Jar) {
     //指定生成的jar名
     baseName 'rClasses'
     from buildDir.absolutePath + '/intermediates/classes/debug/'
