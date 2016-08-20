@@ -10,23 +10,12 @@ android {
         targetSdkVersion 22
         versionCode 2
         versionName "1.0.1"
-
-        //for 1.5.0-
-        //generatedDensities = []
-
-        //for 2.0.0+
-        //vectorDrawables.useSupportLibrary = true;
     }
 
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
     }
-
-    aaptOptions {
-        //for 1.5.0- Flag that tells aapt to keep attribute ids
-        //additionalParameters "--no-version-vectors"
-    }
-
 }
 
 dependencies {
@@ -34,13 +23,14 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.3.0'
 }
 
-build.doLast {
-    //将编译好的插件apk复制到Main工程的assets目录下, 便于测试
-    copy {
-        println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginHelloWorld-debug.apk'
-        from(buildDir.absolutePath + '/outputs/apk/') {
-            include 'PluginHelloWorld-debug.apk'
+afterEvaluate {
+    tasks.getByName("assembleDebug").doLast {
+        println '复制插件 debug apk 到 PluginMain//src/main/assets/目录下, 便于测试'
+        copy {
+            from(buildDir.absolutePath + '/outputs/apk/') {
+                include project.name + '-' + 'debug' + '.apk'
+            }
+            into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
         }
-        into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
     }
 }

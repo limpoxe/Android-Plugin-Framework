@@ -25,14 +25,11 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-build.doLast {
-
-    //测试自定义task, 观察编译log里面是否有输出
-    helloTask.execute()
-
-    //导出R的Jar包
-    exportJar.execute()
-
+afterEvaluate {
+    tasks.getByName("assembleDebug").doLast {
+        println '导出 debug jar包到build/outputs/目录'
+        exportJar.execute()
+    }
 }
 
 task exportJar(type: Jar) {
@@ -44,20 +41,4 @@ task exportJar(type: Jar) {
     //打包到jar后的目录结构
     //into("com/xxx/xxx")
     destinationDir = file(buildDir.absolutePath + '/outputs/')
-}
-
-
-// 自定义task的用法
-task helloTask(type: HelloGradleTask) {
-    helloStr = 'hello from ovrride greeting ' + android.sourceSets.main.manifest.srcFile
-}
-// 自定义task的用法
-class HelloGradleTask extends DefaultTask {
-
-    def String helloStr = 'hello from Default HelloGradleTask '
-
-    @TaskAction
-    def hello() {
-        println helloStr
-    }
 }

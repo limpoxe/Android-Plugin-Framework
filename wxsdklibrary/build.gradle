@@ -18,6 +18,7 @@ android {
     }
 
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
     }
 }
@@ -26,5 +27,4 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     provided files(project(':PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
     provided files(project(':PluginCore').getBuildDir().absolutePath + '/outputs/aar/PluginCore-debug.jar')
-
 }

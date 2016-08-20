@@ -37,18 +37,11 @@ android {
 }
 dependencies {
 
-    //如果插件需要依赖一些私有库，可放开下面的注释，并修改为私有库的名称
-    //compile fileTree(dir: 'libs', include: ['*.jar'])
-    //compile project(':PluginPrivateLib1')
-    //compile project(':PluginPrivateLib2')
-    //compile file('xxx/xxx.jar');
-
-
-    ////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
     //下面这一堆provided的配置，是因为这些包在编译宿主的时候，已经被打包到宿主的apk中。
     //所以这里打包非独立插件的时候，要通过provided配置防止这些包被打入非独立插件。
     //如果是独立插件，无需任何特殊配置
-    ////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
 
     //依赖库的src
     provided files(project(':PluginCore').getBuildDir().absolutePath + '/outputs/aar/PluginCore-debug.jar')
