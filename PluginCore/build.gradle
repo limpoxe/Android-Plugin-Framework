@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.alipay.euler:andfix:0.4.0'
 }
 
 tasks.whenTaskAdded { task ->

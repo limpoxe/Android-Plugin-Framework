@@ -27,7 +27,7 @@ public class HookUtil {
      */
     public static void hook(Context context) {
         if (isSupport(context)) {
-            HookUtil.replaceMethod(BinderProxy.getTargetClass(), BinderProxy.getFixedMethod());
+            replaceMethod(BinderProxy.getTargetClass(), BinderProxy.getFixedMethod());
         }
     }
 

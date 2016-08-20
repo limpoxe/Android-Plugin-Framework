@@ -95,10 +95,13 @@
 }
 
 # 保护PluginCore不受混淆影响 Begin
--keep public class * extends android.app.Instrumentation {public *;}#必须
--keep public class com.plugin.core.annotation.** {*;}#可选
--keep public class com.plugin.core.PluginThemeHelper {*;}#可选
--keep public class com.plugin.core.localservice.LocalServiceManager {*;}#可选
--keep public class com.plugin.util.LogUtil {*;}#可选
--keep public class com.plugin.util.NotificationHelper {*;}#可选
+-keep public class * extends android.app.Instrumentation {public *;}
+-keep public class com.plugin.core.annotation.** {*;}
+-keep public class com.plugin.core.PluginThemeHelper {*;}
+-keep public class com.plugin.core.localservice.LocalServiceManager {*;}
+-keep public class com.plugin.util.LogUtil {*;}
+-keep public class com.plugin.util.NotificationHelper {*;}
+-keep public class com.plugin.core.hook.BinderProxy {*;}
+-keep public class com.plugin.core.hook.BinderProxyDelegate {*;}
+-keep public class com.alipay.euler.andfix.** {*;}
 # 保护PluginCore不受混淆影响 End

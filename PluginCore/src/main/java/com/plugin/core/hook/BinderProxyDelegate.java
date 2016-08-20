@@ -11,6 +11,8 @@ import java.lang.reflect.Method;
 
 /**
  * Created by cailiming on 16/7/14.
+ *
+ * Used By BinderProxy With Reflect
  */
 public class BinderProxyDelegate extends MethodDelegate {
 
