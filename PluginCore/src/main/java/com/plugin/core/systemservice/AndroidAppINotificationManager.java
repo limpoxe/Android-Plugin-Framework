@@ -28,7 +28,10 @@ import java.lang.reflect.Method;
  */
 public class AndroidAppINotificationManager extends MethodProxy {
 
-    private AndroidAppINotificationManager() {
+    static {
+        sMethods.put("enqueueNotification", new enqueueNotification());
+        sMethods.put("enqueueNotificationWithTag", new enqueueNotificationWithTag());
+        sMethods.put("enqueueNotificationWithTagPriority", new enqueueNotificationWithTagPriority());
     }
 
     public static void installProxy() {
@@ -37,12 +40,6 @@ public class AndroidAppINotificationManager extends MethodProxy {
         Object androidAppINotificationStubProxyProxy = ProxyUtil.createProxy(androidAppINotificationStubProxy, new AndroidAppINotificationManager());
         RefInvoker.setStaticOjbect(NotificationManager.class.getName(), "sService", androidAppINotificationStubProxyProxy);
         LogUtil.d("安装完成");
-    }
-
-    static {
-        sMethods.put("enqueueNotification", new enqueueNotification());
-        sMethods.put("enqueueNotificationWithTag", new enqueueNotificationWithTag());
-        sMethods.put("enqueueNotificationWithTagPriority", new enqueueNotificationWithTagPriority());
     }
 
     public static class enqueueNotification extends MethodDelegate {

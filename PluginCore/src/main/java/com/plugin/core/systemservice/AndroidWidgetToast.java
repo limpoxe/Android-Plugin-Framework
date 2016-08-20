@@ -17,7 +17,9 @@ import java.lang.reflect.Method;
  */
 public class AndroidWidgetToast extends MethodProxy {
 
-    private AndroidWidgetToast() {
+    static {
+        sMethods.put("enqueueToast", new enqueueToast());
+        sMethods.put("cancelToast", new cancelToast());
     }
 
     public static void installProxy() {
@@ -26,11 +28,6 @@ public class AndroidWidgetToast extends MethodProxy {
         Object androidAppINotificationStubProxyProxy = ProxyUtil.createProxy(androidAppINotificationStubProxy, new AndroidWidgetToast());
         RefInvoker.setStaticOjbect(NotificationManager.class.getName(), "sService", androidAppINotificationStubProxyProxy);
         LogUtil.d("安装完成");
-    }
-
-    static {
-        sMethods.put("enqueueToast", new enqueueToast());
-        sMethods.put("cancelToast", new cancelToast());
     }
 
     public static class enqueueToast extends MethodDelegate {

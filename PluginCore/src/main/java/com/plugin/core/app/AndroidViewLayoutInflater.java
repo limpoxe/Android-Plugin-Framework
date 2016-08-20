@@ -1,4 +1,4 @@
-package com.plugin.core.systemservice;
+package com.plugin.core.app;
 
 import android.view.LayoutInflater;
 import android.view.View;

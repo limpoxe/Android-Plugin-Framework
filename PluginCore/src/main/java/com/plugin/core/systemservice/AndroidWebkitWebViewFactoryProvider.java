@@ -1,6 +1,5 @@
 package com.plugin.core.systemservice;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
@@ -11,13 +10,16 @@ import com.plugin.core.proxy.ProxyUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
  * Created by cailiming on 16/1/28.
  */
 public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
+
+    static {
+        sMethods.put("createWebView", new createWebView());
+    }
 
     public static void installProxy() {
         if (Build.VERSION.SDK_INT >= 19) {
@@ -33,10 +35,6 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             }
             LogUtil.d("安装完成");
         }
-    }
-
-    static {
-        sMethods.put("createWebView", new createWebView());
     }
 
     public static class createWebView extends MethodDelegate {

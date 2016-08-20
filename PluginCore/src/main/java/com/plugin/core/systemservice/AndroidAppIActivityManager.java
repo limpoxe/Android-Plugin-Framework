@@ -26,7 +26,13 @@ import java.util.Map;
  */
 public class AndroidAppIActivityManager extends MethodProxy {
 
-    private AndroidAppIActivityManager() {
+    static {
+        sMethods.put("getRunningAppProcesses", new getRunningAppProcesses());
+        sMethods.put("killBackgroundProcesses", new killBackgroundProcesses());
+        sMethods.put("getServices", new getServices());
+        sMethods.put("getIntentSender", new getIntentSender());
+        sMethods.put("overridePendingTransition", new overridePendingTransition());
+        sMethods.put("serviceDoneExecuting", new serviceDoneExecuting());
     }
 
     public static void installProxy() {
@@ -41,16 +47,6 @@ public class AndroidAppIActivityManager extends MethodProxy {
             RefInvoker.setFieldObject(singleton, "android.util.Singleton", "mInstance", androidAppIActivityManagerStubProxyProxy);
         }
         LogUtil.d("安装完成");
-    }
-
-    static {
-        sMethods.put("getRunningAppProcesses", new getRunningAppProcesses());
-        sMethods.put("killBackgroundProcesses", new killBackgroundProcesses());
-        sMethods.put("getServices", new getServices());
-        sMethods.put("getIntentSender", new getIntentSender());
-        sMethods.put("overridePendingTransition", new overridePendingTransition());
-        sMethods.put("serviceDoneExecuting", new serviceDoneExecuting());
-
     }
 
     //public List<RunningAppProcessInfo> getRunningAppProcesses()

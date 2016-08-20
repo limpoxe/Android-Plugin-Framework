@@ -16,7 +16,7 @@ import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.plugin.core.systemservice.AndroidAppIPackageManager;
-import com.plugin.core.systemservice.AndroidViewLayoutInflater;
+import com.plugin.core.app.AndroidViewLayoutInflater;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;

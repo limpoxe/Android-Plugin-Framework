@@ -34,15 +34,6 @@ import java.util.List;
  */
 public class AndroidAppIPackageManager extends MethodProxy {
 
-    public static void installProxy(PackageManager manager) {
-        LogUtil.d("安装PackageManagerProxy");
-        Object androidAppIPackageManagerStubProxy = RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sPackageManager");
-        Object androidAppIPackageManagerStubProxyProxy = ProxyUtil.createProxy(androidAppIPackageManagerStubProxy, new AndroidAppIPackageManager());
-        RefInvoker.setStaticOjbect("android.app.ActivityThread", "sPackageManager", androidAppIPackageManagerStubProxyProxy);
-        RefInvoker.setFieldObject(manager, "android.app.ApplicationPackageManager", "mPM", androidAppIPackageManagerStubProxyProxy);
-        LogUtil.d("安装完成");
-    }
-
     static {
         sMethods.put("getInstalledPackages", new getInstalledPackages());
         sMethods.put("getPackageInfo", new getPackageInfo());
@@ -56,6 +47,15 @@ public class AndroidAppIPackageManager extends MethodProxy {
         sMethods.put("resolveIntent", new resolveIntent());
         sMethods.put("resolveService", new resolveService());
         sMethods.put("getComponentEnabledSetting", new getComponentEnabledSetting());
+    }
+
+    public static void installProxy(PackageManager manager) {
+        LogUtil.d("安装PackageManagerProxy");
+        Object androidAppIPackageManagerStubProxy = RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sPackageManager");
+        Object androidAppIPackageManagerStubProxyProxy = ProxyUtil.createProxy(androidAppIPackageManagerStubProxy, new AndroidAppIPackageManager());
+        RefInvoker.setStaticOjbect("android.app.ActivityThread", "sPackageManager", androidAppIPackageManagerStubProxyProxy);
+        RefInvoker.setFieldObject(manager, "android.app.ApplicationPackageManager", "mPM", androidAppIPackageManagerStubProxyProxy);
+        LogUtil.d("安装完成");
     }
 
     public static class getPackageInfo extends MethodDelegate {
