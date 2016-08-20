@@ -28,7 +28,7 @@ dependencies {
 
 afterEvaluate {
     tasks.getByName("assembleDebug").doLast {
-        println '复制插件 debug apk 到 PluginMain//src/main/assets/目录下, 便于测试'
+        println '复制插件 debug apk 到 PluginMain/src/main/assets/目录下, 便于测试'
         copy {
             from(buildDir.absolutePath + '/outputs/apk/') {
                 include project.name + '-' + 'debug' + '.apk'

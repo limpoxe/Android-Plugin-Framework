@@ -38,6 +38,13 @@ android {
     }
 
 }
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy_MM_dd_HH_mm_ss')
+    return formattedDate
+}
+
 dependencies {
 
     //////////////////////////////////////////////////////////////////////
@@ -49,35 +56,28 @@ dependencies {
     //依赖库的src
     provided files(project(':PluginCore').getBuildDir().absolutePath + '/outputs/aar/PluginCore-debug.jar')
     provided files(project(':PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
+
     //依赖库的R
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
-    //依赖库的src
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
+
     //依赖库的依赖裤（当supportV4在依赖库V的libs目录下时）
     //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
     //依赖库的依赖裤（当supportV4通过仓库依赖时）
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/classes.jar')
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/libs/internal_impl-23.3.0.jar')
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/23.3.0/jars/classes.jar')
-    //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/animated-vector-drawable/23.3.0/jars/classes.jar')
-    //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.3.0/jars/classes.jar')
-
 }
 
-def getDate() {
-    def date = new Date()
-    def formattedDate = date.format('yyyy_MM_dd_HH_mm_ss')
-    return formattedDate
-}
-
-build.doLast {
-    //将编译好的插件apk复制到Main工程的assets目录下, 便于测试
-    copy {
-        println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginTest-debug.apk'
-        from(buildDir.absolutePath + '/outputs/apk/') {
-            include 'PluginTest-debug.apk'
+afterEvaluate {
+    tasks.getByName("assembleDebug").doLast {
+        println '复制插件 debug apk 到 PluginMain/src/main/assets/目录下, 便于测试'
+        copy {
+            from(buildDir.absolutePath + '/outputs/apk/') {
+                include project.name + '-' + 'debug' + '.apk'
+            }
+            into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
         }
-        into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
     }
 }
 
