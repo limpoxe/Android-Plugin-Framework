@@ -32,6 +32,7 @@ tasks.whenTaskAdded { task ->
     android.buildTypes.all { buildType ->
         if (task.name.equalsIgnoreCase("bundle" + buildType.name)) {
             task.doLast {
+                println '导出 ' + buildType.name + ' jar包到build/outputs/aar目录'
                 project.copy {
                     from(buildDir.absolutePath + '/intermediates/bundles/' + buildType.name) {
                         include "classes.jar"

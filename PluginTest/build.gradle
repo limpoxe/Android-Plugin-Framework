@@ -52,7 +52,7 @@ dependencies {
 
     //依赖库的src
     provided files(project(':PluginCore').getBuildDir().absolutePath + '/outputs/aar/PluginCore-debug.jar')
-    provided files(project(':PluginBase').getBuildDir().absolutePath + '/outputs/PluginBase.jar')
+    provided files(project(':PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
     //依赖库的R
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
     //依赖库的src

@@ -12,21 +12,32 @@ android {
     }
 }
 
-build.doLast {
-
-    exportJar.execute()
-
-    //将编译好的插件apk复制到Main工程的assets目录下, 便于测试
-    copy {
-        println 'copy plugin apk to assets... ' + buildDir.absolutePath + '/outputs/apk/PluginBase-debug.apk'
-        from(buildDir.absolutePath + '/outputs/apk/') {
-            include 'PluginBase-debug.apk'
+tasks.whenTaskAdded { task ->
+    android.buildTypes.all { buildType ->
+        if (task.name.equalsIgnoreCase("compile" + buildType.name + "Sources")) {
+            task.doLast {
+                println '导出 ' + buildType.name + ' jar包到build/outputs/apk目录'
+                tasks.getByName("jar" + buildType.name.substring(0, 1).toUpperCase()+ buildType.name.replaceFirst("\\w","") +  "Classes").execute()
+                project.copy {
+                    from(buildDir.absolutePath + '/intermediates/packaged/' + buildType.name) {
+                        include "classes.jar"
+                    }
+                    into(buildDir.absolutePath + "/outputs/apk")
+                    rename('classes', project.name + "-" + buildType.name)
+                }
+            }
         }
-        into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
     }
 }
 
-task exportJar(type: Jar) {
-    from buildDir.absolutePath + '/intermediates/classes/debug/'
-    destinationDir = file(buildDir.absolutePath + '/outputs/')
+afterEvaluate {
+    tasks.getByName("assembleDebug").doLast {
+        println '复制插件 debug apk 到 PluginMain//src/main/assets/目录下, 便于测试'
+        copy {
+            from(buildDir.absolutePath + '/outputs/apk/') {
+                include project.name + '-' + 'debug' + '.apk'
+            }
+            into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+        }
+    }
 }
