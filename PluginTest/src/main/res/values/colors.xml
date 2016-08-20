@@ -1,0 +1,6 @@
+<resources>
+
+    <color name="light_btn_normal_color">#eeeeee</color>
+    <color name="light_btn_press_color">#dadada</color>
+    <color name="light_btn_disable_color">#dddddd</color>
+</resources>

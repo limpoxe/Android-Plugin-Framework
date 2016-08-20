@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello_world1">来着插件文字1</string>
+    <string name="hello_world2">来着插件文字2</string>
+    <string name="hello_world3">来着插件文字3</string>
+    <string name="hello_world4">来着插件文字4</string>
+    <string name="descpt">非独立插件demo</string>
+</resources>

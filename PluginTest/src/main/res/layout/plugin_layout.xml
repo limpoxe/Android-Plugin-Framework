@@ -1,0 +1,77 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin" >
+        
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MyButton"
+            android:text="测试插件style" />
+
+        <Button
+            android:id="@+id/plugin_test_btn1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MyButton2"
+            android:text="@string/hello_world1" />
+
+        <Button
+            android:id="@+id/plugin_test_btn2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_world2" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@*com.example.pluginmain:string/share_string_2" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@*com.example.pluginmain:string/share_string_1" />
+
+        <Button
+            android:id="@+id/plugin_test_btn3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_world3" />
+
+        <Button
+            android:id="@+id/plugin_test_btn4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_world4" />
+
+        <com.example.pluginsharelib.ShareLayout
+            android:layout_width="fill_parent"
+            android:layout_height="300dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/light_btn_normal_color" />
+
+        <!-- 测试来自宿主的自定义控件的自定义属性 -->
+        <com.example.pluginsharelib.RectImageView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/black" />
+
+        <com.example.plugintest.view.PluginTestLayout
+            android:layout_width="fill_parent"
+            android:layout_height="300dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/light_btn_normal_color" />
+    </LinearLayout>
+
+</ScrollView>
