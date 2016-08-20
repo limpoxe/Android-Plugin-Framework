@@ -28,12 +28,18 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-build.doLast {
-    //编译完成后导出jar包
-    exportJar.execute()
-}
-
-task exportJar(type: Jar) {
-    from buildDir.absolutePath + '/intermediates/classes/debug/'
-    destinationDir = file(buildDir.absolutePath + '/outputs/')
+tasks.whenTaskAdded { task ->
+    android.buildTypes.all { buildType ->
+        if (task.name.equalsIgnoreCase("bundle" + buildType.name)) {
+            task.doLast {
+                project.copy {
+                    from(buildDir.absolutePath + '/intermediates/bundles/' + buildType.name) {
+                        include "classes.jar"
+                    }
+                    into(buildDir.absolutePath + "/outputs/aar")
+                    rename('classes', project.name + "-" + buildType.name)
+                }
+            }
+        }
+    }
 }
