@@ -20,6 +20,9 @@ android {
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
+        textReport false
+        htmlReport false
+        xmlReport false
     }
 
     buildTypes {
@@ -79,8 +82,9 @@ build.doLast {
 }
 
 ext {
-    //这个常量在最后apply的脚本中要用到
+    //这2个常量在下面的apply的脚本中要用到
     host_output_dir = project(':PluginMain').getBuildDir().absolutePath + "/outputs"
+    host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
 }
 
 apply from: "./plugin.gradle"

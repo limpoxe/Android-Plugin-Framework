@@ -10,15 +10,15 @@ import javax.xml.parsers.SAXParserFactory
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 //此脚本一共做了4件事
-//1、编译宿主资源时插入public.xml，用来控制宿主资源id分组
-//2、编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包
-//3、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情
+//1、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情
+//2、编译宿主资源时插入public.xml，用来控制宿主资源id分组
+//3、编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包
 //4、编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-//第3件事
+//第1件事
 android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
 
 afterEvaluate {
@@ -26,8 +26,9 @@ afterEvaluate {
         def scope = variant.getVariantData().getScope()
         String mergeTaskName = scope.getMergeResourcesTask().name
         def mergeTask = tasks.getByName(mergeTaskName)
-        //第1件事
+        //第2件事
         mergeTask.doLast {
+            println '编译宿主资源时插入public.xml，用来控制宿主资源id分组'
             copy {
                 from(project.getProjectDir()) {
                     include 'public.xml'
@@ -35,36 +36,44 @@ afterEvaluate {
                 into(mergeTask.outputDir.absolutePath + "/values/")
             }
         }
-        //第2件事
+        //第3件事
         for (baseVariant in variant.outputs) {
             def processResourcesTask = baseVariant.getProcessResources();
             processResourcesTask.doLast {
+                println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
                 copy {
                     from processResourcesTask.packageOutputFile
                     into("${project.buildDir}/outputs/")
+                    rename('resources', project.name + "-resources")
                 }
             }
         }
     }
-}
 
-//第4件事
-build.doLast {
-    //导出主题debug patch，非独立插件编译时会依赖此patch
-    createThemePatch();
+    //第4件事
+    android.buildTypes.all { buildType ->
+        tasks.each { task ->
+            if (task.name.equalsIgnoreCase("assemble" + buildType.name)) {
+                task.doLast {
+                    println '编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包'
+                    createThemePatch(buildType.name)
+                }
+            }
+        }
+    }
+
 }
 
 //导出主题patch
-def createThemePatch() {
-    File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch");
-    patchDir.mkdirs();
+def createThemePatch(String buildType) {
 
+    File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch/" + buildType);
+    patchDir.mkdirs();
 
     ThemeProcessor.exportThemeStyle(new File(project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml"),
             new File(patchDir, "patch_theme.xml"), android.defaultConfig.applicationId)
 
-    //debug模式下的目录，这里hardcode太多啦。。。。囧
-    String parenDir = "${project.buildDir}/intermediates/res/merged/debug/";
+    String parenDir = "${project.buildDir}/intermediates/res/merged/" + buildType + "/";
 
     ThemeProcessor.exportThemeStyle(new File(parenDir + "values/values.xml"),
             new File(patchDir, "patch_values.xml"), android.defaultConfig.applicationId)

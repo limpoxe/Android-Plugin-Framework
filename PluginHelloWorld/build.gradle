@@ -15,6 +15,9 @@ android {
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
+        textReport false
+        htmlReport false
+        xmlReport false
     }
 }
 
