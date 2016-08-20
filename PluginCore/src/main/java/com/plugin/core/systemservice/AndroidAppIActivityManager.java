@@ -13,7 +13,7 @@ import com.plugin.core.proxy.MethodDelegate;
 import com.plugin.core.proxy.MethodProxy;
 import com.plugin.core.proxy.ProxyUtil;
 import com.plugin.util.LogUtil;
-import com.plugin.util.NotificationHelper;
+import com.plugin.util.PendingIntentHelper;
 import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 
@@ -117,7 +117,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             type = PluginDescriptor.SERVICE;
                         }
                         for(int j = 0; j < intents.length; j++) {
-                            intents[j] =  NotificationHelper.resolveNotificationIntent(intents[j], type);
+                            intents[j] =  PendingIntentHelper.resolvePendingIntent(intents[j], type);
                         }
                         break;
                     }

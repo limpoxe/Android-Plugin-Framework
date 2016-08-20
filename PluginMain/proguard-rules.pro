@@ -100,7 +100,7 @@
 -keep public class com.plugin.core.PluginThemeHelper {*;}
 -keep public class com.plugin.core.localservice.LocalServiceManager {*;}
 -keep public class com.plugin.util.LogUtil {*;}
--keep public class com.plugin.util.NotificationHelper {*;}
+-keep public class com.plugin.util.PendingIntentHelper {*;}
 -keep public class com.plugin.core.hook.BinderProxy {*;}
 -keep public class com.plugin.core.hook.BinderProxyDelegate {*;}
 -keep public class com.alipay.euler.andfix.** {*;}

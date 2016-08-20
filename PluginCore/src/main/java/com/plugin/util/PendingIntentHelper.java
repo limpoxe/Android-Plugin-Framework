@@ -1,28 +1,20 @@
 package com.plugin.util;
 
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.os.Build;
-import android.widget.RemoteViews;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginIntentResolver;
-import com.plugin.core.PluginLoader;
-
-import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Created by cailiming on 16/1/10.
  */
-public class NotificationHelper {
+public class PendingIntentHelper {
     /**
      * used before send notification
      * @param intent
      * @return
      */
-    public static Intent resolveNotificationIntent(Intent intent, int type) {
+    public static Intent resolvePendingIntent(Intent intent, int type) {
 
         if (type == PluginDescriptor.BROADCAST) {
 
