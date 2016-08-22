@@ -24,7 +24,6 @@ import com.example.pluginsharelib.SharePOJO;
 import com.example.pluginsharelib.ShareService;
 import com.example.plugintest.IMyAidlInterface;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.annotation.ComponentContainer;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManagerHelper;
@@ -38,13 +37,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 
-/**
- * 添加这个注解@ComponentContainer是为了控制宿主的当前Activity是否需要支持控件级插件
- *
- * 控件级插件功能默认是关闭的。控件级插件和主题换肤功能不能共存。关闭控件级插件。页面换肤功能刚能生效
- *
- */
-@ComponentContainer
 public class MainActivity extends AppCompatActivity {
 
 	private ViewGroup mList;

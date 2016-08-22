@@ -1,19 +1,11 @@
 package com.example.pluginmain;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.plugin.core.annotation.ComponentContainer;
-
-/**
- * 控件级插件和主题换肤功能不能共存，控件级插件功能默认是关闭的
- * 添加这个注解@ComponentContainer是为了通知插件框架在当前Activity中启用控件级插件
- */
-@ComponentContainer
 public class TestViewActivity extends AppCompatActivity {
 
 	@Override
