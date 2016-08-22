@@ -1,5 +1,6 @@
 package com.plugin.core;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.util.AttributeSet;
@@ -9,6 +10,8 @@ import android.view.View;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.annotation.AnnotationProcessor;
+import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 
@@ -38,14 +41,27 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 
 	private View createViewFromTag(Context context, String name, AttributeSet attrs) {
 		if (name.equals("pluginView")) {
-			name = attrs.getAttributeValue(null, "class");
 			String pluginId = attrs.getAttributeValue(null, "context");
+			String viewClassName = attrs.getAttributeValue(null, "class");
+
+			LogUtil.d("创建插件view", pluginId, viewClassName);
+
+			if (context instanceof Activity) {
+				FragmentContainer fragmentContainer = AnnotationProcessor.getFragmentContainer(context.getClass());
+				if (fragmentContainer != null && fragmentContainer.pluginId().equals(pluginId)) {
+					// 如果配置了插件容器注解,框架会自动更换activity的context,
+					// 这种情况直接返回null, 将创建view的任务交给原生的inflater即可
+					return null;
+				}
+			}
+
 			try {
-				View view = createView(context, pluginId, name, attrs);
+				View view = createView(context, pluginId, viewClassName, attrs);
 				if (view != null) {
 					return view;
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			} finally {
 			}
 
@@ -57,7 +73,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 		return null;
 	}
 
-	private View createView(Context Context, String pluginId, String name, AttributeSet atts)
+	private View createView(Context Context, String pluginId, String viewClassName, AttributeSet atts)
 			throws ClassNotFoundException, InflateException {
 		try {
 			PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
@@ -76,7 +92,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 				}
 				Context pluginViewContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, baseContext, pd.getApplicationTheme());
 				Class<? extends View> clazz = pluginViewContext.getClassLoader()
-						.loadClass(name).asSubclass(View.class);
+						.loadClass(viewClassName).asSubclass(View.class);
 
 				Constructor<? extends View> constructor = clazz.getConstructor(new Class[] {
 						Context.class, AttributeSet.class});
