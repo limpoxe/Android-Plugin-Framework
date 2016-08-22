@@ -8,10 +8,8 @@ import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.plugin.core.PluginThemeHelper;
-import com.plugin.core.annotation.AnnotationProcessor;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,11 +73,6 @@ public class TestSkinActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 
-				if (AnnotationProcessor.getComponentContainer(TestSkinActivity.class) != null) {
-					Toast.makeText(TestSkinActivity.this, "控件级插件和换肤功能不能共存", Toast.LENGTH_SHORT).show();
-					return;
-				}
-
 				int themeId = PluginThemeHelper.getPluginThemeIdByName(SKIN_PLUGIN_ID, SKIN_NAME_2);
 				PreferenceManager.getDefaultSharedPreferences(getApplication()).edit().putInt(SKIN_KEY, themeId).commit();
 
@@ -93,11 +86,6 @@ public class TestSkinActivity extends Activity {
 		findViewById(R.id.red).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
-				if (AnnotationProcessor.getComponentContainer(TestSkinActivity.class) != null) {
-					Toast.makeText(TestSkinActivity.this, "控件级插件和换肤功能不能共存", Toast.LENGTH_SHORT).show();
-					return;
-				}
 
 				int themeId = PluginThemeHelper.getPluginThemeIdByName(SKIN_PLUGIN_ID, SKIN_NAME_4);
 				PreferenceManager.getDefaultSharedPreferences(getApplication()).edit().putInt(SKIN_KEY, themeId).commit();
