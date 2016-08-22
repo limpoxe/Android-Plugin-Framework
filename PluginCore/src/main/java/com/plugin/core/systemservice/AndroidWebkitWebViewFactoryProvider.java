@@ -60,6 +60,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
     }
 
     public static void switchWebViewContext(Context pluginActivity) {
+        LogUtil.d("切换WebView Context");
         WebView wb = new WebView(pluginActivity);
         wb.loadUrl("");
     }

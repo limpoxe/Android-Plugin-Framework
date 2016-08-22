@@ -32,6 +32,7 @@ public class PluginViewFactory implements PluginFactoryInterface {
 	}
 
 	public void installViewFactory() {
+		LogUtil.d("安装PluginViewFactory");
 		LayoutInflater layoutInflater = mContext.getLayoutInflater();
 		if (layoutInflater.getFactory() == null) {
 			PluginFactoryCompat.setFactory(layoutInflater, this);
@@ -39,6 +40,7 @@ public class PluginViewFactory implements PluginFactoryInterface {
 			LogUtil.d("The Activity's LayoutInflater already has a Factory installed"
 					+ " so we can not install plugin's");
 		}
+		LogUtil.d("安装PluginViewFactory完成");
 	}
 
 	@Override
