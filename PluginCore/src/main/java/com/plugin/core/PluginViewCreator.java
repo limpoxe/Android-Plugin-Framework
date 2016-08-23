@@ -1,6 +1,5 @@
 package com.plugin.core;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.util.AttributeSet;
@@ -10,8 +9,6 @@ import android.view.View;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.annotation.AnnotationProcessor;
-import com.plugin.core.annotation.FragmentContainer;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 
@@ -41,19 +38,11 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 
 	private View createViewFromTag(Context context, String name, AttributeSet attrs) {
 		if (name.equals("pluginView")) {
+
 			String pluginId = attrs.getAttributeValue(null, "context");
 			String viewClassName = attrs.getAttributeValue(null, "class");
 
 			LogUtil.d("创建插件view", pluginId, viewClassName);
-
-			if (context instanceof Activity) {
-				FragmentContainer fragmentContainer = AnnotationProcessor.getFragmentContainer(context.getClass());
-				if (fragmentContainer != null && fragmentContainer.pluginId().equals(pluginId)) {
-					// 如果配置了插件容器注解,框架会自动更换activity的context,
-					// 这种情况直接返回null, 将创建view的任务交给原生的inflater即可
-					return null;
-				}
-			}
 
 			try {
 				View view = createView(context, pluginId, viewClassName, attrs);

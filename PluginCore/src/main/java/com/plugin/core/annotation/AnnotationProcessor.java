@@ -2,9 +2,9 @@ package com.plugin.core.annotation;
 
 public class AnnotationProcessor {
 
-    public static FragmentContainer getFragmentContainer(Class clazz) {
-        FragmentContainer fragmentContainer = (FragmentContainer)clazz.getAnnotation(FragmentContainer.class);
-        return fragmentContainer;
+    public static PluginContainer getPluginContainer(Class clazz) {
+        PluginContainer container = (PluginContainer)clazz.getAnnotation(PluginContainer.class);
+        return container;
     }
 
 }

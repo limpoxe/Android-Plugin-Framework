@@ -83,9 +83,6 @@ public class PluginThemeHelper {
 				}
 			}
 		} else {
-			//启用了控件级插件的页面 不能使用换肤功能呢
-			//参见注解ComponentContainer
-			//还有一个判断方式是通过注解来判断
 			LogUtil.e("启用了控件级插件的页面 不能使用换肤功能呢");
 		}
 

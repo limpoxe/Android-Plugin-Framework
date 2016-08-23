@@ -22,7 +22,7 @@ import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.content.PluginProviderInfo;
 import com.plugin.core.annotation.AnnotationProcessor;
-import com.plugin.core.annotation.FragmentContainer;
+import com.plugin.core.annotation.PluginContainer;
 import com.plugin.core.app.ActivityThread;
 import com.plugin.core.compat.CompatForSupportv7_23_2;
 import com.plugin.core.manager.PluginManagerHelper;
@@ -109,58 +109,21 @@ public class PluginInjector {
 
 	static void injectActivityContext(Activity activity) {
 		Intent intent = activity.getIntent();
-		FragmentContainer fragmentContainer = AnnotationProcessor.getFragmentContainer(activity.getClass());
-		// 如果是打开插件中的activity, 或者是打开的用来显示插件fragment的宿主activity
-		if (ProcessUtil.isPluginProcess() && (fragmentContainer != null ||
-				PluginManagerHelper.isStubActivity(intent.getComponent().getClassName()))) {
-			// 为了不需要重写插件Activity的attachBaseContext方法为：
-			// 我们在activityoncreate之前去完成attachBaseContext的事情
+		PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
+		// 如果是打开插件中的activity,
+		// 或者是打开的用来显示插件组件的宿主activity
+		boolean isStubActivity = PluginManagerHelper.isStubActivity(intent.getComponent().getClassName());
+		if (ProcessUtil.isPluginProcess()
+				&& (isStubActivity || container != null)) {
+
+			// 在activityoncreate之前去完成attachBaseContext的事情
 
 			Context pluginContext = null;
 			PluginDescriptor pd = null;
 
-			//是打开的用来显示插件fragment的宿主activity
-			if (fragmentContainer != null) {
-				// 为了能够在宿主中的Activiy里面展示来自插件的普通Fragment，
-				// 我们将宿主程序中用来展示插件普通Fragment的Activity的Context也替换掉
-
-				if (!TextUtils.isEmpty(fragmentContainer.pluginId())) {
-
-					pd = PluginManagerHelper.getPluginDescriptorByPluginId(fragmentContainer.pluginId());
-
-					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(fragmentContainer.pluginId());
-
-					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
-
-				} else if (!TextUtils.isEmpty(fragmentContainer.fragmentId())) {
-					String classId = null;
-					try {
-						//TODO 不应该从intent中去取参数
-						classId = intent.getStringExtra(fragmentContainer.fragmentId());
-					} catch (Exception e) {
-						LogUtil.printException("这里的Intent如果包含来自插件的VO对象实例，" +
-								"会产生ClassNotFound异常", e);
-					}
-					if (classId != null) {
-						@SuppressWarnings("rawtypes")
-						Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
-
-						pd = PluginManagerHelper.getPluginDescriptorByClassName(clazz.getName());
-
-						LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
-
-						pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
-
-					} else {
-						return;
-					}
-				} else {
-					LogUtil.e("FragmentContainer注解至少配置一个参数：pluginId, fragmentId");
-					return;
-				}
-
-			} else {
+			if (isStubActivity) {
 				//是打开插件中的activity
+
 				pd = PluginManagerHelper.getPluginDescriptorByClassName(activity.getClass().getName());
 
 				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
@@ -173,6 +136,22 @@ public class PluginInjector {
 				//重设mApplication
 				RefInvoker.setFieldObject(activity, Activity.class.getName(),
 						"mApplication", pluginApp);
+			} else {
+				//是打开的用来显示插件组件的宿主activity
+
+				if (!TextUtils.isEmpty(container.pluginId())) {
+					//进入这里表示指定了这个宿主Activity "只显示" 某个插件的组件
+					// 因此直接将这个Activity的Context也替换成插件的Context
+					pd = PluginManagerHelper.getPluginDescriptorByPluginId(container.pluginId());
+					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(container.pluginId());
+					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
+
+				} else {
+					//do nothing
+					//进入这里表示这个宿主可能要同时显示来自多个不同插件的组件, 也就没办法将Context替换成之中某一个插件的context,
+					//剩下的交给PluginViewFactory去处理
+					return;
+				}
 
 			}
 

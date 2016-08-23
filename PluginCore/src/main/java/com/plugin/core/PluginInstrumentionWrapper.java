@@ -13,8 +13,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
+import android.text.TextUtils;
 
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.annotation.AnnotationProcessor;
+import com.plugin.core.annotation.PluginContainer;
 import com.plugin.core.manager.PluginActivityMonitor;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
@@ -182,7 +185,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		if (ProcessUtil.isPluginProcess()) {
 
-			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
+			PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
+			// 如果配置了插件容器注解而且指定了插件Id, 框架会自动更换activity的context,无需安装PluginViewFactory
+			if (container != null && TextUtils.isEmpty(container.pluginId())) {
+				new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
+			}
 
 			AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
 
