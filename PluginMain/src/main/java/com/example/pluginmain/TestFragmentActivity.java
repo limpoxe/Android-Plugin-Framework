@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.plugin.core.PluginLoader;
-import com.plugin.core.annotation.FragmentContainer;
+import com.plugin.core.annotation.PluginContainer;
 
 /**
  * 一个非常普通的FragmentActivty， 用来展示一个来自插件中的fragment。
@@ -19,7 +19,7 @@ import com.plugin.core.annotation.FragmentContainer;
  * @author cailiming
  * 
  */
-@FragmentContainer(fragmentId = TestFragmentActivity.FRAGMENT_ID_IN_PLUGIN)
+@PluginContainer(pluginId = "com.example.plugintest")
 public class TestFragmentActivity extends AppCompatActivity {
 
 	public static final String FRAGMENT_ID_IN_PLUGIN = "PluginDispatcher.fragmentId";

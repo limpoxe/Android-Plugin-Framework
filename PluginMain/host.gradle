@@ -93,7 +93,7 @@ def createThemePatch(String buildType) {
     ThemeProcessor.exportThemeStyle(new File(parenDir + "values-v17/values-v17.xml"),
             new File(patchDir, "patch_values-v17.xml"), android.defaultConfig.applicationId)
 
-    ThemeProcessor.exportThemeStyle(new File(parenDir + "values-v18/values-18.xml"),
+    ThemeProcessor.exportThemeStyle(new File(parenDir + "values-v18/values-v18.xml"),
             new File(patchDir, "patch_values-v18.xml"), android.defaultConfig.applicationId)
 
     ThemeProcessor.exportThemeStyle(new File(parenDir + "values-v21/values-v21.xml"),

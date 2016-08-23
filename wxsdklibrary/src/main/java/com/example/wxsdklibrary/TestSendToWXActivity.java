@@ -10,14 +10,14 @@ import android.widget.Toast;
 import com.example.pluginmain.wxapi.WXEntryActivity;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
-import com.plugin.core.annotation.ComponentContainer;
+import com.plugin.core.annotation.PluginContainer;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.SendMessageToWX;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.tencent.mm.sdk.openapi.WXMediaMessage;
 import com.tencent.mm.sdk.openapi.WXTextObject;
 
-@ComponentContainer
+@PluginContainer
 public class TestSendToWXActivity extends Activity {
 
 	private IWXAPI api;

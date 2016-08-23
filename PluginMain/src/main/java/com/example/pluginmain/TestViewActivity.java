@@ -6,6 +6,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.plugin.core.annotation.PluginContainer;
+
+@PluginContainer
 public class TestViewActivity extends AppCompatActivity {
 
 	@Override

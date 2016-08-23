@@ -16,7 +16,7 @@
             android:id="@+id/send"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="发送信息到微信"/>
+            android:text="发送信息到微信."/>
 
         <!-- 测试控件级插件-->
         <pluginView
