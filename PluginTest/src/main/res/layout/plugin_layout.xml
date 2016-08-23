@@ -65,7 +65,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@android:color/black" />
+            android:background="@android:color/black"
+            app:widthToheight="0.25"/>
 
         <com.example.plugintest.view.PluginTestLayout
             android:layout_width="fill_parent"
