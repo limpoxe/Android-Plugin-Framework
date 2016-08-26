@@ -54,4 +54,15 @@
         <item name="layoutbg">#ffC000CC</item>
     </style>
 
+    <attr name="custarr_text" format="string|reference"/>
+    <attr name="custarr_text_color" format="color|reference"/>
+    <attr name="custarr_text_color_size" format="dimension|reference"/>
+
+    <!-- 不支持下面这种定义方式
+    <declare-styleable name="PluginTestCustomAttrView">
+        <attr name="custarr_text" format="string|reference"/>
+        <attr name="custarr_text_color" format="color|reference"/>
+        <attr name="custarr_text_color_size" format="dimension|reference"/>
+    </declare-styleable>
+    -->
 </resources>
