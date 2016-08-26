@@ -112,7 +112,7 @@ public class PluginInjector {
 		PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
 		// 如果是打开插件中的activity,
 		// 或者是打开的用来显示插件组件的宿主activity
-		boolean isStubActivity = PluginManagerHelper.isStubActivity(intent.getComponent().getClassName());
+		boolean isStubActivity = PluginManagerHelper.isStub(intent.getComponent().getClassName());
 		if (ProcessUtil.isPluginProcess()
 				&& (isStubActivity || container != null)) {
 

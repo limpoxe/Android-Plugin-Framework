@@ -1,8 +1,10 @@
 package com.plugin.core;
 
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 
 import com.plugin.util.LogUtil;
 
@@ -41,7 +43,13 @@ public class HostClassLoader extends DexClassLoader {
 			// 因此这里返回一个fake的service, 在fake service的oncreate方法里面手动调用构造器和oncreate
 			// 这里返回了这个Service以后, 由于在框架中hook了ActivityManager的serviceDoneExecuting方法,
 			// 在serviceDoneExecuting这个方法里面, 会将这个service再还原成插件的servcie对象
-			return PluginShadowService.class;
+			if (className.equals(PluginIntentResolver.CLASS_PREFIX_SERVICE + "null")) {
+				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound");
+				return TolerantService.class;
+			} else {
+				return PluginShadowService.class;
+			}
+
 
 		} else if (className.startsWith(PluginIntentResolver.CLASS_PREFIX_RECEIVER)) {
 
@@ -55,11 +63,24 @@ public class HostClassLoader extends DexClassLoader {
 				return clazz;
 			} else {
 				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound");
-				return new BroadcastReceiver(){@Override public void onReceive(Context context, Intent intent) {}}.getClass();
+				return TolerantBroadcastReceiver.class;
 			}
 		}
 
 		return super.loadClass(className, resolve);
+	}
+
+	public static class TolerantBroadcastReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+		}
+	}
+
+	public static class TolerantService extends Service {
+		@Override
+		public IBinder onBind(Intent intent) {
+			return null;
+		}
 	}
 
 }

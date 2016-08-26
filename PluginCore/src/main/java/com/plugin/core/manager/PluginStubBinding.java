@@ -439,11 +439,15 @@ class PluginStubBinding {
 		return null;
 	}
 
-	public static boolean isStubActivity(String className) {
+	public static boolean isStub(String className) {
 		initPool();
 
-		return isExact(className, PluginDescriptor.ACTIVITY) || className.equals(standardActivity) || singleTaskActivityMapping.containsKey(className)
+		return isExact(className, PluginDescriptor.ACTIVITY)
+				|| className.equals(standardActivity)
+				|| singleTaskActivityMapping.containsKey(className)
 				|| singleTopActivityMapping.containsKey(className)
-				|| singleInstanceActivityMapping.containsKey(className);
+				|| singleInstanceActivityMapping.containsKey(className)
+				|| serviceMapping.containsKey(className)
+				|| className.equals(receiver);
 	}
 }

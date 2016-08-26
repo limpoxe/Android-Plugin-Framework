@@ -189,12 +189,12 @@ public class PluginManagerHelper {
                 pluginServiceName, null);
     }
 
-    public static boolean isStubActivity(String className) {
+    public static boolean isStub(String className) {
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-                PluginManagerProvider.ACTION_IS_STUB_ACTIVITY,
+                PluginManagerProvider.ACTION_IS_STUB,
                 className, null);
         if (bundle != null) {
-            return bundle.getBoolean(PluginManagerProvider.IS_STUB_ACTIVITY_RESULT);
+            return bundle.getBoolean(PluginManagerProvider.IS_STUB_RESULT);
         }
         return false;
     }

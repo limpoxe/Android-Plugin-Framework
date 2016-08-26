@@ -81,7 +81,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		if (ProcessUtil.isPluginProcess()) {
 			// 将PluginStubActivity替换成插件中的activity
-			if (PluginManagerHelper.isStubActivity(className)) {
+			if (PluginManagerHelper.isStub(className)) {
 
 				String action = intent.getAction();
 
@@ -165,7 +165,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					", currentClassName : " + className +
 					", currentIntent : " + intent.toString() +
 					", process : " + ProcessUtil.isPluginProcess() +
-					", isStubActivity : " + PluginManagerHelper.isStubActivity(orginalClassName) +
+					", isStubActivity : " + PluginManagerHelper.isStub(orginalClassName) +
 					", isExact : " + PluginManagerHelper.isExact(orginalClassName, PluginDescriptor.ACTIVITY), e);
 		}
 	}

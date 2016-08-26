@@ -66,8 +66,8 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String ACTION_IS_EXACT = "is_exact";
     public static final String IS_EXACT_RESULT = "is_exact_result";
 
-    public static final String ACTION_IS_STUB_ACTIVITY = "is_stub_activity";
-    public static final String IS_STUB_ACTIVITY_RESULT = "is_stub_activity_result";
+    public static final String ACTION_IS_STUB = "is_stub";
+    public static final String IS_STUB_RESULT = "is_stub_result";
 
     public static final String ACTION_DUMP_SERVICE_INFO = "dump_service_info";
     public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
@@ -227,8 +227,8 @@ public class PluginManagerProvider extends ContentProvider {
 
             return bundle;
 
-        } else if (ACTION_IS_STUB_ACTIVITY.equals(method)) {
-            bundle.putBoolean(IS_STUB_ACTIVITY_RESULT, PluginStubBinding.isStubActivity(arg));
+        } else if (ACTION_IS_STUB.equals(method)) {
+            bundle.putBoolean(IS_STUB_RESULT, PluginStubBinding.isStub(arg));
 
             return bundle;
 
