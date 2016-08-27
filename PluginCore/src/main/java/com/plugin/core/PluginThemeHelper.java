@@ -15,13 +15,13 @@ import java.util.HashMap;
 public class PluginThemeHelper {
 
 	public static int getPluginThemeIdByName(String pluginId, String themeName) {
-		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
-		if (pd != null) {
+		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
+		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
+			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
 
 			if (plugin != null) {
-				return plugin.pluginResource.getIdentifier(themeName, "style", pd.getPackageName());
+				return plugin.pluginResource.getIdentifier(themeName, "style", pluginDescriptor.getPackageName());
 			}
 		}
 		return 0;
@@ -29,10 +29,10 @@ public class PluginThemeHelper {
 
 	public static HashMap<String, Integer> getAllPluginThemes(String pluginId) {
 		HashMap<String, Integer> themes = new HashMap<String, Integer>();
-		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
-		if (pd != null) {
+		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
+		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginId);
+			LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginDescriptor);
 
 			try {
 				Class pluginRstyle = pluing.pluginClassLoader.loadClass(pluginId + ".R$style");
@@ -68,11 +68,11 @@ public class PluginThemeHelper {
 		LayoutInflater layoutInflater = LayoutInflater.from(activity);
 		if (layoutInflater.getFactory() == null) {
 			if (!(activity.getBaseContext() instanceof PluginContextTheme)) {
-				PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
-				if (pd != null) {
+				PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
+				if (pluginDescriptor != null) {
 
 					//插件可能尚未初始化，确保使用前已经初始化
-					LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginId);
+					LoadedPlugin pluing = PluginLauncher.instance().startPlugin(pluginDescriptor);
 
 					//注入插件上下文和主题
 					Context defaultContext = pluing.pluginContext;

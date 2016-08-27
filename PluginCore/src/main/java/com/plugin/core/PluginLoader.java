@@ -150,7 +150,7 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByFragmentId(clazzId);
 		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor.getPackageName());
+			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
 
 			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
 
@@ -179,7 +179,7 @@ public class PluginLoader {
 
 		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor.getPackageName());
+			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
 
 			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
 
@@ -255,7 +255,7 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 
 		//插件可能尚未初始化，确保使用前已经初始化
-		LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
+		LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
 
 		if (plugin != null) {
 			PluginContextTheme newContext = (PluginContextTheme)PluginCreator.createPluginContext(

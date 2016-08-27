@@ -73,13 +73,19 @@ public class PluginLauncher implements Serializable {
 	}
 
 	public LoadedPlugin startPlugin(String packageName) {
-		LoadedPlugin plugin = loadedPluginMap.get(packageName);
+		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+		if (pluginDescriptor != null) {
+			return startPlugin(pluginDescriptor);
+		}
+		return null;
+	}
+
+	public LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
+		LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
 
 		if (plugin == null) {
-			LogUtil.e("正在初始化插件 " + packageName + ": Resources, DexClassLoader, Context, Application");
 
-			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
-
+			LogUtil.e("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
 			LogUtil.e("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
 			Resources pluginRes = PluginCreator.createPluginResource(
@@ -105,25 +111,25 @@ public class PluginLauncher implements Serializable {
 			//插件Context默认主题设置为插件application主题
 			pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
 
-			plugin = new LoadedPlugin(packageName,
+			plugin = new LoadedPlugin(pluginDescriptor.getPackageName(),
 					pluginDescriptor.getInstalledPath(),
 					pluginContext,
 					pluginClassLoader);
 
-			loadedPluginMap.put(packageName, plugin);
+			loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
 
 			Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader, pluginDescriptor);
 
 			plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
 
 			try {
-				ActivityThread.installPackageInfo(PluginLoader.getApplication(), packageName, pluginDescriptor,
+				ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
 						pluginClassLoader, pluginRes, pluginApplication);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 
-			LogUtil.e("初始化插件" + packageName + "完成");
+			LogUtil.e("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 		} else {
 			//LogUtil.d("IS RUNNING", packageName);
 		}
