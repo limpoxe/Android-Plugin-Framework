@@ -9,7 +9,7 @@
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-//将宿主资源添加到编译时，仅参与编译，不参与打包
+//第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
 android.aaptOptions.additionalParameters('-I', host_ap_path)
 
 tasks.whenTaskAdded { task ->
@@ -17,6 +17,7 @@ tasks.whenTaskAdded { task ->
         task.setOnlyIf { true }
         task.outputs.upToDateWhen { false }
         task.doLast {
+            //第二件事
             applyThemePatch(task.name);
         }
     }
@@ -28,81 +29,23 @@ def applyThemePatch(taskName) {
     def fromDir = host_output_dir + "/theme_patch/" + buildType;
     def resourceDir = project.buildDir.absolutePath + "/intermediates/res/merged/" + buildType;
 
-    //太蠢了 这里最好改成循环遍历
-    copy {
-        from(fromDir) {
-            include 'patch_theme.xml'
-        }
-        into(resourceDir + "/values/")
-    }
+    FileTree allxmlFiles = fileTree(dir: fromDir)
+    allxmlFiles.include '*.xml'
+    allxmlFiles.each { File itemFile ->
 
-    copy {
-        from(fromDir) {
-            include 'patch_values.xml'
+        String dest;
+        if (itemFile.name.equals('patch_theme.xml')) {
+            dest = resourceDir +  '/values/'
+        } else {
+            dest = resourceDir +  '/' + itemFile.name.replace('patch_', '').replace('.xml', '')  + "/"
         }
-        into(resourceDir +  "/values/")
-    }
 
-    copy {
-        from(fromDir) {
-            include 'patch_values-v11.xml'
+        println "apply from " + itemFile + " to " + dest
+        copy {
+            from(fromDir) {
+                include itemFile.name
+            }
+            into(dest)
         }
-        into(resourceDir +  "/values-v11/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v12.xml'
-        }
-        into(resourceDir +  "/values-v12/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v13.xml'
-        }
-        into(resourceDir +  "/values-v13/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v14.xml'
-        }
-        into(resourceDir +  "/values-v14/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v17.xml'
-        }
-        into(resourceDir +  "/values-v17/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v18.xml'
-        }
-        into(resourceDir +  "/values-v18/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v21.xml'
-        }
-        into(resourceDir +  "/values-v21/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v22.xml'
-        }
-        into(resourceDir +  "/values-v22/")
-    }
-
-    copy {
-        from(fromDir) {
-            include 'patch_values-v23.xml'
-        }
-        into(resourceDir +  "/values-v23/")
     }
 }
