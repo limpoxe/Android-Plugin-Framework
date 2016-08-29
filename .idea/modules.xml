@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/PluginMain/PluginMain.iml" filepath="$PROJECT_DIR$/PluginMain/PluginMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/PluginShareLib/PluginShareLib.iml" filepath="$PROJECT_DIR$/PluginShareLib/PluginShareLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/PluginTest/PluginTest.iml" filepath="$PROJECT_DIR$/PluginTest/PluginTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PluginTest2/PluginTest2.iml" filepath="$PROJECT_DIR$/PluginTest2/PluginTest2.iml" />
       <module fileurl="file://$PROJECT_DIR$/wxsdklibrary/wxsdklibrary.iml" filepath="$PROJECT_DIR$/wxsdklibrary/wxsdklibrary.iml" />
     </modules>
   </component>

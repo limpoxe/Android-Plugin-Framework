@@ -1,0 +1,88 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    defaultConfig {
+        applicationId "com.example.plugintest2"
+        minSdkVersion 11
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        textReport false
+        htmlReport false
+        xmlReport false
+    }
+
+    buildTypes {
+        release {
+            versionNameSuffix '_' + getDate()
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            versionNameSuffix '_' + getDate()
+        }
+    }
+
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy_MM_dd_HH_mm_ss')
+    return formattedDate
+}
+
+dependencies {
+
+    //////////////////////////////////////////////////////////////////////
+    //下面这一堆provided的配置，是因为这些包在编译宿主的时候，已经被打包到宿主的apk中。
+    //所以这里打包非独立插件的时候，要通过provided配置防止这些包被打入非独立插件。
+    //如果是独立插件，无需任何特殊配置
+    /////////////////////////////////////////////////////////////////////
+
+    //依赖库的src
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
+
+    //依赖库的R
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
+
+    //依赖库的依赖裤（当supportV4在依赖库V的libs目录下时）
+    //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
+    //依赖库的依赖裤（当supportV4通过仓库依赖时）
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/classes.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/libs/internal_impl-23.3.0.jar')
+    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/23.3.0/jars/classes.jar')
+}
+
+afterEvaluate {
+    tasks.getByName("assembleDebug").doLast {
+        println '复制插件 debug apk 到 PluginMain/src/main/assets/目录下, 便于测试'
+        copy {
+            from(buildDir.absolutePath + '/outputs/apk/') {
+                include project.name + '-' + 'debug' + '.apk'
+            }
+            into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+        }
+    }
+}
+
+ext {
+    //这2个常量在下面的apply的脚本中要用到
+    host_output_dir = project(':PluginMain').getBuildDir().absolutePath + "/outputs"
+    host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
+}
+
+apply from: "./plugin.gradle"

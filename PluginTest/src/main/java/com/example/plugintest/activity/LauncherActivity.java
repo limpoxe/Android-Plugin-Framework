@@ -8,11 +8,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 
+import com.example.pluginsharelib.BaseActivity;
 import com.example.pluginsharelib.SharePOJO;
 import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
@@ -24,7 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class LauncherActivity extends AppCompatActivity implements View.OnClickListener {
+public class LauncherActivity extends BaseActivity implements View.OnClickListener {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
