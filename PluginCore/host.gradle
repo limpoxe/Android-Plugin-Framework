@@ -29,9 +29,11 @@ afterEvaluate {
         def mergeTask = tasks.getByName(mergeTaskName)
         //第2件事
         mergeTask.doLast {
-            println '编译宿主资源时插入public.xml，用来控制宿主资源id分组'
+            println '编译宿主资源时插入' + buildscript.sourceFile.getParentFile().absolutePath
+                + '/public.xml 到' + mergeTask.outputDir.absolutePath + "/values/"
+                    ', 用来控制宿主资源id分组'
             copy {
-                from(project.getProjectDir()) {
+                from(buildscript.sourceFile.getParentFile()) {
                     include 'public.xml'
                 }
                 into(mergeTask.outputDir.absolutePath + "/values/")
