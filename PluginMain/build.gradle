@@ -72,4 +72,4 @@ dependencies {
     compile project(':PluginCore')
 }
 
-apply from: "./host.gradle"
+apply from: project(':PluginCore').projectDir.absolutePath + "/host.gradle"
