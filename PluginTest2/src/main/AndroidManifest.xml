@@ -6,13 +6,7 @@
     android:versionName="1.0.0">
 
     <application android:theme="@style/Theme.AppCompat.Light">
-        <activity android:name="com.example.plugintest2.HomeActivity">
-            <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <category
-                    android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity android:name=".HomeActivity">
         </activity>
     </application>
 
