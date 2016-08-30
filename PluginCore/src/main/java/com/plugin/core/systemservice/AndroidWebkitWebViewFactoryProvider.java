@@ -10,6 +10,7 @@ import com.plugin.core.proxy.ProxyUtil;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -67,36 +68,68 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
 
     private static void fixWebViewAsset(Context context) {
         try {
-            if (sContentMain == null) {
-                Object provider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
-                if (provider != null) {
-                    ClassLoader cl = provider.getClass().getClassLoader();
+            ClassLoader cl = null;
+            if (sContextUtils == null) {
+                if (sContentMain == null) {
+                    Object provider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
+                    if (provider != null) {
+                        cl = provider.getClass().getClassLoader();
 
-                    try {
-                        sContentMain = Class.forName("org.chromium.content.app.ContentMain", true, cl);
-                    } catch (ClassNotFoundException e) {
-                    }
-
-                    if (sContentMain == null) {
                         try {
-                            sContentMain = Class.forName("com.android.org.chromium.content.app.ContentMain", true, cl);
+                            sContentMain = Class.forName("org.chromium.content.app.ContentMain", true, cl);
                         } catch (ClassNotFoundException e) {
                         }
-                    }
 
-                    if (sContentMain == null) {
-                        throw new ClassNotFoundException(String.format("Can not found class %s or %s in classloader %s", "org.chromium.content.app.ContentMain", "com.android.org.chromium.content.app.ContentMain", cl));
+                        if (sContentMain == null) {
+                            try {
+                                sContentMain = Class.forName("com.android.org.chromium.content.app.ContentMain", true, cl);
+                            } catch (ClassNotFoundException e) {
+                            }
+                        }
+
+                        if (sContentMain == null) {
+                            throw new ClassNotFoundException(String.format("Can not found class %s or %s in classloader %s", "org.chromium.content.app.ContentMain", "com.android.org.chromium.content.app.ContentMain", cl));
+                        }
                     }
                 }
+                if (sContentMain != null) {
+                    Class[] paramTypes = new Class[]{Context.class};
+                    try {
+                        Method method = sContentMain.getDeclaredMethod("initApplicationContext", paramTypes);
+                        if (method != null) {
+                            if (!method.isAccessible()) {
+                                method.setAccessible(true);
+                            }
+                            try {
+                                method.invoke(null, new Object[]{context.getApplicationContext()});
+                            } catch (IllegalAccessException e) {
+                            } catch (IllegalArgumentException e) {
+                            } catch (InvocationTargetException e) {
+                            }
+                        }
+                    } catch (NoSuchMethodException ex) {
+                        try{
+                            //compat for Chrome version 52
+                            sContextUtils = Class.forName("org.chromium.base.ContextUtils", true, cl);
+                        } catch (ClassNotFoundException e) {
+                        }
+                        if (sContextUtils != null) {
+                            RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
+                            RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
+                        }
+                    }
+                }
+            } else {
+                RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
+                RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
             }
-            if (sContentMain != null) {
-                RefInvoker.invokeMethod(null, sContentMain, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
-            }
+
         } catch (Exception e) {
             LogUtil.printException("createWebview", e);
         }
     }
 
     private static Class sContentMain;
+    private static Class sContextUtils;
 
 }
