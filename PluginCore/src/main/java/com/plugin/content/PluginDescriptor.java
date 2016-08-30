@@ -1,18 +1,18 @@
 package com.plugin.content;
 
+import android.app.Application;
+import android.content.Intent;
+import android.os.Bundle;
+
+import com.plugin.util.LogUtil;
+import com.plugin.util.ResourceUtil;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import com.plugin.util.LogUtil;
-import com.plugin.util.ResourceUtil;
-
-import android.app.Application;
-import android.content.Intent;
-import android.os.Bundle;
 
 
 /**
@@ -33,6 +33,14 @@ public class PluginDescriptor implements Serializable {
 	public static final int FUNCTION = 9;
 
 	private String packageName;
+
+	private String platformBuildVersionCode;
+
+	private String platformBuildVersionName;
+
+	private String minSdkVersion;
+
+	private String targetSdkVersion;
 
 	private String version;
 
@@ -109,6 +117,38 @@ public class PluginDescriptor implements Serializable {
 
 	public void setPackageName(String packageName) {
 		this.packageName = packageName;
+	}
+
+	public String getPlatformBuildVersionCode() {
+		return platformBuildVersionCode;
+	}
+
+	public void setPlatformBuildVersionCode(String platformBuildVersionCode) {
+		this.platformBuildVersionCode = platformBuildVersionCode;
+	}
+
+	public String getPlatformBuildVersionName() {
+		return platformBuildVersionName;
+	}
+
+	public void setPlatformBuildVersionName(String platformBuildVersionName) {
+		this.platformBuildVersionName = platformBuildVersionName;
+	}
+
+	public String getMinSdkVersion() {
+		return minSdkVersion;
+	}
+
+	public void setMinSdkVersion(String minSdkVersion) {
+		this.minSdkVersion = minSdkVersion;
+	}
+
+	public String getTargetSdkVersion() {
+		return targetSdkVersion;
+	}
+
+	public void setTargetSdkVersion(String targetSdkVersion) {
+		this.targetSdkVersion = targetSdkVersion;
 	}
 
 	public String getVersion() {

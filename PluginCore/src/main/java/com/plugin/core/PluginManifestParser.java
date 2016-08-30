@@ -56,17 +56,29 @@ public class PluginManifestParser {
                             packageName = parser.getAttributeValue(null, "package");
                             String versionCode = parser.getAttributeValue(namespaceAndroid, "versionCode");
                             String versionName = parser.getAttributeValue(namespaceAndroid, "versionName");
-                           
+                            String platformBuildVersionCode = parser.getAttributeValue(namespaceAndroid, "platformBuildVersionCode");
+                            String platformBuildVersionName = parser.getAttributeValue(namespaceAndroid, "platformBuildVersionName");
+
                             //用这个字段来标记apk是独立apk，还是需要依赖主程序的class和resource
                             //当这个值等于宿主程序packageName时，则认为这个插件是需要依赖宿主的class和resource的
                             String sharedUserId = parser.getAttributeValue(namespaceAndroid, "sharedUserId");
-                           
+
                             desciptor.setPackageName(packageName);
                             desciptor.setVersion(versionName + "_" + versionCode);
-                            
+                            desciptor.setPlatformBuildVersionCode(platformBuildVersionCode);
+                            desciptor.setPlatformBuildVersionName(platformBuildVersionName);
+
                             desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
 
                             LogUtil.d(packageName, versionCode, versionName, sharedUserId);
+                        } else if ("uses-sdk".equals(tag))  {
+
+                            String minSdkVersion = parser.getAttributeValue(namespaceAndroid, "minSdkVersion");
+                            String targetSdkVersion = parser.getAttributeValue(namespaceAndroid, "targetSdkVersion");
+
+                            desciptor.setMinSdkVersion(minSdkVersion);
+                            desciptor.setTargetSdkVersion(targetSdkVersion);
+
                         } else if ("meta-data".equals(tag)) {
 
                         	String name = parser.getAttributeValue(namespaceAndroid, "name");

@@ -225,6 +225,13 @@ class PluginManagerImpl {
 			return new InstallResult(InstallResult.PARSE_MANIFEST_FAIL);
 		}
 
+		//判断插件适用系统版本
+		if (pluginDescriptor.getMinSdkVersion() != null && Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion()))  {
+			LogUtil.e("当前系统版本过低, 不支持此插件", "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion());
+			new File(srcPluginFile).delete();
+			return new InstallResult(InstallResult.MIN_API_NOT_SUPPORTED);
+		}
+
 		PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
 		if (packageInfo != null) {
 			pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
