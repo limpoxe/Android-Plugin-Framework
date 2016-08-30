@@ -1,13 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.plugintest2"
-    android:sharedUserId="com.example.pluginmain"
-    android:versionCode="1"
-    android:versionName="1.0.0">
+    package="com.mdroid.repo.depth_lib_android_"
+    android:sharedUserId="com.example.pluginmain">
 
-    <application android:theme="@style/Theme.AppCompat.Light">
-        <activity android:name=".HomeActivity">
+    <application
+        android:label="@string/app_name"
+        android:theme="@style/Theme.AppCompat.Light">
+        <activity android:name=".RootActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+        <activity android:name=".PlayGroundActivity"></activity>
     </application>
-
 </manifest>

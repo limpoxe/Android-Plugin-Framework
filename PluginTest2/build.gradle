@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.plugintest2"
-        minSdkVersion 11
+        minSdkVersion 21
         targetSdkVersion 22
         versionCode 1
         versionName "1.0.0"
@@ -46,6 +46,8 @@ def getDate() {
 }
 
 dependencies {
+
+    compile 'com.facebook.rebound:rebound:0.3.5'
 
     //////////////////////////////////////////////////////////////////////
     //下面这一堆provided的配置，是因为这些包在编译宿主的时候，已经被打包到宿主的apk中。
