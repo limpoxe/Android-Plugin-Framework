@@ -14,24 +14,25 @@ import java.lang.reflect.Method;
  */
 public class HookUtil {
 
-    public static boolean isSupport(Context context) {
-        if (ProcessUtil.isPluginProcess(context)) {
-            return Compat.isSupport();
-        } else {
-            return false;
-        }
+    private static boolean isHooked = false;
+
+    public static boolean isHooked() {
+        return isHooked;
     }
 
     /**
      * 此方法应该尽可能早的执行, 以免错过被hook的方法调用
+     * 重要:hook成功以后,插件的getPackageName会返回插件自身的包名, 否则返回宿主的包名
      */
     public static void hook(Context context) {
-        if (isSupport(context)) {
-            replaceMethod(BinderProxy.getTargetClass(), BinderProxy.getFixedMethod());
+        if (!isHooked && ProcessUtil.isPluginProcess(context)) {//只对插件进程进行hook
+            if(Compat.isSupport()) {
+                isHooked = replaceMethod(BinderProxy.getTargetClass(), BinderProxy.getFixedMethod());
+            }
         }
     }
 
-    private static void replaceMethod(Class<?> classToBeFix, Method fixedMethod) {
+    private static boolean replaceMethod(Class<?> classToBeFix, Method fixedMethod) {
         Class<?> classToBeFixPreProcessed = AndFix.initTargetClass(classToBeFix);
         if (classToBeFixPreProcessed != null) {
             Method methodToBeFix = null;
@@ -42,7 +43,9 @@ public class HookUtil {
             }
             if (methodToBeFix != null) {
                 AndFix.addReplaceMethod(methodToBeFix, fixedMethod);
+                return true;
             }
         }
+        return false;
     }
 }

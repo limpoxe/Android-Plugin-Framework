@@ -151,7 +151,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public String getPackageName() {
 
-		if(HookUtil.isSupport(this)) {
+		if(HookUtil.isHooked()) {
 			//利用hook解决packageName的问题以后,这里可以返回插件包名
 			return mPluginDescriptor.getPackageName();
 		}
