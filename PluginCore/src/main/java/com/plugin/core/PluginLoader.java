@@ -11,6 +11,7 @@ import android.os.Handler;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.compat.CompatForSupportv7ViewInflater;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
@@ -69,6 +70,7 @@ public class PluginLoader {
 			if (isPluginProcess) {
 				AndroidWidgetToast.installProxy();
 				AndroidViewLayoutInflater.installPluginCustomViewConstructorCache();
+				CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache();
 				//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
 				new Handler().post(new Runnable() {
 					@Override
