@@ -55,6 +55,15 @@ public class PluginManagerHelper {
 
     public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
 
+        if ("com.android.webview".equals(pluginId)) {
+            // 之所以有这判断, 是因为可能BinderProxyDelegate
+            // 或者AndroidAppIPackageManager
+            // 或者PluginBaseContextWrapper.createPackageContext
+            // 中拦截了由系统发起的查询操作, 被拦截之后转到了这里
+            // 所有在这做个快速判断.
+            return null;
+        }
+
         PluginDescriptor pluginDescriptor = localCache.get(pluginId);
 
         if (pluginDescriptor == null) {
