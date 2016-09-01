@@ -183,6 +183,10 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			intent.setExtrasClassLoader(activity.getClassLoader());
 		}
 
+		if (icicle != null) {
+			icicle.setClassLoader(activity.getClassLoader());
+		}
+
 		if (ProcessUtil.isPluginProcess()) {
 
 			PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
