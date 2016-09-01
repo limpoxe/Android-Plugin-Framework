@@ -55,7 +55,7 @@ public class PluginManagerHelper {
 
     public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
 
-        if ("com.android.webview".equals(pluginId)) {
+        if (pluginId.startsWith("com.android.")) {
             // 之所以有这判断, 是因为可能BinderProxyDelegate
             // 或者AndroidAppIPackageManager
             // 或者PluginBaseContextWrapper.createPackageContext
