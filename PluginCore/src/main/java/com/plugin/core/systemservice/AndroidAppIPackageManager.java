@@ -66,7 +66,12 @@ public class AndroidAppIPackageManager extends MethodProxy {
             if (!packageName.equals(PluginLoader.getApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
-                    return PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
+                    PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
+                    if (packageInfo.applicationInfo != null) {
+                        packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
+                        packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
+                    }
+                    return packageInfo;
                 }
             }
             return super.beforeInvoke(target, method, args);
@@ -88,8 +93,12 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     result = new ArrayList<PackageInfo>();
                 }
                 for(PluginDescriptor pluginDescriptor:plugins) {
-                    PackageInfo info = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
-                    result.add(info);
+                    PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
+                    if (packageInfo.applicationInfo != null) {
+                        packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
+                        packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
+                    }
+                    result.add(packageInfo);
                 }
             }
 

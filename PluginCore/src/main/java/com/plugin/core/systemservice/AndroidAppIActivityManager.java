@@ -16,6 +16,7 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.PendingIntentHelper;
 import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
+import com.plugin.util.ResourceUtil;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -131,10 +132,12 @@ public class AndroidAppIActivityManager extends MethodProxy {
     public static class overridePendingTransition extends MethodDelegate {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             if (ProcessUtil.isPluginProcess()) {
-                //屏蔽插件进程的Activity转场动画
-                String packageName = (String)args[1];
-                args[2] = 0;
-                args[3] = 0;
+                if (!ResourceUtil.isMainResId((Integer) args[2])) {
+                    args[2] = 0;
+                }
+                if (!ResourceUtil.isMainResId((Integer) args[3])) {
+                    args[3] = 0;
+                }
             }
             return null;
         }
