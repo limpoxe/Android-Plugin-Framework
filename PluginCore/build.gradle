@@ -29,11 +29,11 @@ android {
 
 dependencies {
     //这个依赖不是必须的, 引入这个库是为了使插件中的getPackageName能返回插件自己的包名,
-    //如果不使用此库, 那么要支持插件返回自己的包名, 则要添加对各种系统服务的客户端侧动态代理来修正packagName.
+    //如果不使用此库, 那么要支持插件返回自己的包名, 则要添加对各种系统服务的客户端侧动态代理来修正packageName.
     //参见com.plugin.core.systemservice这个包下的几个文件.
     //使用此库以后, 则可以从源头hook并获得所有的系统服务, 统一进行代理, 简单方便.
-    //但是如果担心andfix的兼容性, 可以去掉此库, 并屏蔽掉HookUtil的hook方法, 那么插件中getPackageName讲返回宿主包名,这一点区别需清楚.
-    compile 'com.alipay.euler:andfix:0.4.0'
+    //但是如果担心andfix的兼容性, 可以去掉此库, 并屏蔽掉HookUtil的hook方法, 那么插件中getPackageName将返回宿主包名,这一点区别需清楚.
+    compile 'com.alipay.euler:andfix:0.5.0'
 }
 
 tasks.whenTaskAdded { task ->
