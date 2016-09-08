@@ -134,6 +134,9 @@ public class PluginResourceWrapper extends Resources {
 					if (field == null) {
 						//不在宿主中，换成插件的
 						packageName = mPluginDescriptor.getPackageName();
+					} else {
+						//在宿主中
+						return PluginLoader.getApplication().getResources().getIdentifier(entry, type, packageName);
 					}
 				} catch (Exception e) {
 					//不在宿主中，换成插件的
