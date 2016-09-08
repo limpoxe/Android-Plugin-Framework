@@ -1,6 +1,7 @@
 package com.plugin.core.localservice;
 
 import com.limpoxe.support.servicemanager.ServiceManager;
+import com.limpoxe.support.servicemanager.local.ServicePool;
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLauncher;
@@ -33,7 +34,7 @@ public class LocalServiceManager {
 
     public static void registerService(final String pluginId, final String serviceName, final String serviceClass) {
 
-        ServiceManager.publishService(serviceName, new com.limpoxe.support.servicemanager.local.LocalServiceManager.ClassProvider() {
+        ServiceManager.publishService(serviceName, new ServicePool.ClassProvider() {
             @Override
             public Object getServiceInstance() {
 

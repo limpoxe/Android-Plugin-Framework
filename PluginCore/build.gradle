@@ -42,7 +42,7 @@ dependencies {
     compile 'com.alipay.euler:andfix:0.5.0'
 
     //这个依赖不是必须, 引入这个库是为了增强插件间通信能力
-    compile 'com.limpoxe.support:android-servicemanager:1.0.5-snapshot@aar'
+    compile 'com.limpoxe.support:android-servicemanager:1.0.5@aar'
 }
 
 tasks.whenTaskAdded { task ->
