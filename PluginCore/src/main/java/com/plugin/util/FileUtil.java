@@ -1,6 +1,9 @@
 package com.plugin.util;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Environment;
 import android.widget.Toast;
 
 import com.plugin.core.PluginLoader;
@@ -38,12 +41,24 @@ public class FileUtil {
 
 	public static boolean copyFile(final InputStream inputStream, String dest) {
 		LogUtil.d("copyFile to " + dest);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (dest.startsWith(Environment.getExternalStorageDirectory().getAbsolutePath())) {
+				int permissionState = PluginLoader.getApplication().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+				if (permissionState != PackageManager.PERMISSION_GRANTED) {
+					//6.0的系统即使申请了读写sdcard的权限,仍然可以在设置中关闭, 则需要requestPermissons
+					LogUtil.e("6.0以上的系统, targetSDK>=23时, sdcard读写默认为未授权,需requestPermissons或者在设置中开启", dest);
+					return false;
+				}
+			}
+		}
 		FileOutputStream oputStream = null;
 		try {
 			File destFile = new File(dest);
-			destFile.getParentFile().mkdirs();
-			destFile.createNewFile();
-
+			File parentDir = destFile.getParentFile();
+			if (!parentDir.isDirectory() || !parentDir.exists()) {
+				destFile.getParentFile().mkdirs();
+			}
 			oputStream = new FileOutputStream(destFile);
 			byte[] bb = new byte[48 * 1024];
 			int len = 0;
