@@ -1,10 +1,11 @@
 package com.plugin.core.localservice;
 
+import com.limpoxe.support.servicemanager.ServiceManager;
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLauncher;
+import com.plugin.core.PluginLoader;
 import com.plugin.util.LogUtil;
-import com.plugin.util.ProcessUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,10 +16,8 @@ import java.util.Map;
  */
 public class LocalServiceManager {
 
-    private static final HashMap<String, LocalServiceFetcher> SYSTEM_SERVICE_MAP =
-            new HashMap<String, LocalServiceFetcher>();
-
-    private LocalServiceManager() {
+    public static void init() {
+        ServiceManager.init(PluginLoader.getApplication());
     }
 
     public static void registerService(PluginDescriptor plugin) {
@@ -33,59 +32,53 @@ public class LocalServiceManager {
     }
 
     public static void registerService(final String pluginId, final String serviceName, final String serviceClass) {
-        if (!SYSTEM_SERVICE_MAP.containsKey(serviceName)) {
-            LocalServiceFetcher fetcher = new LocalServiceFetcher() {
-                @Override
-                public Object createService(int serviceId) {
-                    mPluginId = pluginId;
 
-                    String[] classNames = serviceClass.split("\\|");
-                    if (ProcessUtil.isPluginProcess()) {
-                        //插件可能尚未初始化，确保使用前已经初始化
-                        LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
-                        if (plugin != null) {
-                            try {
-                                Class clazz = plugin.pluginClassLoader.loadClass(classNames[0]);
-                                return clazz.newInstance();
-                            } catch (Exception e) {
-                                LogUtil.printException("获取服务失败", e);
-                            }
-                        } else {
-                            LogUtil.e("未找到插件", pluginId);
-                        }
-                    } else if (classNames.length == 2) {
-                        return ServiceBinderBridge.queryService(serviceName, classNames[1]);
-                    } else {
-                        LogUtil.e("不支持跨进程!!!", "插件", pluginId, "服务", serviceName, serviceClass);
+        ServiceManager.publishService(serviceName, new com.limpoxe.support.servicemanager.local.LocalServiceManager.ClassProvider() {
+            @Override
+            public Object getServiceInstance() {
+
+                //插件可能尚未初始化，确保使用前已经初始化
+                LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginId);
+                if (plugin != null) {
+                    try {
+                        return plugin.pluginClassLoader.loadClass(serviceClass.split("\\|")[0]).newInstance();
+                    } catch (ClassNotFoundException e) {
+                        LogUtil.printException("获取服务失败", e);
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
                     }
-                    return null;
+                } else {
+                    LogUtil.e("未找到插件", pluginId);
                 }
-            };
-            fetcher.mServiceId ++;
-            SYSTEM_SERVICE_MAP.put(serviceName, fetcher);
-            LogUtil.d("registerService", serviceName);
-        } else {
-            LogUtil.e("已注册", serviceName);
-        }
+                return null;
+            }
+
+            @Override
+            public String getInterfaceName() {
+                return serviceClass.split("\\|")[1];
+            }
+        });
     }
 
     public static Object getService(String name) {
-        LocalServiceFetcher fetcher = SYSTEM_SERVICE_MAP.get(name);
-        return fetcher == null ? null : fetcher.getService();
+        return ServiceManager.getService(name);
     }
 
     public static void unRegistService(PluginDescriptor plugin) {
-        Iterator<Map.Entry<String, LocalServiceFetcher>> itr = SYSTEM_SERVICE_MAP.entrySet().iterator();
-        while(itr.hasNext()) {
-            Map.Entry<String, LocalServiceFetcher> item = itr.next();
-            if(plugin.getPackageName().equals(item.getValue().mPluginId)) {
-                itr.remove();
+        HashMap<String, String> localServices = plugin.getFunctions();
+        if (localServices != null) {
+            Iterator<Map.Entry<String, String>> serv = localServices.entrySet().iterator();
+            while (serv.hasNext()) {
+                Map.Entry<String, String> entry = serv.next();
+                ServiceManager.unPublishService(entry.getKey());
             }
         }
     }
 
     public static void unRegistAll() {
-        SYSTEM_SERVICE_MAP.clear();
+        ServiceManager.unPublishAllService();
     }
 
 }

@@ -1,5 +1,11 @@
 apply plugin: 'com.android.library'
 
+repositories {
+    maven {
+        url 'https://dl.bintray.com/limpoxe/maven/'
+    }
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -34,6 +40,9 @@ dependencies {
     //使用此库以后, 则可以从源头hook并获得所有的系统服务, 统一进行代理, 简单方便.
     //但是如果担心andfix的兼容性, 可以去掉此库, 并屏蔽掉HookUtil的hook方法, 那么插件中getPackageName将返回宿主包名,这一点区别需清楚.
     compile 'com.alipay.euler:andfix:0.5.0'
+
+    //这个依赖不是必须, 引入这个库是为了增强插件间通信能力
+    compile 'com.limpoxe.support:android-servicemanager:1.0.5-snapshot@aar'
 }
 
 tasks.whenTaskAdded { task ->

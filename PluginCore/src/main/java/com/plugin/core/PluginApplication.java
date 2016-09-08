@@ -3,16 +3,9 @@ package com.plugin.core;
 import android.app.Application;
 import android.content.Context;
 
-import com.plugin.core.hook.HookUtil;
 import com.plugin.util.ProcessUtil;
 
 public class PluginApplication extends Application {
-
-	@Override
-	public void onCreate() {
-		HookUtil.hook(this);
-		super.onCreate();
-	}
 
 	@Override
 	protected void attachBaseContext(Context base) {

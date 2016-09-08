@@ -17,14 +17,6 @@
             android:exported="false"
             />
 
-        <!-- 用于实现localservice跨进程调用，非核心代码，属于功能增强类 -->
-        <provider
-            android:authorities="${applicationId}.localservice"
-            android:name=".localservice.LocalServiceBinder"
-            android:process=":plugin"
-            android:exported="false"
-            />
-        
         <!--
             对Receiver的类全名没有要求，可随意指定，框架中是通过action来查询。注册1个即可
         -->

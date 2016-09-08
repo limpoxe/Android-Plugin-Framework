@@ -18,6 +18,8 @@ import android.text.TextUtils;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.PluginContainer;
+import com.plugin.core.hook.HookUtil;
+import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginActivityMonitor;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
@@ -45,6 +47,32 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public PluginInstrumentionWrapper(Instrumentation instrumentation) {
 		this.realInstrumention = instrumentation;
 		this.monitor = new PluginActivityMonitor();
+	}
+
+	/**
+	 *
+	 * @param app
+     */
+	@Override
+	public void callApplicationOnCreate(Application app) {
+		//此方法在application的attach之后被ActivityThread调用
+		super.callApplicationOnCreate(app);
+
+		if(ProcessUtil.isPluginProcess()) {
+			HookUtil.hook();////只对插件进程进行hook
+		}
+
+		//ContentProvider的相关操作应该放在installContentProvider之后执行,
+		//而installContentProvider是ActivityThread在调用application的attach之后,onCreate之前执行
+		// 因此下面的初始化操作的最佳时机是在application的oncreate之前执行
+		LocalServiceManager.init();
+		if (ProcessUtil.isPluginProcess()) {
+			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
+			while (itr.hasNext()) {
+				PluginDescriptor plugin = itr.next();
+				LocalServiceManager.registerService(plugin);
+			}
+		}
 	}
 
 	@Override

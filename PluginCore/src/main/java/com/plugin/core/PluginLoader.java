@@ -11,13 +11,12 @@ import android.os.Handler;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.app.AndroidViewLayoutInflater;
 import com.plugin.core.compat.CompatForSupportv7ViewInflater;
-import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.plugin.core.systemservice.AndroidAppIPackageManager;
-import com.plugin.core.app.AndroidViewLayoutInflater;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
@@ -59,7 +58,7 @@ public class PluginLoader {
 			isLoaderInited = true;
 			sApplication = app;
 
-			//这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行。
+			//这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
 			//原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
 			boolean isPluginProcess = ProcessUtil.isPluginProcess();
 
@@ -83,12 +82,6 @@ public class PluginLoader {
 			PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
 			PluginInjector.injectInstrumentation();
 			PluginInjector.injectBaseContext(sApplication);
-
-			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
-			while (itr.hasNext()) {
-				PluginDescriptor plugin = itr.next();
-				LocalServiceManager.registerService(plugin);
-			}
 
 			if (isPluginProcess) {
 				if (Build.VERSION.SDK_INT >= 14) {

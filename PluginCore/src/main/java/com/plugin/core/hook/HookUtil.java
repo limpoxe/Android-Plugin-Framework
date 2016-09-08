@@ -1,11 +1,9 @@
 package com.plugin.core.hook;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.alipay.euler.andfix.AndFix;
 import com.alipay.euler.andfix.Compat;
-import com.plugin.util.ProcessUtil;
 
 import java.lang.reflect.Method;
 
@@ -24,11 +22,9 @@ public class HookUtil {
      * 此方法应该尽可能早的执行, 以免错过被hook的方法调用
      * 重要:hook成功以后,插件的getPackageName会返回插件自身的包名, 否则返回宿主的包名
      */
-    public static void hook(Context context) {
-        if (!isHooked && ProcessUtil.isPluginProcess(context)) {//只对插件进程进行hook
-            if(Compat.isSupport()) {
-                isHooked = replaceMethod(BinderProxy.getTargetClass(), BinderProxy.getFixedMethod());
-            }
+    public static void hook() {
+        if (!isHooked && Compat.isSupport()) {
+            isHooked = replaceMethod(BinderProxy.getTargetClass(), BinderProxy.getFixedMethod());
         }
     }
 

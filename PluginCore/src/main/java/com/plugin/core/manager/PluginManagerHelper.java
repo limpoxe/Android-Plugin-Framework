@@ -4,13 +4,11 @@ import android.os.Bundle;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.compat.CompatForContentProvider;
-import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Created by cailiming on 16/3/11.
@@ -88,16 +86,6 @@ public class PluginManagerHelper {
         int result = 7;//install-Fail
         if (bundle != null) {
             result = bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
-        }
-        if (result == 0) {//success
-
-            LocalServiceManager.unRegistAll();
-
-            Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
-            while (itr.hasNext()) {
-                PluginDescriptor plugin = itr.next();
-                LocalServiceManager.registerService(plugin);
-            }
         }
         return result;
     }
