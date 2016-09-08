@@ -39,7 +39,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
 		Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugintest")));
 		Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
-		//Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginmain")));
+		Log.e("xxx8", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginmain")));
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle("这是插件首屏");
