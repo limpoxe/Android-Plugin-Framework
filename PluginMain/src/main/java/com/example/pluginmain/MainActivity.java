@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 	private void copyAndInstall(String name) {
 		try {
 			InputStream assestInput = getAssets().open(name);
-			String dest = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + name;
+			String dest = getExternalFilesDir(null).getAbsolutePath() + "/" + name;
 			if (FileUtil.copyFile(assestInput, dest)) {
 				PluginManagerHelper.installPlugin(dest);
 			} else {
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 				if (FileUtil.copyFile(assestInput, dest)) {
 					PluginManagerHelper.installPlugin(dest);
 				} else {
-					Toast.makeText(MainActivity.this, "解压Apk失败" + dest, Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, "抽取assets中的Apk失败" + dest, Toast.LENGTH_LONG).show();
 				}
 			}
 		} catch (IOException e) {
