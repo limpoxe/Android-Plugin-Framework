@@ -50,6 +50,9 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler{
 		case BaseResp.ErrCode.ERR_AUTH_DENIED:
 			result = "发送被拒绝";
 			break;
+		case -6:
+			result = "发送时使用的context的packageName不是宿主的会导致了-6";
+			break;
 		default:
 			result = "发送返回";
 			break;

@@ -2,15 +2,16 @@ package com.example.wxsdklibrary;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.pluginmain.wxapi.WXEntryActivity;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
 import com.plugin.core.annotation.PluginContainer;
+import com.plugin.util.PackageNameUtil;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.SendMessageToWX;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
@@ -25,7 +26,8 @@ public class TestSendToWXActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		api = WXAPIFactory.createWXAPI(this, WXEntryActivity.APP_ID, false);
+		Context fakeContext = PackageNameUtil.fakeContext(this);
+		api = WXAPIFactory.createWXAPI(fakeContext, WXEntryActivity.APP_ID, false);
 		api.registerApp(WXEntryActivity.APP_ID);
 
 		setContentView(R.layout.send_activity);
