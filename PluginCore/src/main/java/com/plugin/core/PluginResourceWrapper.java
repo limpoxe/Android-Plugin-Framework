@@ -11,6 +11,7 @@ import com.plugin.util.LogUtil;
 import com.plugin.util.ResourceUtil;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 
 /**
  * 根据不同的rom，可能需要重写更多的方法，目前发现的几个机型的问题暂时只需要重写下面2个方法。
@@ -18,6 +19,8 @@ import java.lang.reflect.Field;
  *
  */
 public class PluginResourceWrapper extends Resources {
+
+	private HashSet<Integer> idCaches = new HashSet<>(5);
 
 	private PluginDescriptor mPluginDescriptor;
 
@@ -29,6 +32,9 @@ public class PluginResourceWrapper extends Resources {
 	
 	@Override
 	public String getResourcePackageName(int resid) throws NotFoundException {
+		if (idCaches.contains(resid)) {
+			return PluginLoader.getApplication().getPackageName();
+		}
 		try {
 			return super.getResourcePackageName(resid);
 		} catch(NotFoundException e) {
@@ -37,6 +43,7 @@ public class PluginResourceWrapper extends Resources {
 			//就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
 			//华为、三星、小米等手机不会到这里来。
 			if (ResourceUtil.isMainResId(resid)) {
+				idCaches.add(resid);
 				return PluginLoader.getApplication().getPackageName();
 			}
 			throw new NotFoundException("Unable to find resource ID #0x"
