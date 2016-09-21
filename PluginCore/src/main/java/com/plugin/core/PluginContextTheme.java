@@ -20,7 +20,6 @@ import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.compat.CompatForSharedPreferencesImpl;
-import com.plugin.core.hook.HookUtil;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.multidex.PluginMultiDexHelper;
 import com.plugin.util.ProcessUtil;
@@ -151,22 +150,13 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public String getPackageName() {
 
-		if(HookUtil.isHooked()) {
-			//利用hook解决packageName的问题以后,这里可以返回插件包名
-			return mPluginDescriptor.getPackageName();
-		}
-
-		//如果返回插件本身的packageName可能会引起一些问题。
-		//如packagemanager、activitymanager、wifi、window、inputservice
+		//packagemanager、activitymanager、wifi、window、inputservice
 		//等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
-		//除非再增加对系统服务方法hook才能解决
-		//最简单的办法还是这里保留返回宿主的packageName，
-		//在代码中自行区分是需要使用插件自己的还是宿主的
-		//if (mPluginDescriptor.isStandalone()) {
-		//	return mPluginDescriptor.getPackageName();
-		//} else {
-			return PluginLoader.getApplication().getPackageName();
-		//}
+		//而这里返回的正是插件本身的packageName, 因此需要通过安装AndroidOsServiceManager这个hook去修正,
+		//如果不安装AndroidOsServiceManager或者安装失败,这里应当返回宿主的packageName
+		return mPluginDescriptor.getPackageName();
+		//return PluginLoader.getApplication().getPackageName();
+
 	}
 
 	//@hide
