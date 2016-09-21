@@ -54,6 +54,8 @@
     <!-- 相机权限-->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
+
     <application
         android:name="com.plugin.core.PluginApplication"
         android:icon="@drawable/ic_launcher"
@@ -102,6 +104,14 @@
 
         <service android:name=".MainService" />
 
+        <service android:name="com.example.accesservice.TestAccessibilitySerivce"
+            android:permission='android.permission.BIND_ACCESSIBILITY_SERVICE'
+            android:description="@string/access_test"
+            android:label="@string/access_test">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
