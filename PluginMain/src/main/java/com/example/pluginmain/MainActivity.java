@@ -1,15 +1,18 @@
 package com.example.pluginmain;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -23,6 +26,7 @@ import com.example.pluginsharelib.SharePOJO;
 import com.example.pluginsharelib.ShareService;
 import com.example.plugintest.IMyAidlInterface;
 import com.plugin.content.PluginDescriptor;
+import com.plugin.core.PluginLoader;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManagerHelper;
@@ -77,8 +81,17 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				if (!isInstalled) {
-					isInstalled = true;
-
+					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+						int permissionState = PluginLoader.getApplication().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+						if (permissionState != PackageManager.PERMISSION_GRANTED) {
+							if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+								requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 10086);
+							} else {
+								Toast.makeText(MainActivity.this, "6.+系统, 请在设置中授权存储卡读写权限", Toast.LENGTH_SHORT).show();
+							}
+							return;
+						}
+					}
 					try {
 						String[] files = getAssets().list("");
 						for (String apk : files) {
@@ -86,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 								copyAndInstall(apk);
 							}
 						}
+						isInstalled = true;
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -114,6 +128,20 @@ public class MainActivity extends AppCompatActivity {
 		} catch (IOException e) {
 			e.printStackTrace();
 			Toast.makeText(MainActivity.this, "安装失败", Toast.LENGTH_LONG).show();
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if(requestCode == 10086) {
+			if (permissions != null && permissions.length > 0
+					&& grantResults != null && grantResults.length > 0) {
+				if(permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					install.performClick();
+				}
+			}
 		}
 	}
 
