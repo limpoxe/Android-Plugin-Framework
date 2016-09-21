@@ -93,6 +93,10 @@ public class AndroidOsIBinder extends MethodProxy {
 
                     return null;
 
+                } else if ("com.android.internal.app.IAppOpsService".equals(descriptor)) {
+
+                    //TODO hook后造成了递归溢出, 先暂时屏蔽掉, 后面再看
+                    return null;
                 } else if ("IMountService".equals(descriptor)) {
 
                     stubProxy = Class.forName("android.os.storage.IMountService$Stub$Proxy", true, PluginLoader.class.getClassLoader());
