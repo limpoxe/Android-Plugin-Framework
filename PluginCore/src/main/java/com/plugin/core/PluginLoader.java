@@ -17,6 +17,7 @@ import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.core.systemservice.AndroidAppIActivityManager;
 import com.plugin.core.systemservice.AndroidAppINotificationManager;
 import com.plugin.core.systemservice.AndroidAppIPackageManager;
+import com.plugin.core.systemservice.AndroidOsServiceManager;
 import com.plugin.core.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.plugin.core.systemservice.AndroidWidgetToast;
 import com.plugin.util.LogUtil;
@@ -61,6 +62,10 @@ public class PluginLoader {
 			//这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
 			//原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
 			boolean isPluginProcess = ProcessUtil.isPluginProcess();
+
+			if(ProcessUtil.isPluginProcess()) {
+				AndroidOsServiceManager.installProxy();
+			}
 
 			AndroidAppIActivityManager.installProxy();
 			AndroidAppINotificationManager.installProxy();

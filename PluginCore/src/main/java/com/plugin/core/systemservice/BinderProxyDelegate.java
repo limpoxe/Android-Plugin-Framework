@@ -1,4 +1,4 @@
-package com.plugin.core.hook;
+package com.plugin.core.systemservice;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
@@ -10,9 +10,7 @@ import com.plugin.util.LogUtil;
 import java.lang.reflect.Method;
 
 /**
- * Created by cailiming on 16/7/14.
- *
- * Used By BinderProxy With Reflect
+ * Created by cailiming on 16/7/14.*
  */
 public class BinderProxyDelegate extends MethodDelegate {
 

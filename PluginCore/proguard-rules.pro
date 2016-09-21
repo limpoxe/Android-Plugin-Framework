@@ -23,7 +23,4 @@
 -keep public class com.plugin.core.localservice.LocalServiceManager {*;}
 -keep public class com.plugin.util.LogUtil {*;}
 -keep public class com.plugin.util.PendingIntentHelper {*;}
--keep public class com.plugin.core.hook.BinderProxy {*;}
--keep public class com.plugin.core.hook.BinderProxyDelegate {*;}
--keep public class com.alipay.euler.andfix.** {*;}
 # 保护PluginCore不受混淆影响 End
