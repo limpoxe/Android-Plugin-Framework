@@ -34,7 +34,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 
 		Log.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
 		Log.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
-		Log.e("xxx3", getResources().getString(R.string.app_name));
+		Log.e("xxx3", getResources().getString(R.string.app_name) + "  " + getPackageManager().getApplicationLabel(getApplicationInfo()));
 		Log.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
 		Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
 		Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugintest")));

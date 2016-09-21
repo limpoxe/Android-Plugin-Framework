@@ -47,6 +47,7 @@
     <style name="PluginTheme5" parent="AppBaseTheme">
         <item name="android:buttonStyle">@style/MyButton2</item>
         <item name="layoutbg">#ffC000CC</item>
+        <item name="testbg">#ffC4C4C4</item>
     </style>
 
     <style name="PluginTheme6" parent="android:Theme.Holo.Light">
@@ -57,6 +58,8 @@
     <attr name="custarr_text" format="string|reference"/>
     <attr name="custarr_text_color" format="color|reference"/>
     <attr name="custarr_text_color_size" format="dimension|reference"/>
+
+    <attr name="testbg" format="color|reference"/>
 
     <!-- 不支持下面这种定义方式
     <declare-styleable name="PluginTestCustomAttrView">
