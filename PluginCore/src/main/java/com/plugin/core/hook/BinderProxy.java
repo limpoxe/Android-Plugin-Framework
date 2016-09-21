@@ -60,6 +60,8 @@ public class BinderProxy implements Serializable {
             //其他:
             //android.view.accessibility.IAccessibilityInteractionConnectionCallback
             //android.view.accessibility.IAccessibilityManager
+            //android.view.IAssetAtlas
+            //android.view.IGraphicsStats
             //android.view.IWindowManager
             //android.view.IWindowSession
             //com.android.internal.view.IInputMethodSession
@@ -69,15 +71,23 @@ public class BinderProxy implements Serializable {
             //com.android.internal.telephony.ITelephonyRegistry
             //com.android.internal.telephony.ISub
             //com.android.internal.app.IBatteryStats
-            //android.os.IBatteryPropertiesRegistrar
-            //android.hardware.input.IInputManager
-            //android.os.IPowerManager
             //android.app.IUiModeManager
             //android.app.IWallpaperManager
             //android.bluetooth.IBluetoothManager
-            //android.content.IContentService
             //android.content.IBulkCursor
+            //android.content.IContentService
+            //android.hardware.input.IInputManager
+            //android.hardware.usb.IUsbManager
+            //android.net.wifi.IWifiManager
+            //android.os.IBatteryPropertiesRegistrar
+            //android.os.IMessenger
+            //android.os.IPowerManager
+            //android.os.IUserManager
+            //android.vrsystem.IVRSystemService
             //android.webkit.IWebViewUpdateService
+
+            //com.huawei.permission.IHoldService
+
 
             // 不过仍然可能会有一些其他服务hook不到, 是因为服务的remote对象,
             // 在执行replaceMethod方法前已经被获取到了, 即queryLocalInterface这个方法被hook之前已经被执行
