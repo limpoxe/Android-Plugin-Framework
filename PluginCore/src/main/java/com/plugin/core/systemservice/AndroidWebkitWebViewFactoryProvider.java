@@ -23,6 +23,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
     }
 
     public static void installProxy() {
+        //Debug.waitForDebugger();
         if (Build.VERSION.SDK_INT >= 19) {
             LogUtil.d("安装WebViewFactoryProviderProxy");
             //在4。4及以上，这里的WebViewFactoryProvider的实际类型是
@@ -122,6 +123,8 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             } else {
                 RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
                 RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
+                //52.0.2743.98
+                RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContextForNative", (Class[])null, (Object[])null);
             }
 
         } catch (Exception e) {
