@@ -1,20 +1,24 @@
 package com.plugin.core;
 
 import com.plugin.content.LoadedPlugin;
+import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import dalvik.system.DexClassLoader;
 
 /**
- * 为了支持插件间依赖，增加此类。如果不需要使用插件依赖插件, 此类为多余。直接使用DexClassLoader即可
+ * 插件间依赖以及so管理
  *
  * @author Administrator
  * 
  */
 public class PluginClassLoader extends DexClassLoader {
+
+	private static Hashtable<String, String> soClassloaderMapper = new Hashtable<String, String>();
 
 	private String[] dependencies;
 	private List<DexClassLoader> multiDexClassLoaderList;
@@ -36,8 +40,40 @@ public class PluginClassLoader extends DexClassLoader {
 
 	@Override
 	public String findLibrary(String name) {
-		LogUtil.d("findLibrary", name);
-		return super.findLibrary(name);
+
+		String soPath = super.findLibrary(name);
+
+		String currentLoader = getClass().getName() + '@' + Integer.toHexString(hashCode());
+
+		LogUtil.d("findLibrary", "orignal so path : " + soPath + ", current classloader : " + currentLoader);
+
+		if (soPath != null) {
+			final String soLoader = soClassloaderMapper.get(soPath);
+			if (soLoader == null) {
+				soClassloaderMapper.put(soPath, currentLoader);
+			} else if (!currentLoader.equals(soLoader)) {
+				//classloader发生了变化
+				//创建so副本并返回副本路径
+				StringBuilder currentSoPathBuilder = new StringBuilder(soPath);
+				currentSoPathBuilder.delete(soPath.length() - 3, soPath.length());//移除.so后缀
+				currentSoPathBuilder.append("_").append(Integer.toHexString(hashCode())).append(".so");
+				String currentSoPath = currentSoPathBuilder.toString();
+				String currentSoPathloader = soClassloaderMapper.get(currentSoPath);
+
+				if (currentLoader.equals(currentSoPathloader)) {
+					soPath = currentSoPath;
+				} else {
+					boolean isSuccess = FileUtil.copyFile(soPath, currentSoPath);
+					if (isSuccess) {
+						soPath = currentSoPath;
+						soClassloaderMapper.put(soPath, currentLoader);
+					}
+				}
+			}
+		}
+		LogUtil.d("findLibrary", "actually so path : " + soPath + ", current classloader : " + currentLoader);
+
+		return soPath;
 	}
 
 	@Override
