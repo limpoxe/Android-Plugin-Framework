@@ -108,6 +108,13 @@ public class MainActivity extends AppCompatActivity {
 				}
 			}
 		});
+
+		findViewById(R.id.uninstall).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				PluginManagerHelper.remove("com.example.plugintest");
+			}
+		});
 	}
 
 	private void copyAndInstall(String name) {
