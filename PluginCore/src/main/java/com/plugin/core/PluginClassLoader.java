@@ -4,6 +4,7 @@ import com.plugin.content.LoadedPlugin;
 import com.plugin.util.FileUtil;
 import com.plugin.util.LogUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -41,39 +42,55 @@ public class PluginClassLoader extends DexClassLoader {
 	@Override
 	public String findLibrary(String name) {
 
-		String soPath = super.findLibrary(name);
+		final String thisLoader = getClass().getName() + '@' + Integer.toHexString(hashCode());
+		final String soPath = super.findLibrary(name);
 
-		String currentLoader = getClass().getName() + '@' + Integer.toHexString(hashCode());
-
-		LogUtil.d("findLibrary", "orignal so path : " + soPath + ", current classloader : " + currentLoader);
+		LogUtil.d("findLibrary", "orignal so path : " + soPath + ", current classloader : " + thisLoader);
 
 		if (soPath != null) {
 			final String soLoader = soClassloaderMapper.get(soPath);
-			if (soLoader == null) {
-				soClassloaderMapper.put(soPath, currentLoader);
-			} else if (!currentLoader.equals(soLoader)) {
-				//classloader发生了变化
-				//创建so副本并返回副本路径
-				StringBuilder currentSoPathBuilder = new StringBuilder(soPath);
-				currentSoPathBuilder.delete(soPath.length() - 3, soPath.length());//移除.so后缀
-				currentSoPathBuilder.append("_").append(Integer.toHexString(hashCode())).append(".so");
-				String currentSoPath = currentSoPathBuilder.toString();
-				String currentSoPathloader = soClassloaderMapper.get(currentSoPath);
+			if (soLoader == null || soLoader.equals(thisLoader)) {
+				soClassloaderMapper.put(soPath, thisLoader);
+				LogUtil.d("findLibrary", "acturely so path : " + soPath + ", current classloader : " + thisLoader);
+				return soPath;
+			} else {
+				//classloader发生了变化, 创建so副本并返回副本路径, 限制最多10个副本
+				for (int i = 1; i < 5; i++) {
 
-				if (currentLoader.equals(currentSoPathloader)) {
-					soPath = currentSoPath;
-				} else {
-					boolean isSuccess = FileUtil.copyFile(soPath, currentSoPath);
-					if (isSuccess) {
-						soPath = currentSoPath;
-						soClassloaderMapper.put(soPath, currentLoader);
+					String soPathOfCopyN = tryPath(soPath, i);
+					String soLoaderOfCopyN = soClassloaderMapper.get(soPathOfCopyN);
+
+					if (thisLoader.equals(soLoaderOfCopyN)) {
+						LogUtil.d("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+						return soPathOfCopyN;
+					} else if (soLoaderOfCopyN == null) {
+						if(!new File(soPathOfCopyN).exists()) {
+							boolean isSuccess = FileUtil.copyFile(soPath, soPathOfCopyN);
+							if (isSuccess) {
+								soClassloaderMapper.put(soPathOfCopyN, thisLoader);
+								LogUtil.d("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+								return soPathOfCopyN;
+							} else {
+								return null;
+							}
+						} else {
+							soClassloaderMapper.put(soPathOfCopyN, thisLoader);
+							LogUtil.d("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+							return soPathOfCopyN;
+						}
 					}
 				}
+				LogUtil.e("findLibrary", "最多创建5个副本...");
 			}
 		}
-		LogUtil.d("findLibrary", "actually so path : " + soPath + ", current classloader : " + currentLoader);
+		return null;
+	}
 
-		return soPath;
+	private String tryPath(String orignalPath, int i) {
+		StringBuilder soPathBuilder = new StringBuilder(orignalPath);
+		soPathBuilder.delete(orignalPath.length() - 3, orignalPath.length());//移除.so后缀
+		soPathBuilder.append("_").append(i).append(".so");
+		return soPathBuilder.toString();
 	}
 
 	@Override
