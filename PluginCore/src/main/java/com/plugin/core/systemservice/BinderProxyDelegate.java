@@ -32,16 +32,9 @@ public class BinderProxyDelegate extends MethodDelegate {
         return null;
     }
 
-    public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
-        if (beforeInvoke != null) {
-            return beforeInvoke;
-        }
-        return invokeResult;
-    }
-
     /**
-     * 由于插件的Context.getPackageName返回了插件自己的报名
-     * 这里需要在调用binder接口前将参数还原为宿主报名
+     * 由于插件的Context.getPackageName返回了插件自己的包名
+     * 这里需要在调用binder接口前将参数还原为宿主包名
      * @param args
      */
     private void replacePackageName(Object[] args) {

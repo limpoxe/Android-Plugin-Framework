@@ -12,7 +12,7 @@ public class PluginCallbackImpl implements PluginCallback {
     private static final String extra_type = "type";
     private static final String extra_id = "id";
     private static final String extra_version = "version";
-    private static final String extra_install_code = "code";
+    private static final String extra_result_code = "code";
     private static final String extra_src = "src";
 
     @Override
@@ -21,7 +21,7 @@ public class PluginCallbackImpl implements PluginCallback {
         intent.putExtra(extra_type, "install");
         intent.putExtra(extra_id, packageName);
         intent.putExtra(extra_version, version);
-        intent.putExtra(extra_install_code, result);
+        intent.putExtra(extra_result_code, result);
         intent.putExtra(extra_src, src);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
@@ -31,6 +31,7 @@ public class PluginCallbackImpl implements PluginCallback {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
         intent.putExtra(extra_type, "remove");
         intent.putExtra(extra_id, packageName);
+        intent.putExtra(extra_result_code, success?1:0);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
@@ -38,9 +39,11 @@ public class PluginCallbackImpl implements PluginCallback {
     public void onRemoveAll(boolean success) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
         intent.putExtra(extra_type, "remove_all");
+        intent.putExtra(extra_result_code, success?1:0);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
+    //未使用
     @Override
     public void onStart(String packageName) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
@@ -49,6 +52,7 @@ public class PluginCallbackImpl implements PluginCallback {
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
+    //未使用
     @Override
     public void onStop(String packageName) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);

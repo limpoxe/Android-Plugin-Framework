@@ -115,13 +115,15 @@ class PluginManagerImpl {
 
 		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
 
-		PluginLauncher.instance().stopPlugin(pluginId, old);
-
 		boolean result = false;
+
 		if (old != null) {
+			PluginLauncher.instance().stopPlugin(pluginId, old);
 			result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 			LogUtil.d("delete old", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
+		} else {
+			LogUtil.d("插件未安装", pluginId);
 		}
 
 		return result;
