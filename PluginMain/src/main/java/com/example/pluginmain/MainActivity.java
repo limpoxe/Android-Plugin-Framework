@@ -314,7 +314,8 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Toast.makeText(MainActivity.this,
-					"插件"  + intent.getStringExtra("id") + " "+ intent.getStringExtra("type") + "完成",
+					"插件"  + intent.getStringExtra("id") + " "+ intent.getStringExtra("type") +
+							(intent.getIntExtra("code", 0)==1?"成功":"失败"),
 					Toast.LENGTH_SHORT).show();
 			listAll();
 		};
