@@ -31,7 +31,7 @@ public class PluginCallbackImpl implements PluginCallback {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
         intent.putExtra(extra_type, "remove");
         intent.putExtra(extra_id, packageName);
-        intent.putExtra(extra_result_code, success?1:0);
+        intent.putExtra(extra_result_code, success?0:1);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
@@ -39,7 +39,7 @@ public class PluginCallbackImpl implements PluginCallback {
     public void onRemoveAll(boolean success) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
         intent.putExtra(extra_type, "remove_all");
-        intent.putExtra(extra_result_code, success?1:0);
+        intent.putExtra(extra_result_code, success?0:1);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
