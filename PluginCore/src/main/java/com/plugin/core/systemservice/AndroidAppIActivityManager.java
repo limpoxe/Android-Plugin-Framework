@@ -29,8 +29,6 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
     static {
         sMethods.put("getRunningAppProcesses", new getRunningAppProcesses());
-        sMethods.put("killBackgroundProcesses", new killBackgroundProcesses());
-        sMethods.put("getServices", new getServices());
         sMethods.put("getIntentSender", new getIntentSender());
         sMethods.put("overridePendingTransition", new overridePendingTransition());
         sMethods.put("serviceDoneExecuting", new serviceDoneExecuting());
@@ -71,26 +69,6 @@ public class AndroidAppIActivityManager extends MethodProxy {
             }
 
             return super.afterInvoke(target, method, args, beforeInvoke, invokeResult);
-        }
-    }
-
-    //public void killBackgroundProcesses(String packageName)
-    public static class killBackgroundProcesses extends MethodDelegate {
-        @Override
-        public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
-            //TODO 需要时再说
-            return super.beforeInvoke(target, method, args);
-        }
-    }
-
-    //public List<RunningServiceInfo> getRunningServices(int maxNum)
-    public static class getServices extends MethodDelegate {
-        @Override
-        public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
-            //TODO 需要时再说
-            return super.beforeInvoke(target, method, args);
         }
     }
 
