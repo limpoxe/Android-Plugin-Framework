@@ -70,7 +70,7 @@ public class PluginManifestParser {
 
                             desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
 
-                            LogUtil.d(packageName, versionCode, versionName, sharedUserId);
+                            LogUtil.v(packageName, versionCode, versionName, sharedUserId);
                         } else if ("uses-sdk".equals(tag))  {
 
                             String minSdkVersion = parser.getAttributeValue(namespaceAndroid, "minSdkVersion");
@@ -102,7 +102,7 @@ public class PluginManifestParser {
 //                                }
 //                                metaData.put(name, value);
 
-                                LogUtil.d("meta-data", name, value);
+                                LogUtil.v("meta-data", name, value);
 
                             }
 
@@ -119,7 +119,7 @@ public class PluginManifestParser {
                                     desciptor.setfragments(fragments);
                                 }
                                 fragments.put(name, value);
-                                LogUtil.d(name, value);
+                                LogUtil.v(name, value);
 
                             }
 
@@ -140,7 +140,7 @@ public class PluginManifestParser {
                                     desciptor.setFunctions(functions);
                                 }
                                 functions.put(name, value);
-                                LogUtil.d(name, value);
+                                LogUtil.v(name, value);
 
                             }
 
@@ -166,7 +166,7 @@ public class PluginManifestParser {
 
                             //这里不解析主题，后面会通过packageManager查询
 
-                            LogUtil.d("applicationName", applicationName, " Description ", desciptor.getDescription());
+                            LogUtil.v("applicationName", applicationName, " Description ", desciptor.getDescription());
 
                         } else if ("activity".equals(tag)) {
 

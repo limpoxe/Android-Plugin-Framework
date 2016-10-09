@@ -5,7 +5,7 @@ import android.content.Intent;
 import com.plugin.core.PluginLoader;
 
 /**
- * Created by Administrator on 2015/9/13.
+ * Created by cailiming on 2015/9/13.
  */
 public class PluginCallbackImpl implements PluginCallback {
 
@@ -31,7 +31,7 @@ public class PluginCallbackImpl implements PluginCallback {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
         intent.putExtra(extra_type, "remove");
         intent.putExtra(extra_id, packageName);
-        intent.putExtra(extra_result_code, success?0:1);
+        intent.putExtra(extra_result_code, success?0:7);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 
@@ -39,7 +39,7 @@ public class PluginCallbackImpl implements PluginCallback {
     public void onRemoveAll(boolean success) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
         intent.putExtra(extra_type, "remove_all");
-        intent.putExtra(extra_result_code, success?0:1);
+        intent.putExtra(extra_result_code, success?0:7);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 

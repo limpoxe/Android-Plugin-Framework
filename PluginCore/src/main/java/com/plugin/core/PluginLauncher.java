@@ -85,8 +85,8 @@ public class PluginLauncher implements Serializable {
 
 		if (plugin == null) {
 
-			LogUtil.e("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
-			LogUtil.e("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
+			LogUtil.v("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
+			LogUtil.v("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
 			Resources pluginRes = PluginCreator.createPluginResource(
 					PluginLoader.getApplication().getApplicationInfo().sourceDir,
@@ -129,7 +129,7 @@ public class PluginLauncher implements Serializable {
 				e.printStackTrace();
 			}
 
-			LogUtil.e("初始化插件" + pluginDescriptor.getPackageName() + "完成");
+			LogUtil.v("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 		} else {
 			//LogUtil.d("IS RUNNING", packageName);
 		}
@@ -142,7 +142,7 @@ public class PluginLauncher implements Serializable {
 		Application application = null;
 
 		try {
-			LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
+			LogUtil.v("创建插件Application", pluginDescriptor.getApplicationName());
 
 			//为了支持插件中使用multidex
 			((PluginContextTheme)pluginContext).setCrackPackageManager(true);
@@ -203,7 +203,7 @@ public class PluginLauncher implements Serializable {
 		LoadedPlugin plugin = getRunningPlugin(packageName);
 
 		if (plugin == null) {
-			LogUtil.d("插件未运行", packageName);
+			LogUtil.w("插件未运行", packageName);
 			return;
 		}
 		//

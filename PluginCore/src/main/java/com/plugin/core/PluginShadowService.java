@@ -48,7 +48,7 @@ public class PluginShadowService extends Service {
 		String realName = mClassName;
 		try {
 			realName = mClassName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE, "");
-			LogUtil.d("className ", mClassName, "target", realName);
+			LogUtil.v("className ", mClassName, "target", realName);
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			realService = (Service) clazz.newInstance();
 		} catch (Exception e) {

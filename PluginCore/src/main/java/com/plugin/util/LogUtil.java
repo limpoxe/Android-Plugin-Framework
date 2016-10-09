@@ -12,8 +12,16 @@ public class LogUtil {
         printLog(Log.VERBOSE, msg);
     }
 
+    public static void i(Object... msg) {
+        printLog(Log.INFO, msg);
+    }
+
     public static void d(Object... msg) {
         printLog(Log.DEBUG, msg);
+    }
+
+    public static void w(Object... msg) {
+        printLog(Log.INFO, msg);
     }
 
     public static void e(Object... msg) {

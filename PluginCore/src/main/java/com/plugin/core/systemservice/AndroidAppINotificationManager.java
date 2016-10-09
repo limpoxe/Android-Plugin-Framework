@@ -45,7 +45,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
     public static class enqueueNotification extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             args[0] = PluginLoader.getApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
@@ -60,7 +60,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
     public static class enqueueNotificationWithTag extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             args[0] = PluginLoader.getApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
@@ -75,7 +75,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
     public static class enqueueNotificationWithTagPriority extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             args[0] = PluginLoader.getApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
@@ -138,14 +138,14 @@ public class AndroidAppINotificationManager extends MethodProxy {
     }
 
     private static String getNotificationResourcePath(String pluginInstalledPath, String worldReadablePath) {
-        LogUtil.d("正在为通知栏准备插件资源。。。这里现在暂时是同步复制，注意大文件卡顿！！");
+        LogUtil.w("正在为通知栏准备插件资源。。。这里现在暂时是同步复制，注意大文件卡顿！！");
         File worldReadableFile = new File(worldReadablePath);
 
         if (FileUtil.copyFile(pluginInstalledPath, worldReadableFile.getAbsolutePath())) {
-            LogUtil.d("通知栏插件资源准备完成，请确保此路径SystemUi有读权限", worldReadableFile.getAbsolutePath());
+            LogUtil.w("通知栏插件资源准备完成，请确保此路径SystemUi有读权限", worldReadableFile.getAbsolutePath());
             return worldReadableFile.getAbsolutePath();
         } else {
-            LogUtil.d("不应该到这里来，直接返回这个路径SystemUi没有权限读取");
+            LogUtil.e("不应该到这里来，直接返回这个路径SystemUi没有权限读取");
             return pluginInstalledPath;
         }
     }

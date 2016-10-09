@@ -125,10 +125,10 @@ public class PluginManagerProvider extends ContentProvider {
     public Bundle call(String method, String arg, Bundle extras) {
 
         if (Build.VERSION.SDK_INT >= 19) {
-            LogUtil.d("callingPackage = ", getCallingPackage());
+            LogUtil.v("callingPackage = ", getCallingPackage());
         }
 
-        LogUtil.e("Thead : id = " + Thread.currentThread().getId()
+        LogUtil.d("Thead : id = " + Thread.currentThread().getId()
                 + ", name = " + Thread.currentThread().getName()
                 + ", method = " + method
                 + ", arg = " + arg);

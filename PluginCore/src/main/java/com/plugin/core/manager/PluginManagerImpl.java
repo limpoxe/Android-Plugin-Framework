@@ -121,9 +121,9 @@ class PluginManagerImpl {
 			PluginLauncher.instance().stopPlugin(pluginId, old);
 			result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
-			LogUtil.d("delete old", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
+			LogUtil.w("delete old", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 		} else {
-			LogUtil.d("插件未安装", pluginId);
+			LogUtil.e("插件未安装", pluginId);
 		}
 
 		return result;
@@ -176,7 +176,7 @@ class PluginManagerImpl {
 	 * @return
 	 */
 	synchronized InstallResult installPlugin(String srcPluginFile) {
-		LogUtil.e("开始安装插件", srcPluginFile);
+		LogUtil.w("开始安装插件", srcPluginFile);
 		if (TextUtils.isEmpty(srcPluginFile) || !new File(srcPluginFile).exists()) {
 			return new InstallResult(InstallResult.SRC_FILE_NOT_FOUND);
 		}
@@ -244,20 +244,20 @@ class PluginManagerImpl {
 		// 第3步，检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
-			LogUtil.e("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath(), oldPluginDescriptor.getVersion(), pluginDescriptor.getVersion());
+			LogUtil.d("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath(), oldPluginDescriptor.getVersion(), pluginDescriptor.getVersion());
 
 			//检查插件是否已经加载
 			if (PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName())) {
 				if (!oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
-					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，进行热更新");
+					LogUtil.w("旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，进行热更新");
 					remove(oldPluginDescriptor.getPackageName());
 				} else {
 					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
 					new File(srcPluginFile).delete();
-					return new InstallResult(InstallResult.FAIL_BECAUSE_HAS_LOADED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+					return new InstallResult(InstallResult.FAIL_BECAUSE_SAME_VER_HAS_LOADED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 				}
 			} else {
-				LogUtil.e("旧版插件还未加载，忽略版本，直接删除旧版，尝试安装新版");
+				LogUtil.v("旧版插件还未加载，忽略版本，直接删除旧版，尝试安装新版");
 				remove(oldPluginDescriptor.getPackageName());
 			}
 		}
@@ -310,15 +310,15 @@ class PluginManagerImpl {
 				return new InstallResult(InstallResult.INSTALL_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			} else {
 				//通过创建classloader来触发dexopt，但不加载
-				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
+				LogUtil.w("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 				//ActivityThread.getPackageManager().performDexOptIfNeeded()
 				FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
 				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null, null);
-				LogUtil.d("DEXOPT完毕");
+				LogUtil.w("DEXOPT完毕");
 
 				LocalServiceManager.registerService(pluginDescriptor);
 
-				LogUtil.e("安装插件成功", destApkPath);
+				LogUtil.w("安装插件成功", destApkPath);
 
 				//打印一下目录结构
 				if (isDebugable) {

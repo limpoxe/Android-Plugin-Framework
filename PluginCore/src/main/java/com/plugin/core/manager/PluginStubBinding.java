@@ -252,16 +252,16 @@ class PluginStubBinding {
 
 	public static synchronized void unBindLaunchModeStubActivity(String stubActivityName, String pluginActivityName) {
 
-		LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+		LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 
 		if (pluginActivityName.equals(singleTaskActivityMapping.get(stubActivityName))) {
 
-			LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+			LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 			singleTaskActivityMapping.put(stubActivityName, null);
 
 		} else if (pluginActivityName.equals(singleInstanceActivityMapping.get(stubActivityName))) {
 
-			LogUtil.d("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+			LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 			singleInstanceActivityMapping.put(stubActivityName, null);
 
 		} else {
@@ -326,14 +326,14 @@ class PluginStubBinding {
 				}
 			} else if (pluginServiceClassName.equals(entry.getValue())) {
 				//已经绑定过，直接返回
-				LogUtil.d("已经绑定过", entry.getKey(), pluginServiceClassName);
+				LogUtil.v("已经绑定过", entry.getKey(), pluginServiceClassName);
 				return entry.getKey();
 			}
 		}
 
 		//没有绑定到StubService，而且还有空余的StubService，进行绑定
 		if (idleStubServiceName != null) {
-			LogUtil.d("添加绑定", idleStubServiceName, pluginServiceClassName);
+			LogUtil.v("添加绑定", idleStubServiceName, pluginServiceClassName);
 			serviceMapping.put(idleStubServiceName, pluginServiceClassName);
 			//对serviceMapping持久化是因为如果service处于运行状态时app发生了crash，系统会自动恢复之前的service，此时插件映射信息查不到的话会再次crash
 			save(serviceMapping);
@@ -350,7 +350,7 @@ class PluginStubBinding {
 			Map.Entry<String, String> entry = itr.next();
 			if (pluginServiceName.equals(entry.getValue())) {
 				//如果存在绑定关系，解绑
-				LogUtil.d("回收绑定", entry.getKey(), entry.getValue());
+				LogUtil.v("回收绑定", entry.getKey(), entry.getValue());
 				serviceMapping.put(entry.getKey(), null);
 				save(serviceMapping);
 				break;

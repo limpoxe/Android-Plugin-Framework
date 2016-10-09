@@ -55,7 +55,7 @@ public class ActivityThread {
     public synchronized static Object currentActivityThread() {
         if (sCurrentActivityThread == null) {
             // 从ThreadLocal中取出来的
-            LogUtil.d("从宿主程序中取出ActivityThread对象备用");
+            LogUtil.v("从宿主程序中取出ActivityThread对象备用");
             sCurrentActivityThread = RefInvoker.invokeStaticMethod(android_app_ActivityThread,
                     android_app_ActivityThread_currentActivityThread,
                     (Class[]) null, (Object[]) null);

@@ -65,7 +65,7 @@ public class PluginIntentResolver {
 		Intent intent = (Intent) RefInvoker.getFieldObject(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
 		if (intent.getComponent().getClassName().equals(PluginManagerHelper.bindStubReceiver())) {
 			String action = intent.getAction();
-			LogUtil.d("action", action);
+			LogUtil.v("action", action);
 			if (action != null) {
 				String[] targetClassName = action.split(CLASS_SEPARATOR);
 				@SuppressWarnings("rawtypes")
@@ -109,17 +109,17 @@ public class PluginIntentResolver {
 			//TODO 或许可以通过这个方式来处理service
 			//info.applicationInfo = XXX
 
-			LogUtil.d("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName, info.applicationInfo.packageName);
+			LogUtil.v("hackServiceName", info.name, info.packageName, info.processName, "targetClassName", targetClassName, info.applicationInfo.packageName);
 
 			if (targetClassName != null) {
 				info.name =  CLASS_PREFIX_SERVICE + targetClassName;
 			} else if (PluginManagerHelper.isStub(info.name)) {
 				String dumpString = PluginManagerHelper.dumpServiceInfo();
-				LogUtil.e("hackServiceName 没有找到映射关系, 可能映射表出了异常", info.name, dumpString);
+				LogUtil.w("hackServiceName 没有找到映射关系, 可能映射表出了异常", info.name, dumpString);
 
 				info.name = CLASS_PREFIX_SERVICE + "null";
 			} else {
-				LogUtil.d("是宿主service", info.name);
+				LogUtil.v("是宿主service", info.name);
 			}
 		}
 

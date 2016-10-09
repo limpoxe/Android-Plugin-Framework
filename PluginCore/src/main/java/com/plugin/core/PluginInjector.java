@@ -53,7 +53,7 @@ public class PluginInjector {
 	 * StartService和SendBroadcast方法
 	 */
 	static void injectBaseContext(Context context) {
-		LogUtil.d("替换宿主程序Application对象的mBase");
+		LogUtil.v("替换宿主程序Application对象的mBase");
 		Context base = (Context)RefInvoker.getFieldObject(context, ContextWrapper.class.getName(),
 				android_content_ContextWrapper_mBase);
 		Context newBase = new PluginBaseContextWrapper(base);
@@ -66,17 +66,17 @@ public class PluginInjector {
 	 */
 	static void injectInstrumentation() {
 		// 给Instrumentation添加一层代理，用来实现隐藏api的调用
-		LogUtil.d("替换宿主程序Intstrumentation");
+		LogUtil.v("替换宿主程序Intstrumentation");
 		ActivityThread.wrapInstrumentation();
 	}
 
 	static void injectHandlerCallback() {
-		LogUtil.d("向宿主程序消息循环插入回调器");
+		LogUtil.v("向宿主程序消息循环插入回调器");
 		ActivityThread.wrapHandler();
 	}
 
 	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
-		LogUtil.d("安装插件ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
+		LogUtil.v("安装插件ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 			ProviderInfo p = new ProviderInfo();
@@ -212,7 +212,7 @@ public class PluginInjector {
 				"mWindowStyle", null);
 
 		// 重设LayoutInflater
-		LogUtil.d(activity.getWindow().getClass().getName());
+		LogUtil.v(activity.getWindow().getClass().getName());
 		RefInvoker.setFieldObject(activity.getWindow(), activity.getWindow().getClass().getName(),
 				"mLayoutInflater", LayoutInflater.from(activity));
 
@@ -256,11 +256,11 @@ public class PluginInjector {
 				}
 			}
 
-			LogUtil.d(activity.getClass().getName(), "immersive", pluginActivityInfo.getImmersive());
-			LogUtil.d(activity.getClass().getName(), "screenOrientation", pluginActivityInfo.getScreenOrientation());
-			LogUtil.d(activity.getClass().getName(), "launchMode", pluginActivityInfo.getLaunchMode());
-			LogUtil.d(activity.getClass().getName(), "windowSoftInputMode", pluginActivityInfo.getWindowSoftInputMode());
-			LogUtil.d(activity.getClass().getName(), "uiOptions", pluginActivityInfo.getUiOptions());
+			LogUtil.v(activity.getClass().getName(), "immersive", pluginActivityInfo.getImmersive());
+			LogUtil.v(activity.getClass().getName(), "screenOrientation", pluginActivityInfo.getScreenOrientation());
+			LogUtil.v(activity.getClass().getName(), "launchMode", pluginActivityInfo.getLaunchMode());
+			LogUtil.v(activity.getClass().getName(), "windowSoftInputMode", pluginActivityInfo.getWindowSoftInputMode());
+			LogUtil.v(activity.getClass().getName(), "uiOptions", pluginActivityInfo.getUiOptions());
 		}
 
 		//如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo，

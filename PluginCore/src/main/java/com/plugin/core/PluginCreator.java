@@ -1,16 +1,17 @@
 package com.plugin.core;
 
-import java.io.File;
-import java.util.List;
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
+import java.io.File;
+import java.util.List;
+
 import dalvik.system.DexClassLoader;
 
 public class PluginCreator {
@@ -131,10 +132,10 @@ public class PluginCreator {
 				}
 			}
 			assetPaths[assetPaths.length -1] = app;
-			LogUtil.d("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
+			LogUtil.v("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
 		} else {
 			assetPaths[0] = plugin;
-			LogUtil.d("create Plugin Resource from: ", assetPaths[0]);
+			LogUtil.v("create Plugin Resource from: ", assetPaths[0]);
 		}
 
 		return assetPaths;

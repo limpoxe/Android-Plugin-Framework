@@ -53,7 +53,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
-            LogUtil.e("afterInvoke", method.getName());
+            LogUtil.v("afterInvoke", method.getName());
             //由于插件运行在插件进程中，这里需要欺骗插件，让插件的中判断进程的逻辑以为当前是在主进程中运行
             //但是这会导致插件框架也无法判断当前的进程了，因此框架中判断插件进程的方法一定要在安装ActivityManager代理之前执行并记住状态
             //同时要保证主进程能正确判断进程。
@@ -81,7 +81,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.e("beforeInvoke", method.getName(), args[1]);
+            LogUtil.v("beforeInvoke", method.getName(), args[1]);
             int type = (int)args[0];
             args[1] = PluginLoader.getApplication().getPackageName();
             if (type != INTENT_SENDER_ACTIVITY_RESULT) {

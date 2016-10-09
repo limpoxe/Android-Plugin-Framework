@@ -72,7 +72,7 @@ public class PluginManagerHelper {
                 localCache.put(pluginId, pluginDescriptor);
             }
         } else {
-            LogUtil.d("取本端缓存", pluginDescriptor.getInstalledPath());
+            LogUtil.v("取本端缓存", pluginDescriptor.getInstalledPath());
         }
 
         return pluginDescriptor;

@@ -31,7 +31,7 @@ public class PluginAppTrace implements Handler.Callback {
 	@Override
 	public boolean handleMessage(Message msg) {
 
-		LogUtil.d(">>> handling: ", CodeConst.codeToString(msg.what));
+		LogUtil.v(">>> handling: ", CodeConst.codeToString(msg.what));
 
 		Result result = beforeHandle(msg);
 
@@ -39,7 +39,7 @@ public class PluginAppTrace implements Handler.Callback {
 
 			mHandler.handleMessage(msg);
 
-			LogUtil.d(">>> done: " + CodeConst.codeToString(msg.what));
+			LogUtil.v(">>> done: " + CodeConst.codeToString(msg.what));
 
 		} finally {
 
@@ -128,7 +128,7 @@ public class PluginAppTrace implements Handler.Callback {
 					Service service = services.get(msg.obj);
 					if (service != null) {
 						String pluginServiceClassName = service.getClass().getName();
-						LogUtil.d("unBindStubService", pluginServiceClassName);
+						LogUtil.v("unBindStubService", pluginServiceClassName);
 						PluginManagerHelper.unBindStubService(pluginServiceClassName);
 					}
 				}

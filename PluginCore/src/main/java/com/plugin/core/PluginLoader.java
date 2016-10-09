@@ -51,7 +51,7 @@ public class PluginLoader {
 	public static synchronized void initLoader(Application app) {
 
 		if (!isLoaderInited) {
-			LogUtil.d("插件框架初始化中...");
+			LogUtil.v("插件框架初始化中...");
 
 			long t1 = System.currentTimeMillis();
 
@@ -124,7 +124,7 @@ public class PluginLoader {
 				}
 			}
 			long t2 = System.currentTimeMillis();
-			LogUtil.e("插件框架初始化完成", "耗时：" + (t2-t1));
+			LogUtil.w("插件框架初始化完成", "耗时：" + (t2-t1));
 		}
 	}
 
@@ -156,7 +156,7 @@ public class PluginLoader {
 			if (clazzName != null) {
 				try {
 					Class pluginClazz = ((ClassLoader) pluginClassLoader).loadClass(clazzName);
-					LogUtil.d("loadPluginClass for clazzId", clazzId, "clazzName", clazzName, "success");
+					LogUtil.v("loadPluginClass for clazzId", clazzId, "clazzName", clazzName, "success");
 					return pluginClazz;
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
@@ -183,7 +183,7 @@ public class PluginLoader {
 
 			try {
 				Class pluginClazz = ((ClassLoader) pluginClassLoader).loadClass(clazzName);
-				LogUtil.d("loadPluginClass Success for clazzName ", clazzName);
+				LogUtil.v("loadPluginClass Success for clazzName ", clazzName);
 				return pluginClazz;
 			} catch (ClassNotFoundException e) {
 				LogUtil.printException("ClassNotFound " + clazzName, e);
@@ -274,7 +274,7 @@ public class PluginLoader {
 	public static boolean isInstalled(String pluginId, String pluginVersion) {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 		if (pluginDescriptor != null) {
-			LogUtil.d(pluginId, pluginDescriptor.getVersion(), pluginVersion);
+			LogUtil.v(pluginId, pluginDescriptor.getVersion(), pluginVersion);
 			return pluginDescriptor.getVersion().equals(pluginVersion);
 		}
 		return false;

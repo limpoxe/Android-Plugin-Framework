@@ -324,9 +324,9 @@ public class PluginDescriptor implements Serializable {
 		String clazzName = getFragments().get(clazzId);
 
 		if (clazzName == null) {
-			LogUtil.d("PluginDescriptor", "clazzName not found for classId ", clazzId);
+			LogUtil.w("PluginDescriptor", "clazzName not found for classId ", clazzId);
 		} else {
-			LogUtil.d("PluginDescriptor", "clazzName found ", clazzName);
+			LogUtil.v("PluginDescriptor", "clazzName found ", clazzName);
 		}
 		return clazzName;
 	}

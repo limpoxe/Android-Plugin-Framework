@@ -108,7 +108,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 				String action = intent.getAction();
 
-				LogUtil.d(action, className);
+				LogUtil.v(action, className);
 
 				if (action != null && action.contains(PluginIntentResolver.CLASS_SEPARATOR)) {
 					String[] targetClassName  = action.split(PluginIntentResolver.CLASS_SEPARATOR);

@@ -42,7 +42,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 			String pluginId = attrs.getAttributeValue(null, "context");
 			String viewClassName = attrs.getAttributeValue(null, "class");
 
-			LogUtil.d("创建插件view", pluginId, viewClassName);
+			LogUtil.v("创建插件view", pluginId, viewClassName);
 
 			try {
 				View view = createView(context, pluginId, viewClassName, attrs);

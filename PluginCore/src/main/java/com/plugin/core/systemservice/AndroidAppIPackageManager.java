@@ -82,7 +82,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeResult, Object invokeResult) {
-            LogUtil.d("afterInvoke", method.getName());
+            LogUtil.v("afterInvoke", method.getName());
 
             //注意：android 4.1.2及以下没有getList方法
             List<PackageInfo> result = (List<PackageInfo> )RefInvoker.invokeMethod(invokeResult, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
@@ -172,7 +172,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getServiceInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
@@ -186,7 +186,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getProviderInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             if (!className.equals(PluginManagerProvider.class.getName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
@@ -211,7 +211,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class queryIntentServices extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
@@ -229,7 +229,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class resolveIntent extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
@@ -244,7 +244,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class resolveService extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
@@ -263,13 +263,13 @@ public class AndroidAppIPackageManager extends MethodProxy {
             if (arg0 instanceof ComponentName) {
                 ComponentName mComponentName = ((ComponentName) args[0]);
 
-                LogUtil.d("beforeInvoke", method.getName(), mComponentName.getPackageName(), mComponentName.getClassName());
+                LogUtil.v("beforeInvoke", method.getName(), mComponentName.getPackageName(), mComponentName.getClassName());
 
                 if ("com.htc.android.htcsetupwizard".equalsIgnoreCase(mComponentName.getPackageName())) {
                     return PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
                 }
             } else {
-                LogUtil.d("beforeInvoke", method.getName(), arg0);
+                LogUtil.v("beforeInvoke", method.getName(), arg0);
             }
 
             return super.beforeInvoke(target, method, args);

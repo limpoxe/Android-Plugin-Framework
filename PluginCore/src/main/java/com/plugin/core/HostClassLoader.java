@@ -24,7 +24,7 @@ public class HostClassLoader extends DexClassLoader {
 
 	@Override
 	public String findLibrary(String name) {
-		LogUtil.d("findLibrary", name);
+		LogUtil.v("findLibrary", name);
 		return super.findLibrary(name);
 	}
 
@@ -35,7 +35,7 @@ public class HostClassLoader extends DexClassLoader {
 
 		if (className.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 
-			LogUtil.d("className ", className, PluginShadowService.class.getName());
+			LogUtil.v("className ", className, PluginShadowService.class.getName());
 
 			// 这里返回PluginShadowService是因为service的构造函数以及onCreate函数
 			// 2个函数在ActivityThread的同一个函数中被调用,框架没机会在构造器执行之后,oncreate执行之前,
@@ -44,7 +44,7 @@ public class HostClassLoader extends DexClassLoader {
 			// 这里返回了这个Service以后, 由于在框架中hook了ActivityManager的serviceDoneExecuting方法,
 			// 在serviceDoneExecuting这个方法里面, 会将这个service再还原成插件的servcie对象
 			if (className.equals(PluginIntentResolver.CLASS_PREFIX_SERVICE + "null")) {
-				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound");
+				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound", className);
 				return TolerantService.class;
 			} else {
 				return PluginShadowService.class;
@@ -57,12 +57,11 @@ public class HostClassLoader extends DexClassLoader {
 
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 
-			LogUtil.e("className ", className, "target", realName, clazz==null?"null":"found");
-
 			if (clazz != null) {
+				LogUtil.v("className ", className, "target", realName, "found");
 				return clazz;
 			} else {
-				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound");
+				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound", className);
 				return TolerantBroadcastReceiver.class;
 			}
 		}

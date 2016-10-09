@@ -42,7 +42,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public void sendBroadcast(Intent intent) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendBroadcast(item);
@@ -51,7 +51,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public void sendBroadcast(Intent intent, String receiverPermission) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendBroadcast(item, receiverPermission);
@@ -60,7 +60,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public void sendOrderedBroadcast(Intent intent, String receiverPermission) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendOrderedBroadcast(item, receiverPermission);
@@ -70,7 +70,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@Override
 	public void sendOrderedBroadcast(Intent intent, String receiverPermission, BroadcastReceiver resultReceiver,
 			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendOrderedBroadcast(item, receiverPermission, resultReceiver,
@@ -81,7 +81,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendBroadcastAsUser(Intent intent, UserHandle user) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendBroadcastAsUser(item, user);
@@ -91,7 +91,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendBroadcastAsUser(item, user, receiverPermission);
@@ -103,7 +103,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	public void sendOrderedBroadcastAsUser(Intent intent, UserHandle user, String receiverPermission,
 			BroadcastReceiver resultReceiver, Handler scheduler, int initialCode, String initialData,
 			Bundle initialExtras) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendOrderedBroadcastAsUser(item, user, receiverPermission, resultReceiver, scheduler, initialCode,
@@ -113,7 +113,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public void sendStickyBroadcast(Intent intent) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendStickyBroadcast(item);
@@ -123,7 +123,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@Override
 	public void sendStickyOrderedBroadcast(Intent intent, BroadcastReceiver resultReceiver, Handler scheduler,
 			int initialCode, String initialData, Bundle initialExtras) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendStickyOrderedBroadcast(item, resultReceiver, scheduler, initialCode, initialData, initialExtras);
@@ -133,7 +133,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public void removeStickyBroadcast(Intent intent) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.removeStickyBroadcast(item);
@@ -143,7 +143,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void sendStickyBroadcastAsUser(Intent intent, UserHandle user) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendStickyBroadcastAsUser(item, user);
@@ -154,7 +154,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 	@Override
 	public void sendStickyOrderedBroadcastAsUser(Intent intent, UserHandle user, BroadcastReceiver resultReceiver,
 			Handler scheduler, int initialCode, String initialData, Bundle initialExtras) {
-		LogUtil.d(intent);
+		LogUtil.v(intent);
 		ArrayList<Intent> list = PluginIntentResolver.resolveReceiver(intent);
 		for (Intent item:list) {
 			super.sendStickyOrderedBroadcastAsUser(item, user, resultReceiver, scheduler, initialCode, initialData,
@@ -164,28 +164,28 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 
 	@Override
 	public ComponentName startService(Intent service) {
-		LogUtil.d(service);
+		LogUtil.v(service);
 		PluginIntentResolver.resolveService(service);
 		return super.startService(service);
 	}
 
 	@Override
 	public boolean stopService(Intent name) {
-		LogUtil.d(name);
+		LogUtil.v(name);
 		PluginIntentResolver.resolveService(name);
 		return super.stopService(name);
 	}
 
 	@Override
 	public boolean bindService(Intent service, ServiceConnection conn, int flags) {
-		LogUtil.d(service);
+		LogUtil.v(service);
 		PluginIntentResolver.resolveService(service);
 		return super.bindService(service, conn, flags);
 	}
 
 	@Override
 	public Context createPackageContext(String packageName, int flags) throws PackageManager.NameNotFoundException {
-		LogUtil.d(packageName);
+		LogUtil.v(packageName);
 		//这个方法有2个作用
 		// 1、context返回插件宿主packageName时,安装插件中的contentprovider时会用到它，
 		// 被android.app.ActiviThread这个类调用。

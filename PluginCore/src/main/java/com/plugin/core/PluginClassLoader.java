@@ -45,13 +45,13 @@ public class PluginClassLoader extends DexClassLoader {
 		final String thisLoader = getClass().getName() + '@' + Integer.toHexString(hashCode());
 		final String soPath = super.findLibrary(name);
 
-		LogUtil.d("findLibrary", "orignal so path : " + soPath + ", current classloader : " + thisLoader);
+		LogUtil.v("findLibrary", "orignal so path : " + soPath + ", current classloader : " + thisLoader);
 
 		if (soPath != null) {
 			final String soLoader = soClassloaderMapper.get(soPath);
 			if (soLoader == null || soLoader.equals(thisLoader)) {
 				soClassloaderMapper.put(soPath, thisLoader);
-				LogUtil.d("findLibrary", "acturely so path : " + soPath + ", current classloader : " + thisLoader);
+				LogUtil.v("findLibrary", "acturely so path : " + soPath + ", current classloader : " + thisLoader);
 				return soPath;
 			} else {
 				//classloader发生了变化, 创建so副本并返回副本路径, 限制最多10个副本
@@ -61,21 +61,21 @@ public class PluginClassLoader extends DexClassLoader {
 					String soLoaderOfCopyN = soClassloaderMapper.get(soPathOfCopyN);
 
 					if (thisLoader.equals(soLoaderOfCopyN)) {
-						LogUtil.d("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+						LogUtil.v("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
 						return soPathOfCopyN;
 					} else if (soLoaderOfCopyN == null) {
 						if(!new File(soPathOfCopyN).exists()) {
 							boolean isSuccess = FileUtil.copyFile(soPath, soPathOfCopyN);
 							if (isSuccess) {
 								soClassloaderMapper.put(soPathOfCopyN, thisLoader);
-								LogUtil.d("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+								LogUtil.v("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
 								return soPathOfCopyN;
 							} else {
 								return null;
 							}
 						} else {
 							soClassloaderMapper.put(soPathOfCopyN, thisLoader);
-							LogUtil.d("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
+							LogUtil.v("findLibrary", "acturely so path : " + soPathOfCopyN + ", current classloader : " + thisLoader);
 							return soPathOfCopyN;
 						}
 					}
