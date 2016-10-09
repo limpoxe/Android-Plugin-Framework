@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Build;
 
 import com.plugin.content.PluginActivityInfo;
 import com.plugin.content.PluginDescriptor;
@@ -28,6 +29,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.plugin.util.RefInvoker.invokeMethod;
 
 /**
  * Created by cailiming on 16/1/15.
@@ -84,24 +87,24 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeResult, Object invokeResult) {
             LogUtil.v("afterInvoke", method.getName());
 
-            //注意：android 4.1.2及以下没有getList方法
-            List<PackageInfo> result = (List<PackageInfo> )RefInvoker.invokeMethod(invokeResult, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
-
-            Collection<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
-            if (plugins != null) {
-                if (result == null) {
-                    result = new ArrayList<PackageInfo>();
-                }
-                for(PluginDescriptor pluginDescriptor:plugins) {
-                    PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
-                    if (packageInfo.applicationInfo != null) {
-                        packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
-                        packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
+            if (Build.VERSION.SDK_INT >= 18) {//android4.3
+                Collection<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
+                if (plugins != null) {
+                    List<PackageInfo> resultList = (List<PackageInfo> ) invokeMethod(invokeResult, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
+                    if (resultList != null) {
+                        for(PluginDescriptor pluginDescriptor:plugins) {
+                            PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
+                            if (packageInfo.applicationInfo != null) {
+                                packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
+                                packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
+                            }
+                            resultList.add(packageInfo);
+                        }
                     }
-                    result.add(packageInfo);
                 }
+            } else {
+                //todo
             }
-
             return invokeResult;
         }
     }
