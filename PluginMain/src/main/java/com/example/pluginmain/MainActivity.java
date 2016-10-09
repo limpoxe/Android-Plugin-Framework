@@ -28,6 +28,7 @@ import com.example.plugintest.IMyAidlInterface;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.localservice.LocalServiceManager;
+import com.plugin.core.manager.InstallResult;
 import com.plugin.core.manager.PluginCallback;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.FileUtil;
@@ -313,13 +314,27 @@ public class MainActivity extends AppCompatActivity {
 	private final BroadcastReceiver pluginInstallEvent = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			String actionType = intent.getStringExtra("type");
+			int code = intent.getIntExtra("code", -1);
+
 			Toast.makeText(MainActivity.this,
-					"插件"  + intent.getStringExtra("id") + " "+ intent.getStringExtra("type") +
-							(intent.getIntExtra("code", 0)==1?"成功":"失败"),
+					"插件: " + intent.getStringExtra("id") + ", action = " + actionType + ", " + getErrMsg(code),
 					Toast.LENGTH_SHORT).show();
 			listAll();
 		};
 	};
+
+	private static String getErrMsg(int code) {
+		if(code== InstallResult.SUCCESS) {
+			return "成功";
+		} else if (code == InstallResult.FAIL_BECAUSE_SAME_VER_HAS_LOADED) {
+			return "失败: 同版本插件已加载,无需安装";
+		} else if (code == InstallResult.MIN_API_NOT_SUPPORTED) {
+			return "失败: 系统版本过低,不支持本插件";
+		} else {
+			return "失败: code=" + code;
+		}
+	}
 
 	@Override
 	protected void onResume() {
