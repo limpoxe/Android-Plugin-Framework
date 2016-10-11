@@ -37,7 +37,9 @@ public class AndroidOsIBinder extends MethodProxy {
                 try {
 
                     String descriptor = (String)args[0];
-                    LogUtil.i(descriptor, target.getClass().getName());
+                    LogUtil.i("Hook服务 : " + descriptor, target.getClass().getName());
+
+                    //LogUtil.printStackTrace();
 
                     //TODO
                     // 通常情况下,如果是通过编译命令生成的接口, 类名如下
@@ -77,6 +79,7 @@ public class AndroidOsIBinder extends MethodProxy {
                     //android.os.IMessenger
                     //android.os.IPowerManager
                     //android.os.IUserManager
+                    //android.security.IKeystoreService
                     //android.vrsystem.IVRSystemService
                     //android.webkit.IWebViewUpdateService
 

@@ -85,7 +85,7 @@ public class PluginLauncher implements Serializable {
 		if (plugin == null) {
 
 			long startAt = System.currentTimeMillis();
-			LogUtil.v("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
+			LogUtil.i("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
 			LogUtil.v("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
 			Resources pluginRes = PluginCreator.createPluginResource(
@@ -93,14 +93,20 @@ public class PluginLauncher implements Serializable {
 					PluginLoader.getApplication().getResources(), pluginDescriptor);
 
 			if (pluginRes == null) {
-				LogUtil.e("初始化插件失败");
+				LogUtil.e("初始化插件失败 : res");
 			}
+
+			long t1 = System.currentTimeMillis();
+			LogUtil.i("初始化插件资源耗时:" + (t1 - startAt));
 
 			DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
 							pluginDescriptor.getInstalledPath(),
 							pluginDescriptor.isStandalone(),
 							pluginDescriptor.getDependencies(),
 							pluginDescriptor.getMuliDexList());
+
+			long t12 = System.currentTimeMillis();
+			LogUtil.w("初始化插件DexClassLoader耗时:" + (t12 - t1));
 
 			Context pluginContext = PluginCreator.createPluginContext(
 					pluginDescriptor,
@@ -110,6 +116,9 @@ public class PluginLauncher implements Serializable {
 
 			//插件Context默认主题设置为插件application主题
 			pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
+
+			long t13 = System.currentTimeMillis();
+			LogUtil.i("初始化插件Theme耗时:" + (t13 - t12));
 
 			plugin = new LoadedPlugin(pluginDescriptor.getPackageName(),
 					pluginDescriptor.getInstalledPath(),
@@ -122,6 +131,9 @@ public class PluginLauncher implements Serializable {
 
 			plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
 
+			long t3 = System.currentTimeMillis();
+			LogUtil.w("初始化插件Application耗时:" + (t3 - t13));
+
 			try {
 				ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
 						pluginClassLoader, pluginRes, pluginApplication);
@@ -130,7 +142,7 @@ public class PluginLauncher implements Serializable {
 			}
 
 			long endAt = System.currentTimeMillis();
-			LogUtil.d("初始化插件" + pluginDescriptor.getPackageName() + "完成, 耗时:" + (endAt - startAt));
+			LogUtil.i("初始化插件" + pluginDescriptor.getPackageName() + "完成, 总耗时:" + (endAt - startAt));
 
 		} else {
 			//LogUtil.d("IS RUNNING", packageName);
@@ -144,7 +156,7 @@ public class PluginLauncher implements Serializable {
 		Application application = null;
 
 		try {
-			LogUtil.v("创建插件Application", pluginDescriptor.getApplicationName());
+			LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
 
 			//为了支持插件中使用multidex
 			((PluginContextTheme)pluginContext).setCrackPackageManager(true);
@@ -170,6 +182,8 @@ public class PluginLauncher implements Serializable {
 		if (application != null) {
 
 			((PluginContextTheme)pluginContext).setPluginApplication(application);
+
+			LogUtil.v("屏蔽插件中的UncaughtExceptionHandler");
 
 			//先拿到宿主的crashHandler
 			Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();

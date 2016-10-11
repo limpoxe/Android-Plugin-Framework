@@ -66,7 +66,7 @@ public class PluginInjector {
 	 */
 	static void injectInstrumentation() {
 		// 给Instrumentation添加一层代理，用来实现隐藏api的调用
-		LogUtil.v("替换宿主程序Intstrumentation");
+		LogUtil.d("替换宿主程序Intstrumentation");
 		ActivityThread.wrapInstrumentation();
 	}
 
@@ -76,11 +76,9 @@ public class PluginInjector {
 	}
 
 	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
-		LogUtil.v("安装插件ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 			ProviderInfo p = new ProviderInfo();
-			//name做上标记，表示是来自插件，方便classloader进行判断
 			p.name = pluginProviderInfo.getName();
 			p.authority = pluginProviderInfo.getAuthority();
 			p.applicationInfo = new ApplicationInfo(context.getApplicationInfo());
@@ -90,8 +88,12 @@ public class PluginInjector {
 			providers.add(p);
 		}
 
-		//pluginContext.getPackageName().equals(applicationInfo.packageName) == true
-		ActivityThread.installContentProviders(pluginContext, providers);
+		if(providers.size() > 0) {
+			LogUtil.v("为插件安装ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
+			//pluginContext.getPackageName().equals(applicationInfo.packageName) == true
+			//安装的时候使用的是插件的Context, 所有无需对Classloader进行映射处理
+			ActivityThread.installContentProviders(pluginContext, providers);
+		}
 	}
 
 	static void injectInstrumetionFor360Safe(Activity activity, Instrumentation pluginInstrumentation) {

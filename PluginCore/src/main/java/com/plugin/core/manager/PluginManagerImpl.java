@@ -11,8 +11,8 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.plugin.content.PluginDescriptor;
-import com.plugin.core.PluginLauncher;
 import com.plugin.core.PluginCreator;
+import com.plugin.core.PluginLauncher;
 import com.plugin.core.PluginLoader;
 import com.plugin.core.PluginManifestParser;
 import com.plugin.core.localservice.LocalServiceManager;
@@ -63,7 +63,10 @@ class PluginManagerImpl {
 
 	@SuppressWarnings("unchecked")
 	synchronized void loadInstalledPlugins() {
+
 		if (sInstalledPlugins.size() == 0) {
+			long t1 = System.currentTimeMillis();
+
 			Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(INSTALLED_KEY);
 			if (installedPlugin != null) {
 				sInstalledPlugins.putAll(installedPlugin);
@@ -87,6 +90,8 @@ class PluginManagerImpl {
 				getSharedPreference().edit().remove(PENDING_KEY).commit();
 			}
 
+			long t2 = System.currentTimeMillis();
+			LogUtil.i("加载所有插件列表, 耗时 : " + (t2 - t1));
 		}
 	}
 
@@ -177,6 +182,7 @@ class PluginManagerImpl {
 	 */
 	synchronized InstallResult installPlugin(String srcPluginFile) {
 		LogUtil.w("开始安装插件", srcPluginFile);
+		long startAt = System.currentTimeMillis();
 		if (TextUtils.isEmpty(srcPluginFile) || !new File(srcPluginFile).exists()) {
 			return new InstallResult(InstallResult.SRC_FILE_NOT_FOUND);
 		}
@@ -310,15 +316,24 @@ class PluginManagerImpl {
 				return new InstallResult(InstallResult.INSTALL_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			} else {
 				//通过创建classloader来触发dexopt，但不加载
-				LogUtil.w("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
+				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 				//ActivityThread.getPackageManager().performDexOptIfNeeded()
 				FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
-				PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null, null);
-				LogUtil.w("DEXOPT完毕");
+				ClassLoader cl = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null, null);
+				try {
+					cl.loadClass(Object.class.getName());
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				LogUtil.d("DEXOPT完毕");
 
+				LogUtil.d("注册localService");
 				LocalServiceManager.registerService(pluginDescriptor);
 
-				LogUtil.w("安装插件成功", destApkPath);
+				long endAt = System.currentTimeMillis();
+				LogUtil.w("插件安装成功", pluginDescriptor.getPackageName(), "耗时 : " + (endAt - startAt));
+
+				LogUtil.v("安装路径", pluginDescriptor.getInstalledPath());
 
 				//打印一下目录结构
 				if (isDebugable) {
