@@ -37,7 +37,7 @@ public class AndroidOsIBinder extends MethodProxy {
                 try {
 
                     String descriptor = (String)args[0];
-                    LogUtil.e(descriptor, target.getClass().getName());
+                    LogUtil.i(descriptor, target.getClass().getName());
 
                     //TODO
                     // 通常情况下,如果是通过编译命令生成的接口, 类名如下
@@ -107,7 +107,7 @@ public class AndroidOsIBinder extends MethodProxy {
                     Constructor constructor = stubProxy.getDeclaredConstructor(IBinder.class);
                     constructor.setAccessible(true);
                     IInterface proxy = (IInterface)constructor.newInstance(target);
-                    BinderProxyDelegate binderProxyDelegate = new BinderProxyDelegate(descriptor);
+                    SystemApiDelegate binderProxyDelegate = new SystemApiDelegate(descriptor);
 
                     //借此方法可以一次代理掉所有服务的remote, 而不必每个服务加一个hook
                     proxy = (IInterface)ProxyUtil.createProxy2(proxy, binderProxyDelegate);

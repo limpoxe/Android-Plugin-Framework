@@ -65,7 +65,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
-            LogUtil.d("beforeInvoke", method.getName(), packageName);
+            LogUtil.v("beforeInvoke", method.getName(), packageName);
             if (!packageName.equals(PluginLoader.getApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
@@ -112,7 +112,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class queryIntentActivities extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
@@ -131,14 +131,14 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
-            LogUtil.d("beforeInvoke", method.getName(), packageName);
+            LogUtil.v("beforeInvoke", method.getName(), packageName);
             if (!packageName.equals(PluginLoader.getApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
                     return getApplicationInfo(pluginDescriptor);
                 }
             } else {
-                LogUtil.e("注意：使用了宿主包名：" + packageName);
+                LogUtil.w("注意：使用了宿主包名：" + packageName);
             }
             return super.beforeInvoke(target, method, args);
         }
@@ -147,7 +147,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getActivityInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
@@ -161,7 +161,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
     public static class getReceiverInfo extends MethodDelegate {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.d("beforeInvoke", method.getName());
+            LogUtil.v("beforeInvoke", method.getName());
             String className = ((ComponentName)args[0]).getClassName();
             PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
             if (pluginDescriptor != null) {
