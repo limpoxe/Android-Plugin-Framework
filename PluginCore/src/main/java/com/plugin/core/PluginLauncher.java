@@ -82,9 +82,9 @@ public class PluginLauncher implements Serializable {
 
 	public LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
 		LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
-
 		if (plugin == null) {
 
+			long startAt = System.currentTimeMillis();
 			LogUtil.v("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
 			LogUtil.v("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
@@ -129,7 +129,9 @@ public class PluginLauncher implements Serializable {
 				e.printStackTrace();
 			}
 
-			LogUtil.v("初始化插件" + pluginDescriptor.getPackageName() + "完成");
+			long endAt = System.currentTimeMillis();
+			LogUtil.d("初始化插件" + pluginDescriptor.getPackageName() + "完成, 耗时:" + (endAt - startAt));
+
 		} else {
 			//LogUtil.d("IS RUNNING", packageName);
 		}
