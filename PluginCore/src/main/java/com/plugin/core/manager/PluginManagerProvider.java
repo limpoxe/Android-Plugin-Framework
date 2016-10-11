@@ -128,7 +128,7 @@ public class PluginManagerProvider extends ContentProvider {
             LogUtil.v("callingPackage = ", getCallingPackage());
         }
 
-        LogUtil.d("Thead : id = " + Thread.currentThread().getId()
+        LogUtil.v("Thead : id = " + Thread.currentThread().getId()
                 + ", name = " + Thread.currentThread().getName()
                 + ", method = " + method
                 + ", arg = " + arg);

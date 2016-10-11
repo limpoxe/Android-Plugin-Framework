@@ -22,7 +22,7 @@ public class SystemApiDelegate extends MethodDelegate {
     }
 
     public Object beforeInvoke(Object target, Method method, Object[] args) {
-        LogUtil.d("beforeInvoke", descriptor, method.getName());
+        LogUtil.v("beforeInvoke", descriptor, method.getName());
 
         //这里做此判定是为了把一些特定的接口方法仍然交给特定的MethodProxy去处理,不在此做统一处理
         //这些"特定的MethodProxy"主要是一些查询类接口
@@ -50,7 +50,8 @@ public class SystemApiDelegate extends MethodDelegate {
                         //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
                         PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId((String)args[i]);
                         if(pd != null) {
-                            // 说明传的是插件包名, 修正为宿主包名
+                            LogUtil.v("修正System Api packageName参数为宿主包名", args[i]);
+                            // 参数传的是插件包名, 修正为宿主包名
                             args[i] = PluginLoader.getApplication().getPackageName();
                             // 这里或许需要break,提高效率,
                             // 因为一个接口的参数里面出现两个packageName的可能性较小
