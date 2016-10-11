@@ -3,14 +3,12 @@ package com.plugin.core;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ResourceUtil;
 
-import java.lang.reflect.Field;
 import java.util.HashSet;
 
 /**
@@ -68,84 +66,11 @@ public class PluginResourceWrapper extends Resources {
 		}
 	}
 
-	/**
-	 * 重写此方法主要是为了修正在插件中通过
-	 * getIdentifier(name, type,  getPackageName())此中形式反查id时
-	 *
-	 * 如果第三个参数通过调用getPackageName获得，由于此方法返回的是宿主的包名，可能会得不到预期的结果
-	 *
-	 * @param name
-	 * @param defType
-	 * @param defPackage
-	 * @return
-	 */
-	@Override
-	public int getIdentifier(String name, String defType, String defPackage) {
-
-		if (TextUtils.isDigitsOnly(name)) {
-			return super.getIdentifier(name, defType, defPackage);
-		}
-
-		//传了packageName，而且不是宿主的packageName， 则直接返回
-		if (!TextUtils.isEmpty(defPackage) && !PluginLoader.getApplication().getPackageName().equals(defPackage)) {
-			return super.getIdentifier(name, defType, defPackage);
-		}
-
-		//package:type/entry
-		//第一段 “package:“ 第二段 ”type/“ 第三段 “entry”
-		String packageName = null;
-		String type = null;
-		String entry = null;
-
-		String[] pte = name.split(":");
-		String[] te;
-		if (pte.length == 2) {
-			packageName = pte[0];
-			te = pte[1].split("/");
-		} else {
-			te = pte[0].split("/");
-		}
-
-		if (te.length == 2) {
-			type = te[0];
-			entry = te[1];
-		} else {
-			entry = te[0];
-		}
-
-		if (packageName == null) {
-			packageName = defPackage;
-		}
-
-		if (type == null) {
-			type = defType;
-		}
-
-		if (PluginLoader.getApplication().getPackageName().equals(packageName)) {
-			if (mPluginDescriptor.isStandalone()) {
-				packageName = mPluginDescriptor.getPackageName();
-			} else {
-				// 判断是否在真的在宿主中
-				Class rClass = null;
-				try {
-					String className = packageName + ".R$" + type;
-					rClass = this.getClass().getClassLoader().loadClass(className);
-					Field field = rClass.getDeclaredField(entry);
-					if (field == null) {
-						//不在宿主中，换成插件的
-						packageName = mPluginDescriptor.getPackageName();
-					} else {
-						//在宿主中
-						return PluginLoader.getApplication().getResources().getIdentifier(entry, type, packageName);
-					}
-				} catch (Exception e) {
-					//不在宿主中，换成插件的
-					packageName = mPluginDescriptor.getPackageName();
-				}
-			}
-		}
-		return super.getIdentifier(entry, type, packageName);
-
-	}
+//	现已支持getPackageName返回插件包名,删除此方法
+//	@Override
+//	public int getIdentifier(String name, String defType, String defPackage) {
+//		//XXX
+//		//XXX
+//	}
 }
 
