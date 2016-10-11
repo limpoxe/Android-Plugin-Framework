@@ -315,10 +315,11 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String actionType = intent.getStringExtra("type");
+			String pluginId = intent.getStringExtra("id");
 			int code = intent.getIntExtra("code", -1);
 
 			Toast.makeText(MainActivity.this,
-					"插件: " + intent.getStringExtra("id") + ", action = " + actionType + ", " + getErrMsg(code),
+					(pluginId==null?"" : ("插件: " + pluginId + ", ")) + "action = " + actionType + ", " + getErrMsg(code),
 					Toast.LENGTH_SHORT).show();
 			listAll();
 		};
@@ -327,12 +328,22 @@ public class MainActivity extends AppCompatActivity {
 	private static String getErrMsg(int code) {
 		if(code== InstallResult.SUCCESS) {
 			return "成功";
-		} else if (code == InstallResult.FAIL_BECAUSE_SAME_VER_HAS_LOADED) {
+		} else if (code == InstallResult.SRC_FILE_NOT_FOUND) {
+			return "失败: 安装文件未找到";
+		} else if (code == InstallResult.COPY_FILE_FAIL) {
+			return "失败: 复制安装文件到安装目录失败";
+		} else if (code == InstallResult.SIGNATURES_INVALIDATE) {
+			return "失败: 安装文件验证失败";
+		} else if (code == InstallResult.VERIFY_SIGNATURES_FAIL) {
+			return "失败: 插件和宿主签名串不匹配";
+		} else if (code == InstallResult.PARSE_MANIFEST_FAIL) {
+			return "失败: 插件Manifest文件解析出错";
+		} if (code == InstallResult.FAIL_BECAUSE_SAME_VER_HAS_LOADED) {
 			return "失败: 同版本插件已加载,无需安装";
 		} else if (code == InstallResult.MIN_API_NOT_SUPPORTED) {
-			return "失败: 系统版本过低,不支持本插件";
+			return "失败: 当前系统版本过低,不支持此插件";
 		} else {
-			return "失败: code=" + code;
+			return "失败: 其他 code=" + code;
 		}
 	}
 
