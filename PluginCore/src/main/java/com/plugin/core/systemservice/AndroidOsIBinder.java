@@ -82,9 +82,10 @@ public class AndroidOsIBinder extends MethodProxy {
 
                     //com.huawei.permission.IHoldService
 
-                    // 不过仍然可能会有一些其他服务hook不到, 是因为服务的remote对象
-                    // 在AndroidOsServiceManager方法被hook前已经被获取到了, 即queryLocalInterface这个方法被hook之前已经被执行
-                    // 所以AndroidOsServiceManager应该尽可能早地执行installProxy
+                    // 不过仍然可能会有一些其他服务hook不到, 比如PackageManager和ActivityManager,
+                    // 是因为这些服务的binder在queryLocalInterface方法被hook之前, 已经被系统获取到了并缓存到全局静态变量中
+                    // 后面再取获取这些服务的时候, 直接返回的是这些缓存, 不会调用queryLocalInterface
+                    // 所以AndroidOsServiceManager应该尽可能早地执行installProxy, 以免错过hook时机
 
                     Class stubProxy = null;
 
