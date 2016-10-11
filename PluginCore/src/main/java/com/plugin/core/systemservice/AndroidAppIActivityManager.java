@@ -41,7 +41,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
         Object singleton = RefInvoker.getStaticFieldObject("android.app.ActivityManagerNative", "gDefault");
         //如果是IActivityManager
         if (singleton.getClass().isAssignableFrom(androidAppIActivityManagerStubProxyProxy.getClass())) {
-            RefInvoker.setStaticOjbect("android.app.ActivityManagerNative", "gDefault", androidAppIActivityManagerStubProxyProxy);
+            RefInvoker.setStaticObject("android.app.ActivityManagerNative", "gDefault", androidAppIActivityManagerStubProxyProxy);
         } else {//否则是包装过的单例
             RefInvoker.setFieldObject(singleton, "android.util.Singleton", "mInstance", androidAppIActivityManagerStubProxyProxy);
         }

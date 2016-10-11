@@ -21,7 +21,7 @@ public class LogUtil {
     }
 
     public static void w(Object... msg) {
-        printLog(Log.INFO, msg);
+        printLog(Log.WARN, msg);
     }
 
     public static void e(Object... msg) {

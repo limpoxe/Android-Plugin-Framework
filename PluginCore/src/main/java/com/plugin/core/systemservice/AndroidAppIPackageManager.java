@@ -56,7 +56,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         LogUtil.d("安装PackageManagerProxy");
         Object androidAppIPackageManagerStubProxy = RefInvoker.getStaticFieldObject("android.app.ActivityThread", "sPackageManager");
         Object androidAppIPackageManagerStubProxyProxy = ProxyUtil.createProxy(androidAppIPackageManagerStubProxy, new AndroidAppIPackageManager());
-        RefInvoker.setStaticOjbect("android.app.ActivityThread", "sPackageManager", androidAppIPackageManagerStubProxyProxy);
+        RefInvoker.setStaticObject("android.app.ActivityThread", "sPackageManager", androidAppIPackageManagerStubProxyProxy);
         RefInvoker.setFieldObject(manager, "android.app.ApplicationPackageManager", "mPM", androidAppIPackageManagerStubProxyProxy);
         LogUtil.d("安装完成");
     }

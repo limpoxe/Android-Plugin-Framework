@@ -31,7 +31,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             Object webViewFactoryProvider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
             if (webViewFactoryProvider != null) {
                 Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
-                RefInvoker.setStaticOjbect("android.webkit.WebViewFactory", "sProviderInstance", webViewFactoryProviderProxy);
+                RefInvoker.setStaticObject("android.webkit.WebViewFactory", "sProviderInstance", webViewFactoryProviderProxy);
             } else {
                 //如果取不到值，原因可能是不同版本差异
             }

@@ -137,7 +137,7 @@ public class RefInvoker {
 		}
 	}
 
-	public static void setStaticOjbect(String className, String fieldName, Object fieldValue) {
+	public static void setStaticObject(String className, String fieldName, Object fieldValue) {
 		setFieldObject(null, className, fieldName, fieldValue);
 	}
 
