@@ -74,7 +74,9 @@ android {
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.2@aar')
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.2@aar') {
+        transitive true
+    }
     compile project(':PluginShareLib')
 }
 
