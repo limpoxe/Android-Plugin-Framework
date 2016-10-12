@@ -29,14 +29,28 @@ afterEvaluate {
         def mergeTask = tasks.getByName(mergeTaskName)
         //第2件事
         mergeTask.doLast {
-            String srcPath =  buildscript.sourceFile.getParentFile().absolutePath;
             String destPath = mergeTask.outputDir.absolutePath + '/values/';
-            println '编译宿主资源时插入' + srcPath + '/public.xml 到' + destPath + ', 用来控制宿主资源id分组'
-            copy {
-                from(buildscript.sourceFile.getParentFile()) {
-                    include 'public.xml'
+            if (buildscript.sourceFile != null) {
+                println '编译宿主资源时插入' + buildscript.sourceFile.getParentFile().absolutePath + '/public.xml 到' + destPath + ', 用来控制宿主资源id分组'
+                copy {
+                    from(buildscript.sourceFile.getParentFile()) {
+                        include 'public.xml'
+                    }
+                    into(destPath)
                 }
-                into(destPath)
+            } else {
+                println '编译宿主资源时插入' + buildscript.sourceURI + '/public.xml 到' + destPath + ', 用来控制宿主资源id分组'
+                String url = buildscript.sourceURI.toString().replaceFirst("[a-zA-Z\\.]*\$", "public.xml")
+                HttpURLConnection httpConn =(HttpURLConnection)(new URL(url).openConnection())
+                InputStream inputStream = httpConn.getInputStream()
+                OutputStream ouput =new FileOutputStream(new File(destPath, "public.xml"))
+                byte[] buffer = new byte[8*1024]
+                int size = -1
+                while((size = inputStream.read(buffer)) != -1) {
+                    ouput.write(buffer, 0, size)
+                }
+                ouput.close()
+                httpConn.disconnect()
             }
         }
         //第3件事
