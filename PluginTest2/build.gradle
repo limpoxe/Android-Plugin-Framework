@@ -87,4 +87,4 @@ ext {
     host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
 }
 
-apply from: project(':PluginCore').projectDir.absolutePath + "/plugin.gradle"
+apply from: project(':PluginMain').projectDir.absolutePath + "/plugin.gradle"

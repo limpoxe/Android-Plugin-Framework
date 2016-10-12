@@ -54,7 +54,7 @@ dependencies {
     /////////////////////////////////////////////////////////////////////
 
     //依赖库的src
-    provided files(project(':PluginCore').getBuildDir().absolutePath + '/outputs/aar/PluginCore-debug.jar')
+    provided files(project(':PluginMain').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.limpoxe.fairy/FairyPlugin/0.0.2/jars/classes.jar')
     provided files(project(':PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
     provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
 
@@ -87,4 +87,4 @@ ext {
     host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
 }
 
-apply from: project(':PluginCore').projectDir.absolutePath + "/plugin.gradle"
+apply from: project(':PluginMain').projectDir.absolutePath + "/plugin.gradle"
