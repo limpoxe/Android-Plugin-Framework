@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core.manager;
+package com.limpoxe.fairy.manager;
 
 /**
  * Created by cailiming on 16/6/20.

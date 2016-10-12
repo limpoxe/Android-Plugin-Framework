@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core.manager;
+package com.limpoxe.fairy.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;

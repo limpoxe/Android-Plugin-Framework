@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core.app;
+package com.limpoxe.fairy.core;
 
 import android.app.Activity;
 import android.app.Application;

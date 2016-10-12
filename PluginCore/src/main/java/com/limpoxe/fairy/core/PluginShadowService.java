@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.limpoxe.fairy.core.app.ActivityThread;
+import com.limpoxe.fairy.core.android.ActivityThread;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 

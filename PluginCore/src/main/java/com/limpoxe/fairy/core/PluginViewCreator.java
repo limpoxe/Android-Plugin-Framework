@@ -9,7 +9,7 @@ import android.view.View;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.lang.reflect.Constructor;

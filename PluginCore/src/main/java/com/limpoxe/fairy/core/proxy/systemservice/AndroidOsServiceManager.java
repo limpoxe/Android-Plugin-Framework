@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core.systemservice;
+package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.os.IBinder;
 

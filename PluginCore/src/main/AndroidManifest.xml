@@ -12,7 +12,7 @@
 
         <provider
             android:authorities="${applicationId}.manager"
-            android:name=".core.manager.PluginManagerProvider"
+            android:name=".manager.PluginManagerProvider"
             android:process=":plugin"
             android:exported="false"
             />

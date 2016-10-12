@@ -21,12 +21,11 @@ import android.os.Message;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.app.ActivityThread;
-import com.limpoxe.fairy.core.app.AndroidAppApplication;
+import com.limpoxe.fairy.core.android.ActivityThread;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
-import com.limpoxe.fairy.core.manager.PluginActivityMonitor;
-import com.limpoxe.fairy.core.manager.PluginManagerHelper;
-import com.limpoxe.fairy.core.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.limpoxe.fairy.manager.PluginActivityMonitor;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 import com.limpoxe.fairy.util.RefInvoker;

@@ -8,7 +8,7 @@ import android.content.pm.ProviderInfo;
 import android.os.Build;
 
 import com.limpoxe.fairy.core.PluginLoader;
-import com.limpoxe.fairy.core.manager.PluginManagerProvider;
+import com.limpoxe.fairy.manager.PluginManagerProvider;
 
 public class ProcessUtil {
 

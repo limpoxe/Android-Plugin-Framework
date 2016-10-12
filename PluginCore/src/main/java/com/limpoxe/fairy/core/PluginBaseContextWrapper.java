@@ -29,7 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 
-import com.limpoxe.fairy.core.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;

@@ -8,7 +8,7 @@ import android.os.Build;
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginReceiverIntent;
-import com.limpoxe.fairy.core.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 import com.limpoxe.fairy.util.RefInvoker;

@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core.systemservice;
+package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.app.ActivityManager;
 import android.app.Service;
@@ -8,7 +8,7 @@ import android.os.IBinder;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.PluginShadowService;
-import com.limpoxe.fairy.core.app.ActivityThread;
+import com.limpoxe.fairy.core.android.ActivityThread;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;

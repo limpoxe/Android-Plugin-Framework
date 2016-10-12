@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core.systemservice;
+package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -11,7 +11,7 @@ import android.widget.RemoteViews;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.PluginIntentResolver;
 import com.limpoxe.fairy.core.PluginLoader;
-import com.limpoxe.fairy.core.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;

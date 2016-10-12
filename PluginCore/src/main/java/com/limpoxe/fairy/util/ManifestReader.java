@@ -1,5 +1,10 @@
 package com.limpoxe.fairy.util;
 
+import android.util.TypedValue;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
@@ -7,11 +12,6 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import android.util.TypedValue;
 
 /**
  * Read xml document from Android's binary xml file.

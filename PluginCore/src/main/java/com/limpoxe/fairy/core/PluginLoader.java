@@ -11,14 +11,14 @@ import android.os.Handler;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.app.AndroidViewLayoutInflater;
+import com.limpoxe.fairy.core.android.AndroidViewLayoutInflater;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7ViewInflater;
-import com.limpoxe.fairy.core.manager.PluginManagerHelper;
-import com.limpoxe.fairy.core.systemservice.AndroidAppIActivityManager;
-import com.limpoxe.fairy.core.systemservice.AndroidAppINotificationManager;
-import com.limpoxe.fairy.core.systemservice.AndroidAppIPackageManager;
-import com.limpoxe.fairy.core.systemservice.AndroidOsServiceManager;
-import com.limpoxe.fairy.core.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIActivityManager;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppINotificationManager;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIPackageManager;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidOsServiceManager;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
