@@ -35,6 +35,7 @@ android {
 
 dependencies {
     //这个依赖不是必须, 引入这个库是为了增强插件间通信能力
+    //https://github.com/limpoxe/Android-ServiceManager
     compile 'com.limpoxe.support:android-servicemanager:1.0.5@aar'
 }
 
