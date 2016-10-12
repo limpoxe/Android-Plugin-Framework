@@ -244,24 +244,12 @@ public class PluginLauncher implements Serializable {
 
 	public void stopPlugin(String packageName, PluginDescriptor pluginDescriptor) {
 
-		LoadedPlugin plugin = getRunningPlugin(packageName);
+		final LoadedPlugin plugin = getRunningPlugin(packageName);
 
 		if (plugin == null) {
 			LogUtil.w("插件未运行", packageName);
 			return;
 		}
-		//
-		//退出WebView, LocalService、Activity、BroadcastReceiver、LocalBroadcastManager, Service、AssetManager、ContentProvider、fragment
-		//
-
-		//退出webview
-		LogUtil.d("退出webview");
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
-			@Override
-			public void run() {
-				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(PluginLoader.getApplication());
-			}
-		});
 
 		//退出LocalService
 		LogUtil.d("退出LocalService");
@@ -302,14 +290,24 @@ public class PluginLauncher implements Serializable {
 			}
 		}
 
-		//退出BroadcastReceiver
-		//广播一般有个注册方式
-		//1、activity、service注册
-		//		这种方式，在上一步Activitiy、service退出时会自然退出，所以不用处理
-		//2、application注册
-		//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
-		LogUtil.d("退出BroadcastReceiver");
-		((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
+		//退出webview
+		LogUtil.d("还原WebView Context");
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			@Override
+			public void run() {
+				//这个方法需要在UI线程运行
+				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(PluginLoader.getApplication());
+
+				//退出BroadcastReceiver
+				//广播一般有个注册方式
+				//1、activity、service注册
+				//		这种方式，在上一步Activitiy、service退出时会自然退出，所以不用处理
+				//2、application注册
+				//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
+				LogUtil.d("退出BroadcastReceiver");
+				((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
+			}
+		});
 
 		//退出AssetManager
 		//pluginDescriptor.getPluginContext().getResources().getAssets().close();

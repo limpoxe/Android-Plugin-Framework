@@ -16,12 +16,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.compat.CompatForSharedPreferencesImpl;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.multidex.PluginMultiDexHelper;
+import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
 import com.plugin.util.RefInvoker;
 
@@ -206,20 +208,28 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	@Override
 	public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
-		receivers.add(receiver);
+		//某些情况下switchWebViewContext会触发chrome调用NetworkChangeNotifierAutoDetect$WifiManagerDelegate.getWifiSSID
+		//第一个参数传了null
+		if (receiver != null) {
+			receivers.add(receiver);
+		}
 		return super.registerReceiver(receiver, filter);
 	}
 
 	@Override
 	public void unregisterReceiver(BroadcastReceiver receiver) {
-		super.unregisterReceiver(receiver);
-		receivers.remove(receiver);
+		if (receivers.contains(receiver)) {
+			super.unregisterReceiver(receiver);
+			receivers.remove(receiver);
+		}
 	}
 
 	public void unregisterAllReceiver() {
 		for (BroadcastReceiver br:
 			 receivers) {
-			super.unregisterReceiver(br);
+			if (br != null) {
+				super.unregisterReceiver(br);
+			}
 		}
 		receivers.clear();
 	}

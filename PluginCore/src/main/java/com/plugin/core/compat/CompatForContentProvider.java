@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.plugin.core.PluginLoader;
+import com.plugin.util.LogUtil;
 import com.plugin.util.RefInvoker;
 
 /**
@@ -19,7 +20,12 @@ public class CompatForContentProvider {
         ContentResolver resolver = PluginLoader.getApplication().getContentResolver();
 
         if (Build.VERSION.SDK_INT >= 11) {
-            return resolver.call(uri, method, arg, extras);
+            try {
+                return resolver.call(uri, method, arg, extras);
+            } catch (Exception e) {
+                LogUtil.e("call uri fail", uri, method, arg, extras);
+            }
+            return null;
         } else {
             ContentProviderClient client = resolver.acquireContentProviderClient(uri);
             if (client == null) {
