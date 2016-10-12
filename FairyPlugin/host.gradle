@@ -39,8 +39,8 @@ afterEvaluate {
                     into(destPath)
                 }
             } else {
-                println '编译宿主资源时插入' + buildscript.sourceURI + '/public.xml 到' + destPath + ', 用来控制宿主资源id分组'
                 String url = buildscript.sourceURI.toString().replaceFirst("[a-zA-Z\\.]*\$", "public.xml")
+                println '编译宿主资源时插入' + url + ' 到' + destPath + ', 用来控制宿主资源id分组'
                 HttpURLConnection httpConn =(HttpURLConnection)(new URL(url).openConnection())
                 InputStream inputStream = httpConn.getInputStream()
                 OutputStream ouput =new FileOutputStream(new File(destPath, "public.xml"))
