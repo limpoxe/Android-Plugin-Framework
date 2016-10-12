@@ -180,7 +180,7 @@
 
   4、插件apk的Context和LayoutInfalter
   
-    构造一个Context对象即可，具体的Context实现请参考PluginCore/src/com/plugin/core/PluginContextTheme.java
+    构造一个Context对象即可，具体的Context实现请参考PluginContextTheme.java
     关键是要重写几个获取资源、主题的方法，以及重写getClassLoader方法，再从构造粗来的context中获取LayoutInfalter
 
   6、插件代码无约定无规范约束。

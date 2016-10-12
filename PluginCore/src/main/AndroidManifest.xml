@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.plugin.core"
+    package="com.limpoxe.fairy"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -11,8 +11,8 @@
     <application>
 
         <provider
-            android:authorities="${applicationId}.manager.pluginmanager"
-            android:name=".manager.PluginManagerProvider"
+            android:authorities="${applicationId}.manager"
+            android:name=".core.manager.PluginManagerProvider"
             android:process=":plugin"
             android:exported="false"
             />
