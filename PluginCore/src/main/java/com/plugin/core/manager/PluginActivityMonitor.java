@@ -10,6 +10,7 @@ import com.plugin.core.PluginClassLoader;
 import com.plugin.core.PluginContextTheme;
 
 import java.util.HashMap;
+import java.util.Queue;
 
 public class PluginActivityMonitor {
 
@@ -31,6 +32,18 @@ public class PluginActivityMonitor {
 
 				activity.registerReceiver(br, new IntentFilter(pluginId + ACTION_UN_INSTALL_PLUGIN));
 			}
+		}
+	}
+
+	public void onActivityResume(Activity activity) {
+		if (!activity.isChild()) {
+
+		}
+	}
+
+	public void onActivityPause(Activity activity) {
+		if (!activity.isChild()) {
+
 		}
 	}
 

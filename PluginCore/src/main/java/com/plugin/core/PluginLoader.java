@@ -32,6 +32,7 @@ public class PluginLoader {
 
 	private static Application sApplication;
 	private static boolean isLoaderInited = false;
+	private static int sLoadingResId;
 
 	private PluginLoader() {
 	}
@@ -49,7 +50,6 @@ public class PluginLoader {
 	 * @param app
 	 */
 	public static synchronized void initLoader(Application app) {
-
 		if (!isLoaderInited) {
 			LogUtil.v("插件框架初始化中...");
 
@@ -172,8 +172,11 @@ public class PluginLoader {
 
 	@SuppressWarnings("rawtypes")
 	public static Class loadPluginClassByName(String clazzName) {
-
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(clazzName);
+		return loadPluginClassByName(pluginDescriptor, clazzName);
+	}
+
+	public static Class loadPluginClassByName(PluginDescriptor pluginDescriptor, String clazzName) {
 
 		if (pluginDescriptor != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
@@ -199,7 +202,6 @@ public class PluginLoader {
 		LogUtil.e("loadPluginClass Fail for clazzName ", clazzName, pluginDescriptor==null?"pluginDescriptor = null":"pluginDescriptor not null");
 
 		return null;
-
 	}
 
 	/**
@@ -317,6 +319,14 @@ public class PluginLoader {
 
 		}
 		return result;
+	}
+
+	public static void setLoadingResId(int resId) {
+		sLoadingResId = resId;
+	}
+
+	public static int getLoadingResId() {
+		return sLoadingResId;
 	}
 
 }

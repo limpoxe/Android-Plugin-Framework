@@ -25,6 +25,7 @@ import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.PluginContainer;
 import com.plugin.core.app.ActivityThread;
 import com.plugin.core.compat.CompatForSupportv7_23_2;
+import com.plugin.core.loading.WaitForLoadingPluginActivity;
 import com.plugin.core.manager.PluginManagerHelper;
 import com.plugin.util.LogUtil;
 import com.plugin.util.ProcessUtil;
@@ -110,6 +111,9 @@ public class PluginInjector {
 	}
 
 	static void injectActivityContext(Activity activity) {
+		if (activity instanceof WaitForLoadingPluginActivity) {
+			return;
+		}
 
 		LogUtil.v("injectActivityContext");
 

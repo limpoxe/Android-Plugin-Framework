@@ -18,6 +18,7 @@ import android.text.TextUtils;
 import com.plugin.content.PluginDescriptor;
 import com.plugin.core.annotation.AnnotationProcessor;
 import com.plugin.core.annotation.PluginContainer;
+import com.plugin.core.loading.WaitForLoadingPluginActivity;
 import com.plugin.core.localservice.LocalServiceManager;
 import com.plugin.core.manager.PluginActivityMonitor;
 import com.plugin.core.manager.PluginManagerHelper;
@@ -29,6 +30,8 @@ import com.plugin.util.RefInvoker;
 
 import java.util.Iterator;
 import java.util.Set;
+
+import static com.plugin.core.PluginLauncher.instance;
 
 /**
  * 插件Activity免注册的主要实现原理。 如有必要，可以增加被代理的方法数量。
@@ -88,7 +91,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		if (ProcessUtil.isPluginProcess()) {
 			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 			if (pluginDescriptor != null) {
-				return PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginApplication;
+				return instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginApplication;
 			}
 		}
 		return super.newApplication(cl, className, context);
@@ -114,7 +117,17 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					String[] targetClassName  = action.split(PluginIntentResolver.CLASS_SEPARATOR);
 					String pluginClassName = targetClassName[0];
 
-					Class clazz = PluginLoader.loadPluginClassByName(pluginClassName);
+					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(pluginClassName);
+
+					if (pluginDescriptor != null) {
+						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+						if (!isRunning) {
+							return waitForLoading(pluginDescriptor);
+						}
+					}
+
+					Class clazz = PluginLoader.loadPluginClassByName(pluginDescriptor, pluginClassName);
+
 					if (clazz != null) {
 						className = pluginClassName;
 						cl = clazz.getClassLoader();
@@ -132,8 +145,19 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						throw new ClassNotFoundException("pluginClassName : " + pluginClassName, new Throwable());
 					}
 				} else if (PluginManagerHelper.isExact(className, PluginDescriptor.ACTIVITY)) {
+
 					//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
-					Class clazz = PluginLoader.loadPluginClassByName(className);
+					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+
+					if (pluginDescriptor != null) {
+						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+						if (!isRunning) {
+							return waitForLoading(pluginDescriptor);
+						}
+					}
+
+					Class clazz = PluginLoader.loadPluginClassByName(pluginDescriptor, className);
+
 					if (clazz != null) {
 						cl = clazz.getClassLoader();
 					} else {
@@ -152,7 +176,17 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 							if (cate.startsWith(RELAUNCH_FLAG)) {
 								className = cate.replace(RELAUNCH_FLAG, "");
 
-								Class clazz = PluginLoader.loadPluginClassByName(className);
+								PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+
+								if (pluginDescriptor != null) {
+									boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+									if (!isRunning) {
+										return waitForLoading(pluginDescriptor);
+									}
+								}
+
+								Class clazz = PluginLoader.loadPluginClassByName(pluginDescriptor, className);
+
 								cl = clazz.getClassLoader();
 								found = true;
 								break;
@@ -193,6 +227,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		}
 	}
 
+	private Activity waitForLoading(PluginDescriptor pluginDescriptor) {
+		WaitForLoadingPluginActivity waitForLoadingPluginActivity = new WaitForLoadingPluginActivity();
+		waitForLoadingPluginActivity.setTargetPlugin(pluginDescriptor);
+		return waitForLoadingPluginActivity;
+	}
+
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
 
@@ -214,7 +254,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 			installPluginViewFactory(activity);
 
-			AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
+			if (activity instanceof WaitForLoadingPluginActivity) {
+				//NOTHING
+			} else {
+				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
+			}
 
 			if (activity.isChild()) {
 				//修正TabActivity中的Activity的ContextImpl的packageName
@@ -301,6 +345,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void callActivityOnResume(Activity activity) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
 		super.callActivityOnResume(activity);
+
+		monitor.onActivityResume(activity);
 	}
 
 	@Override
@@ -324,6 +370,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	public void callActivityOnPause(Activity activity) {
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
 		super.callActivityOnPause(activity);
+
+		monitor.onActivityPause(activity);
 	}
 
 	@Override

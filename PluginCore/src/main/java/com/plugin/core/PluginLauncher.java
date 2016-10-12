@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
 
 import com.plugin.content.LoadedPlugin;
 import com.plugin.content.PluginDescriptor;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dalvik.system.DexClassLoader;
 
@@ -49,7 +51,7 @@ public class PluginLauncher implements Serializable {
 
 	private static PluginLauncher runtime;
 
-	private HashMap<String, LoadedPlugin> loadedPluginMap = new HashMap<String, LoadedPlugin>();
+	private ConcurrentHashMap<String, LoadedPlugin> loadedPluginMap = new ConcurrentHashMap<String, LoadedPlugin>();
 
 	private PluginLauncher() {
 		if (!ProcessUtil.isPluginProcess()) {
@@ -80,7 +82,24 @@ public class PluginLauncher implements Serializable {
 		return null;
 	}
 
-	public LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
+	public void startPluginAsync(final PluginDescriptor pluginDescriptor, final Handler handler) {
+		if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					final LoadedPlugin loadedPlugin = startPlugin(pluginDescriptor);
+					Message msg = handler.obtainMessage(0);
+					msg.obj = loadedPlugin;
+					msg.sendToTarget();
+				}
+			}).start();
+		} else {
+			startPlugin(pluginDescriptor);
+		}
+
+	}
+
+	public synchronized LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
 		LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
 		if (plugin == null) {
 
@@ -108,7 +127,7 @@ public class PluginLauncher implements Serializable {
 			long t12 = System.currentTimeMillis();
 			LogUtil.i("初始化插件DexClassLoader耗时:" + (t12 - t1));
 
-			Context pluginContext = PluginCreator.createPluginContext(
+			PluginContextTheme pluginContext = (PluginContextTheme)PluginCreator.createPluginContext(
 					pluginDescriptor,
 					PluginLoader.getApplication().getBaseContext(),
 					pluginRes,
@@ -127,28 +146,37 @@ public class PluginLauncher implements Serializable {
 
 			loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
 
-			Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader, pluginDescriptor);
-
-			plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
-
-			long t3 = System.currentTimeMillis();
-			LogUtil.i("初始化插件Application耗时:" + (t3 - t13));
-
-			try {
-				ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
-						pluginClassLoader, pluginRes, pluginApplication);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+			if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+				initApplication(pluginContext, pluginClassLoader, pluginRes, pluginDescriptor, plugin);
+			} else {
+				//交给startPluginAsync中的post处理
 			}
-
-			long endAt = System.currentTimeMillis();
-			LogUtil.i("初始化插件" + pluginDescriptor.getPackageName() + "完成, 总耗时:" + (endAt - startAt));
 
 		} else {
 			//LogUtil.d("IS RUNNING", packageName);
 		}
 
 		return plugin;
+	}
+
+	public void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
+		long t13 = System.currentTimeMillis();
+
+		Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader, pluginDescriptor);
+
+		plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
+
+		long t3 = System.currentTimeMillis();
+		LogUtil.i("初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName() + ", 耗时:" + (t3 - t13));
+
+		try {
+			ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
+					pluginClassLoader, pluginRes, pluginApplication);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		LogUtil.w("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}
 
 	private Application callPluginApplicationOnCreate(Context pluginContext, DexClassLoader classLoader, PluginDescriptor pluginDescriptor) {
