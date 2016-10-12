@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TabHost;
 
-import com.plugin.core.PluginIntentResolver;
+import com.limpoxe.fairy.core.PluginIntentResolver;
 
 @SuppressWarnings("ALL")
 public class TestTabActivity extends TabActivity {

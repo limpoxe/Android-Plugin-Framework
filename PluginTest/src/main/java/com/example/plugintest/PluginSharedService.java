@@ -2,7 +2,7 @@ package com.example.plugintest;
 
 import com.example.pluginsharelib.SharePOJO;
 import com.example.pluginsharelib.ShareService;
-import com.plugin.util.LogUtil;
+import com.limpoxe.fairy.util.LogUtil;
 
 /**
  * Created by cailiming on 16/5/18.

@@ -4,7 +4,7 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.plugin.util.LogUtil;
+import com.limpoxe.fairy.util.LogUtil;
 
 /**
  * Created by cailiming on 16/9/9.

@@ -18,7 +18,7 @@ import com.example.pluginsharelib.SharePOJO;
 import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
-import com.plugin.util.LogUtil;
+import com.limpoxe.fairy.util.LogUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;

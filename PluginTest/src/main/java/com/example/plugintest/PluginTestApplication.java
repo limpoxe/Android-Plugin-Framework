@@ -5,7 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.plugin.util.LogUtil;
+import com.limpoxe.fairy.util.LogUtil;
 
 public class PluginTestApplication extends  Application {
 

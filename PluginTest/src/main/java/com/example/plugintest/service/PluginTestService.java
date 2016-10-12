@@ -10,7 +10,7 @@ import android.widget.Toast;
 import com.example.plugintest.IMyAidlInterface;
 import com.example.plugintest.R;
 import com.example.plugintest.vo.ParamVO;
-import com.plugin.util.LogUtil;
+import com.limpoxe.fairy.util.LogUtil;
 
 /**
  * @author cailiming

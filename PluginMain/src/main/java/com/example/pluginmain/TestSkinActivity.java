@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.plugin.core.PluginThemeHelper;
+import com.limpoxe.fairy.core.PluginThemeHelper;
 
 import java.util.HashMap;
 import java.util.Iterator;

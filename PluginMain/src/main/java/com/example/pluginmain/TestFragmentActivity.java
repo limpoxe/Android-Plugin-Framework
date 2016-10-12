@@ -8,8 +8,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.plugin.core.PluginLoader;
-import com.plugin.core.annotation.PluginContainer;
+import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.annotation.PluginContainer;
 
 /**
  * 一个非常普通的FragmentActivty， 用来展示一个来自插件中的fragment。

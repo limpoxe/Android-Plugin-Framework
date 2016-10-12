@@ -96,5 +96,5 @@
 
 # 保护PluginCore不受混淆影响 Begin
 -keep public class * extends android.app.Instrumentation {public *;}
--keep public class com.plugin.core.annotation.** {*;}
+-keep public class * extends android.content.ContextWrapper {public *;}
 # 保护PluginCore不受混淆影响 End

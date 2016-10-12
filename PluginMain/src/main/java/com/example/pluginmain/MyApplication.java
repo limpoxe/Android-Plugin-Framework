@@ -1,8 +1,8 @@
 package com.example.pluginmain;
 
-import com.plugin.core.PluginApplication;
-import com.plugin.core.PluginLoader;
-import com.plugin.util.ProcessUtil;
+import com.limpoxe.fairy.core.PluginApplication;
+import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.util.ProcessUtil;
 
 public class MyApplication extends PluginApplication {
 	@Override

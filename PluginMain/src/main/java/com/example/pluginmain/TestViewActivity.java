@@ -6,7 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.plugin.core.annotation.PluginContainer;
+import com.limpoxe.fairy.core.annotation.PluginContainer;
 
 @PluginContainer
 public class TestViewActivity extends AppCompatActivity {
