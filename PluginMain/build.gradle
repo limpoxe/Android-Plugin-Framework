@@ -78,4 +78,4 @@ dependencies {
     compile project(':PluginShareLib')
 }
 
-apply from: './host.gradle'
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"

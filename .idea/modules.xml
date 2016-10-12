@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android-Plugin-Framework.iml" filepath="$PROJECT_DIR$/Android-Plugin-Framework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FairyPlugin/FairyPlugin.iml" filepath="$PROJECT_DIR$/FairyPlugin/FairyPlugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/PluginBase/PluginBase.iml" filepath="$PROJECT_DIR$/PluginBase/PluginBase.iml" />
       <module fileurl="file://$PROJECT_DIR$/PluginHelloWorld/PluginHelloWorld.iml" filepath="$PROJECT_DIR$/PluginHelloWorld/PluginHelloWorld.iml" />
       <module fileurl="file://$PROJECT_DIR$/PluginMain/PluginMain.iml" filepath="$PROJECT_DIR$/PluginMain/PluginMain.iml" />
