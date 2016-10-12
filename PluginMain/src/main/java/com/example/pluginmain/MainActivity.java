@@ -62,13 +62,13 @@ public class MainActivity extends AppCompatActivity {
 		// 监听插件安装 安装新插件后刷新当前页面
 		registerReceiver(pluginInstallEvent, new IntentFilter(PluginCallback.ACTION_PLUGIN_CHANGED));
 
-//		//测试利用Action打开在宿主中唤起插件receiver
-//		Intent intent = new Intent("test.rst2");//两个Receive都配置了这个aciton，这里可以同时唤起两个Receiver
-//		intent.putExtra("testParam", "testParam");
-//		sendBroadcast(intent);
+		//测试利用Action打开在宿主中唤起插件receiver
+		//Intent intent = new Intent("test.rst2");//两个Receive都配置了这个aciton，这里可以同时唤起两个Receiver
+		//intent.putExtra("testParam", "testParam");
+		//sendBroadcast(intent);
 
 		//测试通过宿主service唤起插件service
-		startService(new Intent(this, MainService.class));
+		//startService(new Intent(this, MainService.class));
 	}
 
 	private void initView() {
