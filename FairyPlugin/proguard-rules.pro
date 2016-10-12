@@ -16,7 +16,7 @@
 #   public *;
 #}
 
-# 保护PluginCore不受混淆影响 Begin
+# 保护FairyPlugin不受混淆影响 Begin
 -keep public class * extends android.app.Instrumentation {public *;}
 -keep public class * extends android.content.ContextWrapper {public *;}
-# 保护PluginCore不受混淆影响 End
+# 保护FairyPlugin不受混淆影响 End

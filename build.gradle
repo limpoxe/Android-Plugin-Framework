@@ -5,6 +5,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
+
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+
         //编译时注解
         //classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2',  http://blog.csdn.net/zjbpku/article/details/22976291
     }

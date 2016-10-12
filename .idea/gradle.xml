@@ -10,8 +10,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/FairyPlugin" />
             <option value="$PROJECT_DIR$/PluginBase" />
-            <option value="$PROJECT_DIR$/PluginCore" />
             <option value="$PROJECT_DIR$/PluginHelloWorld" />
             <option value="$PROJECT_DIR$/PluginMain" />
             <option value="$PROJECT_DIR$/PluginShareLib" />
