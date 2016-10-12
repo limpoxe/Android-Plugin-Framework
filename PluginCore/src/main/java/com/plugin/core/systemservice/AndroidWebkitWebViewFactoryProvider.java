@@ -26,7 +26,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
         //Debug.waitForDebugger();
         if (Build.VERSION.SDK_INT >= 19) {
             LogUtil.d("安装WebViewFactoryProviderProxy");
-            //在4。4及以上，这里的WebViewFactoryProvider的实际类型是
+            //在4.4及以上，这里的WebViewFactoryProvider的实际类型是
             // com.android.webview.chromium.WebViewChromiumFactoryProvider implements WebViewFactoryProvider
             Object webViewFactoryProvider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
             if (webViewFactoryProvider != null) {
@@ -61,10 +61,23 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
         }
     }
 
+    /**
+     * 这个方法是解决如下问题:
+     *      目前插件进程是多个插件共享的, 而Webview的全局Context是进程唯一的。
+     *      要让哪个插件能加载插件自己的Assets目录下的本地HTML, 就的将Webview的全局Context设置为哪个插件的AppContext
+     *
+     *      但是当有多个插件在自己的Assets目录下的存在本地HTML文件时,
+     *      Webview的全局Context无论设置为哪个插件的AppContext,
+     *      都会导致另外一个插件的Asest下的HTML文件加载不出来。
+     *
+     *      因此每次切换Activity的时候都尝试将Webview的全局Context切换到当前Activity所在的AppContext
+     *
+     * @param pluginActivity
+     */
     public static void switchWebViewContext(Context pluginActivity) {
-        LogUtil.d("切换WebView Context");
+        LogUtil.d("尝试切换WebView Context, 不同的WebView内核, 实现方式可能不同, 本方法基于Chrome的WebView实现");
         WebView wb = new WebView(pluginActivity);
-        wb.loadUrl("");
+        wb.loadUrl("");//触发下面的fixWebViewAsset方法
     }
 
     private static void fixWebViewAsset(Context context) {
@@ -103,6 +116,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                             }
                             try {
                                 method.invoke(null, new Object[]{context.getApplicationContext()});
+                                LogUtil.d("触发了切换WebView Context");
                             } catch (IllegalAccessException e) {
                             } catch (IllegalArgumentException e) {
                             } catch (InvocationTargetException e) {
@@ -110,21 +124,25 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                         }
                     } catch (NoSuchMethodException ex) {
                         try{
-                            //compat for Chrome version 52
+                            // 不同的Chrome版本, 初始化的方法不同
+                            // for Chrome version 52
                             sContextUtils = Class.forName("org.chromium.base.ContextUtils", true, cl);
                         } catch (ClassNotFoundException e) {
                         }
                         if (sContextUtils != null) {
                             RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
                             RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
+                            LogUtil.d("触发了切换WebView Context");
                         }
                     }
                 }
             } else {
                 RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
                 RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
-                //52.0.2743.98
+                // 不同的Chrome版本, 初始化的方法不同
+                // for Chrome version 52.0.2743.98
                 RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContextForNative", (Class[])null, (Object[])null);
+                LogUtil.d("触发了切换WebView Context");
             }
 
         } catch (Exception e) {

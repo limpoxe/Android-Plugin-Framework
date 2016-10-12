@@ -121,7 +121,7 @@ public class PluginClassLoader extends DexClassLoader {
 			if (clazz == null && dependencies != null) {
 				for (String dependencePluginId: dependencies) {
 
-					//插件可能尚未初始化，确保使用前已经初始化
+					//被依赖的插件可能尚未初始化，确保使用前已经初始化
 					LoadedPlugin plugin = PluginLauncher.instance().startPlugin(dependencePluginId);
 
 					if (plugin != null) {

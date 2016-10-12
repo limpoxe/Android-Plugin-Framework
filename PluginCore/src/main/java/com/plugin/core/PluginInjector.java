@@ -110,13 +110,22 @@ public class PluginInjector {
 	}
 
 	static void injectActivityContext(Activity activity) {
-		Intent intent = activity.getIntent();
-		PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
-		// 如果是打开插件中的activity,
-		// 或者是打开的用来显示插件组件的宿主activity
-		boolean isStubActivity = PluginManagerHelper.isStub(intent.getComponent().getClassName());
-		if (ProcessUtil.isPluginProcess()
-				&& (isStubActivity || container != null)) {
+
+		LogUtil.v("injectActivityContext");
+
+		PluginContainer container = null;
+		boolean isStubActivity = false;
+
+		if (ProcessUtil.isPluginProcess()) {
+			// 如果是打开插件中的activity,
+			Intent intent = activity.getIntent();
+			isStubActivity = PluginManagerHelper.isStub(intent.getComponent().getClassName());
+
+			// 或者是打开的用来显示插件组件的宿主activity
+			container = AnnotationProcessor.getPluginContainer(activity.getClass());
+		}
+
+		if (isStubActivity || container != null) {
 
 			// 在activityoncreate之前去完成attachBaseContext的事情
 

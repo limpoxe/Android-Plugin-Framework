@@ -106,7 +106,7 @@ public class PluginLauncher implements Serializable {
 							pluginDescriptor.getMuliDexList());
 
 			long t12 = System.currentTimeMillis();
-			LogUtil.w("初始化插件DexClassLoader耗时:" + (t12 - t1));
+			LogUtil.i("初始化插件DexClassLoader耗时:" + (t12 - t1));
 
 			Context pluginContext = PluginCreator.createPluginContext(
 					pluginDescriptor,
@@ -132,7 +132,7 @@ public class PluginLauncher implements Serializable {
 			plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
 
 			long t3 = System.currentTimeMillis();
-			LogUtil.w("初始化插件Application耗时:" + (t3 - t13));
+			LogUtil.i("初始化插件Application耗时:" + (t3 - t13));
 
 			try {
 				ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,

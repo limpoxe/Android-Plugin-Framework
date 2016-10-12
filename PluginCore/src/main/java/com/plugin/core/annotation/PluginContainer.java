@@ -7,8 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 在宿主程序的activity中标记这个注解，
- * 用来通知插件框架，宿主的这个activity也需要替换上下文，用来嵌入来自其他插件的组件
+ * 在activity中标记这个注解，
+ * 用来通知插件框架，这个activity需要替换上下文，用来嵌入来自其他插件的组件
+ * 同时配置了这个注解的Activity需要运行再插件进程中
  */
 
 @Target(ElementType.TYPE)

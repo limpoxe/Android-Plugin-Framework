@@ -212,11 +212,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		if (ProcessUtil.isPluginProcess()) {
 
-			PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
-			// 如果配置了插件容器注解而且指定了插件Id, 框架会自动更换activity的context,无需安装PluginViewFactory
-			if (container != null && TextUtils.isEmpty(container.pluginId())) {
-				new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
-			}
+			installPluginViewFactory(activity);
 
 			AndroidWebkitWebViewFactoryProvider.switchWebViewContext(activity);
 
@@ -239,6 +235,13 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 	}
 
+	private void installPluginViewFactory(Activity activity) {
+		PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
+		// 如果配置了插件容器注解而且指定了插件Id, 框架会自动更换activity的context,无需安装PluginViewFactory
+		if (container != null && TextUtils.isEmpty(container.pluginId())) {
+			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
+		}
+	}
 
 	@Override
 	public void callActivityOnDestroy(Activity activity) {
