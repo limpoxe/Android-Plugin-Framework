@@ -1,0 +1,279 @@
+import org.xml.sax.Attributes
+import org.xml.sax.SAXException
+import org.xml.sax.helpers.DefaultHandler
+
+import javax.xml.parsers.ParserConfigurationException
+import javax.xml.parsers.SAXParser
+import javax.xml.parsers.SAXParserFactory
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//在宿主脚本中apply此脚本, 此脚本一共做了4件事
+//1、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情
+//2、编译宿主资源时插入public.xml，用来控制宿主资源id分组
+//3、编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包
+//4、编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+//第1件事
+android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
+
+afterEvaluate {
+
+    for (variant in android.applicationVariants) {
+        def scope = variant.getVariantData().getScope()
+        String mergeTaskName = scope.getMergeResourcesTask().name
+        def mergeTask = tasks.getByName(mergeTaskName)
+        //第2件事
+        mergeTask.doLast {
+            String srcPath =  buildscript.sourceFile.getParentFile().absolutePath;
+            String destPath = mergeTask.outputDir.absolutePath + '/values/';
+            println '编译宿主资源时插入' + srcPath + '/public.xml 到' + destPath + ', 用来控制宿主资源id分组'
+            copy {
+                from(buildscript.sourceFile.getParentFile()) {
+                    include 'public.xml'
+                }
+                into(destPath)
+            }
+        }
+        //第3件事
+        for (baseVariant in variant.outputs) {
+            def processResourcesTask = baseVariant.getProcessResources();
+            processResourcesTask.doLast {
+                println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
+                copy {
+                    from processResourcesTask.packageOutputFile
+                    into("${project.buildDir}/outputs/")
+                    rename('resources', project.name + "-resources")
+                }
+            }
+        }
+    }
+
+    if (gradle.startParameter.taskNames.find {
+        println ">>>>>>执行命令: " + it
+        it.startsWith("assemble") || it.startsWith("build")
+    } != null) {
+        //第4件事
+        android.buildTypes.all { buildType ->
+            tasks.each { task ->
+                if (task.name.equalsIgnoreCase("assemble" + buildType.name)) {
+                    task.doLast {
+                        println '编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包'
+                        createThemePatch(buildType.name)
+                    }
+                }
+            }
+        }
+    }
+}
+
+//导出主题patch
+def createThemePatch(String buildType) {
+
+    File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch/" + buildType);
+    patchDir.mkdirs();
+
+    File generatedRes = new File(project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml");
+    File dest = new File(patchDir, "patch_theme.xml")
+
+    println "export from " + generatedRes + " to " + dest
+
+    ThemeProcessor.exportThemeStyle(generatedRes,
+            dest, android.defaultConfig.applicationId)
+
+    String mergedResDir = "${project.buildDir}/intermediates/res/merged/" + buildType + "/";
+    FileTree allxmlFiles = fileTree(dir: mergedResDir)
+    allxmlFiles.include 'values/values*.xml', 'values-v1*/values-v1*.xml', 'values-v2*/values-v2*.xml'
+    allxmlFiles.each { File itemFile ->
+        dest = new File(patchDir, 'patch_' + itemFile.name)
+
+        println "export from " + itemFile + " to " + dest
+
+        ThemeProcessor.exportThemeStyle(itemFile,
+                dest, android.defaultConfig.applicationId)
+    }
+}
+
+public class ThemeProcessor extends DefaultHandler {
+
+    public static void exportThemeStyle(File srcFile, File destFile, String packageName) {
+        try {
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            saxParser.parse(new FileInputStream(srcFile), new ThemeProcessor(destFile, packageName));
+        } catch (ParserConfigurationException e) {
+            System.out.println(e.getMessage());
+        } catch (SAXException e) {
+            System.out.println(e.getMessage());
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    ////////////////
+    ////////////////
+    ////////////////
+
+    File destFile;
+    String packageName;
+    Stack<Node> stack = new Stack<Node>();
+    BufferedWriter outXmlStream = null;
+
+    HashSet<String> attrSets = new HashSet<>();
+
+    public ThemeProcessor(File destFile, String packageName) {
+        this.destFile = destFile;
+        this.packageName = packageName;
+    }
+
+    public void startDocument() throws SAXException {
+        try {
+            outXmlStream = new BufferedWriter(new FileWriter(destFile));
+            outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+
+        if (qName.equals("bool") || qName.equals("color") || qName.equals("dimen") || qName.equals("eat-comment")
+                || qName.equals("integer") || qName.equals("string")) {
+            stack.add(new Node(attributes.getValue("name"), false, true));
+            return;
+        }
+
+        boolean skip = false;
+        if (!qName.equals("declare-styleable")) {
+            String space = "\n";
+            for (int i = 0; i < stack.size(); i++) {
+                space = space + "    ";
+            }
+            String tag = space + "<" + qName;
+            for (int i = 0; i < attributes.getLength(); i++) {
+                tag = tag + " " + attributes.getQName(i) + "=\""+ attributes.getValue(i) + "\"";
+            }
+            tag = tag + ">";
+            try {
+                if (qName.equals("attr") && (attributes.getValue("name").startsWith("android:") || !attrSets.add(attributes.getValue("name")))
+                     || (qName.equals("public") && (!attributes.getValue("type").equals("attr") || attributes.getValue("name").startsWith("public_static_final_")))) {
+                    //skip
+                    skip = true;
+                } else {
+                    outXmlStream.write(tag);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!stack.empty()) {
+            Node top = stack.peek();
+            top.hasChild = true;
+        }
+        stack.add(new Node(attributes.getValue("name"), false, skip));
+    }
+
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+
+        Node node = stack.pop();
+        if (node.skip) {
+            return;
+        }
+
+        if (!qName.equals("declare-styleable")) {
+            String space = "";
+            if (node.hasChild) {
+                space = "\n";
+                for (int i = 0; i < stack.size(); i++) {
+                    space = space + "    ";
+                }
+            }
+            try {
+                outXmlStream.write(space + "</" + qName +">");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        Node node = stack.peek();
+        if (node.skip) {
+            return;
+        }
+
+        String text = new String(ch, start, length);
+        text = text.replaceAll("[\n ]", "");
+        if (text.length() > 0) {
+            try {
+                if (text.startsWith("@color")) {
+                    text = text.replace("@color", "@*" + packageName +":color");
+
+                } else if (text.startsWith("@dimen")) {
+                    text = text.replace("@dimen", "@*" + packageName +":dimen");
+
+                } else if (text.startsWith("@string")) {
+                    text = text.replace("@string", "@*" + packageName +":string");
+
+                } else if (text.startsWith("@bool")) {
+                    text = text.replace("@bool", "@*" + packageName +":bool");
+
+                } else if (text.startsWith("@integer")) {
+                    text = text.replace("@integer", "@*" + packageName +":integer");
+
+                } else if (text.startsWith("@layout")) {
+                    text = text.replace("@layout", "@*" + packageName +":layout");
+
+                } else if (text.startsWith("@anim")) {
+                    text = text.replace("@anim", "@*" + packageName +":anim");
+
+                } else if (text.startsWith("@id")) {
+                    text = text.replace("@id", "@*" + packageName +":id");
+
+                } else if (text.startsWith("@drawable")) {
+                    text = text.replace("@drawable", "@*" + packageName +":drawable");
+
+                    //} else if (text.startsWith("?attr")) {
+                    //    text = text.replace("?attr", "?*" + packageName +":attr");
+                }
+
+                outXmlStream.write(text);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void endDocument() throws SAXException {
+        try {
+            outXmlStream.flush();
+            outXmlStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class Node {
+        String name = null;
+        boolean hasChild = false;
+        boolean skip = false;
+
+        public Node(String name, boolean hasChild, boolean skip) {
+            this.name = name;
+            this.hasChild = hasChild;
+            this.skip = skip;
+        }
+    }
+
+}

@@ -74,8 +74,8 @@ android {
 }
 
 dependencies {
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.2@aar')
     compile project(':PluginShareLib')
-    compile project(':PluginCore')
 }
 
-apply from: project(':PluginCore').projectDir.absolutePath + "/host.gradle"
+apply from: './host.gradle'
