@@ -24,6 +24,11 @@ android {
         versionName "1.0"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
@@ -75,7 +80,7 @@ android {
 
 dependencies {
     compile('com.limpoxe.fairy:FairyPlugin:0.0.2@aar') {
-        transitive true
+        transitive true //需要显式指定为true,拉取间接依赖
     }
     compile project(':PluginShareLib')
 }
