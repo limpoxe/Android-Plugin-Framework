@@ -1,9 +1,95 @@
 # Android-Plugin-Framework
 
-
 此项目是Android插件开发框架完整源码及示例。用来通过动态加载的方式在宿主程序中运行插件APK。
 
+# 如何使用
 
+    1、新建一个工程, 作为宿主工程
+    
+    2、在宿主工程的build.gradle文件下添加如下3个配置
+        
+        repositories {
+            maven {
+                url 'https://dl.bintray.com/limpoxe/maven/'
+            }
+        }
+        
+        dependencies {
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.2@aar') {
+                transitive true
+            }
+        }
+        
+        apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
+        
+    3、在宿主工程中新建一个类继承自Application类, 并配置到AndroidManifest.xml中
+       重写这个类的2个方法
+       
+        @Override
+        protected void attachBaseContext(Context base) {
+            super.attachBaseContext(base);
+            PluginLoader.initLoader(this);
+            //这个方法是设置首次加载插件时, 定制loading页面的UI, 不传即默认没有loading页
+            //在宿主中创建任意一个layout传进去即可
+            PluginLoader.setLoadingResId(R.layout.loading);
+        }
+
+	    @Override
+	    public Context getBaseContext() {
+		    return PluginLoader.fixBaseContextForReceiver(super.getBaseContext());
+	    }
+	    
+	4、在宿主工程中通过下面3个方法进行插件操作
+	    安装: PluginManagerHelper.installPlugin( SDcard上插件apk的路径 );
+	    卸载: PluginManagerHelper.remove( 插件packageName );
+	    列表: PluginManagerHelper.getPlugins();
+	    
+	5、在宿主中打开插件
+	
+	    //打开插件的Launcher界面
+	    Intent launchIntent = getPackageManager().getLaunchIntentForPackage( 插件packageName );			
+    	startActivity(launchIntent);
+    	
+    
+    ------------------------------------
+    ----下面是插件工程相关的说明
+    ------------------------------------
+    
+    1、新建一个插件工程
+    
+    2、如果是独立插件,无需任何配置,编译出来即可当插件apk安装到宿主中
+    
+    3、如果是非独立插件, 需要下面2个步骤
+     
+        3.1、在插件AndroidManifest.xml中manifest节点中增加如下配置:
+             
+             <manifest
+                    android:sharedUserId="这里填写宿主工程包名"/>
+                            
+        3.2、在build.gradle中加入如下3个配置
+    
+            dependencies {
+                //这个配置的意思是使插件依赖宿主的jar, 依赖宿主依赖的aar中的jar
+                //根据自己的实际情况修改为想要依赖的jar的路径即可
+                provided files(project(':PluginMain').getBuildDir().absolutePath + '/xxx/xxx/xxx.jar')
+            }
+            
+            ext {
+                //这2个常量在下面的apply的脚本中要用到
+                //host_output_dir表示指定宿主工程的编译输出目录
+                //host_ap_path表示指定宿主工程编译后的中间产物 .ap_ 文件的路径
+                host_output_dir = project(':PluginMain').getBuildDir().absolutePath + "/outputs"
+                host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
+            }
+        
+            apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+              
+        
+    4、如果是非独立插件, 需要先编译宿主, 再编译插件, 因为从如上的配置可以看出非独立插件编译时需要依赖宿主编译时的输出物
+    
+    
+    以上所以内容及更多详情可以参考Demo
+ 
 # 已支持的功能：
   1、插件apk无需安装，由宿主程序动态加载运行。
   
@@ -33,7 +119,7 @@
 
   13、支持在插件中注册全局服务：即在某个插件中注册一个服务，在其他插件中通过LocalServiceManager或者直接使用getSystemService获取这个服务
 
-# 暂不支持的功能：
+# 不支持的功能：
 
   1、插件Activity切换动画不支持使用插件自己的资源。
   
@@ -47,6 +133,64 @@
   5、Notification在5.x以下不支持使用插件资源, 在5.x及以上仅支持在RemoteView中使用插件资源
   
   6、插件依赖另一个插件时，被插件依赖的插件暂不支持包含资源
+
+# 目录结构说明：
+
+  1、FairyPlugin工程是插件库核心工程，用于提供对插件功能的支持。
+
+  2、PluginMain是用来测试的宿主程序Demo工程。
+
+  3、PluginShareLib是用来测试非独立插件的公共依赖库Demo工程。
+  
+  4、PluginTest是用来测试的非独立插件Demo工程。
+  
+  5、PluginTest1是用来测试的独立插件Demo工程。
+  
+  6、PluginHelloWorld是用来测试的独立插件Demo工程。
+
+  7、PluginBase是用来测试的被PluginTest插件依赖的插件Demo工程（此插件被PluginTest、wxsdklibrary两个插件依赖），此插件不包含资源。
+  
+  8、wxsdklibrary是用来测试的非独立插件Demo工程。
+  
+# demo安装说明：
+
+  1、宿主程序demo工程的assets目录下已包含了编译好的独立插件demo apk和非独立插件demo apk。
+
+  2、宿主程序demo工程根目录下已包含一个已经编译好的宿主demo，可直接安装运行。
+
+  3、宿主程序demo工程源码可直接编译安装运行。
+  
+  4、插件demo工程：
+
+     1、若使用master分支：
+        直接编译即可，无特别要求。
+
+     2、若使用For-gradle-with-aapt分支：
+        将openAtlasExtention@github项目提供的BuildTools替换自己的Sdk中相应版本的BuildTools。剩下的步骤照常即可。
+
+     3、若使用For－eclipse－ide分支：
+        需要使用ant编译，关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,若编译失败，请升级androidSDK。
+
+    4、编译方法
+
+       a）如果是命令行中：
+       cd  Android-Plugin-Framework
+       ./gradlew clean
+       ./gradlew build
+
+       b）如果是studio中：
+       打开studio右侧gradle面板区，点clean、点build。不要使用菜单栏的菜单编译。
+
+       重要：
+            1、由于编译脚本依赖Task.doLast, 使用其他编译方法（如菜单编译）可能不会触发Task.doLast导致编译失败
+            2、必须先编译宿主，再编译非独立插件。（这也是使用菜单栏编译会失败的原因之一）
+               原因很简单，既然是非独立插件，肯定是需要引用宿主的类和资源的。所以编译非独立插件时会用到编译宿主时的输出物
+       
+            所以如果使用其他编译方法，请务必仔细阅读build.gradle，了解编译过程和依赖关系后可以自行调整编译脚本，否则可能会失败。
+
+       待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新打包安装PluginMain。
+       或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
+
 
 # 开发注意事项
 
@@ -88,62 +232,6 @@
     6、框架中对非独立插件做了签名校验。如果宿主是release模式，要求插件的签名和宿主的签名一致才允许安装。
        这是为了验证插件来源合法性
        
-
-# 目录结构说明：
-
-  1、FairyPlugin工程是插件库核心工程，用于提供对插件功能的支持。
-
-  2、PluginMain是用来测试的宿主程序Demo工程。
-
-  3、PluginShareLib是用来测试非独立插件的公共依赖库Demo工程。
-  
-  4、PluginTest是用来测试的非独立插件Demo工程。
-  
-  5、PluginHelloWorld是用来测试的独立插件Demo工程。
-
-  6、PluginBase是用来测试的被PluginTest插件依赖的插件Demo工程（此插件被PluginTest、wxsdklibrary两个插件依赖），此插件不包含资源。
-  
-  7、wxsdklibrary是用来测试的非独立插件Demo工程。
-  
-# demo安装说明：
-
-  1、宿主程序demo工程的assets目录下已包含了编译好的独立插件demo apk和非独立插件demo apk。
-
-  2、宿主程序demo工程根目录下已包含一个已经编译好的宿主demo，可直接安装运行。
-
-  3、宿主程序demo工程源码可直接编译安装运行。
-  
-  4、插件demo工程：
-
-     1、若使用master分支：
-        直接编译即可，无特别要求。
-
-     2、若使用For-gradle-with-aapt分支：
-        将openAtlasExtention@github项目提供的BuildTools替换自己的Sdk中相应版本的BuildTools。剩下的步骤照常即可。
-
-     3、若使用For－eclipse－ide分支：
-        需要使用ant编译，关注PluginTest工程的ant.properties文件和project.properties文件以及custom_rules.xml,若编译失败，请升级androidSDK。
-
-    4、编译方法
-
-       a）如果是命令行中：
-       cd  Android-Plugin-Framework
-       ./gradlew clean
-       ./gradlew build
-
-       b）如果是studio中：
-       打开studio右侧gradle面板区，点clean、点build。不要使用菜单栏的菜单编译。
-
-       重要：
-            1、由于编译脚本依赖Task.doLast, 使用其他编译方法（如菜单编译）可能不会触发Task.doLast导致编译失败
-            2、必须先编译宿主，再编译非独立插件。（这也是使用菜单栏编译会失败的原因之一）
-               原因很简单，既然是非独立插件，肯定是需要引用宿主的类和资源的。所以编译非独立插件时会用到编译宿主时的输出物
-       
-            所以如果使用其他编译方法，请务必仔细阅读build.gradle，了解编译过程和依赖关系后可以自行调整编译脚本，否则可能会失败。
-
-       待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新打包安装PluginMain。
-       或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
-
 # 实现原理简介：
   1、插件apk的class
   
@@ -284,6 +372,8 @@
 
 # 更新纪录：
 
+    2016-10-12： 框架目录结构重构
+    
     2016-09-28： 1、添加对插件Context的getPackageName返回插件自身PackageName的支持
                  2、剥离LocalServiceManager
                  3、若干优化;修改若干bug和兼容性问题、
