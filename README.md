@@ -6,11 +6,18 @@
 
     1、新建一个工程, 作为宿主工程
     
-    2、在宿主工程的build.gradle文件下添加如下3个配置
-        
+    2、在宿主工程的build.gradle文件下添加如下4个配置
+    
         repositories {
             maven {
                 url 'https://dl.bintray.com/limpoxe/maven/'
+            }
+        }
+            
+        android {
+            defaultConfig {
+                //这个配置不可省略
+                applicationId 宿主app包名        
             }
         }
         
