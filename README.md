@@ -78,14 +78,14 @@
             dependencies {
                 //这个配置的意思是使插件依赖宿主的jar, 依赖宿主依赖的aar中的jar
                 //根据自己的实际情况修改为想要依赖的jar的路径即可
-                provided files(project(':PluginMain').getBuildDir().absolutePath + '/xxx/xxx/xxx.jar')
+                provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/xxx/xxx/xxx.jar')
             }
             
             ext {
                 //这2个常量在下面的apply的脚本中要用到
                 //host_output_dir表示指定宿主工程的编译输出目录
                 //host_ap_path表示指定宿主工程编译后的中间产物 .ap_ 文件的路径
-                host_output_dir = project(':PluginMain').getBuildDir().absolutePath + "/outputs"
+                host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
                 host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
             }
         

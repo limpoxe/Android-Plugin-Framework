@@ -82,7 +82,7 @@ dependencies {
     compile('com.limpoxe.fairy:FairyPlugin:0.0.2@aar') {
         transitive true //需要显式指定为true,拉取间接依赖
     }
-    compile project(':PluginShareLib')
+    compile project(':Samples:PluginShareLib')
 }
 
 apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"

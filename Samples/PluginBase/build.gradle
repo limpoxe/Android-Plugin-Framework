@@ -45,7 +45,7 @@ afterEvaluate {
             from(buildDir.absolutePath + '/outputs/apk/') {
                 include project.name + '-' + 'debug' + '.apk'
             }
-            into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
         }
     }
 }

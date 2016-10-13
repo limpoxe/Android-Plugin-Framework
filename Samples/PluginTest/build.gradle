@@ -10,11 +10,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.plugintest2"
-        minSdkVersion 21
+        applicationId "com.example.plugintest"
+        minSdkVersion 11
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.1"
     }
 
     lintOptions {
@@ -47,8 +47,6 @@ def getDate() {
 
 dependencies {
 
-    compile 'com.facebook.rebound:rebound:0.3.5'
-
     //////////////////////////////////////////////////////////////////////
     //下面这一堆provided的配置，是因为这些包在编译宿主的时候，已经被打包到宿主的apk中。
     //所以这里打包非独立插件的时候，要通过provided配置防止这些包被打入非独立插件。
@@ -56,17 +54,19 @@ dependencies {
     /////////////////////////////////////////////////////////////////////
 
     //依赖库的src
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
+    provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.limpoxe.fairy/FairyPlugin/0.0.2/jars/classes.jar')
+    provided files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
+    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
 
     //依赖库的R
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
+    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
 
     //依赖库的依赖裤（当supportV4在依赖库V的libs目录下时）
-    //provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
+    //provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
     //依赖库的依赖裤（当supportV4通过仓库依赖时）
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/classes.jar')
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/libs/internal_impl-23.3.0.jar')
-    provided files(project(':PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/23.3.0/jars/classes.jar')
+    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/classes.jar')
+    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/23.3.0/jars/libs/internal_impl-23.3.0.jar')
+    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/23.3.0/jars/classes.jar')
 }
 
 afterEvaluate {
@@ -76,14 +76,14 @@ afterEvaluate {
             from(buildDir.absolutePath + '/outputs/apk/') {
                 include project.name + '-' + 'debug' + '.apk'
             }
-            into(project(':PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
         }
     }
 }
 
 ext {
     //这2个常量在下面的apply的脚本中要用到
-    host_output_dir = project(':PluginMain').getBuildDir().absolutePath + "/outputs"
+    host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
     host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
 }
 
