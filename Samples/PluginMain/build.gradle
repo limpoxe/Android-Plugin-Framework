@@ -22,6 +22,9 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "x86_64"
+        }
     }
 
     compileOptions {
@@ -72,14 +75,14 @@ android {
         abi {
             enable true
             reset()
-            include 'armeabi-v7a' //select ABIs to build APKs for
+            include 'armeabi-v7a', "x86", "x86_64" //select ABIs to build APKs for
             universalApk false //generate an additional APK that contains all the ABIs
         }
     }
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.2@aar') {
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.3-snapshot@aar') {
         transitive true //需要显式指定为true,拉取间接依赖
     }
     compile project(':Samples:PluginShareLib')
