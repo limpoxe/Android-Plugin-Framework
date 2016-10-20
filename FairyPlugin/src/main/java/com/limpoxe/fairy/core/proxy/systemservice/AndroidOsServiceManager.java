@@ -46,7 +46,7 @@ public class AndroidOsServiceManager extends MethodProxy {
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             LogUtil.d("afterInvoke", method.getName(), args[0]);
-            if (ProcessUtil.isPluginProcess()) {
+            if (ProcessUtil.isPluginProcess() && invokeResult != null) {
                 IBinder binder = AndroidOsIBinder.installProxy((IBinder) invokeResult);
                 //补回安装时干掉的缓存
                 if (sCacheKeySet.contains(args[0])) {
