@@ -22,7 +22,7 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.3-snapshot@aar') {
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.31-snapshot@aar') {
                 transitive true
             }
         }
