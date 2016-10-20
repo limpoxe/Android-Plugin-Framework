@@ -104,6 +104,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 }
             } else {
                 //todo
+                LogUtil.e("not support this method getInstalledPackages  for api version " + Build.VERSION.SDK_INT);
             }
             return invokeResult;
         }
@@ -116,11 +117,17 @@ public class AndroidAppIPackageManager extends MethodProxy {
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
-                List<ResolveInfo> result = new ArrayList<>();
-                ResolveInfo info = new ResolveInfo();
-                result.add(info);
-                info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
-                return result;
+                if (Build.VERSION.SDK_INT <= 23) {
+                    List<ResolveInfo> result = new ArrayList<>();
+                    ResolveInfo info = new ResolveInfo();
+                    result.add(info);
+                    info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
+                    return result;
+                } else {
+                    // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
+                    LogUtil.e("not support this method queryIntentActivities  for api version " + Build.VERSION.SDK_INT);
+                }
+
             }
             return super.beforeInvoke(target, method, args);
         }
@@ -218,11 +225,16 @@ public class AndroidAppIPackageManager extends MethodProxy {
             ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
-                List<ResolveInfo> result = new ArrayList<>();
-                ResolveInfo info = new ResolveInfo();
-                result.add(info);
-                info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
-                return result;
+                if (Build.VERSION.SDK_INT <= 23) {
+                    List<ResolveInfo> result = new ArrayList<>();
+                    ResolveInfo info = new ResolveInfo();
+                    result.add(info);
+                    info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
+                    return result;
+                } else {
+                    // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
+                    LogUtil.e("not support this method queryIntentServices  for api version " + Build.VERSION.SDK_INT);
+                }
             }
             return super.beforeInvoke(target, method, args);
         }

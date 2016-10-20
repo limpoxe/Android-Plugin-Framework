@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.limpoxe.fairy"
     android:versionCode="2"
-    android:versionName="0.0.2" >
+    android:versionName="0.0.3-snapshot" >
 
     <uses-sdk
         android:minSdkVersion="9"

@@ -17,11 +17,28 @@ import java.util.Map;
  */
 public class LocalServiceManager {
 
+    static boolean isSupport = false;
+
+    static {
+        try {
+            Class ServiceManager = Class.forName("com.limpoxe.support.servicemanager.ServiceManager");
+            isSupport = ServiceManager != null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void init() {
+        if (!isSupport) {
+            return;
+        }
         ServiceManager.init(PluginLoader.getApplication());
     }
 
     public static void registerService(PluginDescriptor plugin) {
+        if (!isSupport) {
+            return;
+        }
         HashMap<String, String> localServices = plugin.getFunctions();
         if (localServices != null) {
             Iterator<Map.Entry<String, String>> serv = localServices.entrySet().iterator();
@@ -33,7 +50,9 @@ public class LocalServiceManager {
     }
 
     public static void registerService(final String pluginId, final String serviceName, final String serviceClass) {
-
+        if (!isSupport) {
+            return;
+        }
         ServiceManager.publishService(serviceName, new ServicePool.ClassProvider() {
             @Override
             public Object getServiceInstance() {
@@ -64,10 +83,16 @@ public class LocalServiceManager {
     }
 
     public static Object getService(String name) {
+        if (!isSupport) {
+            return null;
+        }
         return ServiceManager.getService(name);
     }
 
     public static void unRegistService(PluginDescriptor plugin) {
+        if (!isSupport) {
+            return;
+        }
         HashMap<String, String> localServices = plugin.getFunctions();
         if (localServices != null) {
             Iterator<Map.Entry<String, String>> serv = localServices.entrySet().iterator();
@@ -79,6 +104,9 @@ public class LocalServiceManager {
     }
 
     public static void unRegistAll() {
+        if (!isSupport) {
+            return;
+        }
         ServiceManager.unPublishAllService();
     }
 

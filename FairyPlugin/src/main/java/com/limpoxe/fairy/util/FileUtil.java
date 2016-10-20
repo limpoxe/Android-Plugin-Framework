@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.limpoxe.fairy.core.PluginLoader;
@@ -130,7 +131,10 @@ public class FileUtil {
 			}
 
 			if (!isSuccess) {
-				Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+				LogUtil.e("安装 " + so + " 失败: NO_MATCHING_ABIS");
+				if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+					Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+				}
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
