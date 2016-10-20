@@ -82,8 +82,8 @@ android {
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.3-snapshot@aar') {
-        transitive true //需要显式指定为true,拉取间接依赖
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.31-snapshot@aar') {
+        transitive true
     }
     compile project(':Samples:PluginShareLib')
 }

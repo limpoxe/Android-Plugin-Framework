@@ -84,7 +84,7 @@ afterEvaluate {
 ext {
     //这2个常量在下面的apply的脚本中要用到
     host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
-    host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
+    host_ap_path = host_output_dir+ '/PluginMain-resources-armeabi-v7a-debug.ap_'
 }
 
 apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
