@@ -65,20 +65,13 @@ android {
         }
     }
 
-    splits {
-        abi {
-            enable true
-            reset()
-            include 'armeabi-v7a', "x86", "x86_64" //select ABIs to build APKs for
-            universalApk false //generate an additional APK that contains all the ABIs
-        }
-    }
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.31-snapshot@aar') {
-        transitive true
-    }
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.31-snapshot@aar')
+    //optional
+    compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
+
     compile project(':Samples:PluginShareLib')
 }
 
