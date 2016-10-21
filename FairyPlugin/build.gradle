@@ -1,11 +1,5 @@
 apply plugin: 'com.android.library'
 
-repositories {
-    maven {
-        url 'https://dl.bintray.com/limpoxe/maven/'
-    }
-}
-
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
