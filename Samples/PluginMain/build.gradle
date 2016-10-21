@@ -1,11 +1,5 @@
 apply plugin: 'com.android.application'
 
-repositories {
-    maven {
-        url 'https://dl.bintray.com/limpoxe/maven/'
-    }
-}
-
 android {
 
     compileSdkVersion 23
