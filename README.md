@@ -16,9 +16,9 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.31-snapshot@aar') {
-                transitive true
-            }
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.31-snapshot@aar')
+            //optional
+            compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
         
         apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
