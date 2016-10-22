@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -16,10 +17,12 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.example.pluginsharelib.SharePOJO;
@@ -272,8 +275,12 @@ public class MainActivity extends AppCompatActivity {
 					ShareService ss = (ShareService)LocalServiceManager.getService("share_service");
 					if (ss != null) {
 						SharePOJO pojo = ss.doSomething("测试跨进程localservice");
-						Toast.makeText(MainActivity.this, pojo.name, Toast.LENGTH_LONG).show();
+						if (pojo != null) {
+							Toast.makeText(MainActivity.this, pojo.name, Toast.LENGTH_LONG).show();
+						}
 					}
+
+					show(v);
 				}
 			});
 
@@ -308,6 +315,17 @@ public class MainActivity extends AppCompatActivity {
 			scn = null;
 		}
 	};
+
+	public static void show(View rootView) {
+
+		View view = LayoutInflater.from(rootView.getContext()).inflate(R.layout.pop_test, null);
+		PopupWindow window = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		window.setAnimationStyle(R.style.PopupAnimation);
+		window.setOutsideTouchable(true);
+		window.setFocusable(true);
+		window.setBackgroundDrawable(new BitmapDrawable());
+		window.showAtLocation(rootView, Gravity.BOTTOM, 0, 0);
+	}
 
 	private ServiceConnection scn;
 

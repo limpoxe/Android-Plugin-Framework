@@ -54,7 +54,7 @@ dependencies {
     /////////////////////////////////////////////////////////////////////
 
     //依赖库的src
-    provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.limpoxe.fairy/FairyPlugin/0.0.31-snapshot/jars/classes.jar')
+    provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.limpoxe.fairy/FairyPlugin/0.0.32-snapshot/jars/classes.jar')
     provided files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
     provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
 

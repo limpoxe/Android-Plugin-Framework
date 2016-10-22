@@ -4,14 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.PopupWindow;
 
 import com.example.pluginsharelib.BaseActivity;
 import com.example.pluginsharelib.SharePOJO;
@@ -19,6 +24,8 @@ import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.PackageNameUtil;
+import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -192,6 +199,8 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		intent.putExtra("testParam", "testParam");
 		intent.putExtra("paramVO", new SharePOJO("测试VO"));
 		startActivity(intent);
+
+		show(v);
 	}
 
 	public void onClickPluginTestActivity(View v) {
@@ -283,6 +292,18 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		super.onResume();
 
 		testDataApi();
+	}
+
+	public static void show(View rootView) {
+
+		View view = LayoutInflater.from(rootView.getContext()).inflate(R.layout.plugin_notification, null);
+		PopupWindow window = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		RefInvoker.setFieldObject(window, PopupWindow.class, "mContext", PackageNameUtil.fakeContext((Context)RefInvoker.getFieldObject(window, PopupWindow.class, "mContext")));
+		window.setAnimationStyle(R.style.PopupAnimation1);
+		window.setOutsideTouchable(true);
+		window.setFocusable(true);
+		window.setBackgroundDrawable(new BitmapDrawable());
+		window.showAtLocation(rootView, Gravity.BOTTOM, 0, 0);
 	}
 
 	private void testDataApi() {
