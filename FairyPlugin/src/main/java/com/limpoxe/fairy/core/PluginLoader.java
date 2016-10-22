@@ -33,6 +33,7 @@ public class PluginLoader {
 	private static Application sApplication;
 	private static boolean isLoaderInited = false;
 	private static int sLoadingResId;
+	private static long sMinLoadingTime = 400;
 
 	private PluginLoader() {
 	}
@@ -327,6 +328,14 @@ public class PluginLoader {
 
 	public static int getLoadingResId() {
 		return sLoadingResId;
+	}
+
+	public static void setMinLoadingTime(long minLoadingTime) {
+		sMinLoadingTime = minLoadingTime;
+	}
+
+	public static long getMinLoadingTime() {
+		return sMinLoadingTime;
 	}
 
 }

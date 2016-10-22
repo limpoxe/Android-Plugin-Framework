@@ -17,15 +17,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.ActivityThread;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.manager.PluginActivityMonitor;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
-import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 import com.limpoxe.fairy.util.RefInvoker;
@@ -81,23 +80,6 @@ public class PluginLauncher implements Serializable {
 		return null;
 	}
 
-	public void startPluginAsync(final PluginDescriptor pluginDescriptor, final Handler handler) {
-		if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					final LoadedPlugin loadedPlugin = startPlugin(pluginDescriptor);
-					Message msg = handler.obtainMessage(0);
-					msg.obj = loadedPlugin;
-					msg.sendToTarget();
-				}
-			}).start();
-		} else {
-			startPlugin(pluginDescriptor);
-		}
-
-	}
-
 	public synchronized LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
 		LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
 		if (plugin == null) {
@@ -146,9 +128,23 @@ public class PluginLauncher implements Serializable {
 			loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
 
 			if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+				LogUtil.i("当前执行插件初始化的线程是主线程，开始初始化插件Application");
 				initApplication(pluginContext, pluginClassLoader, pluginRes, pluginDescriptor, plugin);
 			} else {
-				//交给startPluginAsync中的post处理
+				LogUtil.i("当前执行插件初始化的线程不是主线程，异步通知主线程初始化插件Application", Thread.currentThread().getId(), Thread.currentThread().getName() );
+				final LoadedPlugin finalLoadedPlugin = plugin;
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					@Override
+					public void run() {
+						if (finalLoadedPlugin.pluginApplication == null) {
+							PluginLauncher.instance().initApplication(finalLoadedPlugin.pluginContext,
+									finalLoadedPlugin.pluginClassLoader,
+									finalLoadedPlugin.pluginContext.getResources(),
+									((PluginContextTheme)finalLoadedPlugin.pluginContext).getPluginDescriptor(),
+									finalLoadedPlugin);
+						}
+					}
+				});
 			}
 
 		} else {
@@ -159,6 +155,9 @@ public class PluginLauncher implements Serializable {
 	}
 
 	public void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
+
+		LogUtil.i("开始初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName());
+
 		long t13 = System.currentTimeMillis();
 
 		Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader, pluginDescriptor);

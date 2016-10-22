@@ -76,8 +76,13 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
      */
     public static void switchWebViewContext(Context pluginActivity) {
         LogUtil.d("尝试切换WebView Context, 不同的WebView内核, 实现方式可能不同, 本方法基于Chrome的WebView实现");
-        WebView wb = new WebView(pluginActivity);
-        wb.loadUrl("");//触发下面的fixWebViewAsset方法
+        try {
+            WebView wb = new WebView(pluginActivity);
+            wb.loadUrl("");//触发下面的fixWebViewAsset方法
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.e("插件Application对象尚未初始化会触发NPE，如果是异步初始化插件，应等待异步初始化完成再进入插件");
+        }
     }
 
     private static void fixWebViewAsset(Context context) {
