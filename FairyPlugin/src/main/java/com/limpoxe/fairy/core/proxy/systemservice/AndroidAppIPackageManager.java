@@ -15,6 +15,7 @@ import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.compat.CompatForParceledListSliceApi21;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
@@ -31,7 +32,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.limpoxe.fairy.util.RefInvoker.invokeMethod;
-import static com.limpoxe.support.servicemanager.util.ParamUtil.result;
 
 /**
  * Created by cailiming on 16/1/15.
@@ -126,12 +126,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     return result;
                 } else {
                     // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
-                    Object parceledListSlice = RefInvoker.invokeStaticMethod("android.content.pm.ParceledListSlice", "emptyList",
-                            (Class[])null, (Object[]) null);
-                    List resultList = (List) invokeMethod(parceledListSlice, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
+                    ArrayList<ResolveInfo> resultList = new ArrayList<>();
                     ResolveInfo info = new ResolveInfo();
                     resultList.add(info);
                     info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
+                    Object parceledListSlice = CompatForParceledListSliceApi21.newInstance(resultList);
                     return parceledListSlice;
                 }
 
@@ -240,12 +239,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     return result;
                 } else {
                     // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
-                    Object parceledListSlice = RefInvoker.invokeStaticMethod("android.content.pm.ParceledListSlice", "emptyList",
-                            (Class[])null, (Object[]) null);
-                    List resultList = (List) invokeMethod(parceledListSlice, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
+                    ArrayList<ResolveInfo> resultList = new ArrayList<ResolveInfo>();
                     ResolveInfo info = new ResolveInfo();
                     resultList.add(info);
                     info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
+                    Object parceledListSlice = CompatForParceledListSliceApi21.newInstance(resultList);
                     return parceledListSlice;
                 }
             }
