@@ -105,7 +105,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
                     //资源是来自插件
                     if (notification.contentIntent != null) {
                         Intent intent = (Intent)RefInvoker.invokeMethod(notification.contentIntent, PendingIntent.class.getName(), "getIntent", (Class[]) null, (Object[]) null);
-                        if (intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
+                        if (intent != null && intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
                             String className = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR)[0];
                             //通过重新构造ApplicationInfo来附加插件资源
                             PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(className);
