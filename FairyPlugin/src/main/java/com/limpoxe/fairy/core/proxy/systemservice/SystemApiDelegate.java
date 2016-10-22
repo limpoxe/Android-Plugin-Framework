@@ -30,10 +30,27 @@ public class SystemApiDelegate extends MethodDelegate {
         // 面会触发一次ContentProvider调用, ContentProvider调用又会触发AppOpsService的checkPackage方法,
         // AppOpsService的checkPackage方法被触发后又回进入这里, 造成递归异常,因此这里单独屏蔽掉checkPackage方法
         if (!MethodProxy.sMethods.containsKey(method.getName()) && !"checkPackage".equals(method.getName())) {
-            replacePackageName(args);
+            fixPackageName(method.getName(), args);
         }
 
         return null;
+    }
+
+    @Override
+    public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+        if ("android.view.IWindowManager".equals(descriptor)) {
+            LogUtil.v("afterInvoke", descriptor, method.getName());
+            if ("openSession".equals(method.getName())) {
+                if (invokeResult != null) {
+                    //TODO 暂时不hook， 这个hook会引起弹Dailog和PopupWindow时发生DeadObject异常，
+                    Object windowSession = null;//AndroidViewIWindowSession.installProxy(invokeResult);
+                    if (windowSession != null) {
+                        return windowSession;
+                    }
+                }
+            }
+        }
+        return super.afterInvoke(target, method, args, beforeInvoke, invokeResult);
     }
 
     /**
@@ -41,7 +58,7 @@ public class SystemApiDelegate extends MethodDelegate {
      * 这里需要在调用binder接口前将参数还原为宿主包名
      * @param args
      */
-    private void replacePackageName(Object[] args) {
+    private void fixPackageName(String methodName, Object[] args) {
         if(args != null && args.length>0) {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof String && ((String)args[i]).contains(".")) {
@@ -50,7 +67,7 @@ public class SystemApiDelegate extends MethodDelegate {
                         //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
                         PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId((String)args[i]);
                         if(pd != null) {
-                            LogUtil.v("修正System Api packageName参数为宿主包名", args[i]);
+                            LogUtil.v("修正System Api", descriptor, methodName, "的参数为宿主包名", args[i]);
                             // 参数传的是插件包名, 修正为宿主包名
                             args[i] = PluginLoader.getApplication().getPackageName();
                             // 这里或许需要break,提高效率,
