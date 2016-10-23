@@ -21,6 +21,7 @@ import android.os.Looper;
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.ActivityThread;
+import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.manager.PluginActivityMonitor;
@@ -173,6 +174,8 @@ public class PluginLauncher implements Serializable {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+
+		CompatForWebViewFactoryApi21.addWebViewAssets(plugin.pluginApplication.getAssets());
 
 		LogUtil.w("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}
