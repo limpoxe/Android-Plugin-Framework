@@ -90,13 +90,15 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     private static void resolveRemoteViews(Notification notification) {
 
-        Icon mSmallIcon = (Icon)RefInvoker.getFieldObject(notification, Notification.class, "mSmallIcon");
-        Icon mLargeIcon = (Icon)RefInvoker.getFieldObject(notification, Notification.class, "mLargeIcon");
-        if (mSmallIcon != null) {
-            RefInvoker.setFieldObject(mSmallIcon, Icon.class, "mString1", PluginLoader.getApplication().getPackageName());
-        }
-        if (mLargeIcon != null) {
-            RefInvoker.setFieldObject(mLargeIcon, Icon.class, "mString1", PluginLoader.getApplication().getPackageName());
+        if (Build.VERSION.SDK_INT >= 23) {
+            Icon mSmallIcon = (Icon)RefInvoker.getFieldObject(notification, Notification.class, "mSmallIcon");
+            Icon mLargeIcon = (Icon)RefInvoker.getFieldObject(notification, Notification.class, "mLargeIcon");
+            if (mSmallIcon != null) {
+                RefInvoker.setFieldObject(mSmallIcon, Icon.class, "mString1", PluginLoader.getApplication().getPackageName());
+            }
+            if (mLargeIcon != null) {
+                RefInvoker.setFieldObject(mLargeIcon, Icon.class, "mString1", PluginLoader.getApplication().getPackageName());
+            }
         }
 
         if (Build.VERSION.SDK_INT >= 21) {
