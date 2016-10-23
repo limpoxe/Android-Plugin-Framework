@@ -114,10 +114,10 @@ public class PluginCreator {
 //			LogUtil.d("create Plugin Resource from: ", assetPaths[0]);
 //		}
 
-
+		// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
+		assetPaths[0] = plugin;
+		LogUtil.v("create Plugin Resource from: ", plugin);
 		if (!isStandalone) {
-			// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
-			assetPaths[0] = plugin;
 			if (dependencies != null) {
 				//插件间资源依赖，这里需要遍历添加dependencies
 				//这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持
@@ -126,21 +126,71 @@ public class PluginCreator {
 					PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(dependencies[i]);
 					if (pd != null) {
 						assetPaths[1+ i] = pd.getInstalledPath();
+						LogUtil.v("create Plugin Resource from: ", assetPaths[1+ i]);
 					} else {
 						assetPaths[1+ i] = "";
 					}
 				}
 			}
 			assetPaths[assetPaths.length -1] = app;
-			LogUtil.v("create Plugin Resource from: ", assetPaths[0], assetPaths[1]);
-		} else {
-			assetPaths[0] = plugin;
-			LogUtil.v("create Plugin Resource from: ", assetPaths[0]);
+			LogUtil.v("create Plugin Resource from: ", app);
 		}
 
 		return assetPaths;
 
 	}
+
+
+	/**
+	private static String[] buildAssetPath(boolean isStandalone, String host, String plugin, String[] dependencies) {
+
+
+	 	//暂不支持资源多级依赖, 因为目前资源id采用type分组，
+	 	//多级依赖编译时在type不变的情况下需要同时配合分段来完成，过于复杂。
+	 	//除非采用aapt-packageId分组方式
+	 	//
+		dependencies = null;
+
+		ArrayList<String> paths = new ArrayList<String>();
+		AssetManager hostAssetsManager = PluginLoader.getApplication().getAssets();
+		Integer pathCount = (Integer)RefInvoker.invokeMethod(hostAssetsManager,
+				AssetManager.class, "getStringBlockCount", null, null);
+		if (pathCount != null) {
+			for(int cookie = 0; cookie < pathCount; cookie++) {
+				String assetsPath = (String)RefInvoker.invokeMethod(hostAssetsManager,
+						AssetManager.class, "getCookieName",
+						new Class[]{int.class}, new Object[]{cookie + 1});
+				if(!TextUtils.isEmpty(assetsPath)) {
+					//不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
+					if (!assetsPath.equals(host)) {
+						paths.add(assetsPath);
+						LogUtil.d("create Plugin Resource from: ", assetsPath);
+					} else {
+						paths.add(plugin);
+						LogUtil.d("create Plugin Resource from: ", plugin);
+						if (!isStandalone) {
+							if (dependencies != null) {
+								//插件间资源依赖，需要遍历添加dependencies
+								//这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持
+								//插件依赖插件，如果被依赖的插件中包含资源文件，则需要在所有的插件中提供public.xml文件来分组和分段资源id
+								for(int j = 0; j < dependencies.length; j++) {
+									PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(dependencies[j]);
+									if (pd != null) {
+										paths.add(pd.getInstalledPath());
+										LogUtil.d("create Plugin Resource from: ", pd.getInstalledPath());
+									}
+								}
+							}
+							paths.add(assetsPath);
+							LogUtil.d("create Plugin Resource from: ", assetsPath);
+
+						}
+					}
+				}
+			}
+		}
+		return paths.toArray(new String[paths.size()]);
+	}*/
 
 	/**
 	 * 创建插件的Context
