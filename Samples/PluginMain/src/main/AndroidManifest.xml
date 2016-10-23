@@ -53,7 +53,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- 相机权限-->
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.GET_INTENT_SENDER_INTENT"/>
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
 
     <application
