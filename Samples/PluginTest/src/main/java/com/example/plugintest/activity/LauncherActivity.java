@@ -24,8 +24,6 @@ import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.PackageNameUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -298,7 +296,6 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 
 		View view = LayoutInflater.from(rootView.getContext()).inflate(R.layout.plugin_notification, null);
 		PopupWindow window = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		RefInvoker.setFieldObject(window, PopupWindow.class, "mContext", PackageNameUtil.fakeContext((Context)RefInvoker.getFieldObject(window, PopupWindow.class, "mContext")));
 		window.setAnimationStyle(R.style.PopupAnimation1);
 		window.setOutsideTouchable(true);
 		window.setFocusable(true);
