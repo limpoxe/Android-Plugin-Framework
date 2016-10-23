@@ -76,12 +76,13 @@ android {
 }
 
 dependencies {
-    compile project(':FairyPlugin')
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.32-snapshot@aar')
+    //compile (':FairyPlugin')
     //optional
     compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
 
     compile project(':Samples:PluginShareLib')
 }
 
-apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/host.gradle'
-//apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
+//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/host.gradle'
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"

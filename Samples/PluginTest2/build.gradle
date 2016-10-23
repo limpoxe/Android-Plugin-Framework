@@ -87,5 +87,5 @@ ext {
     host_ap_path = host_output_dir+ '/PluginMain-resources-universal-debug.ap_'
 }
 
-apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
-//apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
