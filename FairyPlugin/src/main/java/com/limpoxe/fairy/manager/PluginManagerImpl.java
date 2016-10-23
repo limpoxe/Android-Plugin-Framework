@@ -54,6 +54,9 @@ class PluginManagerImpl {
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
 	 */
 	private String genInstallPath(String pluginId, String pluginVersoin) {
+		if (pluginId.indexOf(File.separatorChar) >= 0 || pluginVersoin.indexOf(File.separatorChar) >= 0) {
+			throw new IllegalArgumentException("path contains a path separator");
+		}
 		return  getPluginRootDir() + "/" + pluginId + "/" + pluginVersoin + "/base-1.apk";
 	}
 

@@ -258,6 +258,26 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public SharedPreferences getSharedPreferences(String name, int mode) {
 
+		if (Build.VERSION.SDK_INT > 23) {
+			synchronized (PluginContextTheme.class) {
+				ArrayMap<String, File> mSharedPrefsPaths = (ArrayMap<String, File>)RefInvoker.getFieldObject(getContextImpl(), "android.app.ContextImpl", "mSharedPrefsPaths");
+				String parent = new File(getDataDir(), "shared_prefs").getAbsolutePath();
+				if (mSharedPrefsPaths != null) {
+					File file = mSharedPrefsPaths.get(name);
+					if (file != null && !file.getParent().equals(parent)) {
+						mSharedPrefsPaths.remove(name);//置空之后再get会触发重建，则getDataDir有机会生效
+					}
+				}
+
+				File mPreferencesDir = (File)RefInvoker.getFieldObject(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir");
+				if (mPreferencesDir == null || !mPreferencesDir.getAbsolutePath().equals(parent)) {
+					RefInvoker.setFieldObject(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir", new File(getDataDir(), "shared_prefs"));
+				}
+			}
+
+			return super.getSharedPreferences(name, mode);
+		}
+
 		//这里之所以需要追加前缀是因为ContextImpl类中的全局静态缓存sSharedPrefs
 		if (!name.startsWith(mPluginDescriptor.getPackageName() + "_")) {
 			name = mPluginDescriptor.getPackageName() + "_" + name;
@@ -291,6 +311,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		}
 
 		return super.getSharedPreferences(name, mode);
+	}
+
+	//android-M
+	//removed
+	public File getSharedPreferencesPath(String name) {
+		return getSharedPrefsFile(name);
 	}
 
 	private File getSharedPrefsFile(String name) {
@@ -443,6 +469,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	private File dataDir;
 
 	//android-N
+	@Override
 	public File getDataDir() {
 		if (dataDir == null) {
 			dataDir = new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile().getParentFile(), "data");
@@ -463,5 +490,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			base = (Context) RefInvoker.invokeMethod(base, "android.app.ContextImpl", "getOuterContext", (Class[])null, (Object[])null);
 		}
 		return base;
+	}
+
+	private Object getContextImpl() {
+		int dep = 0;//这个dep限制是以防万一陷入死循环
+		Context base = getBaseContext();
+		while(base instanceof ContextWrapper && dep < 10) {
+			base = ((ContextWrapper)base).getBaseContext();
+			dep++;
+		}
+		if (base.getClass().getName().equals("android.app.ContextImpl")) {
+			return base;
+		}
+		return null;
 	}
 }
