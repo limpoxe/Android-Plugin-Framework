@@ -39,13 +39,13 @@ public class PluginResourceWrapper extends Resources {
             return super.getResourcePackageName(resid);
         } catch (NotFoundException e) {
             LogUtil.e("NotFoundException Try Following", Integer.toHexString(resid));
-
             //就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
             //华为、三星、小米等手机不会到这里来。
             if (ResourceUtil.isMainResId(resid)) {
                 idCaches.add(resid);
                 return PluginLoader.getApplication().getPackageName();
             }
+            LogUtil.printStackTrace();
             throw new NotFoundException("Unable to find resource ID #0x"
                     + Integer.toHexString(resid));
         }
@@ -57,12 +57,43 @@ public class PluginResourceWrapper extends Resources {
             return super.getResourceName(resid);
         } catch (NotFoundException e) {
             LogUtil.e("NotFoundException Try Following");
-
-            //就目前测试的情况来看，只有Coolpad、vivo、oppo等手机会在上面抛异常，走到这里来，
-            //华为、三星、小米等手机不会到这里来。
+            //vivo
             if (ResourceUtil.isMainResId(resid)) {
                 return PluginLoader.getApplication().getResources().getResourceName(resid);
             }
+            LogUtil.printStackTrace();
+            throw new NotFoundException("Unable to find resource ID #0x"
+                    + Integer.toHexString(resid));
+        }
+    }
+
+    @Override
+    public String getResourceEntryName(int resid) {
+        try {
+            return super.getResourceEntryName(resid);
+        } catch (NotFoundException e) {
+            LogUtil.e("NotFoundException Try Following");
+            //vivo
+            if (ResourceUtil.isMainResId(resid)) {
+                return PluginLoader.getApplication().getResources().getResourceEntryName(resid);
+            }
+            LogUtil.printStackTrace();
+            throw new NotFoundException("Unable to find resource ID #0x"
+                    + Integer.toHexString(resid));
+        }
+    }
+
+    @Override
+    public String getResourceTypeName(int resid) {
+        try {
+            return super.getResourceTypeName(resid);
+        } catch (NotFoundException e) {
+            LogUtil.e("NotFoundException Try Following");
+            //vivo
+            if (ResourceUtil.isMainResId(resid)) {
+                return PluginLoader.getApplication().getResources().getResourceTypeName(resid);
+            }
+            LogUtil.printStackTrace();
             throw new NotFoundException("Unable to find resource ID #0x"
                     + Integer.toHexString(resid));
         }
