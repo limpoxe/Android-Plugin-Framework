@@ -188,6 +188,13 @@ public class AndroidAppINotificationManager extends MethodProxy {
                     }
                 }
             }
+        } else if (Build.VERSION.SDK_INT >= 11)  {
+            if (notification.tickerView != null) {
+                RefInvoker.setFieldObject(notification.tickerView, RemoteViews.class, "mPackage", PluginLoader.getApplication().getPackageName());
+            }
+            if (notification.contentView != null) {
+                RefInvoker.setFieldObject(notification.contentView, RemoteViews.class, "mPackage", PluginLoader.getApplication().getPackageName());
+            }
         }
     }
 
