@@ -10,15 +10,20 @@
 ////////////////////////////////////////////////////////////////
 
 //第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
-android.aaptOptions.additionalParameters('-I', host_ap_path)
+if (getProperties().containsKey("host_ap_path")) {
+    println "additionalParameters -I " + ext.host_ap_path
+    android.aaptOptions.additionalParameters('-I', host_ap_path)
+}
 
-tasks.whenTaskAdded { task ->
-    if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
-        task.setOnlyIf { true }
-        task.outputs.upToDateWhen { false }
-        task.doLast {
-            //第二件事
-            applyThemePatch(task.name);
+if (getProperties().containsKey("host_output_dir")) {
+    tasks.whenTaskAdded { task ->
+        if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
+            task.setOnlyIf { true }
+            task.outputs.upToDateWhen { false }
+            task.doLast {
+                //第二件事
+                applyThemePatch(task.name);
+            }
         }
     }
 }
