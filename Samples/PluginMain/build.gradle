@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+configurations.all {
+    resolutionStrategy {
+        cacheChangingModulesFor(1, 'HOURS')
+        //force 'com.android.support:appcompat-v7:23.3.0'
+    }
+}
+
 android {
 
     compileSdkVersion 23
