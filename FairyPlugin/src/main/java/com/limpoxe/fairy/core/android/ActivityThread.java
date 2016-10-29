@@ -56,16 +56,16 @@ public class ActivityThread {
         if (sCurrentActivityThread == null) {
             // 从ThreadLocal中取出来的
             LogUtil.v("从宿主程序中取出ActivityThread对象备用");
-            sCurrentActivityThread = RefInvoker.invokeStaticMethod(android_app_ActivityThread,
+            sCurrentActivityThread = RefInvoker.invokeMethod(android_app_ActivityThread,
                     android_app_ActivityThread_currentActivityThread,
                     (Class[]) null, (Object[]) null);
 
             //有些情况下上面的方法拿不到，下面再换个方法尝试一次
             if (sCurrentActivityThread == null) {
-                Object impl = RefInvoker.invokeStaticMethod(android_app_ContextImpl, android_app_ContextImpl_getImpl,
+                Object impl = RefInvoker.invokeMethod(android_app_ContextImpl, android_app_ContextImpl_getImpl,
                         new Class[]{Context.class}, new Object[]{PluginLoader.getApplication()});
                 if (impl != null) {
-                    sCurrentActivityThread = RefInvoker.getFieldObject(impl, android_app_ContextImpl, android_app_ContextImpl_mMainThread);
+                    sCurrentActivityThread = RefInvoker.getField(impl, android_app_ContextImpl, android_app_ContextImpl_mMainThread);
                 }
             }
         }
@@ -75,19 +75,19 @@ public class ActivityThread {
     public static Object getResCompatibilityInfo() {
         //貌似没啥用
         Object mBoundApplication = getBoundApplicationData();
-        Object compatInfo = RefInvoker.getFieldObject(mBoundApplication, android_app_ActivityThread_AppBindData, "compatInfo");
+        Object compatInfo = RefInvoker.getField(mBoundApplication, android_app_ActivityThread_AppBindData, "compatInfo");
         return compatInfo;
     }
 
     public static Object getLoadedApk() {
         //貌似没啥用
         Object mBoundApplication = getBoundApplicationData();
-        Object info = RefInvoker.getFieldObject(mBoundApplication, android_app_ActivityThread_AppBindData, "info");
+        Object info = RefInvoker.getField(mBoundApplication, android_app_ActivityThread_AppBindData, "info");
         return info;
     }
 
     public static Object getBoundApplicationData() {
-        Object mBoundApplication = RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, "mBoundApplication");
+        Object mBoundApplication = RefInvoker.getField(currentActivityThread(), android_app_ActivityThread, "mBoundApplication");
         return mBoundApplication;
     }
 
@@ -101,15 +101,15 @@ public class ActivityThread {
         Handler handler = (Handler)RefInvoker.invokeMethod(currentActivityThread(),
                 clazz(), android_app_ActivityThread_getHandler,
                 (Class[]) null, (Object[]) null);
-        RefInvoker.setFieldObject(handler, Handler.class.getName(), android_os_Handler_mCallback,
+        RefInvoker.setField(handler, Handler.class.getName(), android_os_Handler_mCallback,
                 new PluginAppTrace(handler));
     }
 
     public static void wrapInstrumentation() {
-        Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getFieldObject(currentActivityThread(),
+        Instrumentation originalInstrumentation = (Instrumentation) RefInvoker.getField(currentActivityThread(),
                 clazz(), android_app_ActivityThread_mInstrumentation);
         if (!(originalInstrumentation instanceof PluginInstrumentionWrapper)) {
-            RefInvoker.setFieldObject(currentActivityThread(), clazz(),
+            RefInvoker.setField(currentActivityThread(), clazz(),
                     android_app_ActivityThread_mInstrumentation,
                     new PluginInstrumentionWrapper(originalInstrumentation));
         }
@@ -120,8 +120,8 @@ public class ActivityThread {
                                           ClassLoader pluginClassLoader, Resources pluginResource,
                                           Application pluginApplication) throws ClassNotFoundException {
 
-        Object applicationLoaders = RefInvoker.invokeStaticMethod("android.app.ApplicationLoaders", "getDefault", (Class[]) null, (Object[]) null);
-        Map mLoaders = (Map)RefInvoker.getFieldObject(applicationLoaders, "android.app.ApplicationLoaders", "mLoaders");
+        Object applicationLoaders = RefInvoker.invokeMethod("android.app.ApplicationLoaders", "getDefault", (Class[]) null, (Object[]) null);
+        Map mLoaders = (Map)RefInvoker.getField(applicationLoaders, "android.app.ApplicationLoaders", "mLoaders");
         if (mLoaders == null) {
             //what!!
             return;
@@ -138,12 +138,12 @@ public class ActivityThread {
                     new Object[]{info, compatibilityInfo});
             if (pluginLoadedApk != null) {
                 Class loadedAPKClass = pluginLoadedApk.getClass();
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mApplication", pluginApplication);
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mResources", pluginResource);
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDirFile", new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
-                RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mDataDir", PluginLoader.getApplication().getApplicationInfo().dataDir);
+                RefInvoker.setField(pluginLoadedApk, loadedAPKClass, "mApplication", pluginApplication);
+                RefInvoker.setField(pluginLoadedApk, loadedAPKClass, "mResources", pluginResource);
+                RefInvoker.setField(pluginLoadedApk, loadedAPKClass, "mDataDirFile", new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
+                RefInvoker.setField(pluginLoadedApk, loadedAPKClass, "mDataDir", PluginLoader.getApplication().getApplicationInfo().dataDir);
                 //TODO 需要时再说
-                //RefInvoker.setFieldObject(pluginLoadedApk, loadedAPKClass, "mLibDir", );
+                //RefInvoker.setField(pluginLoadedApk, loadedAPKClass, "mLibDir", );
             }
             //再还原
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -153,7 +153,7 @@ public class ActivityThread {
     }
 
     public static Map<IBinder, Service> getAllServices() {
-        Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getFieldObject(currentActivityThread(), android_app_ActivityThread, android_app_ActivityThread_mServices);
+        Map<IBinder, Service> services = (Map<IBinder, Service>)RefInvoker.getField(currentActivityThread(), android_app_ActivityThread, android_app_ActivityThread_mServices);
         return services;
     }
 

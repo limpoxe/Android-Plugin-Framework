@@ -36,12 +36,12 @@ public class PluginShadowService extends Service {
 
 	private void getAttachParam() {
 		mBaseContext = getBaseContext();
-		mThread = RefInvoker.getFieldObject(this, Service.class, "mThread");
-		mClassName = (String)RefInvoker.getFieldObject(this, Service.class, "mClassName");
-		mToken = (IBinder) RefInvoker.getFieldObject(this, Service.class, "mToken"); ;
+		mThread = RefInvoker.getField(this, Service.class, "mThread");
+		mClassName = (String)RefInvoker.getField(this, Service.class, "mClassName");
+		mToken = (IBinder) RefInvoker.getField(this, Service.class, "mToken"); ;
 		mApplication = getApplication();
-		mActivityManager = RefInvoker.getFieldObject(this, Service.class, "mActivityManager");
-		mStartCompatibility = (Boolean)RefInvoker.getFieldObject(this, Service.class, "mStartCompatibility");
+		mActivityManager = RefInvoker.getField(this, Service.class, "mActivityManager");
+		mStartCompatibility = (Boolean)RefInvoker.getField(this, Service.class, "mStartCompatibility");
 	}
 
 	private void callServiceOnCreate() {
@@ -66,7 +66,7 @@ public class PluginShadowService extends Service {
 							Application.class, Object.class},
 					new Object[]{mBaseContext, mThread, mClassName, mToken,
 							mApplication, mActivityManager});
-			RefInvoker.setFieldObject(realService, Service.class, "mStartCompatibility", mStartCompatibility);
+			RefInvoker.setField(realService, Service.class, "mStartCompatibility", mStartCompatibility);
 
 			//拿到创建好的service，重新 设置mBase和mApplicaiton
 			PluginInjector.replacePluginServiceContext(realName, realService);

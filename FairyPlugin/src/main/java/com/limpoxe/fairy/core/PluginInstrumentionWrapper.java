@@ -267,8 +267,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					base = ((ContextWrapper)base).getBaseContext();
 				}
 				if (base.getClass().getName().equals("android.app.ContextImpl")) {
-					RefInvoker.setFieldObject(base, "android.app.ContextImpl", "mBasePackageName", activity.getPackageName());
-					RefInvoker.setFieldObject(base, "android.app.ContextImpl", "mOpPackageName", activity.getPackageName());
+					RefInvoker.setField(base, "android.app.ContextImpl", "mBasePackageName", activity.getPackageName());
+					RefInvoker.setField(base, "android.app.ContextImpl", "mOpPackageName", activity.getPackageName());
 				}
 			}
 		}

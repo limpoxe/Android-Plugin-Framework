@@ -104,7 +104,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			return mTheme;
 		}
 
-		Object result = RefInvoker.invokeStaticMethod(Resources.class.getName(), "selectDefaultTheme", new Class[]{
+		Object result = RefInvoker.invokeMethod(Resources.class.getName(), "selectDefaultTheme", new Class[]{
 				int.class, int.class}, new Object[]{mThemeResource,
 				getBaseContext().getApplicationInfo().targetSdkVersion});
 		if (result != null) {
@@ -260,7 +260,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 		if (Build.VERSION.SDK_INT > 23) {
 			synchronized (PluginContextTheme.class) {
-				ArrayMap<String, File> mSharedPrefsPaths = (ArrayMap<String, File>)RefInvoker.getFieldObject(getContextImpl(), "android.app.ContextImpl", "mSharedPrefsPaths");
+				ArrayMap<String, File> mSharedPrefsPaths = (ArrayMap<String, File>)RefInvoker.getField(getContextImpl(), "android.app.ContextImpl", "mSharedPrefsPaths");
 				String parent = new File(getDataDir(), "shared_prefs").getAbsolutePath();
 				if (mSharedPrefsPaths != null) {
 					File file = mSharedPrefsPaths.get(name);
@@ -269,9 +269,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 					}
 				}
 
-				File mPreferencesDir = (File)RefInvoker.getFieldObject(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir");
+				File mPreferencesDir = (File)RefInvoker.getField(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir");
 				if (mPreferencesDir == null || !mPreferencesDir.getAbsolutePath().equals(parent)) {
-					RefInvoker.setFieldObject(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir", new File(getDataDir(), "shared_prefs"));
+					RefInvoker.setField(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir", new File(getDataDir(), "shared_prefs"));
 				}
 			}
 
@@ -286,7 +286,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		//4.4以上版本缓存是延迟初始化的，这里增加这句调用是为了确保已经初始化，防止反射为空
 		PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		Object cache = RefInvoker.getStaticFieldObject("android.app.ContextImpl", "sSharedPrefs");
+		Object cache = RefInvoker.getField("android.app.ContextImpl", "sSharedPrefs");
 		if (Build.VERSION.SDK_INT >= 19 && cache instanceof ArrayMap) {
 			synchronized (PluginContextTheme.class) {
 				ArrayMap<String, ArrayMap<String, Object>> sSharedPrefs = (ArrayMap<String, ArrayMap<String, Object>>)cache;

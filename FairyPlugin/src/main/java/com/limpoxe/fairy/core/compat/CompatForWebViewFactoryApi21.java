@@ -16,7 +16,7 @@ public class CompatForWebViewFactoryApi21 {
 
     public static void addWebViewAssets(AssetManager assetsManager) {
         if (Build.VERSION.SDK_INT >= 21) {
-            PackageInfo packageInfo = (PackageInfo) RefInvoker.invokeStaticMethod("android.webkit.WebViewFactory", "getLoadedPackageInfo", new Class[0], new Object[0]);
+            PackageInfo packageInfo = (PackageInfo) RefInvoker.invokeMethod("android.webkit.WebViewFactory", "getLoadedPackageInfo", new Class[0], new Object[0]);
             if (packageInfo != null) {
                 if (!isAdded(assetsManager, packageInfo.packageName)) {
                     LogUtil.i("Loaded WebView Package : " + packageInfo.packageName + " version " + packageInfo.versionName + " (code " + packageInfo.versionCode + ")" + packageInfo.applicationInfo.sourceDir);

@@ -31,7 +31,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             Object webViewFactoryProvider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
             if (webViewFactoryProvider != null) {
                 Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
-                RefInvoker.setStaticObject("android.webkit.WebViewFactory", "sProviderInstance", webViewFactoryProviderProxy);
+                RefInvoker.setField("android.webkit.WebViewFactory", "sProviderInstance", webViewFactoryProviderProxy);
             } else {
                 //如果取不到值，原因可能是不同版本差异
             }
@@ -149,14 +149,14 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                         } catch (ClassNotFoundException e) {
                         }
                         if (sContextUtils != null) {
-                            RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
+                            RefInvoker.setField(null, sContextUtils, "sApplicationContext", null);
                             RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
                             LogUtil.d("触发了切换WebView Context");
                         }
                     }
                 }
             } else {
-                RefInvoker.setFieldObject(null, sContextUtils, "sApplicationContext", null);
+                RefInvoker.setField(null, sContextUtils, "sApplicationContext", null);
                 RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
                 // 不同的Chrome版本, 初始化的方法不同
                 // for Chrome version 52.0.2743.98

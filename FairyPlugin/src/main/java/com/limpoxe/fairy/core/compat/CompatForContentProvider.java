@@ -32,7 +32,7 @@ public class CompatForContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
             }
             try {
-                Object mContentProvider = RefInvoker.getFieldObject(client, ContentProviderClient.class, "mContentProvider");
+                Object mContentProvider = RefInvoker.getField(client, ContentProviderClient.class, "mContentProvider");
                 if (mContentProvider != null) {
                     //public Bundle call(String method, String request, Bundle args)
                     Object result = RefInvoker.invokeMethod(mContentProvider, "android.content.IContentProvider", "call",

@@ -263,9 +263,9 @@ public class PluginLauncher implements Serializable {
 
 		//退出 LocalBroadcastManager
 		LogUtil.d("退出LocalBroadcastManager");
-		Object mInstance = RefInvoker.getStaticFieldObject("android.support.v4.content.LocalBroadcastManager", "mInstance");
+		Object mInstance = RefInvoker.getField("android.support.v4.content.LocalBroadcastManager", "mInstance");
 		if (mInstance != null) {
-			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = (HashMap<BroadcastReceiver, ArrayList<IntentFilter>>)RefInvoker.getFieldObject(mInstance,
+			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = (HashMap<BroadcastReceiver, ArrayList<IntentFilter>>)RefInvoker.getField(mInstance,
 					"android.support.v4.content.LocalBroadcastManager", "mReceivers");
 			if (mReceivers != null) {
 				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();

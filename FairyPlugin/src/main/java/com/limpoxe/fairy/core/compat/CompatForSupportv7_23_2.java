@@ -38,12 +38,12 @@ public class CompatForSupportv7_23_2 {
                 Resources activiyResource = activity.getResources();
                 Class TintResources = pluginContext.getClassLoader().loadClass("android.support.v7.widget.TintResources");
                 if (TintResources != null && TintResources.isAssignableFrom(activiyResource.getClass())) {
-                    RefInvoker.setFieldObject(activity, AppCompatActivity, "mResources", pluginContext.getResources());
+                    RefInvoker.setField(activity, AppCompatActivity, "mResources", pluginContext.getResources());
                     Class TintContextWrapper = pluginContext.getClassLoader().loadClass("android.support.v7.widget.TintContextWrapper");
                     if (TintContextWrapper != null) {
-                        Object sCache = (Object)RefInvoker.getFieldObject(null, TintContextWrapper, "sCache");
+                        Object sCache = (Object)RefInvoker.getField(null, TintContextWrapper, "sCache");
                         if (!(sCache instanceof TintContextWrapperArrayList)) {
-                            RefInvoker.setFieldObject(null, TintContextWrapper, "sCache", new TintContextWrapperArrayList(TintContextWrapper));
+                            RefInvoker.setField(null, TintContextWrapper, "sCache", new TintContextWrapperArrayList(TintContextWrapper));
                         }
                     }
                 }
@@ -67,10 +67,10 @@ public class CompatForSupportv7_23_2 {
             Object tintContextWrapper = ref.get();
             if (tintContextWrapper != null) {
                 Resources resources = ((ContextWrapper)tintContextWrapper).getBaseContext().getResources();
-                RefInvoker.setFieldObject(tintContextWrapper, TintContextWrapper, "mResources", resources);
+                RefInvoker.setField(tintContextWrapper, TintContextWrapper, "mResources", resources);
                 Resources.Theme theme = resources.newTheme();
                 theme.setTo(((ContextWrapper)tintContextWrapper).getBaseContext().getTheme());
-                RefInvoker.setFieldObject(tintContextWrapper, TintContextWrapper, "mTheme", theme);
+                RefInvoker.setField(tintContextWrapper, TintContextWrapper, "mTheme", theme);
             }
             return super.add(object);
         }

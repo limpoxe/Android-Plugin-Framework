@@ -36,14 +36,14 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
     public static void installProxy() {
         LogUtil.d("安装ActivityManagerProxy");
-        Object androidAppActivityManagerProxy = RefInvoker.invokeStaticMethod("android.app.ActivityManagerNative", "getDefault", (Class[])null, (Object[])null);
+        Object androidAppActivityManagerProxy = RefInvoker.invokeMethod("android.app.ActivityManagerNative", "getDefault", (Class[])null, (Object[])null);
         Object androidAppIActivityManagerStubProxyProxy = ProxyUtil.createProxy(androidAppActivityManagerProxy, new AndroidAppIActivityManager());
-        Object singleton = RefInvoker.getStaticFieldObject("android.app.ActivityManagerNative", "gDefault");
+        Object singleton = RefInvoker.getField("android.app.ActivityManagerNative", "gDefault");
         //如果是IActivityManager
         if (singleton.getClass().isAssignableFrom(androidAppIActivityManagerStubProxyProxy.getClass())) {
-            RefInvoker.setStaticObject("android.app.ActivityManagerNative", "gDefault", androidAppIActivityManagerStubProxyProxy);
+            RefInvoker.setField("android.app.ActivityManagerNative", "gDefault", androidAppIActivityManagerStubProxyProxy);
         } else {//否则是包装过的单例
-            RefInvoker.setFieldObject(singleton, "android.util.Singleton", "mInstance", androidAppIActivityManagerStubProxyProxy);
+            RefInvoker.setField(singleton, "android.util.Singleton", "mInstance", androidAppIActivityManagerStubProxyProxy);
         }
         LogUtil.d("安装完成");
     }

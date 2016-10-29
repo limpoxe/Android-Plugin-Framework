@@ -40,12 +40,12 @@ public class AndroidOsServiceManager extends MethodProxy {
             ViewConfiguration.get(PluginLoader.getApplication());
         }
 
-        Object androidOsServiceManagerProxy = RefInvoker.invokeStaticMethod("android.os.ServiceManager", "getIServiceManager", (Class[])null, (Object[])null);
+        Object androidOsServiceManagerProxy = RefInvoker.invokeMethod("android.os.ServiceManager", "getIServiceManager", (Class[])null, (Object[])null);
         Object androidOsServiceManagerProxyProxy = createProxy(androidOsServiceManagerProxy, new AndroidOsServiceManager());
-        RefInvoker.setStaticObject("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
+        RefInvoker.setField("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
 
         //干掉缓存
-        sCache = (HashMap<String, IBinder>)RefInvoker.getFieldObject(null, "android.os.ServiceManager", "sCache");
+        sCache = (HashMap<String, IBinder>)RefInvoker.getField(null, "android.os.ServiceManager", "sCache");
         sCacheKeySet = new HashSet<String>();
         sCacheKeySet.addAll(sCache.keySet());
         sCache.clear();

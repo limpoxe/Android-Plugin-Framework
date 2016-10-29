@@ -16,11 +16,11 @@ public class CompatForSupportv7ViewInflater {
     private static final String android_support_v7_app_AppCompatViewInflater_sConstructorMap = "sConstructorMap";
 
     public static void installPluginCustomViewConstructorCache() {
-        Map cache = (Map) RefInvoker.getFieldObject(null, "android.support.v7.app.AppCompatViewInflater", android_support_v7_app_AppCompatViewInflater_sConstructorMap);
+        Map cache = (Map) RefInvoker.getField(null, "android.support.v7.app.AppCompatViewInflater", android_support_v7_app_AppCompatViewInflater_sConstructorMap);
         if (cache != null) {
             ConstructorHashMap<String, Constructor<? extends View>> newCacheMap = new ConstructorHashMap<String, Constructor<? extends View>>();
             newCacheMap.putAll(cache);
-            RefInvoker.setFieldObject(null, "android.support.v7.app.AppCompatViewInflater", android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
+            RefInvoker.setField(null, "android.support.v7.app.AppCompatViewInflater", android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
         }
     }
 

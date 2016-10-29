@@ -157,7 +157,7 @@ public class PluginAppTrace implements Handler.Callback {
 	private static void afterReceiver(Result result) {
 		if (ProcessUtil.isPluginProcess()) {
 			if (result != null && result.baseContext != null) {
-				RefInvoker.setFieldObject(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+				RefInvoker.setField(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
 			}
 		}
 	}

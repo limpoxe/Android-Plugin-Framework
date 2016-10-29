@@ -9,14 +9,11 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class RefInvoker {
 
-	@SuppressWarnings("rawtypes")
-	public static Object invokeStaticMethod(String className, String methodName, Class[] paramTypes,
-			Object[] paramValues) {
-
+	public static Object invokeMethod(String className, String methodName, Class[] paramTypes,
+									  Object[] paramValues) {
 		return invokeMethod(null, className, methodName, paramTypes, paramValues);
 	}
 
-	@SuppressWarnings("rawtypes")
 	public static Object invokeMethod(Object target, String className, String methodName, Class[] paramTypes,
 			Object[] paramValues) {
 
@@ -32,7 +29,6 @@ public class RefInvoker {
 	public static Object invokeMethod(Object target, Class clazz, String methodName, Class[] paramTypes,
 									  Object[] paramValues) {
 		try {
-			//LogUtil.e("Method", methodName);
 			Method method = clazz.getDeclaredMethod(methodName, paramTypes);
 			if (!method.isAccessible()) {
 				method.setAccessible(true);
@@ -52,8 +48,23 @@ public class RefInvoker {
 		return null;
 	}
 
+	public static Object getField(String className, String fieldName) {
+		return getField(null, className, fieldName);
+	}
+
 	@SuppressWarnings("rawtypes")
-	public static Object getFieldObject(Object target, Class clazz, String fieldName) {
+	public static Object getField(Object target, String className, String fieldName) {
+		try {
+			Class clazz = Class.forName(className);
+			return getField(target, clazz, fieldName);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static Object getField(Object target, Class clazz, String fieldName) {
 		try {
 			Field field = clazz.getDeclaredField(fieldName);
 			if (!field.isAccessible()) {
@@ -81,35 +92,21 @@ public class RefInvoker {
 
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static Object getFieldObject(Object target, String className, String fieldName) {
-		Class clazz = null;
-		try {
-			clazz = Class.forName(className);
-			return getFieldObject(target, clazz, fieldName);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public static Object getStaticFieldObject(String className, String fieldName) {
-
-		return getFieldObject(null, className, fieldName);
+	public static void setField(String className, String fieldName, Object fieldValue) {
+		setField(null, className, fieldName, fieldValue);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static void setFieldObject(Object target, String className, String fieldName, Object fieldValue) {
-		Class clazz = null;
+	public static void setField(Object target, String className, String fieldName, Object fieldValue) {
 		try {
-			clazz = Class.forName(className);
-			setFieldObject(target, clazz, fieldName, fieldValue);
+			Class clazz = Class.forName(className);
+			setField(target, clazz, fieldName, fieldValue);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void setFieldObject(Object target, Class clazz, String fieldName, Object fieldValue) {
+	public static void setField(Object target, Class clazz, String fieldName, Object fieldValue) {
 		try {
 			Field field = clazz.getDeclaredField(fieldName);
 			if (!field.isAccessible()) {
@@ -135,10 +132,6 @@ public class RefInvoker {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static void setStaticObject(String className, String fieldName, Object fieldValue) {
-		setFieldObject(null, className, fieldName, fieldValue);
 	}
 
 	public static Method findMethod(Object object, String methodName, Class[] clazzes) {
@@ -204,6 +197,34 @@ public class RefInvoker {
 			convertedClass = primitiveWrapperMap.get(cls);
 		}
 		return convertedClass;
+	}
+
+	public static <T> Wrapper wrap(T instance) {
+		return new Wrapper(instance);
+	}
+
+	public static class Wrapper {
+
+		Object instance;
+
+		Wrapper(Object instance) {
+			this.instance = instance;
+		}
+
+		public <K> K with(Class<K> k) {
+			try {
+				return k.getConstructor(Object.class).newInstance(instance);
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
 	}
 
 }
