@@ -54,3 +54,63 @@ def applyThemePatch(taskName) {
         }
     }
 }
+
+/** fix provided config for aar dependences
+ext.plist = []
+configurations.provided.dependencies.each {dep ->
+    println dep
+    gradle.startParameter.taskNames.each { startTaskName ->
+        if (startTaskName.startsWith("assemble") || startTaskName.startsWith("build")) {
+            if (dep.version.equals('unspecified')) {
+
+                String buildType = startTaskName.replace("assemble", "").replace("build", "")
+                if (buildType.length() == 0) {
+                    buildType = "debug";
+                }
+
+                //为依赖库插入jar任务
+                dep.dependencyProject.tasks.getByName("compile" + buildType + "Sources").doLast {
+                    String jarTaskName = "jar" + buildType.substring(0, 1).toUpperCase()+ buildType.replaceFirst("\\w","") +  "Classes"
+                    println '执行task：' + jarTaskName;
+                    dep.dependencyProject.tasks.getByName(jarTaskName).execute()
+                }
+
+                //src的jar
+                File srcJar = new File(dep.dependencyProject.buildDir, "intermediates/packaged/" + buildType + "/classes.jar")
+                addProvidedDependences(configurations.provided.dependencies, srcJar);
+
+                //处理aar依赖
+                File aarDir = new File(dep.dependencyProject.buildDir, "intermediates/exploded-aar")
+                addProvidedDependences(configurations.provided.dependencies, aarDir)
+
+                //处理libs/jar依赖
+                //TODO
+
+            }
+        }
+    }
+}
+
+configurations.provided.dependencies.clear()
+
+ext.plist.each { path ->
+    configurations.provided.dependencies.add(project.dependencies.create(files(path)))
+    println "try add provided jar to plugin project : " + path
+}
+
+def addProvidedDependences(DependencySet providedDepSet, File root) {
+    //宿主编译前文件可能不存在, 所以要先编译宿主 再编译插件
+    if (root.getName().endsWith(".jar")) {
+        ext.plist +=[root.getAbsolutePath()]
+        //providedDepSet.add(project.dependencies.create(files(root.getAbsolutePath())))
+        //println "try add provided jar to plugin project : " + root.getAbsolutePath()
+    } else {
+        File[] subFiles = root.listFiles();
+        if (subFiles != null) {
+            for (File subFile : subFiles) {
+                addProvidedDependences(providedDepSet, subFile);
+            }
+        }
+    }
+}
+*/
