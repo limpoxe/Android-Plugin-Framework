@@ -6,9 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.limpoxe.fairy.core.android.ActivityThread;
+import com.limpoxe.fairy.core.android.HackContextImpl;
+import com.limpoxe.fairy.core.android.HackService;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 /**
  * 此类用于修正service的中的context
@@ -36,12 +36,13 @@ public class PluginShadowService extends Service {
 
 	private void getAttachParam() {
 		mBaseContext = getBaseContext();
-		mThread = RefInvoker.getField(this, Service.class, "mThread");
-		mClassName = (String)RefInvoker.getField(this, Service.class, "mClassName");
-		mToken = (IBinder) RefInvoker.getField(this, Service.class, "mToken"); ;
+		HackService hackService = new HackService(this);
+		mThread = hackService.getThread();
+		mClassName = hackService.getClassName();
+		mToken = hackService.getToken();
 		mApplication = getApplication();
-		mActivityManager = RefInvoker.getField(this, Service.class, "mActivityManager");
-		mStartCompatibility = (Boolean)RefInvoker.getField(this, Service.class, "mStartCompatibility");
+		mActivityManager = hackService.getActivityManager();
+		mStartCompatibility = hackService.getStartCompatibility();
 	}
 
 	private void callServiceOnCreate() {
@@ -58,15 +59,10 @@ public class PluginShadowService extends Service {
 		}
 
 		try {
-			RefInvoker.invokeMethod(mBaseContext, "android.app.ContextImpl", "setOuterContext",
-					new Class[]{Context.class}, new Object[]{realService});
-			RefInvoker.invokeMethod(realService, Service.class, "attach",
-					new Class[]{Context.class,
-							ActivityThread.clazz(), String.class, IBinder.class,
-							Application.class, Object.class},
-					new Object[]{mBaseContext, mThread, mClassName, mToken,
-							mApplication, mActivityManager});
-			RefInvoker.setField(realService, Service.class, "mStartCompatibility", mStartCompatibility);
+			new HackContextImpl(mBaseContext).setOuterContext(realService);
+			HackService hackService = new HackService(realService);
+			hackService.attach(mBaseContext, mThread, mClassName, mToken, mApplication, mActivityManager);
+			hackService.setStartCompatibility(mStartCompatibility);
 
 			//拿到创建好的service，重新 设置mBase和mApplicaiton
 			PluginInjector.replacePluginServiceContext(realName, realService);

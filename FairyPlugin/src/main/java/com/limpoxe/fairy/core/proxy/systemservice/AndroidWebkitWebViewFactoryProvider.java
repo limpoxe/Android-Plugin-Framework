@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
 
+import com.limpoxe.fairy.core.android.HackWebViewFactory;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
@@ -28,10 +29,10 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             LogUtil.d("安装WebViewFactoryProviderProxy");
             //在4.4及以上，这里的WebViewFactoryProvider的实际类型是
             // com.android.webview.chromium.WebViewChromiumFactoryProvider implements WebViewFactoryProvider
-            Object webViewFactoryProvider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
+            Object webViewFactoryProvider = HackWebViewFactory.getProvider();
             if (webViewFactoryProvider != null) {
                 Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
-                RefInvoker.setField("android.webkit.WebViewFactory", "sProviderInstance", webViewFactoryProviderProxy);
+                HackWebViewFactory.setProviderInstance(webViewFactoryProviderProxy);
             } else {
                 //如果取不到值，原因可能是不同版本差异
             }
@@ -104,7 +105,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             ClassLoader cl = null;
             if (sContextUtils == null) {
                 if (sContentMain == null) {
-                    Object provider = RefInvoker.invokeMethod(null, "android.webkit.WebViewFactory", "getProvider", (Class[]) null, (Object[]) null);
+                    Object provider = HackWebViewFactory.getProvider();
                     if (provider != null) {
                         cl = provider.getClass().getClassLoader();
 

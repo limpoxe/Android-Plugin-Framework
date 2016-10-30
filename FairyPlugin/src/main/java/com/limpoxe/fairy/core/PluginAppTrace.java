@@ -6,11 +6,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.limpoxe.fairy.core.android.ActivityThread;
+import com.limpoxe.fairy.core.android.HackActivityThread;
+import com.limpoxe.fairy.core.android.HackContextImpl;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 import java.util.Map;
 
@@ -121,9 +121,8 @@ public class PluginAppTrace implements Handler.Callback {
 		if (ProcessUtil.isPluginProcess()) {
 			//销毁service时回收映射关系, 之所以要回收映射关系是为了能在宿主中尽量少的注册占位组件.
 			//即回收映射关系并不是必须的, 只要预注册的占位组件数据足够即可.
-			Object activityThread = ActivityThread.currentActivityThread();
-			if (activityThread != null) {
-				Map<IBinder, Service> services = ActivityThread.getAllServices();
+			if (HackActivityThread.get() != null) {
+				Map<IBinder, Service> services = HackActivityThread.get().getServices();
 				if (services != null) {
 					Service service = services.get(msg.obj);
 					if (service != null) {
@@ -157,7 +156,7 @@ public class PluginAppTrace implements Handler.Callback {
 	private static void afterReceiver(Result result) {
 		if (ProcessUtil.isPluginProcess()) {
 			if (result != null && result.baseContext != null) {
-				RefInvoker.setField(result.baseContext, "android.app.ContextImpl", "mReceiverRestrictedContext", null);
+				new HackContextImpl(result.baseContext).setReceiverRestrictedContext(null);
 			}
 		}
 	}

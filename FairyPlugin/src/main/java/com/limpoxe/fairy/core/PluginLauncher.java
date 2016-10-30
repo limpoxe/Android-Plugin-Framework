@@ -20,7 +20,9 @@ import android.os.Looper;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.android.ActivityThread;
+import com.limpoxe.fairy.core.android.HackApplication;
+import com.limpoxe.fairy.core.android.HackActivityThread;
+import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
 import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
@@ -28,7 +30,6 @@ import com.limpoxe.fairy.manager.PluginActivityMonitor;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -169,7 +170,7 @@ public class PluginLauncher implements Serializable {
 		LogUtil.i("初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName() + ", 耗时:" + (t3 - t13));
 
 		try {
-			ActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
+			HackActivityThread.installPackageInfo(PluginLoader.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
 					pluginClassLoader, pluginRes, pluginApplication);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -232,7 +233,7 @@ public class PluginLauncher implements Serializable {
 				//由于我们把插件Activity内部的application成员变量替换调用了  会导致不会触发宿主中注册的ActivityLifecycleCallbacks
 				//那么我们在这里给插件的Application对象注册一个callback bridge。将插件的call发给宿主的call，
 				//从而使得宿主application中注册的callback能监听到插件Activity的声明周期
-				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge());
+				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge(PluginLoader.getApplication()));
 			} else {
 				//对于小于14的版本，影响是，StubActivity的绑定关系不能被回收，
 				// 意味着宿主配置的非Stand的StubActivity的个数不能小于插件中对应的类型的个数的总数，否则可能会出现找不到映射的StubActivity
@@ -263,17 +264,17 @@ public class PluginLauncher implements Serializable {
 
 		//退出 LocalBroadcastManager
 		LogUtil.d("退出LocalBroadcastManager");
-		Object mInstance = RefInvoker.getField("android.support.v4.content.LocalBroadcastManager", "mInstance");
+
+		Object mInstance = HackSupportV4LocalboarcastManager.getInstance();
 		if (mInstance != null) {
-			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = (HashMap<BroadcastReceiver, ArrayList<IntentFilter>>)RefInvoker.getField(mInstance,
-					"android.support.v4.content.LocalBroadcastManager", "mReceivers");
+			HackSupportV4LocalboarcastManager hackSupportV4LocalboarcastManager = new HackSupportV4LocalboarcastManager(mInstance);
+			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = hackSupportV4LocalboarcastManager.getReceivers();
 			if (mReceivers != null) {
 				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
 				while(ir.hasNext()) {
 					BroadcastReceiver item = ir.next();
 					if (item.getClass().getClassLoader() == plugin.pluginClassLoader) {
-						RefInvoker.invokeMethod(mInstance, "android.support.v4.content.LocalBroadcastManager",
-								"unregisterReceiver", new Class[]{BroadcastReceiver.class}, new Object[]{item});
+						hackSupportV4LocalboarcastManager.unregisterReceiver(item);
 					}
 				}
 			}
@@ -281,7 +282,7 @@ public class PluginLauncher implements Serializable {
 
 		//退出Service
 		//bindservie启动的service应该不需要处理，退出activity的时候会unbind
-		Map<IBinder, Service> map = ActivityThread.getAllServices();
+		Map<IBinder, Service> map = HackActivityThread.get().getServices();
 		if (map != null) {
 			Collection<Service> list = map.values();
 			for (Service s :list) {
@@ -330,39 +331,46 @@ public class PluginLauncher implements Serializable {
 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	static class LifecycleCallbackBridge implements ActivityLifecycleCallbacks {
+
+		private HackApplication hackPluginApplication;
+
+		public LifecycleCallbackBridge(Application pluginApplication) {
+			this.hackPluginApplication = new HackApplication(pluginApplication);
+		}
+
 		@Override
 		public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-			AndroidAppApplication.dispatchActivityCreated(PluginLoader.getApplication(), activity, savedInstanceState);
+			hackPluginApplication.dispatchActivityCreated(activity, savedInstanceState);
 		}
 
 		@Override
 		public void onActivityStarted(Activity activity) {
-			AndroidAppApplication.dispatchActivityStarted(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityStarted(activity);
 		}
 
 		@Override
 		public void onActivityResumed(Activity activity) {
-			AndroidAppApplication.dispatchActivityResumed(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityResumed(activity);
 		}
 
 		@Override
 		public void onActivityPaused(Activity activity) {
-			AndroidAppApplication.dispatchActivityPaused(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityPaused(activity);
 		}
 
 		@Override
 		public void onActivityStopped(Activity activity) {
-			AndroidAppApplication.dispatchActivityStopped(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityStopped(activity);
 		}
 
 		@Override
 		public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-			AndroidAppApplication.dispatchActivitySaveInstanceState(PluginLoader.getApplication(), activity, outState);
+			hackPluginApplication.dispatchActivitySaveInstanceState(activity, outState);
 		}
 
 		@Override
 		public void onActivityDestroyed(Activity activity) {
-			AndroidAppApplication.dispatchActivityDestroyed(PluginLoader.getApplication(), activity);
+			hackPluginApplication.dispatchActivityDestroyed(activity);
 		}
 	}
 }

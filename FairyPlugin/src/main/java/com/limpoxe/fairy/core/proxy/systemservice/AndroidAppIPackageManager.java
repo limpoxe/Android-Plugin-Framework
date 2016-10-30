@@ -15,14 +15,15 @@ import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.PluginLoader;
-import com.limpoxe.fairy.core.compat.CompatForParceledListSliceApi21;
+import com.limpoxe.fairy.core.android.HackActivityThread;
+import com.limpoxe.fairy.core.android.HackApplicationPackageManager;
+import com.limpoxe.fairy.core.android.HackParceledListSlice;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginManagerProvider;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 import com.limpoxe.fairy.util.ResourceUtil;
 
 import java.io.File;
@@ -30,8 +31,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import static com.limpoxe.fairy.util.RefInvoker.invokeMethod;
 
 /**
  * Created by cailiming on 16/1/15.
@@ -55,10 +54,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
     public static void installProxy(PackageManager manager) {
         LogUtil.d("安装PackageManagerProxy");
-        Object androidAppIPackageManagerStubProxy = RefInvoker.getField("android.app.ActivityThread", "sPackageManager");
+        Object androidAppIPackageManagerStubProxy = HackActivityThread.getPackageManager();
         Object androidAppIPackageManagerStubProxyProxy = ProxyUtil.createProxy(androidAppIPackageManagerStubProxy, new AndroidAppIPackageManager());
-        RefInvoker.setField("android.app.ActivityThread", "sPackageManager", androidAppIPackageManagerStubProxyProxy);
-        RefInvoker.setField(manager, "android.app.ApplicationPackageManager", "mPM", androidAppIPackageManagerStubProxyProxy);
+        HackActivityThread.setPackageManager(androidAppIPackageManagerStubProxyProxy);
+        HackApplicationPackageManager hackApplicationPackageManager = new HackApplicationPackageManager(manager);
+        hackApplicationPackageManager.setPM(androidAppIPackageManagerStubProxyProxy);
         LogUtil.d("安装完成");
     }
 
@@ -91,7 +91,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             if (Build.VERSION.SDK_INT >= 18) {//android4.3
                 Collection<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
                 if (plugins != null) {
-                    List<PackageInfo> resultList = (List<PackageInfo>) invokeMethod(invokeResult, "android.content.pm.ParceledListSlice", "getList", (Class[])null, (Object[])null);
+                    List<PackageInfo> resultList = (List<PackageInfo>) new HackParceledListSlice(invokeResult).getList();
                     if (resultList != null) {
                         for(PluginDescriptor pluginDescriptor:plugins) {
                             PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
@@ -130,7 +130,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     ResolveInfo info = new ResolveInfo();
                     resultList.add(info);
                     info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
-                    Object parceledListSlice = CompatForParceledListSliceApi21.newInstance(resultList);
+                    Object parceledListSlice = HackParceledListSlice.newParecledListSlice(resultList);
                     return parceledListSlice;
                 }
 
@@ -243,7 +243,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     ResolveInfo info = new ResolveInfo();
                     resultList.add(info);
                     info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
-                    Object parceledListSlice = CompatForParceledListSliceApi21.newInstance(resultList);
+                    Object parceledListSlice = HackParceledListSlice.newParecledListSlice(resultList);
                     return parceledListSlice;
                 }
             }

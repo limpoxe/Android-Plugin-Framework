@@ -7,8 +7,9 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.android.HackContentProviderClient;
+import com.limpoxe.fairy.core.android.HackIContentProvider;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 /**
  * Created by cailiming on 16/4/14.
@@ -32,12 +33,11 @@ public class CompatForContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
             }
             try {
-                Object mContentProvider = RefInvoker.getField(client, ContentProviderClient.class, "mContentProvider");
+                HackContentProviderClient hackContentProviderClient = new HackContentProviderClient(client);
+                Object mContentProvider = hackContentProviderClient.getContentProvider();
                 if (mContentProvider != null) {
                     //public Bundle call(String method, String request, Bundle args)
-                    Object result = RefInvoker.invokeMethod(mContentProvider, "android.content.IContentProvider", "call",
-                            new Class[]{String.class, String.class, Bundle.class},
-                            new Object[]{method, arg, extras});
+                    Object result = new HackIContentProvider(mContentProvider).call(method, arg, extras);
                     return  (Bundle) result;
                 }
 

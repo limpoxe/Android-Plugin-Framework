@@ -9,9 +9,31 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AndroidViewLayoutInflater {
+public class HackLayoutInflater {
 
-    private static final String android_view_LayoutInflater_sConstructorMap = "sConstructorMap";
+    private static final String ClassName = "android.view.LayoutInflater";
+
+    private static final String Field_sConstructorMap = "sConstructorMap";
+
+    private static final String Method_setPrivateFactory = "setPrivateFactory";
+
+    private Object instance;
+
+    public HackLayoutInflater(LayoutInflater instance) {
+        this.instance = instance;
+    }
+
+    public static Map getConstructorMap() {
+        return (Map)RefInvoker.getField(null, ClassName, Field_sConstructorMap);
+    }
+
+    public static void setConstructorMap(Map map) {
+        RefInvoker.setField(null, ClassName, Field_sConstructorMap, map);
+    }
+
+    public void setPrivateFactory(Object factory) {
+        RefInvoker.invokeMethod(instance, ClassName, Method_setPrivateFactory, new Class[]{LayoutInflater.Factory2.class}, new Object[]{factory});
+    }
 
     private static final HashMap<String, Constructor<? extends View>> sConstructorMap =
             new HashMap<String, Constructor<? extends View>>();
@@ -29,11 +51,11 @@ public class AndroidViewLayoutInflater {
      *
      */
     public static void installPluginCustomViewConstructorCache() {
-        Map cache = (Map)RefInvoker.getField(null, LayoutInflater.class, android_view_LayoutInflater_sConstructorMap);
+        Map cache = getConstructorMap();
         if (cache != null) {
             ConstructorHashMap<String, Constructor<? extends View>> newCacheMap = new ConstructorHashMap<String, Constructor<? extends View>>();
             newCacheMap.putAll(cache);
-            RefInvoker.setField(null, LayoutInflater.class, android_view_LayoutInflater_sConstructorMap, newCacheMap);
+            setConstructorMap(newCacheMap);
         }
     }
 
@@ -42,7 +64,7 @@ public class AndroidViewLayoutInflater {
         @Override
         public V put(K key, V value) {
             if (systemClassloader == null) {
-                systemClassloader = AndroidViewLayoutInflater.class.getClassLoader().getParent();
+                systemClassloader = HackLayoutInflater.class.getClassLoader().getParent();
             }
             Constructor<? extends View> constructor = (Constructor<? extends View>)value;
             // 如果是系统控件，才缓存。如果是自定义控件，无论是来自插件还是来自宿主，都不缓存

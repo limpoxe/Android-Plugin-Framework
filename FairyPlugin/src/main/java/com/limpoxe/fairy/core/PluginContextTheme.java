@@ -19,6 +19,8 @@ import android.util.ArrayMap;
 import android.view.LayoutInflater;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.android.HackContextImpl;
+import com.limpoxe.fairy.core.android.HackResources;
 import com.limpoxe.fairy.core.compat.CompatForSharedPreferencesImpl;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.multidex.PluginMultiDexHelper;
@@ -31,6 +33,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static com.limpoxe.fairy.core.android.HackResources.selectDefaultTheme;
+import static com.limpoxe.support.servicemanager.util.ParamUtil.result;
 
 /**
  * 注意：意外覆写父类方法可能会抛出LingageError
@@ -104,11 +109,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			return mTheme;
 		}
 
-		Object result = RefInvoker.invokeMethod(Resources.class.getName(), "selectDefaultTheme", new Class[]{
-				int.class, int.class}, new Object[]{mThemeResource,
-				getBaseContext().getApplicationInfo().targetSdkVersion});
+		Integer result = HackResources.selectDefaultTheme(mThemeResource, getBaseContext().getApplicationInfo().targetSdkVersion);
 		if (result != null) {
-			mThemeResource = (Integer) result;
+			mThemeResource = result;
 		}
 
 		initializeTheme();
@@ -159,6 +162,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	}
 
+	//TODO 兼容性待测
 //////IWindowSession.relayout方法已hook,删除此方法 2016-10-11
 //	//@hide
 //	public String getBasePackageName() {
@@ -260,7 +264,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 		if (Build.VERSION.SDK_INT > 23) {
 			synchronized (PluginContextTheme.class) {
-				ArrayMap<String, File> mSharedPrefsPaths = (ArrayMap<String, File>)RefInvoker.getField(getContextImpl(), "android.app.ContextImpl", "mSharedPrefsPaths");
+				HackContextImpl impl = new HackContextImpl(getContextImpl());
+
+				ArrayMap<String, File> mSharedPrefsPaths = impl.getSharedPrefsPaths();
 				String parent = new File(getDataDir(), "shared_prefs").getAbsolutePath();
 				if (mSharedPrefsPaths != null) {
 					File file = mSharedPrefsPaths.get(name);
@@ -269,9 +275,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 					}
 				}
 
-				File mPreferencesDir = (File)RefInvoker.getField(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir");
+				File mPreferencesDir = impl.getPreferencesDir();
 				if (mPreferencesDir == null || !mPreferencesDir.getAbsolutePath().equals(parent)) {
-					RefInvoker.setField(getContextImpl(), "android.app.ContextImpl", "mPreferencesDir", new File(getDataDir(), "shared_prefs"));
+					impl.setPreferencesDir(new File(getDataDir(), "shared_prefs"));
 				}
 			}
 
@@ -286,7 +292,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		//4.4以上版本缓存是延迟初始化的，这里增加这句调用是为了确保已经初始化，防止反射为空
 		PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		Object cache = RefInvoker.getField("android.app.ContextImpl", "sSharedPrefs");
+		Object cache = HackContextImpl.getSharedPrefs();
 		if (Build.VERSION.SDK_INT >= 19 && cache instanceof ArrayMap) {
 			synchronized (PluginContextTheme.class) {
 				ArrayMap<String, ArrayMap<String, Object>> sSharedPrefs = (ArrayMap<String, ArrayMap<String, Object>>)cache;
@@ -485,8 +491,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		while(base instanceof ContextWrapper) {
 			base = ((ContextWrapper)base).getBaseContext();
 		}
-		if (base.getClass().getName().equals("android.app.ContextImpl")) {
-			base = (Context) RefInvoker.invokeMethod(base, "android.app.ContextImpl", "getOuterContext", (Class[])null, (Object[])null);
+		if (HackContextImpl.instanceOf(base)) {
+			base = new HackContextImpl(base).getOuterContext();
 		}
 		return base;
 	}
@@ -498,7 +504,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			base = ((ContextWrapper)base).getBaseContext();
 			dep++;
 		}
-		if (base.getClass().getName().equals("android.app.ContextImpl")) {
+		if (HackContextImpl.instanceOf(base)) {
 			return base;
 		}
 		return null;

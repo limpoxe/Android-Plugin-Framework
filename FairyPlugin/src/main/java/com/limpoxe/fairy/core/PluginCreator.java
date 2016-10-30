@@ -5,9 +5,9 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.android.HackAssetManager;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.File;
 import java.util.List;
@@ -77,9 +77,7 @@ public class PluginCreator {
 				String[] assetPaths = buildAssetPath(isStandalone, mainApkPath,
 						absolutePluginApkPath, dependencies);
 				AssetManager assetMgr = AssetManager.class.newInstance();
-				RefInvoker.invokeMethod(assetMgr, AssetManager.class.getName(), "addAssetPaths",
-						new Class[] { String[].class }, new Object[] { assetPaths });
-
+				new HackAssetManager(assetMgr).addAssetPaths(assetPaths);
 				Resources pluginRes = new PluginResourceWrapper(assetMgr, mainRes.getDisplayMetrics(),
 						mainRes.getConfiguration(), pluginDescriptor);
 

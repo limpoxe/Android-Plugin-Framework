@@ -5,11 +5,11 @@ import android.os.IBinder;
 import android.view.ViewConfiguration;
 
 import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.android.HackServiceManager;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -40,12 +40,12 @@ public class AndroidOsServiceManager extends MethodProxy {
             ViewConfiguration.get(PluginLoader.getApplication());
         }
 
-        Object androidOsServiceManagerProxy = RefInvoker.invokeMethod("android.os.ServiceManager", "getIServiceManager", (Class[])null, (Object[])null);
+        Object androidOsServiceManagerProxy = HackServiceManager.getIServiceManager();
         Object androidOsServiceManagerProxyProxy = createProxy(androidOsServiceManagerProxy, new AndroidOsServiceManager());
-        RefInvoker.setField("android.os.ServiceManager", "sServiceManager", androidOsServiceManagerProxyProxy);
+        HackServiceManager.setServiceManager(androidOsServiceManagerProxyProxy);
 
         //干掉缓存
-        sCache = (HashMap<String, IBinder>)RefInvoker.getField(null, "android.os.ServiceManager", "sCache");
+        sCache = HackServiceManager.getCache();
         sCacheKeySet = new HashSet<String>();
         sCacheKeySet.addAll(sCache.keySet());
         sCache.clear();
@@ -60,8 +60,13 @@ public class AndroidOsServiceManager extends MethodProxy {
             LogUtil.i("ServiceManager.getService", args[0], invokeResult != null);
             if (ProcessUtil.isPluginProcess() && invokeResult != null) {
                 IBinder binder = AndroidOsIBinder.installProxy((IBinder) invokeResult);
-                //补回安装时干掉的缓存
+                //0 = "package" //7.0
+                //1 = "window" //7.0
+                //2 = "alarm" //7.0
                 if (sCacheKeySet.contains(args[0])) {
+                    LogUtil.i("补回安装时干掉的缓存", args[0]);
+                    //TODO 在这里可以hook window service manager
+                    //AndroidViewWindowManager.installProxy()
                     sCache.put((String) args[0], binder);
                 }
                 return binder;

@@ -8,14 +8,15 @@ import android.os.IBinder;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.PluginShadowService;
-import com.limpoxe.fairy.core.android.ActivityThread;
+import com.limpoxe.fairy.core.android.HackActivityManagerNative;
+import com.limpoxe.fairy.core.android.HackActivityThread;
+import com.limpoxe.fairy.core.android.HackSingleton;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.PendingIntentHelper;
 import com.limpoxe.fairy.util.ProcessUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 import com.limpoxe.fairy.util.ResourceUtil;
 
 import java.lang.reflect.Method;
@@ -36,14 +37,14 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
     public static void installProxy() {
         LogUtil.d("安装ActivityManagerProxy");
-        Object androidAppActivityManagerProxy = RefInvoker.invokeMethod("android.app.ActivityManagerNative", "getDefault", (Class[])null, (Object[])null);
+        Object androidAppActivityManagerProxy = HackActivityManagerNative.getDefault();
         Object androidAppIActivityManagerStubProxyProxy = ProxyUtil.createProxy(androidAppActivityManagerProxy, new AndroidAppIActivityManager());
-        Object singleton = RefInvoker.getField("android.app.ActivityManagerNative", "gDefault");
+        Object singleton = HackActivityManagerNative.getGDefault();
         //如果是IActivityManager
         if (singleton.getClass().isAssignableFrom(androidAppIActivityManagerStubProxyProxy.getClass())) {
-            RefInvoker.setField("android.app.ActivityManagerNative", "gDefault", androidAppIActivityManagerStubProxyProxy);
+            HackActivityManagerNative.setGDefault(androidAppIActivityManagerStubProxyProxy);
         } else {//否则是包装过的单例
-            RefInvoker.setField(singleton, "android.util.Singleton", "mInstance", androidAppIActivityManagerStubProxyProxy);
+            new HackSingleton(singleton).setInstance(androidAppIActivityManagerStubProxyProxy);
         }
         LogUtil.d("安装完成");
     }
@@ -126,7 +127,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
             if (ProcessUtil.isPluginProcess()) {
                 for (Object obj: args) {
                     if (obj instanceof IBinder) {
-                        Map<IBinder, Service> services = ActivityThread.getAllServices();
+                        Map<IBinder, Service> services = HackActivityThread.get().getServices();
                         Service service = services.get(obj);
                         if (service instanceof PluginShadowService) {
                             if (((PluginShadowService) service).realService != null) {

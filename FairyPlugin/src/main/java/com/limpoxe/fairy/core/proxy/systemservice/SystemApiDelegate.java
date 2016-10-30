@@ -42,8 +42,7 @@ public class SystemApiDelegate extends MethodDelegate {
             LogUtil.v("afterInvoke", descriptor, method.getName());
             if ("openSession".equals(method.getName())) {
                 if (invokeResult != null) {
-                    //TODO 暂时不hook， 这个hook会引起弹Dailog和PopupWindow时发生DeadObject异常，
-                    Object windowSession = null;//AndroidViewIWindowSession.installProxy(invokeResult);
+                    Object windowSession = AndroidViewIWindowSession.installProxy(invokeResult);
                     if (windowSession != null) {
                         return windowSession;
                     }

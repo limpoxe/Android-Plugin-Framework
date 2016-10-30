@@ -1,17 +1,17 @@
 package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import android.widget.RemoteViews;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.PluginIntentResolver;
 import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.android.HackNotificationManager;
+import com.limpoxe.fairy.core.android.HackPendingIntent;
+import com.limpoxe.fairy.core.android.HackRemoteViews;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
@@ -37,9 +37,9 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     public static void installProxy() {
         LogUtil.d("安装NotificationManagerProxy");
-        Object androidAppINotificationStubProxy = RefInvoker.invokeMethod(NotificationManager.class.getName(), "getService", (Class[])null, (Object[])null);
+        Object androidAppINotificationStubProxy = HackNotificationManager.getService();
         Object androidAppINotificationStubProxyProxy = ProxyUtil.createProxy(androidAppINotificationStubProxy, new AndroidAppINotificationManager());
-        RefInvoker.setField(NotificationManager.class.getName(), "sService", androidAppINotificationStubProxyProxy);
+        HackNotificationManager.setService(androidAppINotificationStubProxyProxy);
         LogUtil.d("安装完成");
     }
 
@@ -90,14 +90,16 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     private static void resolveRemoteViews(Notification notification) {
 
+        String hostPackageName = PluginLoader.getApplication().getPackageName();
+
         if (Build.VERSION.SDK_INT >= 23) {
             Icon mSmallIcon = (Icon)RefInvoker.getField(notification, Notification.class, "mSmallIcon");
             Icon mLargeIcon = (Icon)RefInvoker.getField(notification, Notification.class, "mLargeIcon");
             if (mSmallIcon != null) {
-                RefInvoker.setField(mSmallIcon, Icon.class, "mString1", PluginLoader.getApplication().getPackageName());
+                RefInvoker.setField(mSmallIcon, Icon.class, "mString1", hostPackageName);
             }
             if (mLargeIcon != null) {
-                RefInvoker.setField(mLargeIcon, Icon.class, "mString1", PluginLoader.getApplication().getPackageName());
+                RefInvoker.setField(mLargeIcon, Icon.class, "mString1", hostPackageName);
             }
         }
 
@@ -105,21 +107,21 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
             int layoutId = 0;
             if (notification.tickerView != null) {
-                layoutId = (int)RefInvoker.getField(notification.tickerView, RemoteViews.class, "mLayoutId");
+                layoutId = new HackRemoteViews(notification.tickerView).getLayoutId();
             }
             if (layoutId == 0) {
                 if (notification.contentView != null) {
-                    layoutId = (int)RefInvoker.getField(notification.contentView, RemoteViews.class, "mLayoutId");
+                    layoutId = new HackRemoteViews(notification.contentView).getLayoutId();
                 }
             }
             if (layoutId == 0) {
                 if (notification.bigContentView != null) {
-                    layoutId = (int)RefInvoker.getField(notification.bigContentView, RemoteViews.class, "mLayoutId");
+                    layoutId = new HackRemoteViews(notification.bigContentView).getLayoutId();
                 }
             }
             if (layoutId == 0) {
                 if (notification.headsUpContentView != null) {
-                    layoutId = (int)RefInvoker.getField(notification.headsUpContentView, RemoteViews.class, "mLayoutId");
+                    layoutId = new HackRemoteViews(notification.headsUpContentView).getLayoutId();
                 }
             }
 
@@ -142,25 +144,25 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
                     if (notification.tickerView != null) {
                         packageName = notification.tickerView.getPackage();
-                        RefInvoker.setField(notification.tickerView, RemoteViews.class.getName(), "mApplication", newInfo);
+                        new HackRemoteViews(notification.tickerView).setApplicationInfo(newInfo);
                     }
                     if (notification.contentView != null) {
                         if (packageName == null) {
                             packageName = notification.contentView.getPackage();
                         }
-                        RefInvoker.setField(notification.contentView, RemoteViews.class.getName(), "mApplication", newInfo);
+                        new HackRemoteViews(notification.contentView).setApplicationInfo(newInfo);
                     }
                     if (notification.bigContentView != null) {
                         if (packageName == null) {
                             packageName = notification.bigContentView.getPackage();
                         }
-                        RefInvoker.setField(notification.bigContentView, RemoteViews.class.getName(), "mApplication", newInfo);
+                        new HackRemoteViews(notification.bigContentView).setApplicationInfo(newInfo);
                     }
                     if (notification.headsUpContentView != null) {
                         if (packageName == null) {
                             packageName = notification.headsUpContentView.getPackage();
                         }
-                        RefInvoker.setField(notification.headsUpContentView, RemoteViews.class.getName(), "mApplication", newInfo);
+                        new HackRemoteViews(notification.headsUpContentView).setApplicationInfo(newInfo);
                     }
 
                     ApplicationInfo applicationInfo = PluginLoader.getApplication().getApplicationInfo();
@@ -168,16 +170,15 @@ public class AndroidAppINotificationManager extends MethodProxy {
                     newInfo.sourceDir = applicationInfo.sourceDir;
                     newInfo.dataDir = applicationInfo.dataDir;
 
-                    if (packageName != null && !packageName.equals(PluginLoader.getApplication().getPackageName())) {
+                    if (packageName != null && !packageName.equals(hostPackageName)) {
 
                         PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                         //要确保publicSourceDir这个路径可以被SystemUI应用读取，
                         newInfo.publicSourceDir = prepareNotificationResourcePath(pd.getInstalledPath(),
                                 PluginLoader.getApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
 
-                    } else if (packageName != null && packageName.equals(PluginLoader.getApplication().getPackageName())) {
-
-                        Intent intent = (Intent)RefInvoker.invokeMethod(notification.contentIntent, PendingIntent.class.getName(), "getIntent", (Class[]) null, (Object[]) null);
+                    } else if (packageName != null && packageName.equals(hostPackageName)) {
+                        Intent intent = new HackPendingIntent(notification.contentIntent).getIntent();
                         if (intent != null && intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
                             String className = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR)[0];
                             PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(className);
@@ -190,10 +191,10 @@ public class AndroidAppINotificationManager extends MethodProxy {
             }
         } else if (Build.VERSION.SDK_INT >= 11)  {
             if (notification.tickerView != null) {
-                RefInvoker.setField(notification.tickerView, RemoteViews.class, "mPackage", PluginLoader.getApplication().getPackageName());
+                new HackRemoteViews(notification.tickerView).setPackage(hostPackageName);
             }
             if (notification.contentView != null) {
-                RefInvoker.setField(notification.contentView, RemoteViews.class, "mPackage", PluginLoader.getApplication().getPackageName());
+                new HackRemoteViews(notification.contentView).setPackage(hostPackageName);
             }
         }
     }

@@ -8,10 +8,11 @@ import android.os.Build;
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginReceiverIntent;
+import com.limpoxe.fairy.core.android.HackCreateServiceData;
+import com.limpoxe.fairy.core.android.HackReceiverData;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 import java.util.ArrayList;
 
@@ -61,8 +62,9 @@ public class PluginIntentResolver {
 		return result;
 	}
 
-	/* package */static Class resolveReceiverForClassLoader(Object msgObj) {
-		Intent intent = (Intent) RefInvoker.getField(msgObj, "android.app.ActivityThread$ReceiverData", "intent");
+	/* package */static Class resolveReceiverForClassLoader(final Object msgObj) {
+		HackReceiverData hackReceiverData = new HackReceiverData(msgObj);
+		Intent intent = hackReceiverData.getIntent();
 		if (intent.getComponent().getClassName().equals(PluginManagerHelper.bindStubReceiver())) {
 			String action = intent.getAction();
 			LogUtil.v("action", action);
@@ -85,8 +87,7 @@ public class PluginIntentResolver {
 
 				if (Build.VERSION.SDK_INT >= 21) {
 					if (intent.getExtras() != null) {
-						PluginReceiverIntent newIntent = new PluginReceiverIntent(intent);
-						RefInvoker.setField(msgObj, "android.app.ActivityThread$ReceiverData", "intent", newIntent);
+						hackReceiverData.setIntent(new PluginReceiverIntent(intent));
 					}
 				}
 
@@ -98,7 +99,8 @@ public class PluginIntentResolver {
 
 	/* package */static String resolveServiceForClassLoader(Object msgObj) {
 
-		ServiceInfo info = (ServiceInfo) RefInvoker.getField(msgObj, "android.app.ActivityThread$CreateServiceData", "info");
+		HackCreateServiceData hackCreateServiceData = new HackCreateServiceData(msgObj);
+		ServiceInfo info = hackCreateServiceData.getInfo();
 
 		if (ProcessUtil.isPluginProcess()) {
 
