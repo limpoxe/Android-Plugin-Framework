@@ -37,22 +37,17 @@ public class AndroidViewIWindowSession extends MethodDelegate {
         for (Object object : args) {
             if (object != null && object instanceof WindowManager.LayoutParams) {
 
-                WindowManager.LayoutParams attr = ((WindowManager.LayoutParams)object);
+                WindowManager.LayoutParams params = ((WindowManager.LayoutParams)object);
 
-                if (attr.packageName != null && !attr.packageName.equals(PluginLoader.getApplication().getPackageName())) {
+                if (params.packageName != null && !params.packageName.equals(PluginLoader.getApplication().getPackageName())) {
 
                     //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
-                    PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(attr.packageName);
+                    PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(params.packageName);
                     if(pd != null) {
-                        LogUtil.v("修正System api", methodName, attr.packageName, ((WindowManager.LayoutParams)object).packageName);
-
-                        // 这里修正packageName会引起弹PopupWindow时发生WindowManager异常，
-                        // 看起来是资源问题引起
-                        //#00  pc 0002057a  /system/lib/libandroidfw.so (android::ResTable::getBagLocked(unsigned int, android::ResTable::bag_entry const**, unsigned int*) const+153)
-
-                        //TODO 此处暂不修正，原因待查, 可能需要clone，不能直接修改
-                        //attr.packageName = PluginLoader.getApplication().getPackageName();
-                        //((WindowManager.LayoutParams)object).packageName = PluginLoader.getApplication().getPackageName();
+                        LogUtil.v("修正System api", methodName, params.packageName);
+                        //这里修正packageName会引起弹PopupWindow时发生WindowManager异常，
+                        //TODO 此处暂不修正，原因待查
+                        //params.packageName = PluginLoader.getApplication().getPackageName();
                     }
                 }
             }

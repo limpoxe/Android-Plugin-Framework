@@ -162,14 +162,16 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	}
 
-	//TODO 兼容性待测
-//////IWindowSession.relayout方法已hook,删除此方法 2016-10-11
-//	//@hide
-//	public String getBasePackageName() {
-//		//ViewRootImpl中会调用这个方法, 这是个hide方法.
-//		//如果这个方法也返回插件packageName, 则需要hook掉android.view.IWindowSession.relayout方法.
-//		return PluginLoader.getApplication().getPackageName();
-//	}
+	//@hide
+	public String getBasePackageName() {
+		//ViewRootImpl中会调用这个方法, 这是个hide方法.
+		return PluginLoader.getApplication().getPackageName();
+	}
+
+	////@hide
+	public String getOpPackageName() {
+		return PluginLoader.getApplication().getPackageName();
+	}
 
 	@Override
 	public Context getApplicationContext() {

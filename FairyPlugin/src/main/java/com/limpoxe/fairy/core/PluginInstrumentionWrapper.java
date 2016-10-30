@@ -269,10 +269,10 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				}
 				if (HackContextImpl.instanceOf(base)) {
 					HackContextImpl impl = new HackContextImpl(base);
-					//TODO 这里或许应该使用宿主packageName
-					impl.setBasePackageName(activity.getPackageName());
-					//低版本sdk NoSuchFieldException
-					impl.setOpPackageName(activity.getPackageName());
+					String packageName = PluginLoader.getApplication().getPackageName();
+					String packageName1 = activity.getPackageName();
+					impl.setBasePackageName(packageName);
+					impl.setOpPackageName(packageName);
 				}
 			}
 		}
