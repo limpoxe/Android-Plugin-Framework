@@ -16,8 +16,8 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.35-snapshot@aar')
-            //optional
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.36-snapshot@aar')
+            //optional， 用于支持函数式服务，不使用函数服务不需要添加此依赖
             compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
         
@@ -58,7 +58,7 @@
     
     1、新建一个插件工程
     
-    2、如果是独立插件,无需任何配置,编译出来即可当插件apk安装到宿主中
+    2、如果是独立插件,无需任何配置, 一个普通的apk编译出来即可当插件apk安装到宿主中
     
     3、如果是非独立插件, 需要下面2个步骤
      
@@ -66,12 +66,15 @@
              
              <manifest
                     android:sharedUserId="这里填写宿主工程包名"/>
+             
+              这个配置只是作为一个标记符使用，框架通过检查这个配置来判断是否为独立插件，和起原始含义无关
                             
         3.2、在build.gradle中加入如下3个配置
     
             dependencies {
-                //这个配置的意思是使插件依赖宿主的jar, 依赖宿主依赖的aar中的jar
+                //这个配置的意思是使插件运行时依赖宿主中的jar、依赖宿主依赖的aar中的jar
                 //根据自己的实际情况修改为想要依赖的jar的路径即可
+                //这些jar不会被打包到插件中，
                 provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/xxx/xxx/xxx.jar')
             }
             
@@ -85,11 +88,31 @@
         
             apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
               
-        
+        3.3、如果此插件还依赖其他运行时公共插件，比如将网络请求库从宿主中剔除出来作为单独的公共插件使用，参考pluginbase用法
+                在插件AndroidManifest.xml中application节点中增加如下配置:
+               <uses-library android:name="xx.xx.xx" android:required="true" />
+                xx.xx.xx 是其依赖的插件的包名，被依赖的插件不支持携带资源
+                
+        3.4、如果此插件需要对外提供函数式服务（支持同进程和跨进程）
+             插件和外界交互，除了可以使用标准api交互之外，还提供了函数式服务
+             插件发布一个函数服务，只需要在AndroidManifest.xml配置<exported-service>节点
+             其他插件或者宿主即可调用此服务，具体参考demo
+             
+        3.5  如果此插件需要对外提供嵌入式Fragment
+             如果需要在其他插件，或者宿主的Activity中嵌入插件提供的Fragment
+             需要在AndroidManifest.xml配置<exported-fragment>节点，具体参考demo
+             
+        3.6 如果此插件需要对外提供嵌入式View     
+            如果需要在其他插件，或者宿主的Activity中嵌入插件提供的View
+            需要在其他插件，或者宿主的的布局文件中嵌入<pluginView> 节点，用法同普通控件，具体参考demo
+                
     4、如果是非独立插件, 需要先编译宿主, 再编译插件, 因为从如上的配置可以看出非独立插件编译时需要依赖宿主编译时的输出物
-    
-    
-    以上所以内容及更多详情可以参考Demo
+       如果是非独立插件, 需要先编译宿主, 再编译插件
+       如果是非独立插件, 需要先编译宿主, 再编译插件
+       如果是非独立插件, 需要先编译宿主, 再编译插件
+       重要的事情讲3遍！遇到编译问题请先编译宿主, 再编译插件
+       
+    以上所有内容及更多详情可以参考Demo
  
 # 已支持的功能：
   1、插件apk无需安装，由宿主程序动态加载运行。
@@ -114,11 +137,11 @@
 
   10、支持插件资源文件中直接通过@xxx方式引用共享依赖库中的资源
 
-  11、支持插件发送notification时在RemoteViews携带插件自定义的布局资源（只支持5.x及以上）
+  11、支持插件发送notification时在RemoteViews携带插件自定义的布局资源（只支持5.x、6.x,不支持更高或者更低版本）
 
   12、支持插件热更新：即在插件模块已经被唤起的情况先安装新版本插件，无需重启进程
 
-  13、支持在插件中注册全局服务：即在某个插件中注册一个服务，在其他插件中通过LocalServiceManager或者直接使用getSystemService获取这个服务
+  13、支持在插件中注册全局服务：即在某个插件中注册一个服务，在其他插件中通过LocalServiceManager获取这个服务
 
 # 不支持的功能：
 
@@ -373,6 +396,8 @@
 
 # 更新纪录：
 
+    2016-10-22： 支持Android7.0，代码优化、重构
+    
     2016-10-12： 框架目录结构重构
     
     2016-09-28： 1、添加对插件Context的getPackageName返回插件自身PackageName的支持
