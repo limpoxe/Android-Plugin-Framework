@@ -2,6 +2,7 @@ package com.limpoxe.fairy.core.android;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 
 import com.limpoxe.fairy.util.RefInvoker;
 
@@ -26,7 +27,9 @@ public class HackContextThemeWrapper extends HackContextWrapper {
     }
 
     public final void setResources(Resources resources) {
-        RefInvoker.setField(instance, ClassName, Field_mResources, resources);
+        if (Build.VERSION.SDK_INT > 16) {
+            RefInvoker.setField(instance, ClassName, Field_mResources, resources);
+        }
     }
 
     public final void setTheme(Resources.Theme theme) {

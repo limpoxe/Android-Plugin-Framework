@@ -2,6 +2,7 @@ package com.limpoxe.fairy.core.android;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.os.Build;
 import android.util.ArrayMap;
 
 import com.limpoxe.fairy.util.RefInvoker;
@@ -84,7 +85,9 @@ public class HackContextImpl {
     }
 
     public void setOpPackageName(Object value) {
-        RefInvoker.setField(instance, ClassName, Field_mOpPackageName, value);
+        if (Build.VERSION.SDK_INT > 18) {
+            RefInvoker.setField(instance, ClassName, Field_mOpPackageName, value);
+        }
     }
 
 }
