@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public abstract class MethodProxy extends MethodDelegate {
 
-    public static Map<String, MethodDelegate> sMethods = new HashMap<String, MethodDelegate>(5);
+    public static final Map<String, MethodDelegate> sMethods = new HashMap<String, MethodDelegate>(5);
 
     protected MethodDelegate findMethodDelegate(String methodName, Object[] args) {
         return sMethods.get(methodName);

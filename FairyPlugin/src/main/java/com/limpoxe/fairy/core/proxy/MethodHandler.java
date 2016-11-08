@@ -6,9 +6,9 @@ import java.lang.reflect.Method;
 
 public class MethodHandler extends MethodDelegate implements InvocationHandler {
 
-    private Object mTarget = null;
+    private final Object mTarget;
 
-    private MethodDelegate mDelegate;
+    private final MethodDelegate mDelegate;
 
     public MethodHandler(Object target, MethodDelegate delegate) {
         this.mTarget = target;
@@ -26,7 +26,7 @@ public class MethodHandler extends MethodDelegate implements InvocationHandler {
     }
 
     @Override
-    public synchronized Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+    public Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
         Object before = beforeInvoke(mTarget, method, args);
 
         Object invokeResult = null;
