@@ -44,9 +44,13 @@ public class TestFragmentActivity extends AppCompatActivity {
 			Log.d(LOG_TAG, "loadPluginFragment, classId is " + classId);
 			@SuppressWarnings("rawtypes")
 			Class clazz = PluginLoader.loadPluginFragmentClassById(classId);
-			Fragment fragment = (Fragment) clazz.newInstance();
-			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-			ft.replace(R.id.fragment_container, fragment).commit();
+			if (clazz != null) {
+				Fragment fragment = (Fragment) clazz.newInstance();
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				ft.replace(R.id.fragment_container, fragment).commit();
+			} else {
+				Log.e(LOG_TAG, "class not found, classId is " + classId);
+			}
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

@@ -29,9 +29,7 @@ import com.example.pluginsharelib.SharePOJO;
 import com.example.pluginsharelib.ShareService;
 import com.example.plugintest.IMyAidlInterface;
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
-import com.limpoxe.fairy.manager.InstallResult;
 import com.limpoxe.fairy.manager.PluginCallback;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.FileUtil;
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				if (!isInstalled) {
 					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-						int permissionState = PluginLoader.getApplication().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+						int permissionState = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 						if (permissionState != PackageManager.PERMISSION_GRANTED) {
 							if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 								requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 10086);
@@ -344,22 +342,26 @@ public class MainActivity extends AppCompatActivity {
 	};
 
 	private static String getErrMsg(int code) {
-		if(code== InstallResult.SUCCESS) {
+		if(code== PluginManagerHelper.SUCCESS) {
 			return "成功";
-		} else if (code == InstallResult.SRC_FILE_NOT_FOUND) {
+		} else if (code == PluginManagerHelper.SRC_FILE_NOT_FOUND) {
 			return "失败: 安装文件未找到";
-		} else if (code == InstallResult.COPY_FILE_FAIL) {
+		} else if (code == PluginManagerHelper.COPY_FILE_FAIL) {
 			return "失败: 复制安装文件到安装目录失败";
-		} else if (code == InstallResult.SIGNATURES_INVALIDATE) {
+		} else if (code == PluginManagerHelper.SIGNATURES_INVALIDATE) {
 			return "失败: 安装文件验证失败";
-		} else if (code == InstallResult.VERIFY_SIGNATURES_FAIL) {
+		} else if (code == PluginManagerHelper.VERIFY_SIGNATURES_FAIL) {
 			return "失败: 插件和宿主签名串不匹配";
-		} else if (code == InstallResult.PARSE_MANIFEST_FAIL) {
+		} else if (code == PluginManagerHelper.PARSE_MANIFEST_FAIL) {
 			return "失败: 插件Manifest文件解析出错";
-		} if (code == InstallResult.FAIL_BECAUSE_SAME_VER_HAS_LOADED) {
+		} if (code == PluginManagerHelper.FAIL_BECAUSE_SAME_VER_HAS_LOADED) {
 			return "失败: 同版本插件已加载,无需安装";
-		} else if (code == InstallResult.MIN_API_NOT_SUPPORTED) {
+		} else if (code == PluginManagerHelper.MIN_API_NOT_SUPPORTED) {
 			return "失败: 当前系统版本过低,不支持此插件";
+		} else if (code == PluginManagerHelper.PLUGIN_NOT_EXIST) {
+			return "失败: 插件不存在";
+		} else if (code == PluginManagerHelper.REMOVE_FAIL) {
+			return "失败: 删除插件失败";
 		} else {
 			return "失败: 其他 code=" + code;
 		}
