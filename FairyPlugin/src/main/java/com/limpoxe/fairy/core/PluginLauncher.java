@@ -78,6 +78,8 @@ public class PluginLauncher implements Serializable {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
 		if (pluginDescriptor != null) {
 			return startPlugin(pluginDescriptor);
+		} else {
+			LogUtil.e("插件未找到");
 		}
 		return null;
 	}
@@ -139,7 +141,7 @@ public class PluginLauncher implements Serializable {
 					@Override
 					public void run() {
 						if (finalLoadedPlugin.pluginApplication == null) {
-							PluginLauncher.instance().initApplication(finalLoadedPlugin.pluginContext,
+							initApplication(finalLoadedPlugin.pluginContext,
 									finalLoadedPlugin.pluginClassLoader,
 									finalLoadedPlugin.pluginContext.getResources(),
 									((PluginContextTheme)finalLoadedPlugin.pluginContext).getPluginDescriptor(),

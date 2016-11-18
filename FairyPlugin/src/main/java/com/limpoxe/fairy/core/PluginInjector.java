@@ -131,14 +131,20 @@ public class PluginInjector {
 			// 在activityoncreate之前去完成attachBaseContext的事情
 
 			Context pluginContext = null;
-			PluginDescriptor pd = null;
+			PluginDescriptor pluginDescriptor = null;
 
 			if (isStubActivity) {
 				//是打开插件中的activity
 
-				pd = PluginManagerHelper.getPluginDescriptorByClassName(activity.getClass().getName());
+				pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(activity.getClass().getName());
+				if(pluginDescriptor == null) {
+					throw new PluginNotFoundError("plugin with class " + activity.getClass().getName() + " not found");
+				}
 
-				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
+				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
+				if (plugin == null || plugin.pluginApplication == null) {
+					throw new PluginNotInitError("插件尚未初始化 " + pluginDescriptor.getPackageName() + " " + plugin);
+				}
 
 				pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
@@ -148,13 +154,19 @@ public class PluginInjector {
 				//重设mApplication
 				hackActivity.setApplication(pluginApp);
 			} else {
-				//是打开的用来显示插件组件的宿主activity
+
+				//是打开的用来显示插件组件的宿主activity, 比如在宿主Activity中显示插件Fragment或者插件View
 
 				if (!TextUtils.isEmpty(container.pluginId())) {
 					//进入这里表示指定了这个宿主Activity "只显示" 某个插件的组件
 					// 因此直接将这个Activity的Context也替换成插件的Context
-					pd = PluginManagerHelper.getPluginDescriptorByPluginId(container.pluginId());
-					LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(container.pluginId());
+					pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(container.pluginId());
+					if(pluginDescriptor == null) {
+						throw new PluginNotFoundError("plugin with class " + activity.getClass().getName() + " not found");
+					}
+
+					//插件可能尚未初始化，确保使用前已经初始化
+					LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
 					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 				} else {
@@ -166,16 +178,16 @@ public class PluginInjector {
 
 			}
 
-			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(activity.getClass().getName());
+			PluginActivityInfo pluginActivityInfo = pluginDescriptor.getActivityInfos().get(activity.getClass().getName());
 
 			ActivityInfo activityInfo = hackActivity.getActivityInfo();
-			int pluginAppTheme = getPluginTheme(activityInfo, pluginActivityInfo, pd);
+			int pluginAppTheme = getPluginTheme(activityInfo, pluginActivityInfo, pluginDescriptor);
 
 			LogUtil.e("Theme", "0x" + Integer.toHexString(pluginAppTheme), activity.getClass().getName());
 
 			resetActivityContext(pluginContext, activity, pluginAppTheme);
 
-			resetWindowConfig(pluginContext, pd, activity, activityInfo, pluginActivityInfo);
+			resetWindowConfig(pluginContext, pluginDescriptor, activity, activityInfo, pluginActivityInfo);
 
 			activity.setTitle(activity.getClass().getName());
 

@@ -146,10 +146,10 @@ public class PluginManagerProvider extends ContentProvider {
 
         } else if (ACTION_REMOVE.equals(method)) {
 
-            boolean success = manager.remove(arg);
-            bundle.putBoolean(REMOVE_RESULT, success);
+            int code = manager.remove(arg);
+            bundle.putInt(REMOVE_RESULT, code);
 
-            changeListener.onRemove(arg, success);
+            changeListener.onRemove(arg, code);
 
             return bundle;
 

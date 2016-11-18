@@ -118,7 +118,7 @@ class PluginManagerImpl {
 		return isSuccess;
 	}
 
-	synchronized boolean remove(String pluginId) {
+	synchronized int remove(String pluginId) {
 		PluginManagerHelper.clearLocalCache();
 
 		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
@@ -130,11 +130,15 @@ class PluginManagerImpl {
 			result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 			LogUtil.w("delete old", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
+			if (deleteSuccess) {
+				return PluginManagerHelper.SUCCESS;
+			} else {
+				return PluginManagerHelper.REMOVE_FAIL;
+			}
 		} else {
 			LogUtil.e("插件未安装", pluginId);
+			return PluginManagerHelper.PLUGIN_NOT_EXIST;
 		}
-
-		return result;
 	}
 
 	Collection<PluginDescriptor> getPlugins() {
@@ -187,7 +191,7 @@ class PluginManagerImpl {
 		LogUtil.w("开始安装插件", srcPluginFile);
 		long startAt = System.currentTimeMillis();
 		if (TextUtils.isEmpty(srcPluginFile) || !new File(srcPluginFile).exists()) {
-			return new InstallResult(InstallResult.SRC_FILE_NOT_FOUND);
+			return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 		}
 
 		//第0步，先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
@@ -198,7 +202,7 @@ class PluginManagerImpl {
 				srcPluginFile = tempFilePath;
 			} else {
 				LogUtil.e("复制插件文件失败", srcPluginFile, tempFilePath);
-				return new InstallResult(InstallResult.COPY_FILE_FAIL);
+				return new InstallResult(PluginManagerHelper.COPY_FILE_FAIL);
 			}
 		}
 
@@ -209,7 +213,7 @@ class PluginManagerImpl {
 		if (pluginSignatures == null) {
 			LogUtil.e("插件签名验证失败", srcPluginFile);
 			new File(srcPluginFile).delete();
-			return new InstallResult(InstallResult.SIGNATURES_INVALIDATE);
+			return new InstallResult(PluginManagerHelper.SIGNATURES_INVALIDATE);
 		} else if (NEED_VERIFY_CERT && !isDebugable) {
 			//可选步骤，验证插件APK证书是否和宿主程序证书相同。
 			//证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
@@ -224,7 +228,7 @@ class PluginManagerImpl {
 			if (!PackageVerifyer.isSignaturesSame(mainSignatures, pluginSignatures)) {
 				LogUtil.e("插件证书和宿主证书不一致", srcPluginFile);
 				new File(srcPluginFile).delete();
-				return new InstallResult(InstallResult.VERIFY_SIGNATURES_FAIL);
+				return new InstallResult(PluginManagerHelper.VERIFY_SIGNATURES_FAIL);
 			}
 		}
 
@@ -233,14 +237,14 @@ class PluginManagerImpl {
 		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
 			LogUtil.e("解析插件Manifest文件失败", srcPluginFile);
 			new File(srcPluginFile).delete();
-			return new InstallResult(InstallResult.PARSE_MANIFEST_FAIL);
+			return new InstallResult(PluginManagerHelper.PARSE_MANIFEST_FAIL);
 		}
 
 		//判断插件适用系统版本
 		if (pluginDescriptor.getMinSdkVersion() != null && Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion()))  {
 			LogUtil.e("当前系统版本过低, 不支持此插件", "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion());
 			new File(srcPluginFile).delete();
-			return new InstallResult(InstallResult.MIN_API_NOT_SUPPORTED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+			return new InstallResult(PluginManagerHelper.MIN_API_NOT_SUPPORTED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		}
 
 		PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
@@ -263,7 +267,7 @@ class PluginManagerImpl {
 				} else {
 					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
 					new File(srcPluginFile).delete();
-					return new InstallResult(InstallResult.FAIL_BECAUSE_SAME_VER_HAS_LOADED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+					return new InstallResult(PluginManagerHelper.FAIL_BECAUSE_SAME_VER_HAS_LOADED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 				}
 			} else {
 				LogUtil.v("旧版插件还未加载，忽略版本，直接删除旧版，尝试安装新版");
@@ -280,7 +284,7 @@ class PluginManagerImpl {
 			LogUtil.e("复制插件到安装目录失败", srcPluginFile);
 			//删掉临时文件
 			new File(srcPluginFile).delete();
-			return new InstallResult(InstallResult.COPY_FILE_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+			return new InstallResult(PluginManagerHelper.COPY_FILE_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		} else {
 
 			//第5步，先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
@@ -316,7 +320,7 @@ class PluginManagerImpl {
 
 				new File(destApkPath).delete();
 
-				return new InstallResult(InstallResult.INSTALL_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+				return new InstallResult(PluginManagerHelper.INSTALL_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			} else {
 				//通过创建classloader来触发dexopt，但不加载
 				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
@@ -343,7 +347,7 @@ class PluginManagerImpl {
 					FileUtil.printAll(new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
 				}
 
-				return new InstallResult(InstallResult.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+				return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 		}
 	}

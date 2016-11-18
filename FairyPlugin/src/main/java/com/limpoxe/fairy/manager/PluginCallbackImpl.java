@@ -27,11 +27,11 @@ public class PluginCallbackImpl implements PluginCallback {
     }
 
     @Override
-    public void onRemove(String packageName, boolean success) {
+    public void onRemove(String packageName, int code) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
         intent.putExtra(extra_type, "remove");
         intent.putExtra(extra_id, packageName);
-        intent.putExtra(extra_result_code, success?0:7);
+        intent.putExtra(extra_result_code, code);
         PluginLoader.getApplication().sendBroadcast(intent);
     }
 

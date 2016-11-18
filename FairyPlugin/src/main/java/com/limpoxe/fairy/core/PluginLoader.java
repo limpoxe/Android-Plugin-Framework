@@ -163,10 +163,9 @@ public class PluginLoader {
 					e.printStackTrace();
 				}
 			}
+		} else {
+			LogUtil.e("未安装插件", clazzId, "fail");
 		}
-
-		LogUtil.e("loadPluginClass for clazzId", clazzId, "fail");
-
 		return null;
 
 	}
@@ -198,9 +197,9 @@ public class PluginLoader {
 						"请检查插件的编译脚本，确保排除了所有公共依赖库的jar");
 			}
 
+		} else {
+			LogUtil.e("loadPluginClass Fail for clazzName ", clazzName, pluginDescriptor==null?"pluginDescriptor = null":"pluginDescriptor not null");
 		}
-
-		LogUtil.e("loadPluginClass Fail for clazzName ", clazzName, pluginDescriptor==null?"pluginDescriptor = null":"pluginDescriptor not null");
 
 		return null;
 	}

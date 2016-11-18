@@ -16,6 +16,20 @@ import java.util.HashMap;
  */
 public class PluginManagerHelper {
 
+    public static final int SUCCESS = 0;
+
+    public static final int SRC_FILE_NOT_FOUND = 1;
+    public static final int COPY_FILE_FAIL = 2;
+    public static final int SIGNATURES_INVALIDATE = 3;
+    public static final int VERIFY_SIGNATURES_FAIL = 4;
+    public static final int PARSE_MANIFEST_FAIL = 5;
+    public static final int FAIL_BECAUSE_SAME_VER_HAS_LOADED = 6;
+    public static final int MIN_API_NOT_SUPPORTED = 8;
+    public static final int INSTALL_FAIL = 7;
+
+    public static final int PLUGIN_NOT_EXIST = 21;
+    public static final int REMOVE_FAIL = 27;
+
     //加个客户端进程的缓存，减少跨进程调用
     private static final HashMap<String, PluginDescriptor> localCache = new HashMap<String, PluginDescriptor>();
 
@@ -90,10 +104,14 @@ public class PluginManagerHelper {
         return result;
     }
 
-    public static synchronized void remove(String pluginId) {
+    public static synchronized int remove(String pluginId) {
         clearLocalCache();
-        CompatForContentProvider.call(PluginManagerProvider.buildUri(),
+        Bundle result = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE, pluginId, null);
+        if (result != null) {
+            return result.getInt(PluginManagerProvider.REMOVE_RESULT, PluginManagerHelper.REMOVE_FAIL);
+        }
+        return PluginManagerHelper.REMOVE_FAIL;
     }
 
     /**
