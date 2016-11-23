@@ -24,6 +24,14 @@ public class WaitForLoadingPluginActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //由于在PluginInstrumentaionWrapper中，忽略了对WaitForLoadingPluginActivity的Context
+        //的处理，这里的savedInstanceState如果包含插件Fragment信息，会因Classloader没有更换导致
+        //FragmentManager尝试自动恢复插件Fragment时出现ClassNotFound异常，
+        //这里直接将savedInstanceState置空，忽略之
+        if (savedInstanceState != null) {
+            savedInstanceState.clear();
+            savedInstanceState = null;
+        }
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -42,6 +50,14 @@ public class WaitForLoadingPluginActivity extends Activity {
         handler = new Handler();
         loadingAt = System.currentTimeMillis();
 
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            savedInstanceState.clear();
+        }
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
