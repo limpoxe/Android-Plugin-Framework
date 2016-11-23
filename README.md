@@ -16,7 +16,7 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.38-snapshot@aar')
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.39-snapshot@aar')
             //optional， 用于支持函数式服务，不使用函数服务不需要添加此依赖
             compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
