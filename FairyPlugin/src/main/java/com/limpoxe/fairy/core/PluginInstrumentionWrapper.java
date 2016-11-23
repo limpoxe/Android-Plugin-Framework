@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
-import android.text.TextUtils;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackContextImpl;
@@ -285,8 +284,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 	private void installPluginViewFactory(Activity activity) {
 		PluginContainer container = AnnotationProcessor.getPluginContainer(activity.getClass());
-		// 如果配置了插件容器注解而且指定了插件Id, 框架会自动更换activity的context,无需安装PluginViewFactory
-		if (container != null && TextUtils.isEmpty(container.pluginId())) {
+		// 如果配置了插件容器注解,安装PluginViewFactory,用于支持<pluginView>
+		if (container != null) {
 			new PluginViewFactory(activity, activity.getWindow(), new PluginViewCreator()).installViewFactory();
 		}
 	}
