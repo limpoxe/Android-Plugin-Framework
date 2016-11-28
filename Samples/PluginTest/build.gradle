@@ -81,6 +81,15 @@ afterEvaluate {
     }
 }
 
+build.doLast {
+    //just for test
+    android.applicationVariants.each { variant ->
+        variant.javaCompile.classpath.each { jarPath ->
+            println "classpath : " + jarPath
+        }
+    }
+}
+
 ext {
     //这2个常量在下面的apply的脚本中要用到
     host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
