@@ -83,6 +83,8 @@
                 //host_output_dir表示指定宿主工程的编译输出目录
                 //host_ap_path表示指定宿主工程编译后的中间产物 .ap_ 文件的路径
                 host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
+                
+                //注意这里的.ap_文件，是通过编译宿主产生，不同的buildType请更换成不同的名字
                 host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
             }
         
