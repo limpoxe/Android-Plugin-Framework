@@ -1,10 +1,17 @@
+import org.xml.sax.SAXException
+import org.xml.sax.helpers.DefaultHandler
+
+import javax.xml.parsers.ParserConfigurationException
+import javax.xml.parsers.SAXParser
+import javax.xml.parsers.SAXParserFactory
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-//在插件脚本中apply此脚本, 此脚本一共做了2件事
+//在插件脚本中apply此脚本, 此脚本一共做了3件事
 //1、编译非独立插件时引入编译宿主时导出的资源包.ap_
 //2、编译非独立插件时引入编译宿主时导出的主题包
+//3、扁平处理declare－style,使非独立插件支持declare－style配置
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -15,6 +22,8 @@ if (getProperties().containsKey("host_ap_path")) {
     android.aaptOptions.additionalParameters('-I', host_ap_path)
 }
 
+HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
+
 if (getProperties().containsKey("host_output_dir")) {
     tasks.whenTaskAdded { task ->
         if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
@@ -23,6 +32,71 @@ if (getProperties().containsKey("host_output_dir")) {
             task.doLast {
                 //第二件事
                 applyThemePatch(task.name);
+
+                //第三件事<一>
+                String buildType = task.name.replace("merge", "").replace("Resources", "").toLowerCase();
+                File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values.xml");
+                if (originVaules.exists()) {
+                    println "fixDeclareStyle " + originVaules
+                    SortedMap<String, ArrayList<String>> map = StyleProcessor.fixDeclareStyle(originVaules, new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml"))
+                    if (map != null) {
+                        declareStyleMap.put(buildType, map)
+                    }
+                    originVaules.delete()
+                }
+            }
+        } else if (task.name.startsWith("generate") && task.name.endsWith("Sources")) {
+            task.doLast {
+                //第三件事<二>
+                //处理R文件，生成style
+                String buildType = task.name.replace("generate", "").replace("Sources", "").toLowerCase()
+
+                File newR = new File(project.buildDir, "generated/source/r/"
+                        + buildType
+                        + "/" +
+                        android.defaultConfig.applicationId.replaceAll("\\.", "/")
+                        + "/R_temp.java");
+                File originR = new File(project.buildDir, "generated/source/r/"
+                        + buildType
+                        + "/" +
+                        android.defaultConfig.applicationId.replaceAll("\\.", "/")
+                        + "/R.java");
+
+                println "fix R.java, \n" + newR.absolutePath + ", \n" + originR.absolutePath + ", \n" + android.defaultConfig.applicationId
+
+                newR.delete()
+                SortedMap<String, ArrayList<String>> map = declareStyleMap.get(buildType);
+
+                if (originR.exists() && map != null) {
+                    BufferedReader br = new BufferedReader(new FileReader(originR));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
+                    String srcLine = null;
+                    while((srcLine = br.readLine()) != null) {
+                        bw.writeLine(srcLine);
+                        if (srcLine.equals("public final class R {")) {
+                            bw.writeLine("  public static final class styleable {");
+                            Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
+                            while(itr.hasNext()) {
+                                Map.Entry<String, ArrayList<String>> item = itr.next();
+                                String key = item.key;
+                                StringBuilder sb = new StringBuilder();
+                                for(int i = 0; i < item.value.size(); i++) {
+                                    bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
+                                    sb.append("R.attr.").append(item.value.get(i)).append(",")
+                                }
+                                if (sb.length() > 0) {
+                                    sb.deleteCharAt(sb.length()-1)
+                                }
+                                bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
+                            }
+                            bw.writeLine("  }")
+                        }
+                    }
+                    bw.close()
+                    br.close()
+                }
+                originR.delete()
+                newR.renameTo(originR)
             }
         }
     }
@@ -114,3 +188,148 @@ def addProvidedDependences(DependencySet providedDepSet, File root) {
     }
 }
 */
+
+
+public class StyleProcessor extends DefaultHandler {
+
+    File destFile;
+    Stack<Node> stack = new Stack<Node>();
+    BufferedWriter outXmlStream = null;
+
+    SortedMap<String, ArrayList<String>> attrList = new TreeMap<String, ArrayList<String>>();
+
+    public StyleProcessor(File destFile) {
+        this.destFile = destFile;
+    }
+
+    public static SortedMap<String, ArrayList<String>> fixDeclareStyle(File srcFile, File destFile) {
+        try {
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            StyleProcessor processor = new StyleProcessor(destFile);
+            saxParser.parse(new FileInputStream(srcFile), processor);
+            return processor.attrList;
+        } catch (ParserConfigurationException e) {
+            System.out.println(e.getMessage());
+        } catch (SAXException e) {
+            System.out.println(e.getMessage());
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    ////////////////
+    ////////////////
+    ////////////////
+
+    public void startDocument() throws SAXException {
+        try {
+            outXmlStream = new BufferedWriter(new FileWriter(destFile));
+            outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes attributes) throws SAXException {
+
+        boolean skip = false;
+        if (!qName.equals("declare-styleable")) {
+            String space = "\n";
+            for (int i = 0; i < stack.size(); i++) {
+                space = space + "    ";
+            }
+            String tag = space + "<" + qName;
+            for (int i = 0; i < attributes.getLength(); i++) {
+                tag = tag + " " + attributes.getQName(i) + "=\""+ attributes.getValue(i) + "\"";
+            }
+            tag = tag + ">";
+
+            if (qName.equals("attr") && stack.size() == 2) {
+                attrList.get(attrList.lastKey()).add(attributes.getValue("name"));
+            }
+
+            try {
+                outXmlStream.write(tag);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            attrList.put(attributes.getValue("name"), new ArrayList<String>());
+        }
+
+        if (!stack.empty()) {
+            Node top = stack.peek();
+            top.hasChild = true;
+        }
+        stack.add(new Node(attributes.getValue("name"), false, skip));
+    }
+
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+
+        Node node = stack.pop();
+        if (node.skip) {
+            return;
+        }
+
+        if (!qName.equals("declare-styleable")) {
+            String space = "";
+            if (node.hasChild) {
+                space = "\n";
+                for (int i = 0; i < stack.size(); i++) {
+                    space = space + "    ";
+                }
+            }
+            try {
+                outXmlStream.write(space + "</" + qName +">");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        Node node = stack.peek();
+        if (node.skip) {
+            return;
+        }
+
+        String text = new String(ch, start, length);
+        text = text.replaceAll("[\n ]", "");
+        if (text.length() > 0) {
+            try {
+                outXmlStream.write(text);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void endDocument() throws SAXException {
+        try {
+            outXmlStream.flush();
+            outXmlStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class Node {
+        String name = null;
+        boolean hasChild = false;
+        boolean skip = false;
+
+        public Node(String name, boolean hasChild, boolean skip) {
+            this.name = name;
+            this.hasChild = hasChild;
+            this.skip = skip;
+        }
+    }
+
+}
