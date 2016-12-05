@@ -27,17 +27,12 @@ public class PluginTestCustomAttrView extends LinearLayout {
 	public PluginTestCustomAttrView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		int[] customAttrArray = new int[]{
-				R.attr.custarr_text,
-				R.attr.custarr_text_color,
-				R.attr.custarr_text_color_size};
-
 		final TypedArray a = context.obtainStyledAttributes(
-				attrs, customAttrArray, 0, 0);
+				attrs, R.styleable.PluginTestCustomAttrView, 0, 0);
 
-		attrText = a.getString(indexof(R.attr.custarr_text, customAttrArray));
-		attrColor = a.getColor(indexof(R.attr.custarr_text_color, customAttrArray), 0);
-		attrSize = a.getDimension(indexof(R.attr.custarr_text_color_size, customAttrArray), 0);
+		attrText = a.getString(R.styleable.PluginTestCustomAttrView_custarr_text);
+		attrColor = a.getColor(R.styleable.PluginTestCustomAttrView_custarr_text_color, 0);
+		attrSize = a.getDimension(R.styleable.PluginTestCustomAttrView_custarr_text_color_size, 0);
 
 		a.recycle();
 	}

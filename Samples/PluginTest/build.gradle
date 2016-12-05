@@ -93,6 +93,7 @@ build.doLast {
 ext {
     //这2个常量在下面的apply的脚本中要用到
     host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
+    //注意这里写的是debug的ap_文件，使用不同的buildType应换成不同的文件名
     host_ap_path = host_output_dir+ '/PluginMain-resources-universal-debug.ap_'
 }
 
