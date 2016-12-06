@@ -55,19 +55,19 @@
         <item name="layoutbg">#ffC000CC</item>
     </style>
 
-    <attr name="custarr_text" format="string|reference"/>
-    <attr name="custarr_text_color" format="color|reference"/>
-    <attr name="custarr_text_color_size" format="dimension|reference"/>
-
     <attr name="testbg" format="color|reference"/>
 
-    <!-- 不支持下面这种定义方式
     <declare-styleable name="PluginTestCustomAttrView">
         <attr name="custarr_text" format="string|reference"/>
         <attr name="custarr_text_color" format="color|reference"/>
         <attr name="custarr_text_color_size" format="dimension|reference"/>
     </declare-styleable>
-    -->
+
+    <declare-styleable name="TestDeclareStyleable">
+        <attr name="test_text" format="string|reference"/>
+        <attr name="test_text_color" format="color|reference"/>
+        <attr name="test_text_color_size" format="dimension|reference"/>
+    </declare-styleable>
 
     <style name="PopupAnimation1" parent="android:Animation" >
         <item name="android:windowEnterAnimation">@anim/enter1</item>

@@ -83,6 +83,8 @@
                 //host_output_dir表示指定宿主工程的编译输出目录
                 //host_ap_path表示指定宿主工程编译后的中间产物 .ap_ 文件的路径
                 host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
+                
+                //注意这里的.ap_文件，是通过编译宿主产生，不同的buildType请更换成不同的名字
                 host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
             }
         
@@ -394,7 +396,10 @@
 
    3、本项目除master分支外，其他分支不会更新维护。
 
-# 更新纪录：
+# 更新记录：
+
+    2016-12-5：  1、修复一些bug和兼容问题
+                 2、添加对非独立插件res使用declare-styleable的支持
 
     2016-10-22： 支持Android7.0，代码优化、重构
     
