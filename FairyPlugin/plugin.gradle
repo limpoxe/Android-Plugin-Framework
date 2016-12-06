@@ -53,7 +53,6 @@ if (getProperties().containsKey("host_output_dir")) {
 
                 FileTree rfiles = fileTree(dir: project.buildDir.absolutePath + "/generated/source/r/"+ buildType, include: ['**/R.java'])
                 rfiles.each { File itemFile ->
-                    println itemFile.absolutePath
 
                     File newR = new File(itemFile.getAbsolutePath()+ "_temp");
                     File originR = itemFile;
@@ -70,8 +69,6 @@ if (getProperties().containsKey("host_output_dir")) {
                         boolean hasStyleable = false;
                         if (newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", File.separator))) {
                             while((srcLine = br.readLine()) != null) {
-                                println srcLine
-                                println newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", File.separator))
                                 if (srcLine.equals("public final class R {")) {
                                     bw.writeLine(srcLine);
 
