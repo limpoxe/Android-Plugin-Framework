@@ -48,55 +48,86 @@ if (getProperties().containsKey("host_output_dir")) {
         } else if (task.name.startsWith("generate") && task.name.endsWith("Sources")) {
             task.doLast {
                 //第三件事<二>
-                //处理R文件，生成style
+                //处理R文件，生成decalre-style
                 String buildType = task.name.replace("generate", "").replace("Sources", "").toLowerCase()
 
-                File newR = new File(project.buildDir, "generated/source/r/"
-                        + buildType
-                        + "/" +
-                        android.defaultConfig.applicationId.replaceAll("\\.", "/")
-                        + "/R_temp.java");
-                File originR = new File(project.buildDir, "generated/source/r/"
-                        + buildType
-                        + "/" +
-                        android.defaultConfig.applicationId.replaceAll("\\.", "/")
-                        + "/R.java");
+                FileTree rfiles = fileTree(dir: project.buildDir.absolutePath + "/generated/source/r/"+ buildType, include: ['**/R.java'])
+                rfiles.each { File itemFile ->
+                    println itemFile.absolutePath
 
-                println "fix R.java, \n" + newR.absolutePath + ", \n" + originR.absolutePath + ", \n" + android.defaultConfig.applicationId
+                    File newR = new File(itemFile.getAbsolutePath()+ "_temp");
+                    File originR = itemFile;
 
-                newR.delete()
-                SortedMap<String, ArrayList<String>> map = declareStyleMap.get(buildType);
+                    println "fix R.java, \n" + newR.absolutePath + ", \n" + originR.absolutePath
 
-                if (originR.exists() && map != null) {
-                    BufferedReader br = new BufferedReader(new FileReader(originR));
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
-                    String srcLine = null;
-                    while((srcLine = br.readLine()) != null) {
-                        bw.writeLine(srcLine);
-                        if (srcLine.equals("public final class R {")) {
-                            bw.writeLine("  public static final class styleable {");
-                            Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
-                            while(itr.hasNext()) {
-                                Map.Entry<String, ArrayList<String>> item = itr.next();
-                                String key = item.key;
-                                StringBuilder sb = new StringBuilder();
-                                for(int i = 0; i < item.value.size(); i++) {
-                                    bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
-                                    sb.append("R.attr.").append(item.value.get(i)).append(",")
+                    newR.delete()
+                    SortedMap<String, ArrayList<String>> map = declareStyleMap.get(buildType);
+
+                    if (originR.exists() && map != null) {
+                        BufferedReader br = new BufferedReader(new FileReader(originR));
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
+                        String srcLine = null;
+                        boolean hasStyleable = false;
+                        if (newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", File.separator))) {
+                            while((srcLine = br.readLine()) != null) {
+                                println srcLine
+                                println newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", File.separator))
+                                if (srcLine.equals("public final class R {")) {
+                                    bw.writeLine(srcLine);
+
+                                    bw.writeLine("  public static final class styleable {");
+                                    Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
+                                    while(itr.hasNext()) {
+                                        Map.Entry<String, ArrayList<String>> item = itr.next();
+                                        String key = item.key;
+                                        StringBuilder sb = new StringBuilder();
+                                        for(int i = 0; i < item.value.size(); i++) {
+                                            bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
+                                            sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
+                                        }
+                                        if (sb.length() > 0) {
+                                            sb.deleteCharAt(sb.length()-1)
+                                        }
+                                        bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
+                                    }
+                                    bw.writeLine("  }")
+                                } else if (srcLine.contains("public static final class styleable {")) {
+                                    hasStyleable = true;
+                                } else if (hasStyleable && srcLine.trim().equals("}")) {
+                                    hasStyleable = false;
+                                } else {
+                                    bw.writeLine(srcLine);
                                 }
-                                if (sb.length() > 0) {
-                                    sb.deleteCharAt(sb.length()-1)
-                                }
-                                bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
                             }
-                            bw.writeLine("  }")
+                        } else {
+                            while((srcLine = br.readLine()) != null) {
+                                bw.writeLine(srcLine);
+
+                                if (srcLine.contains("public static final class styleable {")) {
+
+                                    Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
+                                    while(itr.hasNext()) {
+                                        Map.Entry<String, ArrayList<String>> item = itr.next();
+                                        String key = item.key;
+                                        StringBuilder sb = new StringBuilder();
+                                        for (int i = 0; i < item.value.size(); i++) {
+                                            bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
+                                            sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
+                                        }
+                                        if (sb.length() > 0) {
+                                            sb.deleteCharAt(sb.length() - 1)
+                                        }
+                                        bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
+                                    }
+                                }
+                            }
                         }
+                        bw.close()
+                        br.close()
                     }
-                    bw.close()
-                    br.close()
+                    originR.delete()
+                    newR.renameTo(originR)
                 }
-                originR.delete()
-                newR.renameTo(originR)
             }
         }
     }
