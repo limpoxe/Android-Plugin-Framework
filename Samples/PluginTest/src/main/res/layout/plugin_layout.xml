@@ -79,9 +79,16 @@
             android:layout_height="300dp"
             android:layout_alignParentBottom="true"
             android:background="@color/light_btn_normal_color"
-            app:custarr_text="属性字符串"
+            app:custarr_text="-属性字符串"
             app:custarr_text_color="@color/light_btn_normal_color"
             app:custarr_text_color_size="18sp"/>
+
+        <com.limpoxe.plugintest3.PluginTest3CustomAttrView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="#ff0099cc"
+            app:test3_text="+属性字符串"/>
 
     </LinearLayout>
 
