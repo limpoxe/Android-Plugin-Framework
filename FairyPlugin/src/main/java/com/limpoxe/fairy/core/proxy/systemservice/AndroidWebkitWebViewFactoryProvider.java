@@ -5,6 +5,7 @@ import android.os.Build;
 import android.webkit.WebView;
 
 import com.limpoxe.fairy.core.android.HackWebViewFactory;
+import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
@@ -97,6 +98,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             LogUtil.e("插件Application对象尚未初始化会触发NPE，如果是异步初始化插件，应等待异步初始化完成再进入插件");
         } catch (Exception e) {
             e.printStackTrace();
+            CompatForWebViewFactoryApi21.addWebViewAssets(pluginActivity.getAssets());
         }
     }
 
