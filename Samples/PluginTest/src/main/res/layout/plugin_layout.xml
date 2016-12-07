@@ -88,7 +88,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:background="#ff0099cc"
-            app:test3_text="+属性字符串"/>
+            app:test3_text="+属性字符串"
+            app:test3_nts_gravity = "top"/>
 
     </LinearLayout>
 

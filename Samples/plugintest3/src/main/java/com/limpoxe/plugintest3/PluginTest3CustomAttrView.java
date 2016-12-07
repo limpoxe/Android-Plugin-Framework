@@ -17,6 +17,7 @@ public class PluginTest3CustomAttrView extends LinearLayout {
 	private String attrText;
 	private int attrColor;
 	private float attrSize;
+	private int ntsGravity;
 
 	public PluginTest3CustomAttrView(Context context) {
 		super(context);
@@ -31,8 +32,12 @@ public class PluginTest3CustomAttrView extends LinearLayout {
 		attrText = a.getString(R.styleable.Test3DeclareStyleable_test3_text);
 		attrColor = a.getColor(R.styleable.Test3DeclareStyleable_test3_text_color, 0);
 		attrSize = a.getDimension(R.styleable.Test3DeclareStyleable_test3_text_color_size, 0);
+		ntsGravity = a.getInt(R.styleable.Test3DeclareStyleable_test3_nts_gravity, -1);
 
-		Log.d("xx", attrText);
+		Log.d("xx", "attrText=" + attrText);
+		Log.d("xx", "attrColor=" + attrColor);
+		Log.d("xx", "attrSize=" + attrSize);
+		Log.d("xx", "ntsGravity=" + ntsGravity);
 
 		TextView textView = new TextView(context);
 		textView.setText(attrText);
