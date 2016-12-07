@@ -12,6 +12,7 @@ import javax.xml.parsers.SAXParserFactory
 //1、编译非独立插件时引入编译宿主时导出的资源包.ap_
 //2、编译非独立插件时引入编译宿主时导出的主题包
 //3、扁平处理declare－style,使非独立插件支持declare－style配置
+//4、修正layout文件中的自定义属性的枚举用法
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -38,11 +39,28 @@ if (getProperties().containsKey("host_output_dir")) {
                 File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values.xml");
                 if (originVaules.exists()) {
                     println "fixDeclareStyle " + originVaules
-                    SortedMap<String, ArrayList<String>> map = StyleProcessor.fixDeclareStyle(originVaules, new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml"))
+                    StyleProcessor styleProcessor = StyleProcessor.fixDeclareStyle(originVaules, new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml"));
+                    SortedMap<String, ArrayList<String>> map = styleProcessor.attrList;
                     if (map != null) {
                         declareStyleMap.put(buildType, map)
                     }
                     originVaules.delete()
+
+                    //第四件事，修正layout文件中的自定义属性的枚举用法
+                    File resDir = new File(project.buildDir, "intermediates/res/merged/" + buildType);
+                    resDir.eachFileRecurse({file ->
+                        if (file.absolutePath.contains("/layout") && file.name.endsWith(".xml")) {
+                            String fileText = file.text;
+                            Iterator<Map.Entry<String, String>> itr = styleProcessor.enumItemList.iterator();
+                            println "try fix enum attr for " + file.absolutePath
+                            while(itr.hasNext()) {
+                                Map.Entry<String, String> entryItem = itr.next();
+                                fileText = fileText.replaceAll(entryItem.key, entryItem.value)
+                            }
+                            file.write(fileText);
+                        }
+                    }
+                    )
                 }
             }
         } else if (task.name.startsWith("generate") && task.name.endsWith("Sources")) {
@@ -226,16 +244,19 @@ public class StyleProcessor extends DefaultHandler {
 
     SortedMap<String, ArrayList<String>> attrList = new TreeMap<String, ArrayList<String>>();
 
+    HashMap<String, String> enumItemList = new HashMap<String, String>();
+    ArrayList<String> enumAttrList = new ArrayList<String>();
+
     public StyleProcessor(File destFile) {
         this.destFile = destFile;
     }
 
-    public static SortedMap<String, ArrayList<String>> fixDeclareStyle(File srcFile, File destFile) {
+    public static StyleProcessor fixDeclareStyle(File srcFile, File destFile) {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
             StyleProcessor processor = new StyleProcessor(destFile);
             saxParser.parse(new FileInputStream(srcFile), processor);
-            return processor.attrList;
+            return processor;
         } catch (ParserConfigurationException e) {
             System.out.println(e.getMessage());
         } catch (SAXException e) {
@@ -280,6 +301,17 @@ public class StyleProcessor extends DefaultHandler {
 
             if (qName.equals("attr") && stack.size() == 2) {
                 attrList.get(attrList.lastKey()).add(attributes.getValue("name"));
+
+                if ("enum".equals(attributes.getValue("format")) && stack.size() == 2) {
+                    enumAttrList.add(attributes.getValue("name"));
+                }
+            }
+            if (qName.equals("enum") && stack.size() == 3) {
+                String attr = enumAttrList.get(enumAttrList.size() -1);
+                String regx = ":" + attr + "\\s*=\\s*\"" + attributes.getValue("name") + "\"";
+                String regValue = ":" + attr + "=\"" + attributes.getValue("value") + "\"";
+                println "prepare enum att regx " + regx + "-->" + regValue + " enumItemList size = " + enumItemList.size();
+                enumItemList.put(regx, regValue)
             }
 
             try {
