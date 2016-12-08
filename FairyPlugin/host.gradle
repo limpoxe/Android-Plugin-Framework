@@ -141,6 +141,8 @@ public class ThemeProcessor extends DefaultHandler {
 
     HashSet<String> attrSets = new HashSet<>();
 
+    HashSet<String> dupcate = new HashSet<>();
+
     public ThemeProcessor(File destFile, String packageName) {
         this.destFile = destFile;
         this.packageName = packageName;
@@ -178,12 +180,23 @@ public class ThemeProcessor extends DefaultHandler {
             }
             tag = tag + ">";
             try {
-                if (qName.equals("attr") && (attributes.getValue("name").startsWith("android:") || !attrSets.add(attributes.getValue("name")))
-                     || (qName.equals("public") && (!attributes.getValue("type").equals("attr") || attributes.getValue("name").startsWith("public_static_final_")))) {
+                if (qName.equals("attr") && (attributes.getValue("name").startsWith("android:") || (attrSets.add(attributes.getValue("name"))?false:(dupcate.add(attributes.getValue("name"))?true:true)))
+                        || (qName.equals("public") && (!attributes.getValue("type").equals("attr") || attributes.getValue("name").startsWith("public_static_final_")))) {
                     //skip
                     skip = true;
                 } else {
-                    outXmlStream.write(tag);
+                    if (qName.equals("enum")) {
+                        if (!stack.empty()) {
+                            Node top = stack.peek();
+                            if (!dupcate.contains(top.name)) {
+                                outXmlStream.write(tag);
+                            }
+                        } else {
+                            outXmlStream.write(tag);
+                        }
+                    } else {
+                        outXmlStream.write(tag);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -213,7 +226,16 @@ public class ThemeProcessor extends DefaultHandler {
                 }
             }
             try {
-                outXmlStream.write(space + "</" + qName +">");
+                if (!stack.empty()) {
+                    Node parent = stack.peek();
+                    if (qName.equals("enum") && dupcate.contains(parent.name)) {
+                        //nothing
+                    } else {
+                        outXmlStream.write(space + "</" + qName + ">");
+                    }
+                } else {
+                    outXmlStream.write(space + "</" + qName + ">");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
