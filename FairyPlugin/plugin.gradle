@@ -91,7 +91,7 @@ if (getProperties().containsKey("host_output_dir")) {
                         BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
                         String srcLine = null;
                         boolean hasStyleable = false;
-                        if (newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", "/"))) {
+                        if (newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", "\\" + File.separator))) {
                             while((srcLine = br.readLine()) != null) {
                                 if (srcLine.equals("public final class R {")) {
                                     bw.writeLine(srcLine);
