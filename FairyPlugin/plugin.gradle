@@ -1,3 +1,4 @@
+import org.xml.sax.InputSource
 import org.xml.sax.SAXException
 import org.xml.sax.helpers.DefaultHandler
 
@@ -38,8 +39,13 @@ if (getProperties().containsKey("host_output_dir")) {
                 String buildType = task.name.replace("merge", "").replace("Resources", "").toLowerCase();
                 File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values.xml");
                 if (originVaules.exists()) {
-                    println "fixDeclareStyle " + originVaules
-                    StyleProcessor styleProcessor = StyleProcessor.fixDeclareStyle(originVaules, new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml"));
+
+                    File valuesProcessed = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml");
+
+                    println "fixDeclareStyle " + originVaules + ", " + valuesProcessed.absolutePath
+
+                    StyleProcessor styleProcessor = StyleProcessor.fixDeclareStyle(originVaules, valuesProcessed);
+
                     SortedMap<String, ArrayList<String>> map = styleProcessor.attrList;
                     if (map != null) {
                         declareStyleMap.put(buildType, map)
@@ -255,7 +261,9 @@ public class StyleProcessor extends DefaultHandler {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
             StyleProcessor processor = new StyleProcessor(destFile);
-            saxParser.parse(new FileInputStream(srcFile), processor);
+            BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(srcFile), "UTF-8"));
+            InputSource inputSource = new InputSource(br)
+            saxParser.parse(inputSource, processor);
             return processor;
         } catch (ParserConfigurationException e) {
             System.out.println(e.getMessage());
@@ -275,7 +283,7 @@ public class StyleProcessor extends DefaultHandler {
 
     public void startDocument() throws SAXException {
         try {
-            outXmlStream = new BufferedWriter(new FileWriter(destFile));
+            outXmlStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile), "UTF-8"));
             outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
         } catch (FileNotFoundException e) {
