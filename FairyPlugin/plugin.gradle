@@ -314,7 +314,7 @@ public class StyleProcessor extends DefaultHandler {
                     enumAttrList.add(attributes.getValue("name"));
                 }
             }
-            if (qName.equals("enum") && stack.size() == 3) {
+            if (qName.equals("enum") && stack.size() == 3 && enumAttrList.size() > 0) {
                 String attr = enumAttrList.get(enumAttrList.size() -1);
                 String regx = ":" + attr + "\\s*=\\s*\"" + attributes.getValue("name") + "\"";
                 String regValue = ":" + attr + "=\"" + attributes.getValue("value") + "\"";
