@@ -204,6 +204,13 @@
             android:exported="true"
             android:authorities="com.example.plugintest.provider"
             android:name="com.example.plugintest.provider.PluginContentProvider"/>
+
+        <service android:name="com.example.plugintest.service.TestAccessibilitySerivce"
+            android:permission='android.permission.BIND_ACCESSIBILITY_SERVICE'>
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

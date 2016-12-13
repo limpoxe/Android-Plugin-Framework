@@ -104,12 +104,19 @@
 
         <service android:name=".MainService" />
 
-        <service android:name="com.example.accesservice.TestAccessibilitySerivce"
+        <service android:name="com.example.plugintest.service.TestAccessibilitySerivce"
             android:permission='android.permission.BIND_ACCESSIBILITY_SERVICE'
             android:description="@string/access_test"
+            android:process=":plugin"
             android:label="@string/access_test">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <intent-filter>
+                <action
+                    android:name="${applicationId}.STUB_EXACT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
     </application>
