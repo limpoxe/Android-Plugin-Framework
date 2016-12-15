@@ -10,6 +10,7 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -319,7 +320,12 @@ public class AndroidAppIPackageManager extends MethodProxy {
         info.flags = info.flags | ApplicationInfo.FLAG_HAS_CODE;
         //需要时再添加
         //info.nativeLibraryDir = new File(pluginDescriptor.getInstalledPath()).getParentFile().getAbsolutePath() + "/lib";
-        info.targetSdkVersion = PluginLoader.getApplication().getApplicationInfo().targetSdkVersion;
+        String targetSdkVersion = pluginDescriptor.getTargetSdkVersion();
+        if (!TextUtils.isEmpty(targetSdkVersion)) {
+            info.targetSdkVersion = Integer.valueOf(targetSdkVersion);
+        } else {
+            info.targetSdkVersion = PluginLoader.getApplication().getApplicationInfo().targetSdkVersion;
+        }
         return info;
     }
 
