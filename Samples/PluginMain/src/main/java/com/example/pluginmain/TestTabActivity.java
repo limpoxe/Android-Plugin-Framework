@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.TabHost;
 
 import com.limpoxe.fairy.core.PluginIntentResolver;
+import com.limpoxe.fairy.core.PluginLoader;
 
 @SuppressWarnings("ALL")
 public class TestTabActivity extends TabActivity {
@@ -17,6 +18,9 @@ public class TestTabActivity extends TabActivity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tab_activity);
+
+		long loadingTime = PluginLoader.getMinLoadingTime();
+		PluginLoader.setMinLoadingTime(0);//使用tabactivity内嵌插件activity时临时关闭loading界面
 
 		tabHost = getTabHost();
 		intent = new Intent("test.dialogXX");
@@ -33,6 +37,8 @@ public class TestTabActivity extends TabActivity {
 						.setIndicator("来自插件二")
 						.setContent(intent));
 		tabHost.setCurrentTab(0);
+
+		PluginLoader.setMinLoadingTime(loadingTime);
 	}
 
 	@Override
