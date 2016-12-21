@@ -122,9 +122,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					if (pluginDescriptor != null) {
 						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
 						if (!isRunning) {
-							//TODO 如何判断不是内嵌在tabactivity中, 如果是在内嵌tab中，不能使用waitForLoading，否则loading界面会被嵌入tab中
-							boolean isNotInTabActivity = true;
-							if (isNotInTabActivity) {
+							//这个判断是为了处理内嵌在tabactivity中的情况
+							if (PluginLoader.getMinLoadingTime() > 0) {
 								return waitForLoading(pluginDescriptor);
 							} else {
 								PluginLauncher.instance().startPlugin(pluginDescriptor);
@@ -186,7 +185,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 								if (pluginDescriptor != null) {
 									boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
-									if (!isRunning) {
+									if (!isRunning) {//理论上这里的isRunning应当是true
 										return waitForLoading(pluginDescriptor);
 									}
 								}
