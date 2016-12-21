@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
 
+import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.android.HackWebViewFactory;
-import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
@@ -34,6 +34,10 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             if (webViewFactoryProvider != null) {
                 Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
                 HackWebViewFactory.setProviderInstance(webViewFactoryProviderProxy);
+
+                WebView wb = new WebView(PluginLoader.getApplication());
+                wb.loadUrl("");//初始化webview渲染引擎
+
             } else {
                 //如果取不到值，原因可能是不同版本差异
             }
@@ -98,7 +102,8 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             LogUtil.e("插件Application对象尚未初始化会触发NPE，如果是异步初始化插件，应等待异步初始化完成再进入插件");
         } catch (Exception e) {
             e.printStackTrace();
-            CompatForWebViewFactoryApi21.addWebViewAssets(pluginActivity.getAssets());
+            //参看com.android.webview.chromium.WebViewDelegateFactory.Api21CompatibilityDelegate.getPackageId方法和addWebViewAssetPath方法
+            LogUtil.e("插件进程的webview渲染引擎不是通过宿主的resource初始化时，会出现package not found错误");
         }
     }
 
