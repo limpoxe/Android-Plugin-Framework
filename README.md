@@ -216,6 +216,8 @@
 
        待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新打包安装PluginMain。
        或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
+       
+    5、需要在android studio中关闭instantRun选项。因为instantRun会替换宿主的application配置导致框架初始化异常
 
 
 # 开发注意事项
