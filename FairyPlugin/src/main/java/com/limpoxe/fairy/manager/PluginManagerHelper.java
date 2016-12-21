@@ -205,6 +205,7 @@ public class PluginManagerHelper {
     }
 
     public static boolean isStub(String className) {
+        //这里如果约定stub组件的名字以特定词开头可以省去provider调用，减少跨进程，提高效率
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_IS_STUB,
                 className, null);
