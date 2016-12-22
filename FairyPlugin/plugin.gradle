@@ -249,6 +249,7 @@ public class StyleProcessor extends DefaultHandler {
     BufferedWriter outXmlStream = null;
 
     SortedMap<String, ArrayList<String>> attrList = new TreeMap<String, ArrayList<String>>();
+    HashSet<String> attrSets = new HashSet<String>();
 
     HashMap<String, String> enumItemList = new HashMap<String, String>();
     ArrayList<String> enumAttrList = new ArrayList<String>();
@@ -322,10 +323,23 @@ public class StyleProcessor extends DefaultHandler {
                 enumItemList.put(regx, regValue)
             }
 
-            try {
-                outXmlStream.write(tag);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (qName.equals("attr")) {
+                if (attributes.getValue("format") != null && !attrSets.contains(attributes.getValue("name"))) {
+                    attrSets.add(attributes.getValue("name"));
+                    try {
+                        outXmlStream.write(tag);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    skip = true;
+                }
+            } else {
+                try {
+                    outXmlStream.write(tag);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             attrList.put(attributes.getValue("name"), new ArrayList<String>());
