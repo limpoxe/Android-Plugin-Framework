@@ -74,4 +74,8 @@
         <item name="android:windowExitAnimation">@anim/exit1</item>
     </style>
 
+    <declare-styleable name="TestBGDeclareStyleable">
+        <attr name="testbg" />
+    </declare-styleable>
+
 </resources>
