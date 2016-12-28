@@ -1,7 +1,9 @@
 package com.example.pluginsharelib;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
@@ -20,6 +22,12 @@ public class ShareLayout extends LinearLayout {
 	
 	public ShareLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
+
+		final TypedArray a = context.obtainStyledAttributes(
+				attrs, R.styleable.DiagonalLayout, 0, 0);
+
+		int xx = a.getInt(R.styleable.DiagonalLayout_diagonal_gravity, 0);
+		Log.d("xx", "xx=" + xx);
 	}
 	
 	@Override

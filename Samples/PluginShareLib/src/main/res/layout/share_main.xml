@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,7 +16,8 @@
         android:layout_width="fill_parent"
         android:layout_height="150dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/share_color_1" >
+        android:background="@color/share_color_1"
+        app:diagonal_gravity="left|right">
     </com.example.pluginsharelib.ShareLayout>
 
 </LinearLayout>

@@ -58,6 +58,7 @@
             android:layout_width="fill_parent"
             android:layout_height="300dp"
             android:layout_alignParentBottom="true"
+            app:diagonal_gravity="left|right"
             android:background="@color/light_btn_normal_color" />
 
         <!-- 测试来自宿主的自定义控件的自定义属性 -->
@@ -72,7 +73,9 @@
             android:layout_width="fill_parent"
             android:layout_height="300dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/light_btn_normal_color" />
+            android:background="@color/light_btn_normal_color"
+            app:diagonal_gravity1="left|right"
+            />
 
         <com.example.plugintest.view.PluginTestCustomAttrView
             android:layout_width="fill_parent"

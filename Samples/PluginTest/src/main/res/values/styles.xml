@@ -78,4 +78,10 @@
         <attr name="testbg" />
     </declare-styleable>
 
+    <declare-styleable name="DiagonalLayout1" >
+        <attr name="diagonal_gravity1">
+            <flag name="left" value="8"/>
+            <flag name="right" value="4"/>
+        </attr>
+    </declare-styleable>
 </resources>
