@@ -1,0 +1,87 @@
+<resources>
+	<style name="MyButton">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="MyButton2">
+        <item name="android:background">#00ffA3</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">#e3a438</item>
+    </style>
+
+    <style name="MyButton3">
+        <item name="android:background">#ffcc0000</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">#00ffA3</item>
+    </style>
+
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        <item name="android:buttonStyle">@style/MyButton</item>
+        <item name="android:windowAnimationStyle">@*com.example.pluginmain:style/ActivityAnimationInHost</item>
+    </style>
+
+    <!-- Application theme. -->
+    <style name="PluginTheme" parent="AppBaseTheme">
+    </style>
+
+    <!-- Application theme. -->
+    <style name="PluginTheme2" parent="AppBaseTheme">
+        <item name="android:buttonStyle">@style/MyButton2</item>
+        <item name="layoutbg">#ffC000CC</item>
+    </style>
+
+    <style name="PluginTheme3" parent="android:Theme.Holo.NoActionBar.Fullscreen">
+    </style>
+
+    <style name="PluginTheme4" parent="AppBaseTheme">
+        <item name="android:buttonStyle">@style/MyButton3</item>
+        <item name="layoutbg">#ff0000CC</item>
+    </style>
+
+    <style name="PluginTheme5" parent="AppBaseTheme">
+        <item name="android:buttonStyle">@style/MyButton2</item>
+        <item name="layoutbg">#ffC000CC</item>
+        <item name="testbg">#ffC4C4C4</item>
+    </style>
+
+    <style name="PluginTheme6" parent="android:Theme.Holo.Light">
+        <item name="android:buttonStyle">@style/MyButton2</item>
+        <item name="layoutbg">#ffC000CC</item>
+    </style>
+
+    <attr name="testbg" format="color|reference"/>
+
+    <declare-styleable name="PluginTestCustomAttrView">
+        <attr name="custarr_text" format="string|reference"/>
+        <attr name="custarr_text_color" format="color|reference"/>
+        <attr name="custarr_text_color_size" format="dimension|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="TestDeclareStyleable">
+        <attr name="test_text" format="string|reference"/>
+        <attr name="test_text_color" format="color|reference"/>
+        <attr name="test_text_color_size" format="dimension|reference"/>
+    </declare-styleable>
+
+    <style name="PopupAnimation1" parent="android:Animation" >
+        <item name="android:windowEnterAnimation">@anim/enter1</item>
+        <item name="android:windowExitAnimation">@anim/exit1</item>
+    </style>
+
+    <declare-styleable name="TestBGDeclareStyleable">
+        <attr name="testbg" />
+    </declare-styleable>
+
+    <declare-styleable name="DiagonalLayout1" >
+        <attr name="diagonal_gravity1">
+            <flag name="left" value="8"/>
+            <flag name="right" value="4"/>
+        </attr>
+    </declare-styleable>
+</resources>

@@ -1,0 +1,153 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:background="?attr/testbg"
+        android:paddingTop="@dimen/activity_vertical_margin" >
+
+        <Button
+            android:id="@+id/onClickHellowrld"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:text="打开PluginHellWorld" />
+
+        <Button
+            android:id="@+id/onClickPluginNormalFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:text="打开PluginNormalFragment" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginSpecFragment"
+            android:text="打开PluginSpecFragment" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginForDialogActivity"
+            android:text="打开PluginForDialogActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginForOppoAndVivoActivity"
+            android:text="打开PluginForOppoAndVivoActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginFragmentTestActivity"
+            android:text="打开PluginFragmentTestActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginNotInManifestActivity"
+            android:text="打开PluginNotInManifestActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginSingleTaskActivity"
+            android:text="打开PluginSingleTaskActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestActivity"
+            android:text="打开PluginTestActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestOpenPluginActivity"
+            android:text="打开PluginTestOpenPluginActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestTabActivity"
+            android:text="打开PluginTestTabActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginWebViewActivity"
+            android:text="打开PluginWebViewActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickTransparentActivity"
+            android:text="打开TransparentActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestReceiver"
+            android:text="打开PluginTestReceiver" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestReceiver2"
+            android:text="打开PluginTestReceiver2" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestService"
+            android:text="打开PluginTestService" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onClickPluginTestService2"
+            android:text="打开PluginTestService2" />
+    </LinearLayout>
+
+</ScrollView>

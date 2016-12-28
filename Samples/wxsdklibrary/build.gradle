@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        textReport false
+        htmlReport false
+        xmlReport false
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.limpoxe.fairy/FairyPlugin/0.0.41-snapshot/jars/classes.jar')
+    provided files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
+}
+
+afterEvaluate {
+    tasks.getByName("assembleDebug").doLast {
+        println '复制插件 debug apk 到 PluginMain/src/main/assets/目录下, 便于测试'
+        copy {
+            from(buildDir.absolutePath + '/outputs/apk/') {
+                include project.name + '-' + 'debug' + '.apk'
+            }
+            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+        }
+    }
+}

@@ -1,0 +1,11 @@
+<resources>
+    <declare-styleable name="Test3DeclareStyleable">
+        <attr name="test3_text" format="string|reference"/>
+        <attr name="test3_text_color" format="color|reference"/>
+        <attr name="test3_text_color_size" format="dimension|reference"/>
+        <attr name="test3_nts_gravity" format="enum">
+            <enum name="bottom" value="2"/>
+            <enum name="top" value="4"/>
+        </attr>
+    </declare-styleable>
+</resources>

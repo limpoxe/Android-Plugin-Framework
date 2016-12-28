@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <attr format="boolean" name="is_circle"/>
+  <attr format="color" name="edge_color"/>
+  <attr format="dimension" name="depth"/>
+  <attr format="dimension" name="custom_elevation"/>
+</resources>

@@ -1,0 +1,501 @@
+import org.xml.sax.InputSource
+import org.xml.sax.SAXException
+import org.xml.sax.helpers.DefaultHandler
+
+import javax.xml.parsers.ParserConfigurationException
+import javax.xml.parsers.SAXParser
+import javax.xml.parsers.SAXParserFactory
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//在插件脚本中apply此脚本, 此脚本一共做了3件事
+//1、编译非独立插件时引入编译宿主时导出的资源包.ap_
+//2、编译非独立插件时引入编译宿主时导出的主题包
+//3、扁平处理declare－style,使非独立插件支持declare－style配置
+//4、修正layout文件中的自定义属性的枚举用法
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+//第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
+if (getProperties().containsKey("host_ap_path")) {
+    println "additionalParameters -I " + ext.host_ap_path
+    android.aaptOptions.additionalParameters('-I', host_ap_path)
+}
+
+HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
+
+if (getProperties().containsKey("host_output_dir")) {
+    tasks.whenTaskAdded { task ->
+        if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
+            task.setOnlyIf { true }
+            task.outputs.upToDateWhen { false }
+            task.doLast {
+                //第二件事
+                applyThemePatch(task.name);
+
+                //第三件事<一>
+                String buildType = task.name.replace("merge", "").replace("Resources", "").toLowerCase();
+                File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values.xml");
+                if (originVaules.exists()) {
+
+                    File valuesProcessed = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml");
+
+                    println "fixDeclareStyle " + originVaules + ", " + valuesProcessed.absolutePath
+
+                    StyleProcessor styleProcessor = StyleProcessor.fixDeclareStyle(originVaules, valuesProcessed);
+
+                    SortedMap<String, ArrayList<String>> map = styleProcessor.attrList;
+                    if (map != null) {
+                        declareStyleMap.put(buildType, map)
+                    }
+                    originVaules.delete()
+
+                    //第四件事，修正layout文件中的自定义属性的枚举用法
+                    File resDir = new File(project.buildDir, "intermediates/res/merged/" + buildType);
+                    resDir.eachFileRecurse({file ->
+                        if (file.absolutePath.contains("/layout") && file.name.endsWith(".xml")) {
+                            String fileText = file.text;
+                            Iterator<Map.Entry<String, String>> itr = styleProcessor.enumItemList.iterator();
+                            println "try fix enum attr for " + file.absolutePath
+                            while(itr.hasNext()) {
+                                Map.Entry<String, String> entryItem = itr.next();
+                                fileText = fileText.replaceAll(entryItem.key, entryItem.value)
+                            }
+
+                            println "try fix flag attr for " + file.absolutePath
+                            fileText = StyleProcessor.fixAttrFlag(fileText, styleProcessor.attrFlagMap);
+
+                            file.write(fileText);
+                        }
+                    }
+                    )
+                }
+            }
+        } else if (task.name.startsWith("generate") && task.name.endsWith("Sources")) {
+            task.doLast {
+                //第三件事<二>
+                //处理R文件，生成decalre-style
+                String buildType = task.name.replace("generate", "").replace("Sources", "").toLowerCase()
+
+                FileTree rfiles = fileTree(dir: project.buildDir.absolutePath + "/generated/source/r/"+ buildType, include: ['**/R.java'])
+                rfiles.each { File itemFile ->
+
+                    File newR = new File(itemFile.getAbsolutePath()+ "_temp");
+                    File originR = itemFile;
+
+                    println "fix R.java, \n" + newR.absolutePath + ", \n" + originR.absolutePath
+
+                    newR.delete()
+                    SortedMap<String, ArrayList<String>> map = declareStyleMap.get(buildType);
+
+                    if (originR.exists() && map != null) {
+                        BufferedReader br = new BufferedReader(new FileReader(originR));
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
+                        String srcLine = null;
+                        boolean hasStyleable = false;
+                        if (newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", "\\" + File.separator))) {
+                            while((srcLine = br.readLine()) != null) {
+                                if (srcLine.equals("public final class R {")) {
+                                    bw.writeLine(srcLine);
+
+                                    bw.writeLine("  public static final class styleable {");
+                                    Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
+                                    while(itr.hasNext()) {
+                                        Map.Entry<String, ArrayList<String>> item = itr.next();
+                                        String key = item.key;
+                                        StringBuilder sb = new StringBuilder();
+                                        for(int i = 0; i < item.value.size(); i++) {
+                                            bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
+                                            sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
+                                        }
+                                        if (sb.length() > 0) {
+                                            sb.deleteCharAt(sb.length()-1)
+                                        }
+                                        bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
+                                    }
+                                    bw.writeLine("  }")
+                                } else if (srcLine.contains("public static final class styleable {")) {
+                                    hasStyleable = true;
+                                } else if (hasStyleable && srcLine.trim().equals("}")) {
+                                    hasStyleable = false;
+                                } else {
+                                    bw.writeLine(srcLine);
+                                }
+                            }
+                        } else {
+                            while((srcLine = br.readLine()) != null) {
+                                bw.writeLine(srcLine);
+
+                                if (srcLine.contains("public static final class styleable {")) {
+
+                                    Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
+                                    while(itr.hasNext()) {
+                                        Map.Entry<String, ArrayList<String>> item = itr.next();
+                                        String key = item.key;
+                                        StringBuilder sb = new StringBuilder();
+                                        for (int i = 0; i < item.value.size(); i++) {
+                                            bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
+                                            sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
+                                        }
+                                        if (sb.length() > 0) {
+                                            sb.deleteCharAt(sb.length() - 1)
+                                        }
+                                        bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
+                                    }
+                                }
+                            }
+                        }
+                        bw.close()
+                        br.close()
+                    }
+                    originR.delete()
+                    newR.renameTo(originR)
+                }
+            }
+        }
+    }
+}
+
+def applyThemePatch(taskName) {
+
+    def buildType = taskName.replace("merge", "").replace("Resources", "").toLowerCase();
+    def fromDir = host_output_dir + "/theme_patch/" + buildType;
+    def resourceDir = project.buildDir.absolutePath + "/intermediates/res/merged/" + buildType;
+
+    FileTree allxmlFiles = fileTree(dir: fromDir)
+    allxmlFiles.include '*.xml'
+    allxmlFiles.each { File itemFile ->
+
+        String dest;
+        if (itemFile.name.equals('patch_theme.xml')) {
+            dest = resourceDir +  '/values/'
+        } else {
+            dest = resourceDir +  '/' + itemFile.name.replace('patch_', '').replace('.xml', '')  + "/"
+        }
+
+        println "apply from " + itemFile + " to " + dest
+        copy {
+            from(fromDir) {
+                include itemFile.name
+            }
+            into(dest)
+        }
+    }
+}
+
+/** fix provided config for aar dependences
+ext.plist = []
+configurations.provided.dependencies.each {dep ->
+    println dep
+    gradle.startParameter.taskNames.each { startTaskName ->
+        if (startTaskName.startsWith("assemble") || startTaskName.startsWith("build")) {
+            if (dep.version.equals('unspecified')) {
+
+                String buildType = startTaskName.replace("assemble", "").replace("build", "")
+                if (buildType.length() == 0) {
+                    buildType = "debug";
+                }
+
+                //为依赖库插入jar任务
+                dep.dependencyProject.tasks.getByName("compile" + buildType + "Sources").doLast {
+                    String jarTaskName = "jar" + buildType.substring(0, 1).toUpperCase()+ buildType.replaceFirst("\\w","") +  "Classes"
+                    println '执行task：' + jarTaskName;
+                    dep.dependencyProject.tasks.getByName(jarTaskName).execute()
+                }
+
+                //src的jar
+                File srcJar = new File(dep.dependencyProject.buildDir, "intermediates/packaged/" + buildType + "/classes.jar")
+                addProvidedDependences(configurations.provided.dependencies, srcJar);
+
+                //处理aar依赖
+                File aarDir = new File(dep.dependencyProject.buildDir, "intermediates/exploded-aar")
+                addProvidedDependences(configurations.provided.dependencies, aarDir)
+
+                //处理libs/jar依赖
+                //TODO
+
+            }
+        }
+    }
+}
+
+configurations.provided.dependencies.clear()
+
+ext.plist.each { path ->
+    configurations.provided.dependencies.add(project.dependencies.create(files(path)))
+    println "try add provided jar to plugin project : " + path
+}
+
+def addProvidedDependences(DependencySet providedDepSet, File root) {
+    //宿主编译前文件可能不存在, 所以要先编译宿主 再编译插件
+    if (root.getName().endsWith(".jar")) {
+        ext.plist +=[root.getAbsolutePath()]
+        //providedDepSet.add(project.dependencies.create(files(root.getAbsolutePath())))
+        //println "try add provided jar to plugin project : " + root.getAbsolutePath()
+    } else {
+        File[] subFiles = root.listFiles();
+        if (subFiles != null) {
+            for (File subFile : subFiles) {
+                addProvidedDependences(providedDepSet, subFile);
+            }
+        }
+    }
+}
+*/
+
+
+public class StyleProcessor extends DefaultHandler {
+
+    File destFile;
+    Stack<Node> stack = new Stack<Node>();
+    BufferedWriter outXmlStream = null;
+
+    SortedMap<String, ArrayList<String>> attrList = new TreeMap<String, ArrayList<String>>();
+    HashSet<String> attrSets = new HashSet<String>();
+
+    HashMap<String, String> enumItemList = new HashMap<String, String>();
+
+    HashMap<String, HashMap<String, String>> attrFlagMap = new HashMap<String, HashMap<String, String>>();
+
+    public StyleProcessor(File destFile) {
+        this.destFile = destFile;
+    }
+
+    public static StyleProcessor fixDeclareStyle(File srcFile, File destFile) {
+        try {
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            StyleProcessor processor = new StyleProcessor(destFile);
+            BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(srcFile), "UTF-8"));
+            InputSource inputSource = new InputSource(br)
+            saxParser.parse(inputSource, processor);
+            return processor;
+        } catch (ParserConfigurationException e) {
+            System.out.println(e.getMessage());
+        } catch (SAXException e) {
+            System.out.println(e.getMessage());
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    ////////////////
+    ////////////////
+    ////////////////
+
+    public void startDocument() throws SAXException {
+        try {
+            outXmlStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile), "UTF-8"));
+            outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes attributes) throws SAXException {
+
+        boolean skip = false;
+        if (!qName.equals("declare-styleable")) {
+            String space = "\n";
+            for (int i = 0; i < stack.size(); i++) {
+                space = space + "    ";
+            }
+            String tag = space + "<" + qName;
+            for (int i = 0; i < attributes.getLength(); i++) {
+                tag = tag + " " + attributes.getQName(i) + "=\""+ attributes.getValue(i) + "\"";
+            }
+            tag = tag + ">";
+
+            if (qName.equals("attr") && stack.size() == 2) {
+                String parentDecalreStyleName = attrList.lastKey();
+                attrList.get(parentDecalreStyleName).add(attributes.getValue("name"));
+            }
+
+            if (qName.equals("enum") && stack.size() == 3) {
+
+                Node n3 = stack.get(2);
+                String attr = n3.name;
+
+                String regx = ":" + attr + "\\s*=\\s*\"" + attributes.getValue("name") + "\"";
+                String regValue = ":" + attr + "=\"" + attributes.getValue("value") + "\"";
+                println "prepare enum att regx " + regx + "-->" + regValue + " enumItemList size = " + enumItemList.size();
+                enumItemList.put(regx, regValue)
+
+            }
+
+            if (qName.endsWith("flag") && stack.size() == 3) {
+
+                Node n3 = stack.get(2);
+                String attr = n3.name;
+
+                String flagName = attributes.getValue("name");
+                String flagValue = attributes.getValue("value");
+
+                HashMap<String, String> item = attrFlagMap.get(attr);
+                if (item == null) {
+                    item = new HashMap<String, String>();
+                    attrFlagMap.put(attr, item)
+                }
+
+                println "collect attr flag " + attr + "={" + flagName + "=" + flagValue + "}"
+
+                item.put(flagName, flagValue);
+            }
+
+            if (qName.equals("attr")) {
+                if (!attrSets.contains(attributes.getValue("name"))) {
+                    attrSets.add(attributes.getValue("name"));
+                    try {
+                        outXmlStream.write(tag);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    skip = true;
+                }
+            } else {
+                try {
+                    outXmlStream.write(tag);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            //declare-styleable的name属性
+            attrList.put(attributes.getValue("name"), new ArrayList<String>());
+        }
+
+        if (!stack.empty()) {
+            Node top = stack.peek();
+            top.hasChild = true;
+        }
+        stack.add(new Node(attributes.getValue("name"), false, skip));
+    }
+
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+
+        Node node = stack.pop();
+        if (node.skip) {
+            return;
+        }
+
+        if (!qName.equals("declare-styleable")) {
+            String space = "";
+            if (node.hasChild) {
+                space = "\n";
+                for (int i = 0; i < stack.size(); i++) {
+                    space = space + "    ";
+                }
+            }
+            try {
+                outXmlStream.write(space + "</" + qName +">");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        Node node = stack.peek();
+        if (node.skip) {
+            return;
+        }
+
+        String text = new String(ch, start, length);
+        text = text.replaceAll("[\n ]", "");
+        if (text.length() > 0) {
+            try {
+                outXmlStream.write(text);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void endDocument() throws SAXException {
+        try {
+            outXmlStream.flush();
+            outXmlStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class Node {
+        String name = null;
+        boolean hasChild = false;
+        boolean skip = false;
+
+        public Node(String name, boolean hasChild, boolean skip) {
+            this.name = name;
+            this.hasChild = hasChild;
+            this.skip = skip;
+        }
+    }
+
+    public static String fixAttrFlag(final String xmlText, HashMap<String, HashMap<String, String>> attrFlagMap) {
+
+        String localText = xmlText;
+
+        Iterator<Map.Entry<String, HashMap<String, String>>> flagItr = attrFlagMap.entrySet().iterator();
+
+        while (flagItr.hasNext()) {
+            Map.Entry<String, HashMap<String, String>> entry = flagItr.next();
+
+            HashMap<String, String> flagValueMap = entry.getValue();
+            String attrName = entry.getKey();
+
+            String regx = ":" + attrName + "\\s*=\\s*\".+?\"";
+
+            Matcher matcher = Pattern.compile(regx).matcher(localText);
+
+            HashMap<String, String> flagsMap = new HashMap<String, String>();
+
+            while(matcher.find()) {
+
+                String text0 = matcher.group(0);
+
+                String flagValue = text0.split("=")[1].trim().replaceAll("\"", "");
+                String[] flags = flagValue.split("\\|");
+
+                Integer flagIntValue = null;
+                for(String flag: flags) {
+
+                    int definedValue = java.lang.Integer.valueOf(flagValueMap.get(flag));
+
+                    if (flagIntValue == null) {
+                        flagIntValue = definedValue;
+                    } else {
+                        flagIntValue = flagIntValue | definedValue;
+                    }
+                }
+
+                String text0ed = ":" + attrName + "=\"" + flagIntValue + "\"";
+                text0 = text0.replaceAll("\\|", "\\\\|");//正则转义
+
+                println "prepare enum att regx " + attrName + ", " + text0 + " --> " + text0ed
+
+                flagsMap.put(text0, text0ed);
+            }
+
+            Iterator<Map.Entry<String, String>> iterator = flagsMap.entrySet().iterator();
+            while(iterator.hasNext()) {
+                Map.Entry<String, String> stringEntry = iterator.next();
+                localText = localText.replaceAll(stringEntry.getKey(), stringEntry.getValue());
+            }
+        }
+
+        return localText;
+    }
+
+}

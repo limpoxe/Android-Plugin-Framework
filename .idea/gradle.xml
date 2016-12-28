@@ -10,27 +10,19 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/PluginBase" />
-            <option value="$PROJECT_DIR$/PluginCore" />
-            <option value="$PROJECT_DIR$/PluginHelloWorld" />
-            <option value="$PROJECT_DIR$/PluginMain" />
-            <option value="$PROJECT_DIR$/PluginShareLib" />
-            <option value="$PROJECT_DIR$/PluginTest" />
-            <option value="$PROJECT_DIR$/wxsdklibrary" />
+            <option value="$PROJECT_DIR$/FairyPlugin" />
+            <option value="$PROJECT_DIR$/Samples" />
+            <option value="$PROJECT_DIR$/Samples/PluginBase" />
+            <option value="$PROJECT_DIR$/Samples/PluginHelloWorld" />
+            <option value="$PROJECT_DIR$/Samples/PluginMain" />
+            <option value="$PROJECT_DIR$/Samples/PluginShareLib" />
+            <option value="$PROJECT_DIR$/Samples/PluginTest" />
+            <option value="$PROJECT_DIR$/Samples/PluginTest2" />
+            <option value="$PROJECT_DIR$/Samples/plugintest3" />
+            <option value="$PROJECT_DIR$/Samples/wxsdklibrary" />
           </set>
         </option>
-        <option name="myModules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/PluginBase" />
-            <option value="$PROJECT_DIR$/PluginCore" />
-            <option value="$PROJECT_DIR$/PluginHelloWorld" />
-            <option value="$PROJECT_DIR$/PluginMain" />
-            <option value="$PROJECT_DIR$/PluginShareLib" />
-            <option value="$PROJECT_DIR$/PluginTest" />
-            <option value="$PROJECT_DIR$/wxsdklibrary" />
-          </set>
-        </option>
+        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

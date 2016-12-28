@@ -1,0 +1,39 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.example.pluginhelloworld"
+        minSdkVersion 14
+        targetSdkVersion 22
+        versionCode 2
+        versionName "1.0.1"
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+        textReport false
+        htmlReport false
+        xmlReport false
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:23.3.0'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+}
+
+afterEvaluate {
+    tasks.getByName("assembleDebug").doLast {
+        println '复制插件 debug apk 到 PluginMain/src/main/assets/目录下, 便于测试'
+        copy {
+            from(buildDir.absolutePath + '/outputs/apk/') {
+                include project.name + '-' + 'debug' + '.apk'
+            }
+            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+        }
+    }
+}

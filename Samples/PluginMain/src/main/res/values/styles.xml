@@ -1,0 +1,21 @@
+<resources>
+    <style name="PopupAnimation" parent="android:Animation" >
+        <item name="android:windowEnterAnimation">@anim/enter</item>
+        <item name="android:windowExitAnimation">@anim/exit</item>
+    </style>
+
+    <declare-styleable name="FloatingActionButton">
+        <attr name="backgroundTintMode" />
+    </declare-styleable>
+
+    <declare-styleable name="ViewBackgroundHelper">
+        <attr name="backgroundTintMode">
+            <enum name="src_over" value="3" />
+            <enum name="src_in" value="5" />
+            <enum name="src_atop" value="9" />
+            <enum name="multiply" value="14" />
+            <enum name="screen" value="15" />
+        </attr>
+    </declare-styleable>
+
+</resources>
