@@ -25,9 +25,9 @@ import java.util.zip.ZipFile;
 public class PluginManifestParser {
 
 	public static PluginDescriptor parseManifest(String pluginPath) {
-    	
+        ZipFile zipFile = null;
         try {
-        	ZipFile zipFile = new ZipFile(new File(pluginPath), ZipFile.OPEN_READ);
+            zipFile = new ZipFile(new File(pluginPath), ZipFile.OPEN_READ);
             ZipEntry manifestXmlEntry = zipFile.getEntry(ManifestReader.DEFAULT_XML);
         	String manifestXml = ManifestReader.getManifestXMLFromAPK(zipFile, manifestXmlEntry);
         	
@@ -285,6 +285,14 @@ public class PluginManifestParser {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (zipFile != null) {
+                try {
+                    zipFile.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         
         return null;
