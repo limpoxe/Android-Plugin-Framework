@@ -5,6 +5,8 @@ import org.xml.sax.helpers.DefaultHandler
 import javax.xml.parsers.ParserConfigurationException
 import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -63,6 +65,10 @@ if (getProperties().containsKey("host_output_dir")) {
                                 Map.Entry<String, String> entryItem = itr.next();
                                 fileText = fileText.replaceAll(entryItem.key, entryItem.value)
                             }
+
+                            println "try fix flag attr for " + file.absolutePath
+                            fileText = StyleProcessor.fixAttrFlag(fileText, styleProcessor.attrFlagMap);
+
                             file.write(fileText);
                         }
                     }
@@ -252,7 +258,8 @@ public class StyleProcessor extends DefaultHandler {
     HashSet<String> attrSets = new HashSet<String>();
 
     HashMap<String, String> enumItemList = new HashMap<String, String>();
-    ArrayList<String> enumAttrList = new ArrayList<String>();
+
+    HashMap<String, HashMap<String, String>> attrFlagMap = new HashMap<String, HashMap<String, String>>();
 
     public StyleProcessor(File destFile) {
         this.destFile = destFile;
@@ -309,22 +316,43 @@ public class StyleProcessor extends DefaultHandler {
             tag = tag + ">";
 
             if (qName.equals("attr") && stack.size() == 2) {
-                attrList.get(attrList.lastKey()).add(attributes.getValue("name"));
-
-                if ("enum".equals(attributes.getValue("format")) && stack.size() == 2) {
-                    enumAttrList.add(attributes.getValue("name"));
-                }
+                String parentDecalreStyleName = attrList.lastKey();
+                attrList.get(parentDecalreStyleName).add(attributes.getValue("name"));
             }
-            if (qName.equals("enum") && stack.size() == 3 && enumAttrList.size() > 0) {
-                String attr = enumAttrList.get(enumAttrList.size() -1);
+
+            if (qName.equals("enum") && stack.size() == 3) {
+
+                Node n3 = stack.get(2);
+                String attr = n3.name;
+
                 String regx = ":" + attr + "\\s*=\\s*\"" + attributes.getValue("name") + "\"";
                 String regValue = ":" + attr + "=\"" + attributes.getValue("value") + "\"";
                 println "prepare enum att regx " + regx + "-->" + regValue + " enumItemList size = " + enumItemList.size();
                 enumItemList.put(regx, regValue)
+
+            }
+
+            if (qName.endsWith("flag") && stack.size() == 3) {
+
+                Node n3 = stack.get(2);
+                String attr = n3.name;
+
+                String flagName = attributes.getValue("name");
+                String flagValue = attributes.getValue("value");
+
+                HashMap<String, String> item = attrFlagMap.get(attr);
+                if (item == null) {
+                    item = new HashMap<String, String>();
+                    attrFlagMap.put(attr, item)
+                }
+
+                println "collect attr flag " + attr + "={" + flagName + "=" + flagValue + "}"
+
+                item.put(flagName, flagValue);
             }
 
             if (qName.equals("attr")) {
-                if (attributes.getValue("format") != null && !attrSets.contains(attributes.getValue("name"))) {
+                if (!attrSets.contains(attributes.getValue("name"))) {
                     attrSets.add(attributes.getValue("name"));
                     try {
                         outXmlStream.write(tag);
@@ -342,6 +370,7 @@ public class StyleProcessor extends DefaultHandler {
                 }
             }
         } else {
+            //declare-styleable的name属性
             attrList.put(attributes.getValue("name"), new ArrayList<String>());
         }
 
@@ -412,6 +441,61 @@ public class StyleProcessor extends DefaultHandler {
             this.hasChild = hasChild;
             this.skip = skip;
         }
+    }
+
+    public static String fixAttrFlag(final String xmlText, HashMap<String, HashMap<String, String>> attrFlagMap) {
+
+        String localText = xmlText;
+
+        Iterator<Map.Entry<String, HashMap<String, String>>> flagItr = attrFlagMap.entrySet().iterator();
+
+        while (flagItr.hasNext()) {
+            Map.Entry<String, HashMap<String, String>> entry = flagItr.next();
+
+            HashMap<String, String> flagValueMap = entry.getValue();
+            String attrName = entry.getKey();
+
+            String regx = ":" + attrName + "\\s*=\\s*\".+?\"";
+
+            Matcher matcher = Pattern.compile(regx).matcher(localText);
+
+            HashMap<String, String> flagsMap = new HashMap<String, String>();
+
+            while(matcher.find()) {
+
+                String text0 = matcher.group(0);
+
+                String flagValue = text0.split("=")[1].trim().replaceAll("\"", "");
+                String[] flags = flagValue.split("\\|");
+
+                Integer flagIntValue = null;
+                for(String flag: flags) {
+
+                    int definedValue = java.lang.Integer.valueOf(flagValueMap.get(flag));
+
+                    if (flagIntValue == null) {
+                        flagIntValue = definedValue;
+                    } else {
+                        flagIntValue = flagIntValue | definedValue;
+                    }
+                }
+
+                String text0ed = ":" + attrName + "=\"" + flagIntValue + "\"";
+                text0 = text0.replaceAll("\\|", "\\\\|");//正则转义
+
+                println "prepare enum att regx " + attrName + ", " + text0 + " --> " + text0ed
+
+                flagsMap.put(text0, text0ed);
+            }
+
+            Iterator<Map.Entry<String, String>> iterator = flagsMap.entrySet().iterator();
+            while(iterator.hasNext()) {
+                Map.Entry<String, String> stringEntry = iterator.next();
+                localText = localText.replaceAll(stringEntry.getKey(), stringEntry.getValue());
+            }
+        }
+
+        return localText;
     }
 
 }
