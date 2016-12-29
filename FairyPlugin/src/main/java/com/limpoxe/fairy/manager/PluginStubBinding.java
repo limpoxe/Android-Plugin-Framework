@@ -1,17 +1,23 @@
 package com.limpoxe.fairy.manager;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.PluginLauncher;
 import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
+import com.limpoxe.fairy.util.ResourceUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,6 +46,7 @@ class PluginStubBinding {
 	private static HashMap<String, String> singleTopActivityMapping = new HashMap<String, String>();
 	private static HashMap<String, String> singleInstanceActivityMapping = new HashMap<String, String>();
 	private static String standardActivity = null;
+	private static String standardActivityTranslucent = null;
 	private static String receiver = null;
 	/**
 	 * key:stub Service Name
@@ -103,8 +111,11 @@ class PluginStubBinding {
 
 				} else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
 
-					standardActivity = resolveInfo.activityInfo.name;
-
+					if (resolveInfo.activityInfo.theme == android.R.style.Theme_Translucent) {
+						standardActivityTranslucent = resolveInfo.activityInfo.name;
+					} else {
+						standardActivity = resolveInfo.activityInfo.name;
+					}
 				}
 
 			}
@@ -182,7 +193,10 @@ class PluginStubBinding {
 		return receiver;
 	}
 
-	public static synchronized String bindStubActivity(String pluginActivityClassName, int launchMode) {
+	private static int sResId = -1;
+
+	public static synchronized String bindStubActivity(String pluginActivityClassName, int launchMode,
+													   String packageName, String themeId) {
 
 		initPool();
 
@@ -190,10 +204,43 @@ class PluginStubBinding {
 			return pluginActivityClassName;
 		}
 
-
 		HashMap<String, String> bindingMapping = null;
 
 		if (launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
+
+			if (themeId != null) {
+				LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(packageName);
+				if (loadedPlugin != null) {
+					try {
+						if (sResId == -1) {
+							Class r = Class.forName("com.android.internal.R$attr");
+							Field f = r.getDeclaredField("windowIsTranslucent");
+							f.setAccessible(true);
+							sResId = (int)f.get(null);
+						}
+						int styleId = ResourceUtil.getResourceId(themeId);
+						if (styleId != 0) {
+							//maybe need cache
+							Resources.Theme theme = loadedPlugin.pluginResource.newTheme();
+							Resources.Theme baseTheme = ((ContextWrapper)loadedPlugin.pluginContext).getBaseContext().getTheme();
+							if (baseTheme != null) {
+								theme.setTo(baseTheme);
+							}
+							theme.applyStyle(styleId, true);
+							TypedArray a = theme.obtainStyledAttributes(null, new int[]{sResId}, 0, 0);
+							if (a.hasValue(0)) {
+								return standardActivityTranslucent;
+							}
+						}
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (NoSuchFieldException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 
 			return standardActivity;
 
@@ -444,6 +491,7 @@ class PluginStubBinding {
 
 		return isExact(className, PluginDescriptor.ACTIVITY)
 				|| className.equals(standardActivity)
+				|| className.equals(standardActivityTranslucent)
 				|| singleTaskActivityMapping.containsKey(className)
 				|| singleTopActivityMapping.containsKey(className)
 				|| singleInstanceActivityMapping.containsKey(className)

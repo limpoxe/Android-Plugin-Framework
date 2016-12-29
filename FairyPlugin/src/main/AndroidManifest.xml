@@ -128,13 +128,24 @@
         <!--
             对Activity的类全名没有要求，可随意指定，框架中是通过action来查询。
             stub并不需要真实存在，只是占个位置，
-            standard 的 launchmode只需注册1个stub即可
+            standard 的 launchmode只需全透明和非全透明各注册1个stub即可
         -->
         <activity
             android:name="${applicationId}.stub.PluginStubActivityStandard0"
             android:exported="true"
             android:process=":plugin"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- 不透 -->
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityStandard1"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
                 <category android:name="android.intent.category.DEFAULT" />
