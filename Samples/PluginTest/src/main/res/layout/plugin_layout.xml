@@ -54,6 +54,10 @@
             android:layout_height="wrap_content"
             android:text="@string/hello_world4" />
 
+        <com.example.plugintest.view.PluginSurfceView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
+
         <com.example.pluginsharelib.ShareLayout
             android:layout_width="fill_parent"
             android:layout_height="300dp"
