@@ -146,9 +146,11 @@ public class PluginManagerHelper {
         return null;
     }
 
-    public static String bindStubActivity(String pluginActivityClassName, int launchMode) {
+    public static String bindStubActivity(String pluginActivityClassName, int launchMode, String packageName, String themeId) {
         Bundle arg = new Bundle();
         arg.putInt("launchMode", launchMode);
+        arg.putString("packageName", packageName);
+        arg.putString("themeId", themeId);
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_BIND_ACTIVITY,
                 pluginActivityClassName, arg);

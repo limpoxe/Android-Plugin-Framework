@@ -195,7 +195,10 @@ public class PluginManagerProvider extends ContentProvider {
         } else if (ACTION_BIND_ACTIVITY.equals(method)) {
 
             bundle.putString(BIND_ACTIVITY_RESULT,
-                    PluginStubBinding.bindStubActivity(arg, extras.getInt("launchMode")));
+                    PluginStubBinding.bindStubActivity(arg,
+                            extras.getInt("launchMode"),
+                            extras.getString("packageName"),
+                            extras.getString("themeId")));
 
             return bundle;
 

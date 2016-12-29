@@ -136,11 +136,14 @@ public class PluginIntentResolver {
 		if (classNameList != null && classNameList.size() > 0) {
 
 			String className = classNameList.get(0);
-			PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(className);
+			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
-			PluginActivityInfo pluginActivityInfo = pd.getActivityInfos().get(className);
+			PluginActivityInfo pluginActivityInfo = pluginDescriptor.getActivityInfos().get(className);
 
-			String stubActivityName = PluginManagerHelper.bindStubActivity(className, Integer.parseInt(pluginActivityInfo.getLaunchMode()));
+			String stubActivityName = PluginManagerHelper.bindStubActivity(className,
+					Integer.parseInt(pluginActivityInfo.getLaunchMode()),
+					pluginDescriptor.getPackageName(),
+					pluginActivityInfo.getTheme());
 
 			intent.setComponent(
 					new ComponentName(PluginLoader.getApplication().getPackageName(), stubActivityName));
