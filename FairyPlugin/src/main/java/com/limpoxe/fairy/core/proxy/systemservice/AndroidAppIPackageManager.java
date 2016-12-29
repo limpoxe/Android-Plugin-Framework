@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
+import com.limpoxe.fairy.core.PluginIntentResolver;
 import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplicationPackageManager;
@@ -116,7 +117,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
-            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
+            ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 if (Build.VERSION.SDK_INT <= 23) {
@@ -229,7 +230,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
-            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
+            ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 if (Build.VERSION.SDK_INT <= 23) {
@@ -257,7 +258,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
-            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
+            ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 ResolveInfo info = new ResolveInfo();
@@ -272,7 +273,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
-            ArrayList<String> classNames = PluginLoader.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
+            ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 ResolveInfo info = new ResolveInfo();
