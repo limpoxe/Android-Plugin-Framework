@@ -15,6 +15,8 @@ import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class PluginIntentResolver {
 
@@ -23,7 +25,7 @@ public class PluginIntentResolver {
 	public static final String CLASS_PREFIX_SERVICE = "%";//字符串越短,判断时效率越高
 
 	public static void resolveService(Intent intent) {
-		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.SERVICE);
+		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
 			String stubServiceName = PluginManagerHelper.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
@@ -40,7 +42,7 @@ public class PluginIntentResolver {
 		// 如果在插件中发现了匹配intent的receiver项目，替换掉ClassLoader
 		// 不需要在这里记录目标className，className将在Intent中传递
 		ArrayList<Intent> result = new ArrayList<Intent>();
-		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.BROADCAST);
+		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.BROADCAST);
 		if (classNameList != null && classNameList.size() > 0) {
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
@@ -130,7 +132,7 @@ public class PluginIntentResolver {
 
 	public static void resolveActivity(Intent intent) {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
-		ArrayList<String> classNameList = PluginLoader.matchPlugin(intent, PluginDescriptor.ACTIVITY);
+		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.ACTIVITY);
 		if (classNameList != null && classNameList.size() > 0) {
 
 			String className = classNameList.get(0);
@@ -153,6 +155,45 @@ public class PluginIntentResolver {
 
 	/* package */static void resolveActivity(Intent[] intent) {
 		// 不常用。需要时再实现此方法，
+	}
+
+	/**
+	 */
+	public static ArrayList<String> matchPlugin(Intent intent, int type) {
+		ArrayList<String> result = null;
+
+		String packageName = intent.getPackage();
+		if (packageName == null && intent.getComponent() != null) {
+			packageName = intent.getComponent().getPackageName();
+		}
+		if (packageName != null && !packageName.equals(PluginLoader.getApplication().getPackageName())) {
+			PluginDescriptor dp = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+			if (dp != null) {
+				List<String> list = dp.matchPlugin(intent, type);
+				if (list != null && list.size() > 0) {
+					if (result == null) {
+						result = new ArrayList<>();
+					}
+					result.addAll(list);
+				}
+			}
+		} else {
+			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
+			while (itr.hasNext()) {
+				List<String> list = itr.next().matchPlugin(intent, type);
+				if (list != null && list.size() > 0) {
+					if (result == null) {
+						result = new ArrayList<>();
+					}
+					result.addAll(list);
+				}
+				if (result != null && type != PluginDescriptor.BROADCAST) {
+					break;
+				}
+			}
+
+		}
+		return result;
 	}
 
 }

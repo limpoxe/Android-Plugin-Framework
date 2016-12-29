@@ -13,18 +13,14 @@ import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackLayoutInflater;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7ViewInflater;
-import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIActivityManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppINotificationManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIPackageManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidOsServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import dalvik.system.DexClassLoader;
 
@@ -280,45 +276,6 @@ public class PluginLoader {
 			return pluginDescriptor.getVersion().equals(pluginVersion);
 		}
 		return false;
-	}
-
-	/**
-	 */
-	public static ArrayList<String> matchPlugin(Intent intent, int type) {
-		ArrayList<String> result = null;
-
-		String packageName = intent.getPackage();
-		if (packageName == null && intent.getComponent() != null) {
-			packageName = intent.getComponent().getPackageName();
-		}
-		if (packageName != null && !packageName.equals(PluginLoader.getApplication().getPackageName())) {
-			PluginDescriptor dp = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
-			if (dp != null) {
-				List<String> list = dp.matchPlugin(intent, type);
-				if (list != null && list.size() > 0) {
-					if (result == null) {
-						result = new ArrayList<>();
-					}
-					result.addAll(list);
-				}
-			}
-		} else {
-			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
-			while (itr.hasNext()) {
-				List<String> list = itr.next().matchPlugin(intent, type);
-				if (list != null && list.size() > 0) {
-					if (result == null) {
-						result = new ArrayList<>();
-					}
-					result.addAll(list);
-				}
-				if (result != null && type != PluginDescriptor.BROADCAST) {
-					break;
-				}
-			}
-
-		}
-		return result;
 	}
 
 	public static void setLoadingResId(int resId) {
