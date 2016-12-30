@@ -96,8 +96,12 @@ def createThemePatch(String buildType) {
 
     println "export from " + generatedRes + " to " + dest
 
-    ThemeProcessor.exportThemeStyle(generatedRes,
-            dest, android.defaultConfig.applicationId)
+    def packageName = android.defaultConfig.applicationId
+    if (android.buildTypes[buildType].applicationIdSuffix != null) {
+        packageName = packageName + android.buildTypes[buildType].applicationIdSuffix;
+    }
+
+    ThemeProcessor.exportThemeStyle(generatedRes, dest, packageName)
 
     String mergedResDir = "${project.buildDir}/intermediates/res/merged/" + buildType + "/";
     FileTree allxmlFiles = fileTree(dir: mergedResDir)
@@ -107,8 +111,7 @@ def createThemePatch(String buildType) {
 
         println "export from " + itemFile + " to " + dest
 
-        ThemeProcessor.exportThemeStyle(itemFile,
-                dest, android.defaultConfig.applicationId)
+        ThemeProcessor.exportThemeStyle(itemFile, dest, packageName)
     }
 }
 
