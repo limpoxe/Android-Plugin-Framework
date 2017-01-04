@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.databinding.DataBindingUtil;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -21,8 +22,10 @@ import android.widget.PopupWindow;
 import com.example.pluginsharelib.BaseActivity;
 import com.example.pluginsharelib.SharePOJO;
 import com.example.plugintest.R;
+import com.example.plugintest.databinding.PluginLauncherBinding;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
+import com.example.plugintest.vo.DataBindingTestVO;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.io.File;
@@ -35,7 +38,10 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.plugin_launcher);
+        //测试databinding
+		PluginLauncherBinding bing =  DataBindingUtil.setContentView(this, R.layout.plugin_launcher);
+		DataBindingTestVO dataBindingTestVO = new DataBindingTestVO("DataBind:打开PluginHellWorld");
+		bing.setTest(dataBindingTestVO);
 
 		Log.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
 		Log.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
