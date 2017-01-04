@@ -108,6 +108,40 @@
             如果需要在其他插件，或者宿主的Activity中嵌入插件提供的View
             需要在其他插件，或者宿主的的布局文件中嵌入<pluginView> 节点，用法同普通控件，具体参考demo
                 
+        3.7 如果插件需要使用宿主中定义的主题
+            插件中可以直接使用宿主中定义的主题。例如，宿主中定义了一个主题为AppHostTheme，
+            那么插件的Manifest文件中可直接使用android:theme="@style/AppHostTheme"来使用宿主主题
+             
+            如果插件要扩展宿主主题，也可以直接使用。例如，在插件的style.xml中定义一个主题PluginTheme
+            <style name="PluginTheme" parent="AppHostTheme" />
+             
+            以上写法，IDE中会标红，但是不影响编译和运行。
+            
+        3.8 如果插件需要使用宿主中定义的其他资源
+            插件中可以直接使用宿主中定义的资源，但是写法和直接使用插件自己的资源略有不同,
+            通常应写为：
+                android:label="@string/string_in_plugin"
+            但是上面只适用资源在插件中的情况，如果资源是定义在宿主中，应使用下面的写法
+                android:label="@*xx.xx.xx:string/string_in_host"
+            其中，xx.xx.xx是宿主包名
+            
+            注意本条与上一条3.7的区别：插件中使用宿主主题，可以直接使用，但是使用宿主资源，需要带上*packageName:前缀
+            
+        3.9 如果要在插件中获取宿主包名
+            插件返回的是插件包名，如果要在插件中获取宿主包名，写法如下：
+            //参数为插件的context，例如插件activity或者插件Application
+            public String getHostPackageName(ContextWrapper pluginContext) {
+                  Context context = pluginContext;
+                  while (context instanceof ContextWrapper) {
+                    context = ((ContextWrapper) context).getBaseContext();
+                  }
+                  //到这里context的实际类型应当是ContextImpl类，可以返回宿主packageName
+                  return context.getPackageName();
+            }
+            
+        3.10 如果插件中要使用需要appkey的sdk
+            插件中使用需要appkey的sdk，例如微信分享和百度地图sdk，参考demo：baidumapsdk，wxsdklibrary
+             
     4、如果是非独立插件, 需要先编译宿主, 再编译插件, 因为从如上的配置可以看出非独立插件编译时需要依赖宿主编译时的输出物
        如果是非独立插件, 需要先编译宿主, 再编译插件
        如果是非独立插件, 需要先编译宿主, 再编译插件
