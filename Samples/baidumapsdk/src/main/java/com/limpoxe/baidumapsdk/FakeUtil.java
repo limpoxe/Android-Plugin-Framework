@@ -161,6 +161,11 @@ public class FakeUtil {
                         return new int[0];
                     }
 
+                    //@Override //android-N
+                    public int[] getPackageGids(String packageName, int flags) throws NameNotFoundException {
+                        return new int[0];
+                    }
+
                     @Override
                     public PermissionInfo getPermissionInfo(String name, int flags) throws NameNotFoundException {
                         return null;
@@ -487,6 +492,16 @@ public class FakeUtil {
                     @Override
                     public PackageInstaller getPackageInstaller() {
                         return null;
+                    }
+
+                    //@Override //android-N
+                    public boolean hasSystemFeature(String name,int flag) {
+                        return false;
+                    }
+
+                    //@Override //android-N
+                    public int getPackageUid(String name,int flag) {
+                        return 0;
                     }
                 };
             }
