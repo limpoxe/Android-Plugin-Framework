@@ -293,120 +293,6 @@
 
     6、框架中对非独立插件做了签名校验。如果宿主是release模式，要求插件的签名和宿主的签名一致才允许安装。
        这是为了验证插件来源合法性
-       
-# 实现原理简介：
-  1、插件apk的class
-  
-     通过构造插件apk的Dexclassloader来加载插件apk中的类。
-     DexClassLoader的parent设置为宿主程序的classloader，即可将主程序和插件程序的class贯通。
-     若是独立插件，将parent设置为宿主程序的classloader的parent，可隔离宿主class和插件class，此时宿主和插件可包含同名的class。
-  
-  2、插件apk的Resource
-  
-     直接构造插件apk的AssetManager和Resouce对象即可，需要注意的是，
-     通过addAssetsPath方法添加资源的时候，需要同时添加插件程序的资源文件和宿主程序的资源，
-     以及其依赖的资源。这样可以将Resource合并到一个Context里面去，解决资源访问时需要切换上下文的问题。
-  
-  3、插件apk中的资源id冲突
-  
-    完成上述第二点以后，宿主程序资源id和插件程序id可能有重复而参数冲突。
-    我们知道，资源id是在编译时生成的，其生成的规则是0xPPTTNNNN
-    PP段，是用来标记apk的，默认情况下系统资源PP是01，应用程序的PP是07
-    TT段，是用来标记资源类型的，比如图标、布局等，相同的类型TT值相同，但是同一个TT值
-    不代表同一种资源，例如这次编译的时候可能使用03作为layout的TT，那下次编译的时候可能
-    会使用06作为TT的值，具体使用那个值，实际上和当前APP使用的资源类型的个数是相关联的。
-    NNNN则是某种资源类型的资源id，默认从1开始，依次累加。
-    
-    那么我们要解决资源id问题，就可从TT的值开始入手，只要将每次编译时的TT值固定，即可是资
-    源id达到分组的效果，从而避免重复。例如将宿主程序的layout资源的TT固定为33，将插件程序
-    资源的layout的TT值固定为03（也可不对插件程序的资源id做任何处理，使其使用编译出来的原生的值）, 即可解决资源id重复的问题了。
-    
-    固定资源id的TT值的办法也非常简单，提供一份public.xml，在public.xml中指定什么资源类型以
-    什么TT值开头即可。具体public.xml如何编写，可参考PluginMain/public.xml，是用来固定宿主程序资源id范围的。
-
-
-    还有一个方法是通过定制过的aapt在编译时指定插件的PP段的值来实现分组：
-        参考openAtlasExtention@github项目提供的重写过的aapt指定PP段来实现id分组，代码见For-gradle-with-aapt分支
-
-  4、插件apk的Context和LayoutInfalter
-  
-    构造一个Context对象即可，具体的Context实现请参考PluginContextTheme.java
-    关键是要重写几个获取资源、主题的方法，以及重写getClassLoader方法，再从构造粗来的context中获取LayoutInfalter
-
-  6、插件代码无约定无规范约束。
-  
-    要做到这一点，主要有几点：
-    1、上诉第4步骤，
-    2、在classloader树中插入自己的Classloader，在loadclass时进行映射
-    3、替换ActivityThread的的Instrumentation对象和Handle CallBack对象，用来拦截组件的创建过程。
-    4、利用反射修改成员变量，注入Context。利用反射调用隐藏方法。
-    
-  7、插件中Activity等不在宿主manifest中注册即拥有完整生命周期的方法。
-    
-    由于Activity等是系统组件，必须在manifest中注册才能被系统唤起并拥有完整生命周期。
-    通过反射代理方式实现的实际是伪生命周期，并非完整生命周期。要实现插件组件免注册有2个方法。
-    
-    前提：宿主中预注册几个组件。预注册的组件可实际存在也可不存在。
-    
-    a、替换classloader。适用于所有组件。
-     App安装时，系统会扫描app的Manifest并缓存到一个xml中，activity启动时，系统会现在查找缓存的xml，
-     如果查到了，再通过classLoad去load这个class，并构造一个activity实例。那么我们只需要将classload
-     加载这个class的时候做一个简单的映射，让系统以为加载的是A class，而实际上加载的是B class，达到挂羊头买狗肉的效果，
-     即可将预注册的A组件替换为未注册的插件中的B组件，从而实现插件中的组件
-     完全被系统接管，而拥有完整生命周期。其他组件同理。
-
-    
-    b、替换Instrumention。
-     这种方式仅适用于Activity。通过修改Instrumentation进行拦截，可以利用Intent传递参数。
-     如果是Receiver和Service，利用Handler Callback进行拦截，再配合Classloader在loadclass时进行映射
-     
-    
-  8、通过activity代理方式实现加载插件中的activity是如何实现的
-  
-     要实现这一点，同样是基于上述第4点，构造出插件的Context后，通过attachBaseContext的方式，
-     替换代理Activiyt的context即可。
-     另外还需要在获得插件Activity对象后，通过反射给Activity的attach()方法中attach的成员变量赋值。
-     
-     更新：activity代理方式已放弃，不再支持，要了解实现可以查看历史版本
-  
-  9、插件编译问题。
-  
-     如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
-     包括共享库的代码以及R文件，只需在编译时添加到classpath中，且插件中如果要使用共享依赖库中的资源，
-     需要使用共享库的R文件来进行引用。这几点在PluginTest示例工程中有体现。
-
-     更新：已接入gradle，通过provided方式即可，具体可参考PluginShareLib和PluginTest的build.gradle文件
-  
-  10、插件Fragment
-    插件UI可通过fragment或者activity来实现        
-    
-    如果是fragment实现的插件，又分为3种：
-    1、fragment运行在宿主中的普通Activity中
-    2、fragment运行在宿主中的特定Activity中
-    3、fragment运行在插件中的Activity中
-
-    对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
-    
-    对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
-    通过context.createPackageContext(插件包名)获取的插件context，
-    那么这种fragment对其运行容器没有特殊要求
-    
-    第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
-    
-    demo中都有例子。
-
-  11、插件主题
-  
-    重要实现原理仍然基于上述第2、3点。
-    
-  12、插件Activity的LaunchMode
-  
-    要实现插件Activity的LaunchMode，需要在宿主程序中预埋若干个（standard只需1个）相应launchMode的Activity（预注
-    册的组件可实际存在也可不存在），在运行时进行动态映射选择。core工程的manifest中配置
-
-  13、对多Service的支持
-  
-    Service的启动模式类似于Activity的singleInstance，因此为了支持插件多service，采用了和上述第12像类似的做法。
 
 # 需要注意的问题
 
@@ -428,10 +314,43 @@
       
       若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
 
-   2、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
+   2、插件编译问题。
+  
+     如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
+     包括共享库的代码以及R文件，只需在编译时添加到classpath中，且插件中如果要使用共享依赖库中的资源，
+     需要使用共享库的R文件来进行引用。这几点在PluginTest示例工程中有体现。
 
-   3、本项目除master分支外，其他分支不会更新维护。
+     更新：已接入gradle，通过provided方式即可，具体可参考PluginShareLib和PluginTest的build.gradle文件
+  
+  3、插件Fragment
+    插件UI可通过fragment或者activity来实现        
+    
+    如果是fragment实现的插件，又分为3种：
+    1、fragment运行在宿主中的普通Activity中
+    2、fragment运行在宿主中的特定Activity中
+    3、fragment运行在插件中的Activity中
 
+    对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
+    
+    对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
+    通过context.createPackageContext(插件包名)获取的插件context，
+    那么这种fragment对其运行容器没有特殊要求
+    
+    第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
+    
+    demo中都有例子。
+   
+   4、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
+
+   5、For-gradle-with-aapt分支使用的是aapt分组id方法。master也支持切换分组id的方法
+   
+   6、本项目除master分支外，其他分支不会更新维护。
+
+##其他
+1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
+2. [使用Public.xml实现插件和宿主资源id分组需要注意的问题](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E5%AE%9E%E7%8E%B0%E6%8F%92%E4%BB%B6%E5%92%8C%E5%AE%BF%E4%B8%BB%E8%B5%84%E6%BA%90id%E5%88%86%E7%BB%84%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98).
+       
+      
 # 更新记录：
 
     2016-12-21： 修复Android7.1.1下webview相关问题
