@@ -349,54 +349,7 @@
 ##其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
 2. [使用Public.xml实现插件和宿主资源id分组需要注意的问题](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E5%AE%9E%E7%8E%B0%E6%8F%92%E4%BB%B6%E5%92%8C%E5%AE%BF%E4%B8%BB%E8%B5%84%E6%BA%90id%E5%88%86%E7%BB%84%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98).
-       
-      
-# 更新记录：
-
-    2016-12-21： 修复Android7.1.1下webview相关问题
-
-    2016-12-5：  1、修复一些bug和兼容问题
-                 2、添加对非独立插件res使用declare-styleable的支持
-
-    2016-10-22： 支持Android7.0，代码优化、重构
-    
-    2016-10-12： 框架目录结构重构
-    
-    2016-09-28： 1、添加对插件Context的getPackageName返回插件自身PackageName的支持
-                 2、剥离LocalServiceManager
-                 3、若干优化;修改若干bug和兼容性问题、
-                 4、增加插件API版本检查
-                 5、编译脚本优化
-               
-    2016-05-18： 添加对函数式服务localservice的跨进程支持
-
-    2016-05-07： 分离插件data目录、优化编译脚本、修复若干bug
-
-    2016-04-08： 修复若干bug，优化
-
-    2016-02-24： 1、添加插件进程
-                 2、添加插件MultiDex支持
-
-    2016-02-18： 增加对插件使用宿主主题的支持，例如supportV7主题
-
-    2016-01-27： 1、修复几个bug
-                 2、增加对插件Activity透明主题支持
-
-    2016-01-16： 对系统服务增加了一层Proxy，以支持拦截系统服务的方法调用
-
-    2016-01-01： 1、添加对插件依赖插件的支持
-                 2、添加localservice
-
-    2015-12-27： 添加控件插件支持。可在宿主或插件布局文件中直接嵌入其他插件中定义的控件
-
-    2015-12-05： 1、修复插件so在多cpu平台下模式选择错误的问题
-                 2、添加对基于主题style和自定义属性的换肤功能
-
-    2015-11-22： 1、gradle插件1.3.0以上版本不支持public.xml文件也无法识别public-padding节点的文件的问题已解决，
-                    因此master分支切回到利用public.xml分组的实现
-                 2、支持插件资源文件直接通过@package:type/name方式引用宿主资源
-
-    2015-05-04： add project
+3. [更新记录](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95)
 
 联系作者：
   Q：15871365851，添加时请注明插件开发
