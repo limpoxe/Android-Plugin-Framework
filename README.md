@@ -64,10 +64,14 @@
      
         3.1、在插件AndroidManifest.xml中manifest节点中增加如下配置:
              
-             <manifest
-                    android:sharedUserId="这里填写宿主工程包名"/>
+             <manifest android:sharedUserId="这里填写宿主工程包名"/>
              
-              这个配置只是作为一个标记符使用，框架通过检查这个配置来判断是否为独立插件，和起原始含义无关
+              这个配置只是作为一个标记符使用，框架通过检查这个配置来判断是否为独立插件，和其原始含义无关
+	      
+	      插件框架识别一个插件是否为独立插件，是根据插件的Manifest文件中的android:sharedUserId属性。
+              将android:sharedUserId属性设置为宿主的packageName，则表示为非独立插件。
+	      
+	      不配置或配置为其他值表示为独立插件
                             
         3.2、在build.gradle中加入如下3个配置
     
@@ -94,7 +98,7 @@
                 在插件AndroidManifest.xml中application节点中增加如下配置:
                <uses-library android:name="xx.xx.xx" android:required="true" />
                 xx.xx.xx 是其依赖的插件的包名，被依赖的插件不支持携带资源
-                
+       
         3.4、如果此插件需要对外提供函数式服务（支持同进程和跨进程）
              插件和外界交互，除了可以使用标准api交互之外，还提供了函数式服务
              插件发布一个函数服务，只需要在AndroidManifest.xml配置<exported-service>节点
@@ -212,18 +216,10 @@
     3、插件默认是在插件进程中运行，如需切到宿主进程，仅需将core工程的Manifest中配置的所有组件去都去掉掉process属性即可。
        PluginMain工程下有几个插件进程的demo也需要去掉process属性
 
-    4、将配置插件为非独立插件、为插件配置依赖插件的方法。
-       插件框架识别一个插件是否为独立插件，是根据插件的Manifest文件中的android:sharedUserId属性。
-       将android:sharedUserId属性设置为宿主的packageName，则表示为非独立插件。不配置或配置为其他值表示为独立插件
-
-       插件如果依赖其他基础插件，需要在插件Manifest中配置如下信息
-       <uses-library android:name="XX.XX.XX" android:required="true" />
-       name是被依赖的插件的packageName
-
-    5、框架中对非独立插件做了签名校验。如果宿主是release模式，要求插件的签名和宿主的签名一致才允许安装。
+    4、框架中对非独立插件做了签名校验。如果宿主是release模式，要求插件的签名和宿主的签名一致才允许安装。
        这是为了验证插件来源合法性
 
-    6、编译方法
+    5、编译方法
 
        a）如果是命令行中：
        cd  Android-Plugin-Framework
@@ -244,11 +240,9 @@
        打包安装PluginMain。
        或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
        
-    7、需要在android studio中关闭instantRun选项。因为instantRun会替换宿主的application配置导致框架初始化异常
+    6、需要在android studio中关闭instantRun选项。因为instantRun会替换宿主的application配置导致框架初始化异常
 
-# 需要注意的问题
-
-   1、项目插件化后，特别需要注意的是宿主程序混淆问题。
+    7、项目插件化后，特别需要注意的是宿主程序混淆问题。
       若公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
       所以公共库一定要排除混淆或者使用稳定的mapping混淆。
       
@@ -266,37 +260,35 @@
       
       若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
 
-   2、插件编译问题。
+    8、插件编译问题。
   
      如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
      包括共享库的代码以及R文件，只需在编译时添加到classpath中，且插件中如果要使用共享依赖库中的资源，
      需要使用共享库的R文件来进行引用。这几点在PluginTest示例工程中有体现。
 
-     更新：已接入gradle，通过provided方式即可，具体可参考PluginShareLib和PluginTest的build.gradle文件
-  
-  3、插件Fragment
-    插件UI可通过fragment或者activity来实现        
+    9、插件Fragment
+       插件UI可通过fragment或者activity来实现        
     
-    如果是fragment实现的插件，又分为3种：
-    1、fragment运行在宿主中的普通Activity中
-    2、fragment运行在宿主中的特定Activity中
-    3、fragment运行在插件中的Activity中
+       如果是fragment实现的插件，又分为3种：
+          1、fragment运行在宿主中的普通Activity中
+          2、fragment运行在宿主中的特定Activity中
+          3、fragment运行在插件中的Activity中
 
-    对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
+        对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
     
-    对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
-    通过context.createPackageContext(插件包名)获取的插件context，
-    那么这种fragment对其运行容器没有特殊要求
+        对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
+        通过context.createPackageContext(插件包名)获取的插件context，
+        那么这种fragment对其运行容器没有特殊要求
     
-    第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
+        第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
     
-    demo中都有例子。
+        demo中都有例子。
    
-   4、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
+   10、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
 
-   5、For-gradle-with-aapt分支使用的是aapt分组id方法。master也支持切换分组id的方法
+   11、For-gradle-with-aapt分支使用的是aapt分组id方法。master也支持切换分组id的方法
    
-   6、本项目除master分支外，其他分支不会更新维护。
+   12、本项目除master分支外，其他分支不会更新维护。
 
 ##其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
