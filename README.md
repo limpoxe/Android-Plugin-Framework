@@ -65,8 +65,8 @@
              
              <manifest android:sharedUserId="这里填写宿主工程包名"/>
              
-             这个配置只是作为一个标记符使用，框架通过检查这个配置来判断是否为独立插件，和其原始含义无关
-	      
+	     这个配置只是作为一个标记符使用，框架通过检查这个配置来判断是否为独立插件，和其原始含义无关
+	     
 	     插件框架识别一个插件是否为独立插件，是根据插件的Manifest文件中的android:sharedUserId属性。
              将android:sharedUserId属性设置为宿主的packageName，则表示为非独立插件。
 	      
@@ -239,9 +239,9 @@
       若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
 
     8、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
-
-    9、For-gradle-with-aapt分支使用的是aapt分组id方法。master也支持切换分组id的方法
-   
+    
+    9、For-gradle-with-aapt分支使用的是aapt分组id方法。master也支持切换分组id的方法
+    
     10、本项目除master分支外，其他分支不会更新维护。
 
 # 已支持：
