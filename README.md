@@ -4,6 +4,8 @@
 
 # 如何使用
 
+## 宿主侧
+    
     1、新建一个工程, 作为宿主工程
     
     2、在宿主工程的build.gradle文件下添加如下3个配置
@@ -35,32 +37,31 @@
             PluginLoader.setLoadingResId(R.layout.loading);
         }
 
-	    @Override
-	    public Context getBaseContext() {
-		    return PluginLoader.fixBaseContextForReceiver(super.getBaseContext());
-	    }
+	@Override
+	public Context getBaseContext() {
+	    return PluginLoader.fixBaseContextForReceiver(super.getBaseContext());
+	}
 	    
-	4、在宿主工程中通过下面3个方法进行插件操作
+    4、在宿主工程中通过下面3个方法进行插件操作
 	    安装: PluginManagerHelper.installPlugin( SDcard上插件apk的路径 );
 	    卸载: PluginManagerHelper.remove( 插件packageName );
 	    列表: PluginManagerHelper.getPlugins();
 	    
-	5、在宿主中打开插件
+    5、在宿主中打开插件
 	
-	    //打开插件的Launcher界面
-	    Intent launchIntent = getPackageManager().getLaunchIntentForPackage( 插件packageName );			
-    	startActivity(launchIntent);
+       //打开插件的Launcher界面
+       Intent launchIntent = getPackageManager().getLaunchIntentForPackage( 插件packageName );			
+       startActivity(launchIntent);
     	
-    
-    ------------------------------------
-    ----下面是插件工程相关的说明
-    ------------------------------------
-    
+     以上所有内容及更多详情可以参考Demo
+	
+## 插件侧    
+    
     1、新建一个插件工程
     
-    2、如果是独立插件,无需任何配置, 一个普通的apk编译出来即可当插件apk安装到宿主中
+    2、如果是独立插件, 无需任何配置, 一个普通的apk编译出来即可当插件apk安装到宿主中
     
-    3、如果是非独立插件, 需要下面2个步骤
+    3、如果是非独立插件：
      
         3.1、在插件AndroidManifest.xml中manifest节点中增加如下配置:
              
@@ -108,6 +109,24 @@
              如果需要在其他插件，或者宿主的Activity中嵌入插件提供的Fragment
              需要在AndroidManifest.xml配置<exported-fragment>节点，具体参考demo
              
+	3.5.1 插件Fragment
+              插件UI可通过fragment或者activity来实现        
+    
+              如果是fragment实现的插件，又分为3种：
+                  1、fragment运行在宿主中的普通Activity中
+                  2、fragment运行在宿主中的特定Activity中
+                  3、fragment运行在插件中的Activity中
+
+                  对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
+    
+                  对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
+                  通过context.createPackageContext(插件包名)获取的插件context，
+                  那么这种fragment对其运行容器没有特殊要求
+    
+                 第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
+    
+                demo中都有例子。
+		
         3.6 如果此插件需要对外提供嵌入式View     
             如果需要在其他插件，或者宿主的Activity中嵌入插件提供的View
             需要在其他插件，或者宿主的的布局文件中嵌入<pluginView> 节点，用法同普通控件，具体参考demo
@@ -150,6 +169,7 @@
        如果是非独立插件, 需要先编译宿主, 再编译插件
        如果是非独立插件, 需要先编译宿主, 再编译插件
        如果是非独立插件, 需要先编译宿主, 再编译插件
+       
        重要的事情讲3遍！遇到编译问题请先编译宿主, 再编译插件
        
     以上所有内容及更多详情可以参考Demo
@@ -201,7 +221,11 @@
     
 # 开发注意事项
 
-    1、非独立插件中的class不能同时存在于宿主和插件程序中，因此其引用的公共库仅参与编译，不参与打包，参看demo中的gradle脚本。
+    1、非独立插件中的class不能同时存在于宿主和插件程序中
+      
+       如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
+       包括共享库的代码以及R文件，只需在编译时添加到classpath中，公共库仅参与编译，不参与打包，
+       且插件中如果要使用共享依赖库中的资源，需要使用共享库的R文件来进行引用。参看demo。
     
     2、若插件中包含so，则需要在宿主中添加一个占位的so文件。占位so可随意创建，随意命名，关键在于so所在的cpuarch目录要正确。
        在pluginMain工程。pluginMain工程中的libstub.so其实只是一个txt文件。
@@ -241,7 +265,7 @@
        或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
        
     6、需要在android studio中关闭instantRun选项。因为instantRun会替换宿主的application配置导致框架初始化异常
-
+ 
     7、项目插件化后，特别需要注意的是宿主程序混淆问题。
       若公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
       所以公共库一定要排除混淆或者使用稳定的mapping混淆。
@@ -260,39 +284,15 @@
       
       若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
 
-    8、插件编译问题。
-  
-     如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
-     包括共享库的代码以及R文件，只需在编译时添加到classpath中，且插件中如果要使用共享依赖库中的资源，
-     需要使用共享库的R文件来进行引用。这几点在PluginTest示例工程中有体现。
+    8、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
 
-    9、插件Fragment
-       插件UI可通过fragment或者activity来实现        
-    
-       如果是fragment实现的插件，又分为3种：
-          1、fragment运行在宿主中的普通Activity中
-          2、fragment运行在宿主中的特定Activity中
-          3、fragment运行在插件中的Activity中
-
-        对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
-    
-        对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
-        通过context.createPackageContext(插件包名)获取的插件context，
-        那么这种fragment对其运行容器没有特殊要求
-    
-        第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
-    
-        demo中都有例子。
-   
-   10、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
-
-   11、For-gradle-with-aapt分支使用的是aapt分组id方法。master也支持切换分组id的方法
+    9、For-gradle-with-aapt分支使用的是aapt分组id方法。master也支持切换分组id的方法
    
-   12、本项目除master分支外，其他分支不会更新维护。
+    10、本项目除master分支外，其他分支不会更新维护。
 
 ##其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
-2. [使用Public.xml实现插件和宿主资源id分组需要注意的问题](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E5%AE%9E%E7%8E%B0%E6%8F%92%E4%BB%B6%E5%92%8C%E5%AE%BF%E4%B8%BB%E8%B5%84%E6%BA%90id%E5%88%86%E7%BB%84%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98).
+2. [使用Public.xml实现插件和宿主资源id分组](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E5%AE%9E%E7%8E%B0%E6%8F%92%E4%BB%B6%E5%92%8C%E5%AE%BF%E4%B8%BB%E8%B5%84%E6%BA%90id%E5%88%86%E7%BB%84%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98).
 3. [更新记录](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95)
 
 联系作者：
