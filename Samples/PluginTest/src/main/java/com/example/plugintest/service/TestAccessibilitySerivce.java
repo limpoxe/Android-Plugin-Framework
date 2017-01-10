@@ -4,7 +4,8 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.limpoxe.fairy.util.LogUtil;
+import com.example.plugintest.Log;
+
 
 /**
  * Created by cailiming on 16/9/9.
@@ -20,13 +21,13 @@ public class TestAccessibilitySerivce extends AccessibilityService {
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN; //反馈
         info.notificationTimeout = 100; //通知的时间
         setServiceInfo(info);
-        LogUtil.printStackTrace();
-        LogUtil.e("xxx onServiceConnected");
+        Log.printStackTrace();
+        Log.e("xxx onServiceConnected");
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        LogUtil.e("xxx AccessibilityEvent : " + event.toString());
+        Log.e("xxx AccessibilityEvent : " + event.toString());
     }
 
     @Override

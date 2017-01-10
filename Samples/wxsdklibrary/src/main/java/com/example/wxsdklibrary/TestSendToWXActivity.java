@@ -11,7 +11,7 @@ import com.example.pluginmain.wxapi.WXEntryActivity;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
 import com.limpoxe.fairy.core.annotation.PluginContainer;
-import com.limpoxe.fairy.util.PackageNameUtil;
+import com.limpoxe.fairy.util.FakeUtil;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.SendMessageToWX;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
@@ -26,7 +26,7 @@ public class TestSendToWXActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Context fakeContext = PackageNameUtil.fakeContext(this);
+		Context fakeContext = FakeUtil.fakeContext(this);
 		api = WXAPIFactory.createWXAPI(fakeContext, WXEntryActivity.APP_ID, false);
 		api.registerApp(WXEntryActivity.APP_ID);
 

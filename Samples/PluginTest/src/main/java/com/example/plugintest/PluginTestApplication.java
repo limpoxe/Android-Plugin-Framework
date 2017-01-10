@@ -3,9 +3,6 @@ package com.example.plugintest;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
-
-import com.limpoxe.fairy.util.LogUtil;
 
 public class PluginTestApplication extends  Application {
 
@@ -19,7 +16,7 @@ public class PluginTestApplication extends  Application {
 		Log.d("xx", "" + ctx);
 
 		if (isApplicationProcess()) {
-			LogUtil.d("api欺骗成功，让插件以为自己在主进程运行");
+			Log.d("api欺骗成功，让插件以为自己在主进程运行");
 		}
 
 	}

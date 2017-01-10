@@ -4,13 +4,12 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.plugintest.IMyAidlInterface;
+import com.example.plugintest.Log;
 import com.example.plugintest.R;
 import com.example.plugintest.vo.ParamVO;
-import com.limpoxe.fairy.util.LogUtil;
 
 /**
  * @author cailiming
@@ -59,7 +58,7 @@ public class PluginTestService extends Service {
 
 			@Override
 			public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
-				LogUtil.d(aString, anInt, aLong);
+				Log.d(aString, anInt, aLong);
 			}
 		};
 	}

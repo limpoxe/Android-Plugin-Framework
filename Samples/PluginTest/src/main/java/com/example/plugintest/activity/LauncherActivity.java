@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,12 +20,12 @@ import android.widget.PopupWindow;
 
 import com.example.pluginsharelib.BaseActivity;
 import com.example.pluginsharelib.SharePOJO;
+import com.example.plugintest.Log;
 import com.example.plugintest.R;
 import com.example.plugintest.databinding.PluginLauncherBinding;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
 import com.example.plugintest.vo.DataBindingTestVO;
-import com.limpoxe.fairy.util.LogUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -314,23 +313,23 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		SharedPreferences sp = getSharedPreferences("aaa", 0);
 		sp.edit().putString("xyz", "123").commit();
 		File f = getDir("bbb", 0);
-		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+		Log.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
 
 		f = getFilesDir();
-		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+		Log.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
 
 		if (Build.VERSION.SDK_INT >= 21) {
 			f = getNoBackupFilesDir();
-			LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+			Log.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
 		}
 
 		f = getCacheDir();
-		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+		Log.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
 
 		if (Build.VERSION.SDK_INT >= 21) {
 			f = getCodeCacheDir();
 		}
-		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+		Log.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
 
 		SQLiteDatabase db = openOrCreateDatabase("ccc", 0, null);
 		try {
@@ -343,7 +342,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		}
 
 		f = getDatabasePath("ccc");
-		LogUtil.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
+		Log.d(f.getAbsoluteFile(), f.exists(), f.canRead(), f.canWrite());
 
 		String[] list = databaseList();
 
@@ -358,19 +357,19 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 			e.printStackTrace();
 		}
 
-		LogUtil.d(getFileStreamPath("eee").getAbsolutePath());
+		Log.d(getFileStreamPath("eee").getAbsolutePath());
 
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		LogUtil.d(keyCode);
+		Log.d(keyCode);
 		return super.onKeyDown(keyCode, event);
 	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		LogUtil.d(keyCode);
+		Log.d(keyCode);
 		return super.onKeyUp(keyCode, event);
 	}
 
