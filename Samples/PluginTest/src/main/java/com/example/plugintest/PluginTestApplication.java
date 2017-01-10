@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 
+import java.util.List;
+
 public class PluginTestApplication extends  Application {
 
 	private String packageName;
@@ -22,8 +24,9 @@ public class PluginTestApplication extends  Application {
 	}
 
 	private boolean isApplicationProcess() {
-		ActivityManager mActivityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		for (ActivityManager.RunningAppProcessInfo appProcess : mActivityManager.getRunningAppProcesses()) {
+		ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningAppProcessInfo> list = activityManager.getRunningAppProcesses();
+		for (ActivityManager.RunningAppProcessInfo appProcess : list) {
 			if (appProcess.pid == android.os.Process.myPid()) {
 				if (appProcess.processName.equals(packageName)) {
 					return true;
