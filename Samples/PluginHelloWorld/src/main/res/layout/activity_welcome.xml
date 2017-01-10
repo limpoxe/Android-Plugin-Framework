@@ -31,4 +31,9 @@
         android:layout_centerInParent="true"
         android:text="测试全屏透明Activity跳转"/>
 
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_below="@+id/test_transparent_btn"/>
 </RelativeLayout>

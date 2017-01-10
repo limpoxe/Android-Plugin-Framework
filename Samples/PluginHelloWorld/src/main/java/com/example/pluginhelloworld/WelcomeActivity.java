@@ -1,6 +1,5 @@
 package com.example.pluginhelloworld;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -11,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.example.hellojni.HelloJni;
@@ -73,6 +73,8 @@ public class WelcomeActivity extends AppCompatActivity {
             }
         });
 
+        WebView webView = (WebView) findViewById(R.id.webview);
+        webView.loadUrl("file:///android_asset/local_page_1.html");
     }
 
     @Override
