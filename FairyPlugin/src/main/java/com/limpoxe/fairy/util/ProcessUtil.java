@@ -10,6 +10,8 @@ import android.os.Build;
 import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.manager.PluginManagerProvider;
 
+import java.util.List;
+
 public class ProcessUtil {
 
     private static Boolean isPluginProcess;
@@ -31,7 +33,8 @@ public class ProcessUtil {
 
     private static String getCurProcessName(Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningAppProcessInfo appProcess : activityManager.getRunningAppProcesses()) {
+        List<ActivityManager.RunningAppProcessInfo> list = activityManager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo appProcess : list) {
             if (appProcess.pid == android.os.Process.myPid()) {
                 return appProcess.processName;
             }
