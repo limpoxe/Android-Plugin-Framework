@@ -24,21 +24,3 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile fileTree(dir: 'libs', include: ['**/**.jar'])
 }
-
-afterEvaluate {
-    tasks.getByName("assembleDebug").doLast {
-        println '导出 R jar包到build/outputs/目录'
-        exportRJar.execute()
-    }
-}
-
-task exportRJar(type: Jar) {
-    //指定生成的jar名
-    baseName 'rClasses'
-    from buildDir.absolutePath + '/intermediates/classes/debug/'
-    include '**/R.class'
-    include '**/R$*.class'
-    //打包到jar后的目录结构
-    //into("com/xxx/xxx")
-    destinationDir = file(buildDir.absolutePath + '/outputs/')
-}

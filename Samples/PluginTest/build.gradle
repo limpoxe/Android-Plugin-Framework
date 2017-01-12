@@ -58,24 +58,8 @@ dependencies {
     //如果是独立插件，无需任何特殊配置
     /////////////////////////////////////////////////////////////////////
 
-    //依赖库的src
-    provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.limpoxe.fairy/FairyPlugin/0.0.42-snapshot/jars/classes.jar')
+    provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
     provided files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/classes.jar')
-
-    //依赖库的R
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/outputs/rClasses.jar')
-
-    //依赖库的依赖裤（当supportV4在依赖库V的libs目录下时）
-    //provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/bundles/debug/libs/android-support-v4.jar')
-    //依赖库的依赖裤（当supportV4通过仓库依赖时）
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/25.1.0/jars/classes.jar')
-    //provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-v4/25.1.0/jars/libs/internal_impl-25.1.0.jar')
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/appcompat-v7/25.1.0/jars/classes.jar')
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-fragment/25.1.0/jars/classes.jar')
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-core-utils/25.1.0/jars/classes.jar')
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-core-ui/25.1.0/jars/classes.jar')
-    provided files(project(':Samples:PluginShareLib').getBuildDir().absolutePath + '/intermediates/exploded-aar/com.android.support/support-compat/25.1.0/jars/classes.jar')
 
 }
 
@@ -87,15 +71,6 @@ afterEvaluate {
                 include project.name + '-' + 'debug' + '.apk'
             }
             into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
-        }
-    }
-}
-
-build.doLast {
-    //just for test
-    android.applicationVariants.each { variant ->
-        variant.javaCompile.classpath.each { jarPath ->
-            println "classpath : " + jarPath
         }
     }
 }
