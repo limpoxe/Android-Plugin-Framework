@@ -37,9 +37,9 @@ android {
         }
     }
 
-    dataBinding {
-        enabled = true
-    }
+//    dataBinding {
+//        enabled = true
+//    }
 }
 
 def getDate() {
