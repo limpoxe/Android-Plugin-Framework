@@ -19,7 +19,7 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.42-snapshot@aar')
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.43-snapshot@aar')
             //optional， 用于支持函数式服务，不使用函数服务不需要添加此依赖
             compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
@@ -280,6 +280,8 @@
     5、Notification在5.x以下不支持使用插件资源, 在5.x及以上仅支持在RemoteView中使用插件资源
   
     6、插件依赖另一个插件时，被插件依赖的插件暂不支持包含资源
+    
+    7、非独立插件暂不支持使用databinding，独立插件可使用
   
 ##其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
