@@ -105,7 +105,8 @@ def createThemePatch(String buildType) {
 
     String mergedResDir = "${project.buildDir}/intermediates/res/merged/" + buildType + "/";
     FileTree allxmlFiles = fileTree(dir: mergedResDir)
-    allxmlFiles.include 'values/values*.xml', 'values-v1*/values-v1*.xml', 'values-v2*/values-v2*.xml'
+    allxmlFiles.include 'values/values*.xml', 'values-v1*/values-v1*.xml', 'values-v2*/values-v2*.xml', 'values-*-v1*/values-*-v1*.xml', 'values-*-v4/values-*-v4.xml', 'values-land/values-land.xml', 'values-*-v2*/values-*-v2*.xml', 'values-*-v8/values-*-v8.xml'
+
     allxmlFiles.each { File itemFile ->
         dest = new File(patchDir, 'patch_' + itemFile.name)
 
