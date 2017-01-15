@@ -3,4 +3,11 @@
     <color name="light_btn_normal_color">#eeeeee</color>
     <color name="light_btn_press_color">#dadada</color>
     <color name="light_btn_disable_color">#dddddd</color>
+
+    <color name="text_color">#FFA06E6E</color>
+
+    <color name="tab_text_color">#FF4081</color>
+
+    <color name="float_color">#FF4081</color>
+
 </resources>

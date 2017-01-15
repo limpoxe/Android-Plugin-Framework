@@ -6,4 +6,11 @@
     <string name="hello_world4">来着插件文字4</string>
     <string name="descpt">非独立插件demo</string>
     <string name="app_name">PluginTest</string>
+
+    <string name="menu_night_mode">Night mode</string>
+    <string name="menu_night_mode_system">Follow system</string>
+    <string name="menu_night_mode_day">Day (always)</string>
+    <string name="menu_night_mode_night">Night (always)</string>
+    <string name="menu_night_mode_auto">Auto</string>
+
 </resources>

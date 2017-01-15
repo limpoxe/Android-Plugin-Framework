@@ -92,6 +92,8 @@ dependencies {
     compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
 
     compile project(':Samples:PluginShareLib')
+
+    compile 'com.android.support:design:25.1.0'
 }
 
 afterEvaluate {

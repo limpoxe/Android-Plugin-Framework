@@ -124,6 +124,14 @@
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:layout_margin="10dp"
+            android:id="@+id/onClickDesignActivity"
+            android:text="打开DesignActivity" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
             android:id="@+id/onClickPluginTestReceiver"
             android:text="打开PluginTestReceiver" />
 

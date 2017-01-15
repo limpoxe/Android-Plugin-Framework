@@ -73,6 +73,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		findViewById( R.id.onClickPluginTestTabActivity).setOnClickListener(this);
 		findViewById( R.id.onClickPluginWebViewActivity).setOnClickListener(this);
 		findViewById( R.id.onClickTransparentActivity).setOnClickListener(this);
+		findViewById( R.id.onClickDesignActivity).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestReceiver).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestReceiver2).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestService).setOnClickListener(this);
@@ -128,6 +129,9 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 				break;
 			case R.id.onClickTransparentActivity:
 				onClickTransparentActivity(v);
+				break;
+			case R.id.onClickDesignActivity:
+				onClickDesignActivity(v);
 				break;
 			case R.id.onClickPluginTestReceiver:
 				onClickPluginTestReceiver(v);
@@ -250,6 +254,11 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		intent.setClassName(this, TransparentActivity.class.getName());
 		intent.putExtra("testParam", "testParam");
 		intent.putExtra("paramVO", new SharePOJO("测试VO"));
+		startActivity(intent);
+	}
+
+	public void onClickDesignActivity(View v) {
+		Intent intent = new Intent(this, DesignActivity.class);
 		startActivity(intent);
 	}
 

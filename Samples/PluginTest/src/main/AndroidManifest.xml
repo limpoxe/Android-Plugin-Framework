@@ -211,6 +211,9 @@
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
         </service>
+
+        <activity android:name="com.example.plugintest.activity.DesignActivity" android:theme="@style/Theme.DesignDemo"/>
+
     </application>
 
 </manifest>
