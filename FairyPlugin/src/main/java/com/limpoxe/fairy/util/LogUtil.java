@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class LogUtil {
 	
-	private static final boolean isDebug = true;
+	private static boolean isEnable = true;
 
     private static final int stackLevel = 4;
 
@@ -29,7 +29,7 @@ public class LogUtil {
     }
 
     private static void printLog(int level, Object... msg) {
-        if (isDebug) {
+        if (isEnable) {
             StringBuilder str = new StringBuilder();
 
             if (msg != null) {
@@ -70,7 +70,7 @@ public class LogUtil {
     }
 
     public static void printStackTrace() {
-        if (isDebug) {
+        if (isEnable) {
             try {
                 StackTraceElement[] sts = Thread.currentThread().getStackTrace();
                 for (StackTraceElement stackTraceElement : sts) {
@@ -83,7 +83,7 @@ public class LogUtil {
     }
 
     public static void printException(String msg, Throwable e) {
-        if (isDebug) {
+        if (isEnable) {
             DEFAULT_LOGHANDLER.publish("Log_StackTrace", Log.ERROR, msg + '\n' + Log.getStackTraceString(e));
         }
     }
@@ -100,6 +100,10 @@ public class LogUtil {
             Log.println(level, tag, message);
         }
     };
+
+    public static void setEnable(boolean isLogEnable) {
+        isEnable = isLogEnable;
+    }
 
     public static void setLogHandler(LogHandler logHandler) {
         DEFAULT_LOGHANDLER = logHandler;
