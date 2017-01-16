@@ -168,6 +168,12 @@ def applyThemePatch(taskName) {
 
     FileTree allxmlFiles = fileTree(dir: fromDir)
     allxmlFiles.include '*.xml'
+
+    if (allxmlFiles.size() == 0) {
+        println "theme_patch目录未生成，请先编译宿主！！"
+        throw new FileNotFoundException("theme_patch目录未生成，请先编译宿主！！\n请检查这个目录：\n" + fromDir);
+    }
+
     allxmlFiles.each { File itemFile ->
 
         String dest;
