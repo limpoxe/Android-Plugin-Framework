@@ -119,6 +119,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
+                LogUtil.v("Plugin Activity Intent Match");
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 if (Build.VERSION.SDK_INT <= 23) {
                     List<ResolveInfo> result = new ArrayList<>();
@@ -135,7 +136,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     Object parceledListSlice = HackParceledListSlice.newParecledListSlice(resultList);
                     return parceledListSlice;
                 }
-
+            } else {
+                LogUtil.v("It is not a Plugin Activity Intent");
             }
             return super.beforeInvoke(target, method, args);
         }
@@ -232,6 +234,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
+                LogUtil.v("Plugin Service Intent Match");
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
                 if (Build.VERSION.SDK_INT <= 23) {
                     List<ResolveInfo> result = new ArrayList<>();
@@ -248,6 +251,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     Object parceledListSlice = HackParceledListSlice.newParecledListSlice(resultList);
                     return parceledListSlice;
                 }
+            } else {
+                LogUtil.v("It is not a Plugin Service Intent");
             }
             return super.beforeInvoke(target, method, args);
         }
@@ -331,6 +336,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
     }
 
     private static ActivityInfo getActivityInfo(PluginDescriptor pluginDescriptor, String className) {
+        LogUtil.v("getActivityInfo for plugin ", pluginDescriptor.getPackageName(), className);
+
         ActivityInfo activityInfo = new ActivityInfo();
         activityInfo.name = className;
         activityInfo.packageName = getPackageName(pluginDescriptor);

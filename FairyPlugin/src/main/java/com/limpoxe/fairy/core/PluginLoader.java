@@ -114,6 +114,7 @@ public class PluginLoader {
 						public void onActivityDestroyed(Activity activity) {
 							Intent intent = activity.getIntent();
 							if (intent != null && intent.getComponent() != null) {
+                                LogUtil.v("回收绑定关系");
 								PluginManagerHelper.unBindLaunchModeStubActivity(intent.getComponent().getClassName(), activity.getClass().getName());
 							}
 						}
