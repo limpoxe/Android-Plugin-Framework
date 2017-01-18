@@ -1,6 +1,8 @@
 package com.example.pluginmain;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -70,6 +73,17 @@ public class MainActivity extends AppCompatActivity {
 
 		//测试通过宿主service唤起插件service
 		//startService(new Intent(this, MainService.class));
+
+		NotificationCompat.Builder mBuilder;
+		mBuilder = new NotificationCompat.Builder(this);
+		mBuilder.setSmallIcon(R.drawable.ic_launcher);
+		mBuilder.setContentTitle("插件框架Title").setContentText("插件框架Content")
+				.setTicker("插件框架Ticker");
+		Notification mNotification = mBuilder.build();
+		mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+		//mBuilder.setContentIntent()
+		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(456, mNotification);
 	}
 
 	private void initView() {

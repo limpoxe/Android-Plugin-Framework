@@ -1,5 +1,7 @@
 package com.example.plugintest.activity;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -78,6 +81,17 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		findViewById( R.id.onClickPluginTestReceiver2).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestService).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestService2).setOnClickListener(this);
+
+		NotificationCompat.Builder mBuilder;
+		mBuilder = new NotificationCompat.Builder(this);
+		mBuilder.setSmallIcon(com.example.pluginmain.R.drawable.ic_launcher);
+		mBuilder.setContentTitle("PluginTest Title").setContentText("PluginTest Content")
+				.setTicker("PluginTest Ticker");
+		Notification mNotification = mBuilder.build();
+		mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+		//mBuilder.setContentIntent()
+		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(123, mNotification);
 	}
 
 	private static void startFragmentInHostActivity(Context context, String targetId) {
