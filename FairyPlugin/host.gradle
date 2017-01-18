@@ -111,7 +111,7 @@ afterEvaluate {
                 jarMerger.close()
             }
 
-            println "Merge Jar finished"
+            println "Merge Jar Finished, Jar is at " + jarFile.absolutePath
         }
     }
 
