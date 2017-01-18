@@ -30,7 +30,7 @@ HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new Hash
 
 if (getProperties().containsKey("host_output_dir")) {
     tasks.whenTaskAdded { task ->
-        if (task.name.startsWith("merge") && task.name.endsWith("Resources")) {
+        if (task.name.startsWith("merge") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
             task.setOnlyIf { true }
             task.outputs.upToDateWhen { false }
             task.doLast {

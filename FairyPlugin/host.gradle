@@ -67,21 +67,21 @@ afterEvaluate {
         }
     }
 
+    tasks.each { task ->
+        if (task.name.startsWith("generate") && task.name.endsWith("Sources") && !task.name.contains("AndroidTest")) {
+            task.doFirst {
+                def buildFavType = task.name.replace("generate", "").replace("Sources", "")
+                println '编译宿主ap完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包 buildFavType = ' + buildFavType
+                createThemePatch(buildFavType.toLowerCase())
+            }
+        }
+    }
+
     if (gradle.startParameter.taskNames.find {
         println ">>>>>>执行命令: " + it
         it.startsWith("assemble") || it.startsWith("build")
     } != null) {
-        //第4件事
-        android.buildTypes.all { buildType ->
-            tasks.each { task ->
-                if (task.name.equalsIgnoreCase("assemble" + buildType.name)) {
-                    task.doLast {
-                        println '编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包'
-                        createThemePatch(buildType.name)
-                    }
-                }
-            }
-        }
+        //nothing
     }
 }
 
