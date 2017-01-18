@@ -1,6 +1,3 @@
-import com.android.build.gradle.internal.transforms.JarMerger
-import com.android.builder.signing.SignedJarBuilder
-
 apply plugin: 'com.android.application'
 
 configurations.all {
@@ -94,47 +91,6 @@ dependencies {
     compile project(':Samples:PluginShareLib')
 
     compile 'com.android.support:design:25.1.0'
-}
-
-afterEvaluate {
-    //导出宿主jar，非独立插件可provided依赖此jar
-    for (variant in android.applicationVariants) {
-        org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
-        String buildType = variant.buildType.name
-        javaCompile.doLast {
-            File jarFile = new File(project.buildDir, "outputs/" + project.name + "-" + buildType + ".jar")
-            if (jarFile.exists()) {
-                jarFile.delete()
-            }
-            JarMerger jarMerger = new JarMerger(jarFile)
-            try {
-                jarMerger.setFilter(new SignedJarBuilder.IZipEntryFilter() {
-                    public boolean checkEntry(String archivePath) throws SignedJarBuilder.IZipEntryFilter.ZipAbortException {
-                        if (archivePath.endsWith(".class")) {
-                            return true
-                        }
-                        return false
-                    }
-                });
-
-                javaCompile.classpath.each { jarPath ->
-                    jarMerger.addJar(jarPath);
-                    //jarMerger.addFolder(directoryInput.getFile());
-                }
-                File classes = new File(buildDir, 'intermediates/packaged/' + buildType + "/classes.jar");
-                if (!classes.exists()) {
-                    tasks.getByName("jar" + buildType.substring(0, 1).toUpperCase()+ buildType.replaceFirst("\\w","") +  "Classes").execute()
-                }
-                if (classes.exists()) {
-                    jarMerger.addJar(classes)
-                }
-            } catch (Exception e) {
-                e.printStackTrace()
-            } finally {
-                jarMerger.close()
-            }
-        }
-    }
 }
 
 //apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/host.gradle'
