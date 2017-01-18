@@ -5,15 +5,20 @@ import org.xml.sax.helpers.DefaultHandler
 import javax.xml.parsers.ParserConfigurationException
 import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
+import java.util.jar.JarEntry
+import java.util.jar.JarOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
-//在宿主脚本中apply此脚本, 此脚本一共做了4件事
-//1、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情
+//在宿主脚本中apply此脚本, 此脚本一共做了5件事
+//1、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情, 下面第4步需要此文件
 //2、编译宿主资源时插入public.xml，用来控制宿主资源id分组
 //3、编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包
 //4、编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包
+//5、编译完成后导出宿主的jar，包括宿主的src和其依赖的所有class, 编译非独立插件时需要此包
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -64,6 +69,49 @@ afterEvaluate {
                     rename('resources', project.name + "-resources")
                 }
             }
+        }
+
+        //第5件事
+        org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
+        String buildType = variant.buildType.name
+        javaCompile.doLast {
+
+            println "Merge Jar After Task " + javaCompile.name
+
+            File jarFile = new File(project.buildDir, "outputs/" + project.name + "-" + buildType + ".jar")
+            if (jarFile.exists()) {
+                jarFile.delete()
+            }
+
+            JarMerger jarMerger = new JarMerger(jarFile)
+            try {
+                jarMerger.setFilter(new JarFilter() {
+                    public boolean checkEntry(String archivePath) throws JarFilter.ZipAbortException {
+                        if (archivePath.endsWith(".class")) {
+                            return true
+                        }
+                        return false
+                    }
+                });
+
+                javaCompile.classpath.each { jarPath ->
+                    jarMerger.addJar(jarPath);
+                    //jarMerger.addFolder(directoryInput.getFile());
+                }
+                File classes = new File(buildDir, 'intermediates/packaged/' + buildType + "/classes.jar");
+                if (!classes.exists()) {
+                    tasks.getByName("jar" + buildType.substring(0, 1).toUpperCase()+ buildType.replaceFirst("\\w","") +  "Classes").execute()
+                }
+                if (classes.exists()) {
+                    jarMerger.addJar(classes)
+                }
+            } catch (Exception e) {
+                e.printStackTrace()
+            } finally {
+                jarMerger.close()
+            }
+
+            println "Merge Jar finished"
         }
     }
 
@@ -316,4 +364,177 @@ public class ThemeProcessor extends DefaultHandler {
         }
     }
 
+}
+
+
+public class JarMerger {
+    private final byte[] buffer = new byte[8192];
+    private final File jarFile;
+    private FileOutputStream fos;
+    private JarOutputStream jarOutputStream;
+
+    private JarFilter filter;
+
+    public JarMerger(File jarFile) throws IOException {
+        this.jarFile = jarFile;
+    }
+
+    private void init() throws IOException {
+        if(this.fos == null && this.jarOutputStream == null) {
+            if(!this.jarFile.getParentFile().mkdirs() && !this.jarFile.getParentFile().exists()) {
+                throw new RuntimeException("Cannot create directory " + this.jarFile.getParentFile());
+            }
+            this.fos = new FileOutputStream(this.jarFile);
+            this.jarOutputStream = new JarOutputStream(fos);
+        }
+    }
+
+    public void setFilter(JarFilter filter) {
+        this.filter = filter;
+    }
+
+    public void addFolder(File folder) throws IOException {
+        this.init();
+
+        try {
+            this.addFolderInternal(folder, "");
+        } catch (JarFilter.ZipAbortException var3) {
+            throw new IOException(var3);
+        }
+    }
+
+    private void addFolderInternal(File folder, String path) throws IOException, JarFilter.ZipAbortException {
+        File[] files = folder.listFiles();
+        if(files != null) {
+            File[] arr$ = files;
+            int len$ = files.length;
+
+            for(int i$ = 0; i$ < len$; ++i$) {
+                File file = arr$[i$];
+                if(!file.isFile()) {
+                    if(file.isDirectory()) {
+                        this.addFolderInternal(file, path + file.getName() + "/");
+                    }
+                } else {
+                    String entryPath = path + file.getName();
+                    if(this.filter == null || this.filter.checkEntry(entryPath)) {
+                        this.jarOutputStream.putNextEntry(new JarEntry(entryPath));
+                        FileInputStream fis = null;
+                        try {
+                            fis = new FileInputStream(file);
+
+                            int count;
+                            while((count = fis.read(this.buffer)) != -1) {
+                                this.jarOutputStream.write(this.buffer, 0, count);
+                            }
+                        } finally {
+                            if (fis != null) {
+                                fis.close();
+                                fis = null;
+                            }
+                        }
+
+                        this.jarOutputStream.closeEntry();
+                    }
+                }
+            }
+        }
+
+    }
+
+    public void addJar(File file) throws IOException {
+        this.addJar(file, false);
+    }
+
+    public void addJar(File file, boolean removeEntryTimestamp) throws IOException {
+        this.init();
+
+        FileInputStream e = null;
+        ZipInputStream zis = null;
+        try {
+            e = new FileInputStream(file);
+            zis = new ZipInputStream(e);
+
+            ZipEntry entry;
+            while((entry = zis.getNextEntry()) != null) {
+                if(!entry.isDirectory()) {
+                    String name = entry.getName();
+                    if(this.filter == null || this.filter.checkEntry(name)) {
+                        JarEntry newEntry;
+                        if(entry.getMethod() == ZipEntry.STORED) {
+                            newEntry = new JarEntry(entry);
+                        } else {
+                            newEntry = new JarEntry(name);
+                        }
+
+                        if(removeEntryTimestamp) {
+                            newEntry.setTime(0L);
+                        }
+
+                        this.jarOutputStream.putNextEntry(newEntry);
+
+                        int count;
+                        while((count = zis.read(this.buffer)) != -1) {
+                            this.jarOutputStream.write(this.buffer, 0, count);
+                        }
+
+                        this.jarOutputStream.closeEntry();
+                        zis.closeEntry();
+                    }
+                }
+            }
+        } catch (JarFilter.ZipAbortException var13) {
+            throw new IOException(var13);
+        } finally {
+            if (zis != null) {
+                zis.close();
+            }
+            if (e != null) {
+                e.close();
+            }
+        }
+
+    }
+
+    public void addEntry(String path, byte[] bytes) throws IOException {
+        this.init();
+        this.jarOutputStream.putNextEntry(new JarEntry(path));
+        this.jarOutputStream.write(bytes);
+        this.jarOutputStream.closeEntry();
+    }
+
+    public void close() throws IOException {
+        if (this.jarOutputStream != null) {
+            jarOutputStream.close();
+            jarOutputStream = null;
+        }
+        if (this.fos != null) {
+            fos.close();
+            fos = null;
+        }
+
+    }
+}
+
+public interface JarFilter {
+    boolean checkEntry(String var1) throws ZipAbortException;
+
+    public static class ZipAbortException extends Exception {
+        private static final long serialVersionUID = 1L;
+
+        public ZipAbortException() {
+        }
+
+        public ZipAbortException(String format, Object... args) {
+            super(String.format(format, args));
+        }
+
+        public ZipAbortException(Throwable cause, String format, Object... args) {
+            super(String.format(format, args), cause);
+        }
+
+        public ZipAbortException(Throwable cause) {
+            super(cause);
+        }
+    }
 }
