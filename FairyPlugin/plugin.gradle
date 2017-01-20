@@ -5,6 +5,10 @@ import org.xml.sax.helpers.DefaultHandler
 import javax.xml.parsers.ParserConfigurationException
 import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.sax.SAXTransformerFactory
+import javax.xml.transform.sax.TransformerHandler
+import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.OutputKeys;
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -258,7 +262,7 @@ public class StyleProcessor extends DefaultHandler {
 
     File destFile;
     Stack<Node> stack = new Stack<Node>();
-    BufferedWriter outXmlStream = null;
+    TransformerHandler outXmlHandler;
 
     SortedMap<String, ArrayList<String>> attrList = new TreeMap<String, ArrayList<String>>();
     HashSet<String> attrSets = new HashSet<String>();
@@ -269,6 +273,10 @@ public class StyleProcessor extends DefaultHandler {
 
     public StyleProcessor(File destFile) {
         this.destFile = destFile;
+
+        SAXTransformerFactory factory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
+        outXmlHandler = factory.newTransformerHandler();
+
     }
 
     public static StyleProcessor fixDeclareStyle(File srcFile, File destFile) {
@@ -297,9 +305,13 @@ public class StyleProcessor extends DefaultHandler {
 
     public void startDocument() throws SAXException {
         try {
-            outXmlStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile), "UTF-8"));
-            outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+            javax.xml.transform.Transformer transformer = outXmlHandler.getTransformer();     // 设置xml属性
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+            transformer.setOutputProperty(OutputKeys.VERSION, "1.0");
+            outXmlHandler.setResult(new StreamResult(new FileWriter(destFile)));
+            char[] common = new String("\n AUTO-GENERATED FILE.  DO NOT MODIFY \n").toCharArray();
+            outXmlHandler.comment(common, 0, common.length);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -361,7 +373,7 @@ public class StyleProcessor extends DefaultHandler {
                 if (!attrSets.contains(attributes.getValue("name"))) {
                     attrSets.add(attributes.getValue("name"));
                     try {
-                        outXmlStream.write(tag);
+                        outXmlHandler.startElement(uri, localName, qName, attributes)
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -370,7 +382,7 @@ public class StyleProcessor extends DefaultHandler {
                 }
             } else {
                 try {
-                    outXmlStream.write(tag);
+                    outXmlHandler.startElement(uri, localName, qName, attributes)
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -403,7 +415,7 @@ public class StyleProcessor extends DefaultHandler {
                 }
             }
             try {
-                outXmlStream.write(space + "</" + qName +">");
+                outXmlHandler.endElement(uri, localName, qName)
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -417,21 +429,17 @@ public class StyleProcessor extends DefaultHandler {
             return;
         }
 
-        String text = new String(ch, start, length);
-        text = text.replaceAll("[\n ]", "");
-        if (text.length() > 0) {
-            try {
-                outXmlStream.write(text);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            outXmlHandler.characters(ch, start, length)
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
     }
 
     public void endDocument() throws SAXException {
         try {
-            outXmlStream.flush();
-            outXmlStream.close();
+            outXmlHandler.endDocument();
         } catch (IOException e) {
             e.printStackTrace();
         }
