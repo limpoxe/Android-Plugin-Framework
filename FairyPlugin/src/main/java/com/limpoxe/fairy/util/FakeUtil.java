@@ -530,4 +530,17 @@ public class FakeUtil {
 
         return fakeForSdk;
     }
+
+    /**
+     * @param pluginContext 参数为插件的context，例如插件activity或者插件Application
+     * @return
+     */
+    public static String getHostPackageName(ContextWrapper pluginContext) {
+        Context context = pluginContext;
+        while (context instanceof ContextWrapper) {
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        //到这里context的实际类型应当是ContextImpl类，可以返回宿主packageName
+        return context.getPackageName();
+    }
 }
