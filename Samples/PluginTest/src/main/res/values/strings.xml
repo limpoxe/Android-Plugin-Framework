@@ -6,6 +6,10 @@
     <string name="hello_world4">来着插件文字4</string>
     <string name="descpt">非独立插件demo</string>
     <string name="app_name">PluginTest</string>
+    <string name="strange_text_1"><![CDATA[H&M服
+    <a href="http://www.baidu.com/"></a>
+    饰]]></string>
+    <string name="strange_text_2">H&#38;M服饰</string>
 
     <string name="menu_night_mode">Night mode</string>
     <string name="menu_night_mode_system">Follow system</string>
