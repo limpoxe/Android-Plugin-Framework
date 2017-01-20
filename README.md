@@ -57,7 +57,7 @@
      以上所有内容及更多详情可以参考Demo
 	
 ## 插件侧    
-    1、新建一个插件工程
+    1、新建一个插件工程（对独立插件和非独立插件含义后文有解释）
     
     2、如果是独立插件, 无需任何配置, 一个普通的apk编译出来即可当插件apk安装到宿主中
     
@@ -109,7 +109,7 @@
              如果需要在其他插件，或者宿主的Activity中嵌入插件提供的Fragment
              需要在AndroidManifest.xml配置<exported-fragment>节点，具体参考demo
              
-	3.5.1 插件Fragment
+        3.5.1 插件Fragment
               插件UI可通过fragment或者activity来实现        
     
               如果是fragment实现的插件，又分为3种：
@@ -117,19 +117,29 @@
                   2、fragment运行在宿主中的特定Activity中
                   3、fragment运行在插件中的Activity中
 
-                  对第2种和第3种，fragmet的开发方式和正常开发方式没有任何区别
+                  对第1种，对Frament的开发有约束，要求Fragment中凡是要使用context的地方，都需要使用通过
+                  PluginLoader.getDefaultPluginContext(FragmentClass)或者通过context.createPackageContext(插件包名)获取的插件context，
+                  但是对fragment运行容器，即对宿主中的普通Activity没有特殊要求和约束。
+                                    
+                  对第2种和第3种，对Fragmet的开发无约束，和正常写法没有任何区别，但是对其运行容器，即Activity有不同要求
+                  
+                  对第2种，要求Activity上添加@PluginContainer注解，作用是通知框架这个fragment来自哪个插件，以便框架替换相应的Context
+                  对第3种，由于本身就是运行在自己的插件索提供的Activity中，则对Fragment和Activity都无特别要求和约束
     
-                  对第1种，fragmeng中凡是要使用context的地方，都需要使用通过PluginLoader.getDefaultPluginContext(FragmentClass)或者
-                  通过context.createPackageContext(插件包名)获取的插件context，
-                  那么这种fragment对其运行容器没有特殊要求
-    
-                 第1种Activity和第2种Activity，两者在代码上没有任何区别。主要是插件框架在运行时需要区分注入的Context的类型。
-    
-                demo中都有例子。
+                  总结：
+                       如果插件Fragment不是运行在自己的插件提供的Activity中，则要么约束Fragment的context的获取方法，要么约束其运行时的容器
+                       Activity的Context(通过@PluginContainer注解指明使用哪个插件的Context)
+                       
+                       如果插件Fragment是运行在自己的插件提供的Activity中，则对Fragment和Activity都无特别要求。
+                       
+                  demo中都有例子。
 		
         3.6 如果此插件需要对外提供嵌入式View     
             如果需要在其他插件，或者宿主的Activity中嵌入插件提供的View
             需要在其他插件，或者宿主的的布局文件中嵌入<pluginView> 节点，用法同普通控件，具体参考demo
+            
+            此类嵌入插件view的宿主Activity，需要添加@PluginContainer注解（无需指插件包名，插件包名通过pluginView节点指定），
+            用来识别pluginVie标签并解析出插件包名。
                 
         3.7 如果插件需要使用宿主中定义的主题
             插件中可以直接使用宿主中定义的主题。例如，宿主中定义了一个主题为AppHostTheme，
@@ -152,6 +162,7 @@
             
         3.9 如果要在插件中获取宿主包名
             插件返回的是插件包名，如果要在插件中获取宿主包名，写法如下：
+            (见FakeUtil.getHostPackageName())
             //参数为插件的context，例如插件activity或者插件Application
             public String getHostPackageName(ContextWrapper pluginContext) {
                   Context context = pluginContext;
@@ -164,7 +175,7 @@
             
         3.10 如果插件中要使用需要appkey的sdk
             插件中使用需要appkey的sdk，例如微信分享和百度地图sdk，参考demo：baidumapsdk，wxsdklibrary
-             
+                  
     4、如果是非独立插件, 需要先编译宿主, 再编译插件, 因为从如上的配置可以看出非独立插件编译时需要依赖宿主编译时的输出物
        如果是非独立插件, 需要先编译宿主, 再编译插件
        如果是非独立插件, 需要先编译宿主, 再编译插件
@@ -180,7 +191,7 @@
     1、非独立插件中的class不能同时存在于宿主和插件程序中
       
        如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
-       包括共享库的代码以及R文件，只需在编译时添加到classpath中，公共库仅参与编译，不参与打包，
+       包括共享库的代码以及R文件，只需在编译时以provided方式添加到classpath中，公共库仅参与编译，不参与打包，
        且插件中如果要使用共享依赖库中的资源，需要使用共享库的R文件来进行引用。参看demo。
     
     2、若插件中包含so，则需要在宿主中添加一个占位的so文件。占位so可随意创建，随意命名，关键在于so所在的cpuarch目录要正确。
