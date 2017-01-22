@@ -296,7 +296,7 @@
   
 ##其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
-2. [使用Public.xml实现插件和宿主资源id分组](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E5%AE%9E%E7%8E%B0%E6%8F%92%E4%BB%B6%E5%92%8C%E5%AE%BF%E4%B8%BB%E8%B5%84%E6%BA%90id%E5%88%86%E7%BB%84%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98).
+2. [使用Public.xml的坑和填坑](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E7%9A%84%E5%9D%91%E5%92%8C%E5%A1%AB%E5%9D%91).
 3. [更新记录](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95)
 
 ##联系作者：
