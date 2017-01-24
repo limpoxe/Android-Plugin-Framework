@@ -72,6 +72,7 @@
         </activity>
 
         <activity android:name=".DetailActivity" />
+        <activity android:name=".TestCaseListActivity" />
 
         <!-- 要展示插件中的fragment，所以配成插件进程 -->
         <activity android:name=".TestFragmentActivity"

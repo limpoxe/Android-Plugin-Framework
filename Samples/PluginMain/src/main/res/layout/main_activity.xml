@@ -17,32 +17,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="安装assets内置插件"
-            android:padding="15dp"
+            android:padding="10dp"
             android:textSize="16sp" />
+
         <Button
-            android:id="@+id/uninstall"
+            android:id="@+id/other"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="卸载com.example.plugintest"
-            android:padding="15dp"
-            android:textSize="16sp" />
+            android:text="其他测试"
+            android:padding="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:textSize="16sp"
+            android:visibility="gone"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="已安装的插件列表："
-            android:padding="5dp"
-            android:textSize="16sp" />
-
-        <LinearLayout
+        <ListView
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:minHeight="100dp"
-            android:layout_marginTop="16dp"
-            android:orientation="vertical" >
-        </LinearLayout>
+            android:layout_height="match_parent">
+
+        </ListView>
  
     </LinearLayout>
 

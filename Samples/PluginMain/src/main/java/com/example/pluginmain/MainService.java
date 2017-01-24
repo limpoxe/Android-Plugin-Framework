@@ -14,12 +14,7 @@ public class MainService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-
-		Log.d("MainService", "打开插件PluginTestService");
-		Intent serviceIntent = new Intent("test.lmn");
-		serviceIntent.setPackage("com.example.plugintest");
-		startService(serviceIntent);
-
+        testStartService();
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -27,4 +22,12 @@ public class MainService extends Service {
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
+
+    private void testStartService() {
+        Log.d("MainService", "打开插件PluginTestService");
+        Intent serviceIntent = new Intent("test.lmn");
+        serviceIntent.setPackage("com.example.plugintest");
+        startService(serviceIntent);
+
+    }
 }

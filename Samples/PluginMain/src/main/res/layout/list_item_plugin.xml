@@ -1,0 +1,80 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:paddingBottom="5dp"
+    android:paddingTop="5dp">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_alignParentLeft="true"
+        />
+
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_alignTop="@+id/icon"
+        android:layout_marginLeft="10dp"
+        android:layout_toLeftOf="@+id/is_standard"
+        android:layout_toRightOf="@+id/icon"
+        android:gravity="center_vertical"
+        android:textSize="8sp"
+        tools:text="appName"/>
+
+    <TextView
+        android:id="@+id/is_standard"
+        android:layout_width="wrap_content"
+        android:layout_height="22dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/uninstall"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="2dp"
+        android:gravity="center_vertical"
+        android:textSize="12sp"
+        tools:text="非独立插件"/>
+
+    <TextView
+        android:id="@+id/plugin_version"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:layout_below="@+id/appName"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/icon"
+        android:gravity="center_vertical"
+        android:textSize="8sp"
+        tools:text="plugin_version"/>
+
+    <TextView
+        android:id="@+id/uninstall"
+        android:layout_width="wrap_content"
+        android:layout_height="22dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="2dp"
+        android:background="#CCCCCC"
+        android:gravity="center"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:text="卸载插件"
+        android:textColor="#333333"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/packageName"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_below="@+id/plugin_version"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/icon"
+        android:gravity="center_vertical"
+        android:textSize="8sp"
+        tools:text="packageName"/>
+
+</RelativeLayout>
