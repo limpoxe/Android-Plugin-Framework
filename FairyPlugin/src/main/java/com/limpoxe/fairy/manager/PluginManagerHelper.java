@@ -7,7 +7,6 @@ import com.limpoxe.fairy.core.compat.CompatForContentProvider;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -50,13 +49,13 @@ public class PluginManagerHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public static Collection<PluginDescriptor> getPlugins() {
+    public static ArrayList<PluginDescriptor> getPlugins() {
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_QUERY_ALL, null, null);
 
-        Collection<PluginDescriptor> list = null;
+        ArrayList<PluginDescriptor> list = null;
         if (bundle != null) {
-            list = (Collection<PluginDescriptor>)bundle.getSerializable(PluginManagerProvider.QUERY_ALL_RESULT);
+            list = (ArrayList<PluginDescriptor>)bundle.getSerializable(PluginManagerProvider.QUERY_ALL_RESULT);
         }
         //防止NPE
         if (list == null) {
@@ -90,6 +89,20 @@ public class PluginManagerHelper {
         }
 
         return pluginDescriptor;
+    }
+
+    public static boolean isInstalled(String pluginId) {
+        PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
+        return pluginDescriptor != null;
+    }
+
+    public static boolean isInstalled(String pluginId, String pluginVersion) {
+        PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
+        if (pluginDescriptor != null) {
+            LogUtil.v("isInstalled", pluginId, pluginDescriptor.getVersion(), pluginVersion);
+            return pluginDescriptor.getVersion().equals(pluginVersion);
+        }
+        return false;
     }
 
     public static int installPlugin(String srcFile) {

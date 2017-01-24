@@ -148,6 +148,21 @@ public class ResourceUtil {
         return null;
     }
 
+    public static Drawable getIcon(PluginDescriptor pd) {
+        if (Build.VERSION.SDK_INT >= 9) {
+            PackageManager pm = PluginLoader.getApplication().getPackageManager();
+            PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+            if (info != null) {
+                ApplicationInfo appInfo = info.applicationInfo;
+                appInfo.sourceDir = pd.getInstalledPath();
+                appInfo.publicSourceDir = pd.getInstalledPath();
+                Drawable logo = pm.getApplicationIcon(appInfo);
+                return logo;
+            }
+        }
+        return null;
+    }
+
     public static boolean isMainResId(int resid) {
         int packageId = resid >> 24;
         if (packageId != 0x7f) {//加这个判断是为了支持通过修改aapt的方式进行资源分组

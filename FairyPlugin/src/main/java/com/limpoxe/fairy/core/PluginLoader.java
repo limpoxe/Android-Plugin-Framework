@@ -270,13 +270,15 @@ public class PluginLoader {
 		return null;
 	}
 
+    /**
+     * use PluginManagerHelper.isInstalled()
+     * @param pluginId
+     * @param pluginVersion
+     * @return
+     */
+    @Deprecated
 	public static boolean isInstalled(String pluginId, String pluginVersion) {
-		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
-		if (pluginDescriptor != null) {
-			LogUtil.v(pluginId, pluginDescriptor.getVersion(), pluginVersion);
-			return pluginDescriptor.getVersion().equals(pluginVersion);
-		}
-		return false;
+		return PluginManagerHelper.isInstalled(pluginId, pluginVersion);
 	}
 
 	public static void setLoadingResId(int resId) {
