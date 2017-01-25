@@ -151,10 +151,14 @@ public class PluginIntentResolver {
 			//PluginInstrumentationWrapper检测到这个标记后会进行替换
 			intent.setAction(className + CLASS_SEPARATOR + (intent.getAction()==null?"":intent.getAction()));
 		} else {
-			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
-				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
-			}
-		}
+			if (intent.getComponent() != null) {
+                String targetPackageName = intent.getComponent().getPackageName();
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(targetPackageName);
+                if (pluginDescriptor != null) {
+                    intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), intent.getComponent().getClassName()));
+                }
+            }
+        }
 	}
 
 	/* package */static void resolveActivity(Intent[] intent) {
@@ -171,9 +175,9 @@ public class PluginIntentResolver {
 			packageName = intent.getComponent().getPackageName();
 		}
 		if (packageName != null && !packageName.equals(PluginLoader.getApplication().getPackageName())) {
-			PluginDescriptor dp = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
-			if (dp != null) {
-				List<String> list = dp.matchPlugin(intent, type);
+			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+			if (pluginDescriptor != null) {
+				List<String> list = pluginDescriptor.matchPlugin(intent, type);
 				if (list != null && list.size() > 0) {
 					if (result == null) {
 						result = new ArrayList<>();

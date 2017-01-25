@@ -264,7 +264,6 @@ public class PluginLoader {
 
 			newContext.setTheme(pluginDescriptor.getApplicationTheme());
 
-
 			return newContext;
 		}
 
@@ -272,16 +271,10 @@ public class PluginLoader {
 	}
 
     /**
-     * use PluginManagerHelper.isInstalled()
-     * @param pluginId
-     * @param pluginVersion
-     * @return
+     * 首次打开插件时，如果是通过Activity打开，会显示一个空白loading页，
+     * 通过resId设置loading页ui
+     * @param resId
      */
-    @Deprecated
-	public static boolean isInstalled(String pluginId, String pluginVersion) {
-		return PluginManagerHelper.isInstalled(pluginId, pluginVersion);
-	}
-
 	public static void setLoadingResId(int resId) {
 		sLoadingResId = resId;
 	}
@@ -290,6 +283,11 @@ public class PluginLoader {
 		return sLoadingResId;
 	}
 
+    /**
+     * 设置loading页最小等待时间，用于在插件较简单，初始化较快时，避免loading页一闪而过
+     * 时间设置为0表示无loading页
+     * @param minLoadingTime
+     */
 	public static void setMinLoadingTime(long minLoadingTime) {
 		sMinLoadingTime = minLoadingTime;
 	}
