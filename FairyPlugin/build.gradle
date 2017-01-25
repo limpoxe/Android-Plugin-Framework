@@ -8,7 +8,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 43
-        versionName "0.0.43-snapshot"
+        versionName "0.0.44-snapshot"
     }
 
     lintOptions {
