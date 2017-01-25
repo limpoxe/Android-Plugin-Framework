@@ -11,6 +11,7 @@ import com.limpoxe.fairy.content.PluginReceiverIntent;
 import com.limpoxe.fairy.core.android.HackCreateServiceData;
 import com.limpoxe.fairy.core.android.HackReceiverData;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -27,7 +28,7 @@ public class PluginIntentResolver {
 	public static void resolveService(Intent intent) {
 		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
-			String stubServiceName = PluginManagerHelper.bindStubService(classNameList.get(0));
+			String stubServiceName = PluginProviderClient.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
 				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), stubServiceName));
 			}
@@ -47,7 +48,7 @@ public class PluginIntentResolver {
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
 				newIntent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(),
-						PluginManagerHelper.bindStubReceiver()));
+                        PluginProviderClient.bindStubReceiver()));
 				//hackReceiverForClassLoader检测到这个标记后会进行替换
 				newIntent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
 				result.add(newIntent);
@@ -67,7 +68,7 @@ public class PluginIntentResolver {
 	/* package */static Class resolveReceiverForClassLoader(final Object msgObj) {
 		HackReceiverData hackReceiverData = new HackReceiverData(msgObj);
 		Intent intent = hackReceiverData.getIntent();
-		if (intent.getComponent().getClassName().equals(PluginManagerHelper.bindStubReceiver())) {
+		if (intent.getComponent().getClassName().equals(PluginProviderClient.bindStubReceiver())) {
 			String action = intent.getAction();
 			LogUtil.v("action", action);
 			if (action != null) {
@@ -109,7 +110,7 @@ public class PluginIntentResolver {
 			PluginInjector.hackHostClassLoaderIfNeeded();
 
 			//通过映射查找
-			String targetClassName = PluginManagerHelper.getBindedPluginServiceName(info.name);
+			String targetClassName = PluginProviderClient.getBindedPluginServiceName(info.name);
 			//TODO 或许可以通过这个方式来处理service
 			//info.applicationInfo = XXX
 
@@ -117,8 +118,8 @@ public class PluginIntentResolver {
 
 			if (targetClassName != null) {
 				info.name =  CLASS_PREFIX_SERVICE + targetClassName;
-			} else if (PluginManagerHelper.isStub(info.name)) {
-				String dumpString = PluginManagerHelper.dumpServiceInfo();
+			} else if (PluginProviderClient.isStub(info.name)) {
+				String dumpString = PluginProviderClient.dumpServiceInfo();
 				LogUtil.w("hackServiceName 没有找到映射关系, 可能映射表出了异常", info.name, dumpString);
 
 				info.name = CLASS_PREFIX_SERVICE + "null";
@@ -140,7 +141,7 @@ public class PluginIntentResolver {
 
 			PluginActivityInfo pluginActivityInfo = pluginDescriptor.getActivityInfos().get(className);
 
-			String stubActivityName = PluginManagerHelper.bindStubActivity(className,
+			String stubActivityName = PluginProviderClient.bindStubActivity(className,
 					Integer.parseInt(pluginActivityInfo.getLaunchMode()),
 					pluginDescriptor.getPackageName(),
 					pluginActivityInfo.getTheme());

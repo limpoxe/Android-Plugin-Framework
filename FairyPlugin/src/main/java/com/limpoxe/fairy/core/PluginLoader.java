@@ -19,6 +19,7 @@ import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIPackageManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidOsServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -115,7 +116,7 @@ public class PluginLoader {
 							Intent intent = activity.getIntent();
 							if (intent != null && intent.getComponent() != null) {
                                 LogUtil.v("回收绑定关系");
-								PluginManagerHelper.unBindLaunchModeStubActivity(intent.getComponent().getClassName(), activity.getClass().getName());
+                                PluginProviderClient.unBindLaunchModeStubActivity(intent.getComponent().getClassName(), activity.getClass().getName());
 							}
 						}
 					});

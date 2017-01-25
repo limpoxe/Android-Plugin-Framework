@@ -31,7 +31,6 @@ import com.limpoxe.fairy.util.ResourceUtil;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -91,7 +90,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             LogUtil.v("afterInvoke", method.getName());
 
             if (Build.VERSION.SDK_INT >= 18) {//android4.3
-                Collection<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
+                ArrayList<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
                 if (plugins != null) {
                     List<PackageInfo> resultList = (List<PackageInfo>) new HackParceledListSlice(invokeResult).getList();
                     if (resultList != null) {

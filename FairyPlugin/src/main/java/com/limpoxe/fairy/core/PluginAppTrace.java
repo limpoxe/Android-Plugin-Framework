@@ -8,7 +8,7 @@ import android.os.Message;
 
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackContextImpl;
-import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -128,7 +128,7 @@ public class PluginAppTrace implements Handler.Callback {
 					if (service != null) {
 						String pluginServiceClassName = service.getClass().getName();
 						LogUtil.v("unBindStubService", pluginServiceClassName);
-						PluginManagerHelper.unBindStubService(pluginServiceClassName);
+                        PluginProviderClient.unBindStubService(pluginServiceClassName);
 					}
 				}
 			}

@@ -64,8 +64,8 @@ public class SystemApiDelegate extends MethodDelegate {
                     // 包含.号, 基本可以判定是packageName
                     if (!args[i].equals(PluginLoader.getApplication().getPackageName())) {
                         //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
-                        PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId((String)args[i]);
-                        if(pd != null) {
+                        PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId((String)args[i]);
+                        if(pluginDescriptor != null) {
                             LogUtil.v("修正System Api", descriptor, methodName, "的参数为宿主包名", args[i]);
                             // 参数传的是插件包名, 修正为宿主包名
                             args[i] = PluginLoader.getApplication().getPackageName();

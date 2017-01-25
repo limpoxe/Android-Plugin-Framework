@@ -42,8 +42,8 @@ public class AndroidViewIWindowSession extends MethodDelegate {
                 if (params.packageName != null && !params.packageName.equals(PluginLoader.getApplication().getPackageName())) {
 
                     //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
-                    PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(params.packageName);
-                    if(pd != null) {
+                    PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(params.packageName);
+                    if(pluginDescriptor != null) {
                         LogUtil.v("修正System api", methodName, params.packageName);
                         //这里修正packageName会引起弹PopupWindow时发生WindowManager异常，
                         //TODO 此处暂不修正，原因待查
