@@ -17,6 +17,7 @@
 
  	<application 
  	    android:name="com.example.plugintest.PluginTestApplication"
+        android:icon="@drawable/icon_launcher"
         android:label="@*com.example.pluginmain:string/share_app_name"
         android:theme="@style/PluginTheme2">
 

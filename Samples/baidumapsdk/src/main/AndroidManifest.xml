@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.limpoxe.baidumapsdk">
 
-    <application android:theme="@style/AppTheme">
+    <application
+        android:icon="@drawable/icon_launcher"
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="zcV8rayjavRIRLmepXmzGBVx" />
