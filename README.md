@@ -38,10 +38,10 @@
             PluginLoader.setLoadingResId(R.layout.loading);
         }
 
-	@Override
-	public Context getBaseContext() {
-	    return PluginLoader.fixBaseContextForReceiver(super.getBaseContext());
-	}
+	    @Override
+	    public Context getBaseContext() {
+	        return PluginLoader.fixBaseContextForReceiver(super.getBaseContext());
+	    }
 	    
     4、在宿主工程中通过下面3个方法进行插件操作
 	    安装: PluginManagerHelper.installPlugin( SDcard上插件apk的路径 );
@@ -140,6 +140,9 @@
             
             此类嵌入插件view的宿主Activity，需要添加@PluginContainer注解（无需指插件包名，插件包名通过pluginView节点指定），
             用来识别pluginVie标签并解析出插件包名。
+            
+            注意，在嵌入式插件View中调用getContext()返回的类型不是其所在的Activity，而是插件PluginContextTheme类型。
+            若想获得所在宿主的Activity对象，需要将getContext的返回强转成PluginContextTheme，再调用其getOuter方法。
                 
         3.7 如果插件需要使用宿主中定义的主题
             插件中可以直接使用宿主中定义的主题。例如，宿主中定义了一个主题为AppHostTheme，
@@ -148,7 +151,7 @@
             如果插件要扩展宿主主题，也可以直接使用。例如，在插件的style.xml中定义一个主题PluginTheme
             <style name="PluginTheme" parent="AppHostTheme" />
              
-            以上写法，IDE中会标红，但是不影响编译和运行。
+            以上写法，IDE中可能会标红，但是不影响编译和运行。
             
         3.8 如果插件需要使用宿主中定义的其他资源
             插件中可以直接使用宿主中定义的资源，但是写法和直接使用插件自己的资源略有不同,
@@ -157,6 +160,8 @@
             但是上面只适用资源在插件中的情况，如果资源是定义在宿主中，应使用下面的写法
                 android:label="@*xx.xx.xx:string/string_in_host"
             其中，xx.xx.xx是宿主包名
+            
+            以上写法，IDE中可能会标红，但是不影响编译和运行。
             
             注意本条与上一条3.7的区别：插件中使用宿主主题，可以直接使用，但是使用宿主资源，需要带上*packageName:前缀
             
@@ -194,18 +199,21 @@
        包括共享库的代码以及R文件，只需在编译时以provided方式添加到classpath中，公共库仅参与编译，不参与打包，
        且插件中如果要使用共享依赖库中的资源，需要使用共享库的R文件来进行引用。参看demo。
     
-    2、若插件中包含so，则需要在宿主中添加一个占位的so文件。占位so可随意创建，随意命名，关键在于so所在的cpuarch目录要正确。
-       在pluginMain工程。pluginMain工程中的libstub.so其实只是一个txt文件。
+    2、若插件中包含so，则需要在宿主的相应目录下添加至少一个so文件，以确保插件和宿主支持的so种类完全相同
+    
+       例如：插件包含armv7a、arm64两种so文件，则宿主必须至少包含一个armv7a的so以及一个arm64的so。
+       若宿主本身不需要so文件，可随意创建一个假so文件放在宿主的相应目录下。例如pluginMain工程中的libstub.so其实只是一个txt文件。
 
        需要占位so的原因是，宿主在安装时，系统会扫描宿主中的so的（根据文件夹判断）类型，决定宿主在哪种cpu模式下运行、并保持到系统设置里面。
        (系统源码可查看com.android.server.pm.PackageManagerService.setBundledAppAbisAndRoots()方法)
        例如32、64、还是x86等等。如果宿主中不包含so，系统默认会选择一个最适合当前设备的模式。
-       那么问题来了，如果系统默认选择的模式，和将来下载安装的插件中的so支持的模式不匹配，则会出现so异常。
+       那么问题来了，如果系统默认选择的模式，和将来下载安装的插件中支持的so模式不匹配，则会出现so异常。
 
        因此需要提前通知系统，宿主需要在哪些cpu模式下运行。提前通知的方式即内置占位so。
 
-    3、插件默认是在插件进程中运行，如需切到宿主进程，仅需将core工程的Manifest中配置的所有组件去都去掉掉process属性即可。
-       PluginMain工程下有几个插件进程的demo也需要去掉process属性
+    3、插件默认是在插件进程中运行，如需切到宿主进程，仅需将Fairy包的Manifest中配置的所有组件去都去掉掉process属性即可。
+       
+       demo中PluginMain工程下有几个插件进程的demo也需要去掉process属性
 
     4、编译方法
 
@@ -231,7 +239,7 @@
     5、框架中对非独立插件做了签名校验。如果宿主是release模式，要求插件的签名和宿主的签名一致才允许安装。
        这是为了验证插件来源合法性
 
-    6、需要在android studio中关闭instantRun选项。因为instantRun会替换宿主的application配置导致框架初始化异常
+    6、需要在android studio中关闭instantRun选项。因为instantRun会替换apk的application配置导致框架异常
  
     7、项目插件化后，特别需要注意的是宿主程序混淆问题。
       若公共库混淆后，可能会导致非独立插件程序运行时出现classnotfound，原因很好理解。
@@ -293,6 +301,8 @@
     6、插件依赖另一个插件时，被插件依赖的插件暂不支持包含资源
     
     7、非独立插件暂不支持使用databinding，独立插件可使用
+    
+    8、可能不支持对插件或者宿主进行加壳加固处理，未尝试。
   
 ##其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
