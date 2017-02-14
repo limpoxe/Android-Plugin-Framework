@@ -25,7 +25,6 @@ import com.limpoxe.fairy.core.compat.CompatForSharedPreferencesImpl;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.multidex.PluginMultiDexHelper;
 import com.limpoxe.fairy.util.ProcessUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,9 +32,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.limpoxe.fairy.core.android.HackResources.selectDefaultTheme;
-import static com.limpoxe.support.servicemanager.util.ParamUtil.result;
 
 /**
  * 注意：意外覆写父类方法可能会抛出LingageError
@@ -162,13 +158,13 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	}
 
-	//@hide
+	//@hide tabactivity会用到
 	public String getBasePackageName() {
 		//ViewRootImpl中会调用这个方法, 这是个hide方法.
 		return PluginLoader.getApplication().getPackageName();
 	}
 
-	////@hide
+	////@hide toast会用到
 	public String getOpPackageName() {
 		return PluginLoader.getApplication().getPackageName();
 	}
