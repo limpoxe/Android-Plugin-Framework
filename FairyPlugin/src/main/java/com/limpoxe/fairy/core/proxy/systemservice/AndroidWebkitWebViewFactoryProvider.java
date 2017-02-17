@@ -36,7 +36,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                 HackWebViewFactory.setProviderInstance(webViewFactoryProviderProxy);
 
                 WebView wb = new WebView(PluginLoader.getApplication());
-                wb.loadUrl("");//初始化webview渲染引擎
+                wb.loadUrl("");//触发webview渲染引擎初始化
 
             } else {
                 //如果取不到值，原因可能是不同版本差异
