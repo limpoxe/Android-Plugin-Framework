@@ -139,15 +139,6 @@ public class AndroidAppINotificationManager extends MethodProxy {
                 return;
             }
 
-            if (Build.VERSION.SDK_INT > 23) {
-                LogUtil.e("not support");
-                notification.contentView = null;
-                notification.bigContentView = null;
-                notification.headsUpContentView = null;
-                notification.tickerView = null;
-                return;
-            }
-
             ApplicationInfo newInfo = new ApplicationInfo();
             String packageName = null;
 
@@ -181,20 +172,22 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
             if (packageName != null && !packageName.equals(hostPackageName)) {
 
-                PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+                newInfo.packageName = pluginDescriptor.getPackageName();
                 //要确保publicSourceDir这个路径可以被SystemUI应用读取，
-                newInfo.publicSourceDir = prepareNotificationResourcePath(pd.getInstalledPath(),
+                newInfo.publicSourceDir = prepareNotificationResourcePath(pluginDescriptor.getInstalledPath(),
                         PluginLoader.getApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
 
             } else if (packageName != null && packageName.equals(hostPackageName)) {
-                //只处理contentIntent，其他不管
-                if (notification.contentIntent != null) {
+                //如果packageName是宿主，由于前面已经判断出，layoutid不是来自插件，则尝试查找notifications的目标页面，如果目标是插件，则尝试使用此插件作为通知栏的资源来源
+                if (notification.contentIntent != null) {//只处理contentIntent，其他不管
                     Intent intent = new HackPendingIntent(notification.contentIntent).getIntent();
                     if (intent != null && intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
                         String className = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR)[0];
-                        PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(className);
+                        PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+                        newInfo.packageName = pluginDescriptor.getPackageName();
                         //要确保publicSourceDir这个路径可以被SystemUI应用读取，
-                        newInfo.publicSourceDir = prepareNotificationResourcePath(pd.getInstalledPath(),
+                        newInfo.publicSourceDir = prepareNotificationResourcePath(pluginDescriptor.getInstalledPath(),
                                 PluginLoader.getApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
                     }
                 }
