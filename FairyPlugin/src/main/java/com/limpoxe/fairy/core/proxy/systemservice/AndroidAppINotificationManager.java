@@ -139,6 +139,18 @@ public class AndroidAppINotificationManager extends MethodProxy {
                 return;
             }
 
+            if ("Xiaomi".equals(Build.MANUFACTURER)) {
+                LogUtil.e("Xiaomi, not support, caused by MiuiResource");
+                if (notification.contentView != null) {
+                    //重置layout，避免crash
+                    new HackRemoteViews(notification.contentView).setLayoutId(android.R.layout.test_list_item);
+                }
+                notification.bigContentView = null;
+                notification.headsUpContentView = null;
+                notification.tickerView = null;
+                return;
+            }
+
             ApplicationInfo newInfo = new ApplicationInfo();
             String packageName = null;
 
