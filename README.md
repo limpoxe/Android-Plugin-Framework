@@ -19,7 +19,7 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.44-snapshot@aar')
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.45-snapshot@aar')
             //optional， 用于支持函数式服务，不使用函数服务不需要添加此依赖
             compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
@@ -279,7 +279,7 @@
     
     3、支持插件无缝使用宿主资源、宿主主题、系统主题、插件自身主题以及style、轻松支持皮肤切换
     
-    4、支持插件发送notification时在RemoteViews携带插件自定义的布局资源（只支持5.x、6.x,不支持更高或者更低版本）
+    4、支持插件发送notification时在RemoteViews携带插件自定义的布局资源（只支持5.x及以上, 且不支持miui8）
     
     5、支持插件热更新：即在插件模块已经被唤起的情况先安装新版本插件，无需重启进程（有前提）
     
@@ -296,7 +296,7 @@
 
     4、不支持android.app.NativeActivity
   
-    5、Notification在5.x以下不支持使用插件资源, 在5.x及以上仅支持在RemoteView中使用插件资源
+    5、Notification在5.x以下不支持使用插件资源, 在5.x及以上仅支持在RemoteView中使用插件资源，且不支持miui8
   
     6、插件依赖另一个插件时，被插件依赖的插件暂不支持包含资源
     
