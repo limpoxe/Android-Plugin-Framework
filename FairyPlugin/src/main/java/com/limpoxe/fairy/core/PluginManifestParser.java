@@ -2,6 +2,7 @@ package com.limpoxe.fairy.core;
 
 import android.app.Application;
 import android.content.pm.ActivityInfo;
+import android.text.TextUtils;
 
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -73,7 +74,9 @@ public class PluginManifestParser {
                             desciptor.setPlatformBuildVersionName(platformBuildVersionName);
 
                             desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
-                            desciptor.setRequiredHostVersionCode(desciptor.isStandalone()?null:hostVersionCode);
+                            if (!desciptor.isStandalone() && !TextUtils.isEmpty(hostVersionCode)) {
+                                desciptor.setRequiredHostVersionCode(Integer.valueOf(hostVersionCode));
+                            }
 
                             LogUtil.v(packageName, versionCode, versionName, sharedUserId);
                         } else if ("uses-sdk".equals(tag))  {

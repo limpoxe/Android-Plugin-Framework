@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -155,10 +154,10 @@ public class PluginLoader {
             ArrayList<PluginDescriptor> pluginDescriptorList =  PluginManagerHelper.getPlugins();
             for(int i = 0; i < pluginDescriptorList.size(); i++) {
                 PluginDescriptor pluginDescriptor = pluginDescriptorList.get(i);
-                if (!pluginDescriptor.isStandalone() && !TextUtils.isEmpty(pluginDescriptor.getRequiredHostVersionCode())) {
+                if (!pluginDescriptor.isStandalone() && pluginDescriptor.getRequiredHostVersionCode() != 0) {
                     //是非独立插件，而且指定了插件运行需要的的宿主版本
                     //判断宿主版本是否满足要求
-                    if (!pluginDescriptor.getRequiredHostVersionCode().equals(String.valueOf(hostVersionCode))) {
+                    if (pluginDescriptor.getRequiredHostVersionCode() != hostVersionCode) {
                         //不满足要求，卸载此插件
                         LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionCode:" + hostVersionCode, "插件RequiredHostVersionCode:" + pluginDescriptor.getRequiredHostVersionCode());
                         LogUtil.w("卸载此插件");

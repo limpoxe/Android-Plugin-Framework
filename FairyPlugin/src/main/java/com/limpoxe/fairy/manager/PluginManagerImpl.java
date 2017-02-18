@@ -233,7 +233,7 @@ class PluginManagerImpl {
 		}
 
 		// 第2步，解析Manifest，获得插件详情
-		PluginDescriptor pluginDescriptor = PluginManifestParser.parseManifest(srcPluginFile);
+		final PluginDescriptor pluginDescriptor = PluginManifestParser.parseManifest(srcPluginFile);
 		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
 			LogUtil.e("解析插件Manifest文件失败", srcPluginFile);
 			new File(srcPluginFile).delete();
@@ -242,18 +242,20 @@ class PluginManagerImpl {
 
 		//判断插件适用系统版本
 		if (pluginDescriptor.getMinSdkVersion() != null && Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion()))  {
-			LogUtil.e("当前系统版本过低, 不支持此插件", "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion());
+			LogUtil.e("当前系统版本过低, 不支持此插件", "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion(), pluginDescriptor.getPackageName());
 			new File(srcPluginFile).delete();
 			return new InstallResult(PluginManagerHelper.MIN_API_NOT_SUPPORTED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		}
 
         PackageManager packageManager = PluginLoader.getApplication().getPackageManager();
-        if (!pluginDescriptor.isStandalone() && !TextUtils.isEmpty(pluginDescriptor.getRequiredHostVersionCode())) {
+        int requireHostVerCode = pluginDescriptor.getRequiredHostVersionCode();
+        if (!pluginDescriptor.isStandalone() && requireHostVerCode != 0) {
             //是非独立插件，而且指定了插件运行需要的的宿主版本
             try {
                 PackageInfo hostPackageInfo = packageManager.getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_META_DATA);
                 //判断宿主版本是否满足要求
-                if (!pluginDescriptor.getRequiredHostVersionCode().equals(String.valueOf(hostPackageInfo.versionCode))) {
+                LogUtil.v(pluginDescriptor.getPackageName(), requireHostVerCode, hostPackageInfo.versionCode);
+                if (requireHostVerCode != hostPackageInfo.versionCode) {
                     //不满足要求，不可安装此插件
                     LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionCode:" + hostPackageInfo.versionCode, "插件RequiredHostVersionCode:" + pluginDescriptor.getRequiredHostVersionCode());
                     new File(srcPluginFile).delete();
