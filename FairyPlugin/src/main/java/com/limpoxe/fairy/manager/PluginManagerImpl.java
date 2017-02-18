@@ -247,7 +247,24 @@ class PluginManagerImpl {
 			return new InstallResult(PluginManagerHelper.MIN_API_NOT_SUPPORTED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		}
 
-		PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
+        PackageManager packageManager = PluginLoader.getApplication().getPackageManager();
+        if (!pluginDescriptor.isStandalone() && !TextUtils.isEmpty(pluginDescriptor.getRequiredHostVersionCode())) {
+            //是非独立插件，而且指定了插件运行需要的的宿主版本
+            try {
+                PackageInfo hostPackageInfo = packageManager.getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_META_DATA);
+                //判断宿主版本是否满足要求
+                if (!pluginDescriptor.getRequiredHostVersionCode().equals(String.valueOf(hostPackageInfo.versionCode))) {
+                    //不满足要求，不可安装此插件
+                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionCode:" + hostPackageInfo.versionCode, "插件RequiredHostVersionCode:" + pluginDescriptor.getRequiredHostVersionCode());
+                    new File(srcPluginFile).delete();
+                    return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+		PackageInfo packageInfo = packageManager.getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
 		if (packageInfo != null) {
 			pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
 			pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
