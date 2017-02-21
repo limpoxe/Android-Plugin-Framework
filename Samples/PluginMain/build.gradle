@@ -93,5 +93,12 @@ dependencies {
     compile 'com.android.support:design:25.1.0'
 }
 
+ext {
+    //可选配置，用于指定插件进程名。
+    //不设置即使用默认的独立进程(:plugin)
+    //设置为空串或者null即是和宿主同进程
+    pluginProcess = null
+}
+
 //apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/host.gradle'
 apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
