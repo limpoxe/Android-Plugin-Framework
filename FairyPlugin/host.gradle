@@ -23,6 +23,10 @@ import java.util.zip.ZipInputStream
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+//getProperties()会从ext {} 配置下取值
+def hasExtPluginProcessName = getProperties().containsKey("pluginProcess")
+def pluginProcessName = getProperties().get("pluginProcess")
+
 //第1件事
 android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
 
@@ -58,8 +62,39 @@ afterEvaluate {
                 httpConn.disconnect()
             }
         }
+
+        //def buildTypeName =  variant.buildType.name
+        //def varDirName =  variant.dirName
+
         //第3件事
         for (baseVariant in variant.outputs) {
+            baseVariant.processManifest.doLast {
+
+                def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
+
+                File manifestFile = new File(manifestFilePath)
+
+                println '正在检查Manifest中的插件配置是否正确' + manifestFilePath
+
+                def originManifestContent = manifestFile.getText('UTF-8')
+                if (originManifestContent.contains("{applicationId}")) {
+                    throw new Exception("宿主build.gradle未配置android.defaultConfig.applicationId")
+                }
+
+                //指定插件进程名，设置为空串或者null即是和宿主同进程
+                //不设置即使用默认进程(:plugin)
+                if (hasExtPluginProcessName) {
+                    def customPluginProcessName = "";
+                    if (pluginProcessName != null) {
+                        customPluginProcessName = "android:process=\"" + pluginProcessName + "\""
+                    }
+                    def modifyedManifestContent = originManifestContent.replaceAll("android:process=\":plugin\"", customPluginProcessName)
+                    manifestFile.write(modifyedManifestContent, 'UTF-8')
+
+                    baseVariant.processResources.manifestFile = manifestFile
+                }
+            }
+
             def processResourcesTask = baseVariant.getProcessResources();
             processResourcesTask.doLast {
                 println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
