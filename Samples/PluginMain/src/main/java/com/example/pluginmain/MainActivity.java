@@ -271,7 +271,9 @@ public class MainActivity extends AppCompatActivity {
 			return "失败: 插件不存在";
 		} else if (code == PluginManagerHelper.REMOVE_FAIL) {
 			return "失败: 删除插件失败";
-		} else {
+		} else if (code == PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN) {
+            return "失败: 插件要求的宿主版本和当前宿主版本不匹配";
+        } else {
 			return "失败: 其他 code=" + code;
 		}
 	}
