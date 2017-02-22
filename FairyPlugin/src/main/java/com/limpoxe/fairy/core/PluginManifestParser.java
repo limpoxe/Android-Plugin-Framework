@@ -66,7 +66,7 @@ public class PluginManifestParser {
 
                             //这个字段用来标记非独立插件以来的宿主版本号，即此当前插件仅可运行在此版本的宿主中
                             //独立插件忽略此项
-                            String hostVersionCode = parser.getAttributeValue(namespaceAndroid, "revisionCode");
+                            String requiredHostVersionName = parser.getAttributeValue(null, "requiredHostVersionName");
 
                             desciptor.setPackageName(packageName);
                             desciptor.setVersion(versionName + "_" + versionCode);
@@ -74,8 +74,8 @@ public class PluginManifestParser {
                             desciptor.setPlatformBuildVersionName(platformBuildVersionName);
 
                             desciptor.setStandalone(sharedUserId == null || !PluginLoader.getApplication().getPackageName().equals(sharedUserId));
-                            if (!desciptor.isStandalone() && !TextUtils.isEmpty(hostVersionCode)) {
-                                desciptor.setRequiredHostVersionCode(Integer.valueOf(hostVersionCode));
+                            if (!desciptor.isStandalone() && !TextUtils.isEmpty(requiredHostVersionName)) {
+                                desciptor.setRequiredHostVersionName(requiredHostVersionName);
                             }
 
                             LogUtil.v(packageName, versionCode, versionName, sharedUserId);

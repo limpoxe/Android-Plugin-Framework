@@ -164,6 +164,31 @@ if (getProperties().containsKey("host_output_dir")) {
     }
 }
 
+afterEvaluate {
+    File propFile = file(host_output_dir + "/HostInfo.prop");
+    def hostVersionName = null;
+    if (propFile.exists()) {
+        def Properties props = new Properties()
+        props.load(new FileInputStream(propFile))
+        hostVersionName = props.getProperty("host.versionName")
+    }
+    if (hostVersionName != null) {
+        for (variant in android.applicationVariants) {
+            for (baseVariant in variant.outputs) {
+                def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
+                baseVariant.processManifest.doLast {
+                    File manifestFile = new File(manifestFilePath)
+                    def originManifestContent = manifestFile.getText('UTF-8')
+                    def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest requiredHostVersionName=\"" + hostVersionName + "\" ");
+                    manifestFile.write(modifyedManifestContent, 'UTF-8')
+                    baseVariant.processResources.manifestFile = manifestFile
+                }
+            }
+        }
+    }
+}
+
+
 def applyThemePatch(taskName) {
 
     def buildType = taskName.replace("merge", "").replace("Resources", "").toLowerCase();

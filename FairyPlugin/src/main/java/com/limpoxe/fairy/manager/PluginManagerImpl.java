@@ -248,16 +248,16 @@ class PluginManagerImpl {
 		}
 
         PackageManager packageManager = PluginLoader.getApplication().getPackageManager();
-        int requireHostVerCode = pluginDescriptor.getRequiredHostVersionCode();
-        if (!pluginDescriptor.isStandalone() && requireHostVerCode != 0) {
+        String requireHostVerName = pluginDescriptor.getRequiredHostVersionName();
+        if (!pluginDescriptor.isStandalone() && requireHostVerName != null) {
             //是非独立插件，而且指定了插件运行需要的的宿主版本
             try {
                 PackageInfo hostPackageInfo = packageManager.getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_META_DATA);
                 //判断宿主版本是否满足要求
-                LogUtil.v(pluginDescriptor.getPackageName(), requireHostVerCode, hostPackageInfo.versionCode);
-                if (requireHostVerCode != hostPackageInfo.versionCode) {
+                LogUtil.v(pluginDescriptor.getPackageName(), requireHostVerName, hostPackageInfo.versionName);
+                if (!requireHostVerName.equals(hostPackageInfo.versionName)) {
                     //不满足要求，不可安装此插件
-                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionCode:" + hostPackageInfo.versionCode, "插件RequiredHostVersionCode:" + pluginDescriptor.getRequiredHostVersionCode());
+                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostPackageInfo.versionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
                     new File(srcPluginFile).delete();
                     return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
                 }

@@ -44,7 +44,7 @@ public class PluginDescriptor implements Serializable {
 
 	private String version;
 
-    private int requiredHostVersionCode;
+    private String requiredHostVersionName;
 
 	private String description;
 
@@ -161,12 +161,12 @@ public class PluginDescriptor implements Serializable {
 		this.version = version;
 	}
 
-    public void setRequiredHostVersionCode(int hostVersionCode) {
-        this.requiredHostVersionCode = hostVersionCode;
+    public void setRequiredHostVersionName(String requiredHostVersionName) {
+        this.requiredHostVersionName = requiredHostVersionName;
     }
 
-    public int getRequiredHostVersionCode() {
-        return requiredHostVersionCode;
+    public String getRequiredHostVersionName() {
+        return requiredHostVersionName;
     }
 
 	public String getDescription() {
