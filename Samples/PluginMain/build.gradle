@@ -83,7 +83,7 @@ android {
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.46-snapshot@aar')
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.47-snapshot@aar')
     //compile project(':FairyPlugin')
     //optional
     compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
