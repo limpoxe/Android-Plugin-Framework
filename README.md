@@ -258,6 +258,14 @@
             可使用这个项目：https://github.com/ceabie/DexKnifePlugin
       
       若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
+      
+      补充：
+          鉴于上述方案实现起来有一定难度，这里再提供另外一个较容易实现的思路。
+          
+          1、正常编译宿主，保利mapping文件和build/intermediates/transforms/proguard/下的jar包
+          2、编译插件时，不使用provided，仍使用compile引用宿主的混淆前jar编译插件，并应用第一步的mapping文件，完成后保留build/intermediates/transforms/proguard/下的jar包。
+          3、将第一步和第二步的两个jar包按class粒度进行diff，即，将第一步中存在jar中的class文件，从第二步中的jar包中删除。得到新的jar包
+          4、将新的jar包编译成dex，即得到了我们需要的插件dex，再将其写入插件apk，重签名即可
 
     8、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
     
