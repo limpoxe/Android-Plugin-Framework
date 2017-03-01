@@ -10,3 +10,6 @@
     wxsdklibrary  -- 非独立插件工程
     
 编译宿主会产生宿主apk，编译插件会产生插件apk
+
+PluginBase作为公共插件，被PluginTest、wxsdklibrary两个插件依赖。
+因此编译PluginTest、wxsdklibrary前需要先编译PluginBase插件
