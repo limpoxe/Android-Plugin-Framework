@@ -26,6 +26,19 @@
         
         apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
         
+        
+        默认情况下，插件运行在插件进程中，插件进程名为:plugin
+        若需要修改插件进程名称，或者需要使插件和宿主运行在同一进程
+        可增加如下配置：
+        ext {
+            //可选配置，用于指定插件进程名。
+            //不设置即使用默认的独立进程(:plugin)
+            //设置为空串或者null即是和宿主同进程
+            //pluginProcess = ""
+            //pluginProcess = null
+            pluginProcess = ":xxx"
+        }
+        
     3、在宿主工程中新建一个类继承自Application类, 并配置到AndroidManifest.xml中
        重写这个类的2个方法
        
