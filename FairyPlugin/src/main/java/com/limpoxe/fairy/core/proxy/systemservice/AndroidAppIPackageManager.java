@@ -133,10 +133,13 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     resultList.add(info);
                     info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
                     Object parceledListSlice = HackParceledListSlice.newParecledListSlice(resultList);
+                    if (parceledListSlice == null) {
+                        LogUtil.e("activity found but hack fail");
+                    }
                     return parceledListSlice;
                 }
             } else {
-                LogUtil.v("It is not a Plugin Activity Intent");
+                LogUtil.w("It is not a Plugin Activity Intent");
             }
             return super.beforeInvoke(target, method, args);
         }

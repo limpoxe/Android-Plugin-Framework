@@ -183,23 +183,34 @@ public class PluginIntentResolver {
 						result = new ArrayList<>();
 					}
 					result.addAll(list);
-				}
-			}
+				} else {
+                    LogUtil.w(packageName, "目标Intent在插件Maniest中未找到匹配的IntentFilter", packageName);
+                }
+			} else {
+                LogUtil.w(packageName, "不是插件，或者插件未正确安装");
+            }
 		} else {
-			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
+            ArrayList<PluginDescriptor> pluginList = PluginManagerHelper.getPlugins();
+            LogUtil.v("已安装插件数量", pluginList.size());
+            Iterator<PluginDescriptor> itr = pluginList.iterator();
 			while (itr.hasNext()) {
-				List<String> list = itr.next().matchPlugin(intent, type);
+                PluginDescriptor pluginDescriptor = itr.next();
+                LogUtil.v("正在匹配插件", pluginDescriptor.getPackageName());
+                List<String> list = pluginDescriptor.matchPlugin(intent, type);
 				if (list != null && list.size() > 0) {
 					if (result == null) {
 						result = new ArrayList<>();
 					}
 					result.addAll(list);
-				}
+                }
 				if (result != null && type != PluginDescriptor.BROADCAST) {
 					break;
 				}
 			}
 
+            if (result == null || result.size() == 0) {
+                LogUtil.w("Intent目标不是插件，或插件Maniest中未找到匹配的IntentFilter, 或插件未正确安装", packageName);
+            }
 		}
 		return result;
 	}
