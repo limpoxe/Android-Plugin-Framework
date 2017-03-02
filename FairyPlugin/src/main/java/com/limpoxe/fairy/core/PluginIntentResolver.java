@@ -168,7 +168,10 @@ public class PluginIntentResolver {
 	/**
 	 */
 	public static ArrayList<String> matchPlugin(Intent intent, int type) {
-		ArrayList<String> result = null;
+
+        LogUtil.v("开始尝试匹配插件Intent");
+
+        ArrayList<String> result = null;
 
 		String packageName = intent.getPackage();
 		if (packageName == null && intent.getComponent() != null) {
@@ -183,11 +186,12 @@ public class PluginIntentResolver {
 						result = new ArrayList<>();
 					}
 					result.addAll(list);
-				} else {
-                    LogUtil.w(packageName, "目标Intent在插件Maniest中未找到匹配的IntentFilter", packageName);
+                    LogUtil.v(packageName, "插件Intent匹配成功");
+                } else {
+                    LogUtil.w(packageName, "目标是插件，但在插件Maniest中未找到匹配的IntentFilter", packageName);
                 }
 			} else {
-                LogUtil.w(packageName, "不是插件，或者插件未正确安装");
+                LogUtil.w(packageName, "目标不是插件，也可能是插件未正确安装");
             }
 		} else {
             ArrayList<PluginDescriptor> pluginList = PluginManagerHelper.getPlugins();
@@ -209,7 +213,7 @@ public class PluginIntentResolver {
 			}
 
             if (result == null || result.size() == 0) {
-                LogUtil.w("Intent目标不是插件，或插件Maniest中未找到匹配的IntentFilter, 或插件未正确安装", packageName);
+                LogUtil.v("未匹配到插件Intent, 说明目标不是插件，也可能是插件未正确安装", packageName, intent.toString());
             }
 		}
 		return result;

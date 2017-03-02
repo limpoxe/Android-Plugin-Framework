@@ -116,6 +116,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
+            LogUtil.v("优先匹配插件");
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 LogUtil.v("Plugin Activity Intent Match");
