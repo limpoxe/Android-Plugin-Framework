@@ -19,12 +19,25 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.44-snapshot@aar')
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.47-snapshot@aar')
             //optional， 用于支持函数式服务，不使用函数服务不需要添加此依赖
             compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
         
         apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
+        
+        
+        默认情况下，插件运行在插件进程中，插件进程名为:plugin
+        若需要修改插件进程名称，或者需要使插件和宿主运行在同一进程
+        可增加如下配置：
+        ext {
+            //可选配置，用于指定插件进程名。
+            //不设置即使用默认的独立进程(:plugin)
+            //设置为空串或者null即是和宿主同进程
+            //pluginProcess = ""
+            //pluginProcess = null
+            pluginProcess = ":xxx"
+        }
         
     3、在宿主工程中新建一个类继承自Application类, 并配置到AndroidManifest.xml中
        重写这个类的2个方法
@@ -258,6 +271,14 @@
             可使用这个项目：https://github.com/ceabie/DexKnifePlugin
       
       若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
+      
+      补充：
+          鉴于上述方案实现起来有一定难度，这里再提供另外一个较容易实现的思路。
+          
+          1、正常编译宿主，保利mapping文件和build/intermediates/transforms/proguard/下的jar包
+          2、编译插件时，不使用provided，仍使用compile引用宿主的混淆前jar编译插件，并应用第一步的mapping文件，完成后保留build/intermediates/transforms/proguard/下的jar包。
+          3、将第一步和第二步的两个jar包按class粒度进行diff，即，将第一步中存在jar中的class文件，从第二步中的jar包中删除。得到新的jar包
+          4、将新的jar包编译成dex，即得到了我们需要的插件dex，再将其写入插件apk，重签名即可
 
     8、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
     
@@ -279,7 +300,7 @@
     
     3、支持插件无缝使用宿主资源、宿主主题、系统主题、插件自身主题以及style、轻松支持皮肤切换
     
-    4、支持插件发送notification时在RemoteViews携带插件自定义的布局资源（只支持5.x、6.x,不支持更高或者更低版本）
+    4、支持插件发送notification时在RemoteViews携带插件自定义的布局资源（只支持5.x及以上, 且不支持miui8）
     
     5、支持插件热更新：即在插件模块已经被唤起的情况先安装新版本插件，无需重启进程（有前提）
     
@@ -296,7 +317,7 @@
 
     4、不支持android.app.NativeActivity
   
-    5、Notification在5.x以下不支持使用插件资源, 在5.x及以上仅支持在RemoteView中使用插件资源
+    5、Notification在5.x以下不支持使用插件资源, 在5.x及以上仅支持在RemoteView中使用插件资源，且不支持miui8
   
     6、插件依赖另一个插件时，被插件依赖的插件暂不支持包含资源
     

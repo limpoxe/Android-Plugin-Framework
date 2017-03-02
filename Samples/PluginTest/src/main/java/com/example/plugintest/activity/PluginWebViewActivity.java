@@ -179,17 +179,18 @@ public class PluginWebViewActivity extends AppCompatActivity implements OnClickL
 		PendingIntent contentIndent = PendingIntent.getActivity(this, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(contentIndent)
-				.setSmallIcon(com.example.pluginsharelib.R.drawable.ic_launcher)//设置状态栏里面的图标（小图标） 　　　　　　　　　　　　　　　　　　　　.setLargeIcon(BitmapFactory.decodeResource(res, R.drawable.i5))//下拉下拉列表里面的图标（大图标） 　　　　　　　.setTicker("this is bitch!") //设置状态栏的显示的信息
+				.setSmallIcon(com.example.pluginsharelib.R.drawable.ic_launcher)//设置状态栏里面的图标（小图标） 　　　　　　　　　　　　　　　　　　　　
+                //.setLargeIcon(BitmapFactory.decodeResource(res, R.drawable.i5))//下拉下拉列表里面的图标（大图标） 　　　　　　　
+                //.setTicker("this is bitch!") //设置状态栏的显示的信息
 				.setWhen(System.currentTimeMillis())//设置时间发生时间
 				.setAutoCancel(true)//设置可以清除
 				.setContentTitle("来自插件ContentTitle")//设置下拉列表里的标题
 				.setDefaults(Notification.DEFAULT_SOUND)//设置为默认的声音
 				.setContentText("来自插件ContentText");//设置上下文内容
 
-		if (Build.VERSION.SDK_INT >=21) {
+		if (Build.VERSION.SDK_INT >=21 && !"Xiaomi".equals(Build.MANUFACTURER)) {
 			//api大于等于21时，测试通知栏携带插件布局资源文件
 			builder.setContent(new RemoteViews(getPackageName(), R.layout.plugin_notification));
-
 		}
 
 		Notification notification = builder.getNotification();

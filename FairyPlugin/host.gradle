@@ -7,9 +7,9 @@ import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
+import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
-
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -22,6 +22,10 @@ import java.util.zip.ZipInputStream
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+
+//getProperties()会从ext {} 配置下取值
+def hasExtPluginProcessName = getProperties().containsKey("pluginProcess")
+def pluginProcessName = getProperties().get("pluginProcess")
 
 //第1件事
 android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
@@ -58,8 +62,57 @@ afterEvaluate {
                 httpConn.disconnect()
             }
         }
+
+        //def buildTypeName =  variant.buildType.name
+        def varDirName =  variant.dirName
+
         //第3件事
         for (baseVariant in variant.outputs) {
+
+            def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
+            def tastName = baseVariant.processResources.name
+
+            baseVariant.processManifest.doLast {
+
+                File manifestFile = new File(manifestFilePath)
+
+                println '正在检查Manifest中的插件配置是否正确' + manifestFilePath
+
+                def originManifestContent = manifestFile.getText('UTF-8')
+                if (originManifestContent.contains("{applicationId}")) {
+                    throw new Exception("宿主build.gradle未配置android.defaultConfig.applicationId")
+                }
+
+                def pattern = Pattern.compile("versionName\\s*=\\s*\"(.+?)\"");
+                def matcher = pattern.matcher(originManifestContent);
+                if (matcher.find()) {
+                    def versionName = matcher.group(1)
+                    //File hostInfo = new File("${project.buildDir}/outputs/HostInfo-" + tastName.replace("process","").replace("Resources", "") + ".prop")
+                    //没有单独命名，有多个favor时文件会覆盖
+                    File hostInfo = new File("${project.buildDir}/outputs/HostInfo.prop")
+                    if (hostInfo.exists()) {
+                        hostInfo.delete()
+                    }
+                    println '正在生成文件' + hostInfo.absolutePath
+                    hostInfo.write("#Manifest CREATED AT " + new Date().format("yyyy-MM-dd HH:mm::ss"))
+                    hostInfo.append("\nhost.versoinCode=" + android.defaultConfig.versionCode)
+                    //versionName可能有后缀，所以以Manifest中为准
+                    hostInfo.append("\nhost.versionName=" + versionName)
+                }
+
+                //指定插件进程名，设置为空串或者null即是和宿主同进程
+                //不设置即使用默认进程(:plugin)
+                if (hasExtPluginProcessName) {
+                    def customPluginProcessName = "";
+                    if (pluginProcessName != null) {
+                        customPluginProcessName = "android:process=\"" + pluginProcessName + "\""
+                    }
+                    def modifyedManifestContent = originManifestContent.replaceAll("android:process=\":plugin\"", customPluginProcessName)
+                    manifestFile.write(modifyedManifestContent, 'UTF-8')
+                    baseVariant.processResources.manifestFile = manifestFile
+                }
+            }
+
             def processResourcesTask = baseVariant.getProcessResources();
             processResourcesTask.doLast {
                 println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'

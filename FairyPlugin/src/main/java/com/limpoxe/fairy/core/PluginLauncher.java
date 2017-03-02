@@ -23,6 +23,7 @@ import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplication;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
+import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.manager.PluginActivityMonitor;
@@ -177,7 +178,7 @@ public class PluginLauncher implements Serializable {
 			e.printStackTrace();
 		}
 
-		//CompatForWebViewFactoryApi21.addWebViewAssets(plugin.pluginApplication.getAssets());
+		CompatForWebViewFactoryApi21.addWebViewAssets(plugin.pluginApplication.getAssets());
 
 		LogUtil.w("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}

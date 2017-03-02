@@ -44,6 +44,8 @@ public class PluginDescriptor implements Serializable {
 
 	private String version;
 
+    private String requiredHostVersionName;
+
 	private String description;
 
 	private boolean isStandalone;
@@ -158,6 +160,14 @@ public class PluginDescriptor implements Serializable {
 	public void setVersion(String version) {
 		this.version = version;
 	}
+
+    public void setRequiredHostVersionName(String requiredHostVersionName) {
+        this.requiredHostVersionName = requiredHostVersionName;
+    }
+
+    public String getRequiredHostVersionName() {
+        return requiredHostVersionName;
+    }
 
 	public String getDescription() {
 		return description;

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-这里配置sharedUserId的作用，是为了告诉宿主程序，
-这个插件需要依赖宿主程序的class和资源
-如果不配置这个参数，表示这个插件是一个独立插件，
-即本身可以独立安装运行
+   这里配置sharedUserId的作用，是为了告诉宿主程序，
+   这个插件需要依赖宿主程序的class和资源，即表示这个插件是一个非独立插件，
+   如果不配置这个参数，表示这个插件是一个独立插件，即本身可以独立安装运行
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.plugintest"

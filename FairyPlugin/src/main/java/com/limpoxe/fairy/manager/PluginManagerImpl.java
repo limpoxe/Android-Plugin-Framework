@@ -194,7 +194,7 @@ class PluginManagerImpl {
 			return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 		}
 
-		//第0步，先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
+		// 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
 		if (!srcPluginFile.startsWith(PluginLoader.getApplication().getCacheDir().getAbsolutePath())) {
 			String tempFilePath = PluginLoader.getApplication().getCacheDir().getAbsolutePath()
 					+ File.separator + System.currentTimeMillis() + ".apk";
@@ -206,34 +206,8 @@ class PluginManagerImpl {
 			}
 		}
 
-		// 第1步，验证插件APK签名，如果被篡改过，将获取不到证书
-		//sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
-		Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
-		boolean isDebugable = (0 != (PluginLoader.getApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
-		if (pluginSignatures == null) {
-			LogUtil.e("插件签名验证失败", srcPluginFile);
-			new File(srcPluginFile).delete();
-			return new InstallResult(PluginManagerHelper.SIGNATURES_INVALIDATE);
-		} else if (NEED_VERIFY_CERT && !isDebugable) {
-			//可选步骤，验证插件APK证书是否和宿主程序证书相同。
-			//证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
-			//公钥相同意味着是同一个作者发布的程序
-			Signature[] mainSignatures = null;
-			try {
-				PackageInfo pkgInfo = PluginLoader.getApplication().getPackageManager().getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_SIGNATURES);
-				mainSignatures = pkgInfo.signatures;
-			} catch (PackageManager.NameNotFoundException e) {
-				e.printStackTrace();
-			}
-			if (!PackageVerifyer.isSignaturesSame(mainSignatures, pluginSignatures)) {
-				LogUtil.e("插件证书和宿主证书不一致", srcPluginFile);
-				new File(srcPluginFile).delete();
-				return new InstallResult(PluginManagerHelper.VERIFY_SIGNATURES_FAIL);
-			}
-		}
-
-		// 第2步，解析Manifest，获得插件详情
-		PluginDescriptor pluginDescriptor = PluginManifestParser.parseManifest(srcPluginFile);
+		// 解析Manifest，获得插件详情
+		final PluginDescriptor pluginDescriptor = PluginManifestParser.parseManifest(srcPluginFile);
 		if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
 			LogUtil.e("解析插件Manifest文件失败", srcPluginFile);
 			new File(srcPluginFile).delete();
@@ -242,19 +216,64 @@ class PluginManagerImpl {
 
 		//判断插件适用系统版本
 		if (pluginDescriptor.getMinSdkVersion() != null && Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion()))  {
-			LogUtil.e("当前系统版本过低, 不支持此插件", "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion());
+			LogUtil.e("当前系统版本过低, 不支持此插件", "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion(), pluginDescriptor.getPackageName());
 			new File(srcPluginFile).delete();
 			return new InstallResult(PluginManagerHelper.MIN_API_NOT_SUPPORTED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		}
 
-		PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_GIDS);
-		if (packageInfo != null) {
-			pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
-			pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
-			pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
-		}
+        // 验证插件APK签名，如果被篡改过，将获取不到证书
+        // 之所以把验证签名步骤在放在验证适用系统版本之后，
+        // 是因为不同的minSdkVersion在签名时使用的sha算法长度不同，
+        // 也即高版本的minSdkVersion的插件，即使签名没有被篡改过，在低版本的系统中仍然会校验失败
+        // 所以先校验minSdkVersion，再校验签名
+        //sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
+        Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
+        boolean isDebugable = (0 != (PluginLoader.getApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+        if (pluginSignatures == null) {
+            LogUtil.e("插件签名验证失败", srcPluginFile);
+            new File(srcPluginFile).delete();
+            return new InstallResult(PluginManagerHelper.SIGNATURES_INVALIDATE);
+        }
 
-		// 第3步，检查插件是否已经存在,若存在删除旧的
+        //可选步骤，验证插件APK证书是否和宿主程序证书相同。
+        //证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
+        //公钥相同意味着是同一个作者发布的程序
+        if (NEED_VERIFY_CERT && !isDebugable) {
+            Signature[] mainSignatures = null;
+            try {
+                PackageInfo pkgInfo = PluginLoader.getApplication().getPackageManager().getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_SIGNATURES);
+                mainSignatures = pkgInfo.signatures;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (!PackageVerifyer.isSignaturesSame(mainSignatures, pluginSignatures)) {
+                LogUtil.e("插件证书和宿主证书不一致", srcPluginFile);
+                new File(srcPluginFile).delete();
+                return new InstallResult(PluginManagerHelper.VERIFY_SIGNATURES_FAIL);
+            }
+        }
+
+        // 检查当前宿主版本是否匹配此非独立插件需要的版本
+        PackageManager packageManager = PluginLoader.getApplication().getPackageManager();
+        String requireHostVerName = pluginDescriptor.getRequiredHostVersionName();
+        if (!pluginDescriptor.isStandalone() && requireHostVerName != null) {
+            //是非独立插件，而且指定了插件运行需要的的宿主版本
+            try {
+                PackageInfo hostPackageInfo = packageManager.getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_META_DATA);
+                //判断宿主版本是否满足要求
+                LogUtil.v(pluginDescriptor.getPackageName(), requireHostVerName, hostPackageInfo.versionName);
+                if (!requireHostVerName.equals(hostPackageInfo.versionName)) {
+                    //不满足要求，不可安装此插件
+                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostPackageInfo.versionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
+                    new File(srcPluginFile).delete();
+                    return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+		// 检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 		if (oldPluginDescriptor != null) {
 			LogUtil.d("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath(), oldPluginDescriptor.getVersion(), pluginDescriptor.getVersion());
@@ -275,9 +294,9 @@ class PluginManagerImpl {
 			}
 		}
 
-		// 第4步骤，复制插件到插件目录
+		// 复制插件到插件目录
 		String destApkPath = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-		boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destApkPath);
+        boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destApkPath);
 
 		if (!isCopySuccess) {
 
@@ -306,11 +325,15 @@ class PluginManagerImpl {
 			//	e.printStackTrace();
 			//}
 
-			// 第6步 添加到已安装插件列表
-			pluginDescriptor.setInstalledPath(destApkPath);
-			boolean isInstallSuccess = false;
-
-			isInstallSuccess = addOrReplace(pluginDescriptor);
+            //万事具备 添加到已安装插件列表
+            PackageInfo packageInfo = packageManager.getPackageArchiveInfo(destApkPath, PackageManager.GET_GIDS);
+            if (packageInfo != null) {
+                pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
+                pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
+                pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
+            }
+            pluginDescriptor.setInstalledPath(destApkPath);
+			boolean isInstallSuccess = addOrReplace(pluginDescriptor);
 
 			//删掉临时文件
 			new File(srcPluginFile).delete();

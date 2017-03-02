@@ -5,6 +5,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,6 +25,8 @@ import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
+
+import java.util.ArrayList;
 
 import dalvik.system.DexClassLoader;
 
@@ -122,10 +127,49 @@ public class PluginLoader {
 					});
 				}
 			}
+
+            removeNotSupportedPluginIfUpgraded();
+
 			long t2 = System.currentTimeMillis();
 			LogUtil.w("插件框架初始化完成", "耗时：" + (t2-t1));
 		}
 	}
+
+    private static void removeNotSupportedPluginIfUpgraded() {
+        //如果宿主进行了覆盖安装的升级操作，移除已经安装的对宿主版本有要求的非独立插件
+        String KEY = "last_host_versionName";
+        SharedPreferences prefs = sApplication.getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
+        String lastHostVersoinName = prefs.getString(KEY, null);
+        String hostVersionName = null;
+        try {
+            PackageManager packageManager = PluginLoader.getApplication().getPackageManager();
+            PackageInfo hostPackageInfo = packageManager.getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_META_DATA);
+            hostVersionName = hostPackageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        //版本号发生了变化
+        if (!hostVersionName.equals(lastHostVersoinName)) {
+            //遍历检查已安装的非独立插件是否支持当前版本的宿主
+            ArrayList<PluginDescriptor> pluginDescriptorList =  PluginManagerHelper.getPlugins();
+            for(int i = 0; i < pluginDescriptorList.size(); i++) {
+                PluginDescriptor pluginDescriptor = pluginDescriptorList.get(i);
+                if (!pluginDescriptor.isStandalone() && pluginDescriptor.getRequiredHostVersionName() != null) {
+                    //是非独立插件，而且指定了插件运行需要的的宿主版本
+                    //判断宿主版本是否满足要求
+                    if (!pluginDescriptor.getRequiredHostVersionName().equals(hostVersionName)) {
+                        //不满足要求，卸载此插件
+                        LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostVersionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
+                        LogUtil.w("卸载此插件");
+                        PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+                    }
+                }
+            }
+            prefs.edit().putString(KEY, hostVersionName).apply();
+        }
+    }
 
 	public static Context fixBaseContextForReceiver(Context superApplicationContext) {
 		if (superApplicationContext instanceof ContextWrapper) {

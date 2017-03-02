@@ -56,7 +56,7 @@ public class LogUtil {
                     }
                 }
 
-                tag =  (tag==null)?"Plugin":("Plugin_" + tag);
+                tag =  (tag==null)?"Fairy":("Fairy_" + tag);
 
                 while (str.length() > 0) {
                     DEFAULT_LOGHANDLER.publish(tag, level, str.substring(0, Math.min(2000, str.length())).toString());
