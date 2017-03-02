@@ -510,7 +510,15 @@ public class StyleProcessor extends DefaultHandler {
                 Integer flagIntValue = null;
                 for(String flag: flags) {
 
-                    int definedValue = java.lang.Integer.valueOf(flagValueMap.get(flag));
+                    String intFlag = flagValueMap.get(flag);
+                    int definedValue;
+                    if (intFlag.startsWith("0x")) {
+                        //16进制
+                        definedValue = Integer.valueOf(intFlag.substring(2), 16);
+                    } else {
+                        //10进制
+                        definedValue = Integer.valueOf(intFlag);
+                    }
 
                     if (flagIntValue == null) {
                         flagIntValue = definedValue;
