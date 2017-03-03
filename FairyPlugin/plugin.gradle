@@ -101,56 +101,32 @@ if (getProperties().containsKey("host_output_dir")) {
                         BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
                         String srcLine = null;
                         boolean hasStyleable = false;
-                        if (newR.absolutePath.contains(android.defaultConfig.applicationId.replaceAll("\\.", "\\" + File.separator))) {
-                            while((srcLine = br.readLine()) != null) {
-                                if (srcLine.equals("public final class R {")) {
-                                    bw.writeLine(srcLine);
-
-                                    bw.writeLine("  public static final class styleable {");
-                                    Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
-                                    while(itr.hasNext()) {
-                                        Map.Entry<String, ArrayList<String>> item = itr.next();
-                                        String key = item.key;
-                                        StringBuilder sb = new StringBuilder();
-                                        for(int i = 0; i < item.value.size(); i++) {
-                                            bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
-                                            sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
-                                        }
-                                        if (sb.length() > 0) {
-                                            sb.deleteCharAt(sb.length()-1)
-                                        }
-                                        bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
-                                    }
-                                    bw.writeLine("  }")
-                                } else if (srcLine.contains("public static final class styleable {")) {
-                                    hasStyleable = true;
-                                } else if (hasStyleable && srcLine.trim().equals("}")) {
-                                    hasStyleable = false;
-                                } else {
-                                    bw.writeLine(srcLine);
-                                }
-                            }
-                        } else {
-                            while((srcLine = br.readLine()) != null) {
+                        while((srcLine = br.readLine()) != null) {
+                            if (srcLine.equals("public final class R {")) {
                                 bw.writeLine(srcLine);
 
-                                if (srcLine.contains("public static final class styleable {")) {
-
-                                    Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
-                                    while(itr.hasNext()) {
-                                        Map.Entry<String, ArrayList<String>> item = itr.next();
-                                        String key = item.key;
-                                        StringBuilder sb = new StringBuilder();
-                                        for (int i = 0; i < item.value.size(); i++) {
-                                            bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
-                                            sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
-                                        }
-                                        if (sb.length() > 0) {
-                                            sb.deleteCharAt(sb.length() - 1)
-                                        }
-                                        bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
+                                bw.writeLine("  public static final class styleable {");
+                                Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
+                                while(itr.hasNext()) {
+                                    Map.Entry<String, ArrayList<String>> item = itr.next();
+                                    String key = item.key;
+                                    StringBuilder sb = new StringBuilder();
+                                    for(int i = 0; i < item.value.size(); i++) {
+                                        bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
+                                        sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
                                     }
+                                    if (sb.length() > 0) {
+                                        sb.deleteCharAt(sb.length()-1)
+                                    }
+                                    bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
                                 }
+                                bw.writeLine("  }")
+                            } else if (srcLine.contains("public static final class styleable {")) {
+                                hasStyleable = true;
+                            } else if (hasStyleable && srcLine.trim().equals("}")) {
+                                hasStyleable = false;
+                            } else {
+                                bw.writeLine(srcLine);
                             }
                         }
                         bw.close()
