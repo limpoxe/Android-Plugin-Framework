@@ -125,13 +125,16 @@ afterEvaluate {
         }
 
         //第5件事
-        org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
+        def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
         String buildType = variant.buildType.name
+
         javaCompile.doLast {
 
-            println "Merge Jar After Task " + javaCompile.name
+            def flavorBuildType = javaCompile.name.replace("compile", "").replace("JavaWithJavac", "");
+            def flavor = flavorBuildType.toLowerCase().replace(buildType, "")
+            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildType
 
-            File jarFile = new File(project.buildDir, "outputs/" + project.name + "-" + buildType + ".jar")
+            File jarFile = new File(project.buildDir, "outputs/" + project.name + "-" + flavorBuildType + ".jar")
             if (jarFile.exists()) {
                 jarFile.delete()
             }
@@ -151,9 +154,18 @@ afterEvaluate {
                     jarMerger.addJar(jarPath);
                     //jarMerger.addFolder(directoryInput.getFile());
                 }
-                File classes = new File(buildDir, 'intermediates/packaged/' + buildType + "/classes.jar");
+                File classes = new File(buildDir, 'intermediates/packaged/' + (flavor.equals("")?"":(flavor + "/")) + buildType + "/classes.jar");
+
+                println "classes path is " + classes.absolutePath
+
                 if (!classes.exists()) {
-                    tasks.getByName("jar" + buildType.substring(0, 1).toUpperCase()+ buildType.replaceFirst("\\w","") +  "Classes").execute()
+                    try {
+                        tasks.getByName("jar" + flavorBuildType +  "Classes").execute()
+                    } catch(Exception e) {
+                        println "fail to create jar for task " + javaCompile.name
+                    }
+                } else {
+                    println "classes path not exist " + classes.absolutePath
                 }
                 if (classes.exists()) {
                     jarMerger.addJar(classes)
@@ -173,7 +185,13 @@ afterEvaluate {
             task.doFirst {
                 def buildFavType = task.name.replace("generate", "").replace("Sources", "")
                 println '编译宿主ap完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包 buildFavType = ' + buildFavType
-                createThemePatch(buildFavType.toLowerCase())
+
+                //脚本不熟，将就用吧。。。
+                if (buildFavType.endsWith("Debug")) {
+                    createThemePatch(buildFavType.replace("Debug", "").toLowerCase(), "debug");
+                } else if (buildFavType.endsWith("Release")) {
+                    createThemePatch(buildFavType.replace("Release", "").toLowerCase(), "release");
+                }
             }
         }
     }
@@ -187,7 +205,7 @@ afterEvaluate {
 }
 
 //导出主题patch
-def createThemePatch(String buildType) {
+def createThemePatch(String flavor, String buildType) {
 
     File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch/" + buildType);
     patchDir.mkdirs();
@@ -204,7 +222,7 @@ def createThemePatch(String buildType) {
 
     ThemeProcessor.exportThemeStyle(generatedRes, dest, packageName)
 
-    String mergedResDir = "${project.buildDir}/intermediates/res/merged/" + buildType + "/";
+    String mergedResDir = "${project.buildDir}/intermediates/res/merged/" + (flavor.equals("")?"":(flavor + "/")) + buildType + "/";
     FileTree allxmlFiles = fileTree(dir: mergedResDir)
     allxmlFiles.include 'values/values*.xml', 'values-v1*/values-v1*.xml', 'values-v2*/values-v2*.xml', 'values-*-v1*/values-*-v1*.xml', 'values-*-v4/values-*-v4.xml', 'values-land/values-land.xml', 'values-*-v2*/values-*-v2*.xml', 'values-*-v8/values-*-v8.xml'
 
