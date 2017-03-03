@@ -13,7 +13,7 @@ import com.limpoxe.fairy.core.annotation.PluginContainer;
 
 /**
  * 一个非常普通的FragmentActivty， 用来展示一个来自插件中的fragment。
- * 这里需要通过注解@FragmentContainer来通知插件框架,此activity要展示
+ * 这里需要通过注解@PluginContainer来通知插件框架,此activity要展示
  * 的fragment来自那个插件，从而提前更换当前Activity的Context为插件Context
  *
  * @author cailiming
