@@ -144,7 +144,8 @@ public class PluginIntentResolver {
 			String stubActivityName = PluginProviderClient.bindStubActivity(className,
 					Integer.parseInt(pluginActivityInfo.getLaunchMode()),
 					pluginDescriptor.getPackageName(),
-					pluginActivityInfo.getTheme());
+					pluginActivityInfo.getTheme(),
+                    pluginActivityInfo.getScreenOrientation());
 
 			intent.setComponent(
 					new ComponentName(PluginLoader.getApplication().getPackageName(), stubActivityName));

@@ -2,6 +2,7 @@ package com.limpoxe.fairy.manager;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -198,7 +199,8 @@ public class PluginManagerProvider extends ContentProvider {
                     PluginStubBinding.bindStubActivity(arg,
                             extras.getInt("launchMode"),
                             extras.getString("packageName"),
-                            extras.getString("themeId")));
+                            extras.getString("themeId"),
+                            extras.getInt("orientation", ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)));
 
             return bundle;
 
