@@ -310,7 +310,7 @@ public class StyleProcessor extends DefaultHandler {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
             transformer.setOutputProperty(OutputKeys.VERSION, "1.0");
-            outXmlHandler.setResult(new StreamResult(new FileWriter(destFile)));
+            outXmlHandler.setResult(new StreamResult(new OutputStreamWriter(new FileOutputStream(destFile), "UTF-8")));
             char[] common = new String("\n AUTO-GENERATED FILE.  DO NOT MODIFY \n").toCharArray();
             outXmlHandler.comment(common, 0, common.length);
         } catch (FileNotFoundException e) {
