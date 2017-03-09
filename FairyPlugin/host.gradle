@@ -215,6 +215,10 @@ def createThemePatch(String flavor, String buildType) {
 
     println "export from " + generatedRes + " to " + dest
 
+    if (!generatedRes.exists()) {
+        throw new FileNotFoundException("File Not Found : " + generatedRes.absolutePath)
+    }
+
     def packageName = android.defaultConfig.applicationId
     if (android.buildTypes[buildType].applicationIdSuffix != null) {
         packageName = packageName + android.buildTypes[buildType].applicationIdSuffix;
