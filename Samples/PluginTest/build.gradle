@@ -25,15 +25,37 @@ android {
         xmlReport false
     }
 
+    signingConfigs {
+        debug {
+            storeFile file("../PluginMain/limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+
+        release {
+            storeFile file("../PluginMain/limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+    }
+
     buildTypes {
         release {
             versionNameSuffix '_' + getDate()
+            debuggable true
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         debug {
             versionNameSuffix '_' + getDate()
+            debuggable true
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -60,6 +82,7 @@ dependencies {
 
     //注意这里写的是debug，所以要debug编译宿主和PluginBase
     provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
+
     provided files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
 
 }
@@ -82,7 +105,10 @@ ext {
     host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
 
     //注意这里写的是debug的ap_文件，使用不同的buildType应换成不同的文件名
-    host_ap_path = host_output_dir+ '/PluginMain-resources-universal-debug.ap_'
+    host_ap_path = host_output_dir + '/PluginMain-resources-universal-debug.ap_'
+
+    //用于混淆配置
+    //host_obfuscated_jar = host_output_dir + '/host_debug_obfuscated.jar'
 }
 
 //apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
