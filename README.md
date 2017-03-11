@@ -303,6 +303,9 @@
                }
           执行这4个步骤之后，编译出来的非独立插件即为混淆后的插件
           
+          这里需要注意的是插件开启混淆以后，需要在插件的proguard里面增加对插件Fragment的keep，否则如果此fragment没有在插件自身
+          使用，仅作为嵌入宿主使用，则progurad可能误以为这个类在插件中没有被使用过而被精简掉
+          
     8、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
     
     9、本项目除master分支外，其他分支不会更新维护。
