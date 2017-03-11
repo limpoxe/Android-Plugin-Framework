@@ -19,7 +19,7 @@
         }
         
         dependencies {
-            compile('com.limpoxe.fairy:FairyPlugin:0.0.48-snapshot@aar')
+            compile('com.limpoxe.fairy:FairyPlugin:0.0.49-snapshot@aar')
             //optional， 用于支持函数式服务，不使用函数服务不需要添加此依赖
             compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
@@ -280,7 +280,7 @@
             gradle插件在1.5版本以后去除了指定mainlist的功能，因此在高于这个版本时指定multidex分包需要使用其他分包插件。
             可使用这个项目：https://github.com/ceabie/DexKnifePlugin
       
-      若需要混淆core工程的代码，请参考PluginMain工程下的混淆配置
+      若需要混淆FairyPlugin工程的代码，请参考PluginMain工程下的混淆配置
       
       补充：
           鉴于上述方案实现起来有一定难度，这里再提供另外一个较容易实现的思路。
@@ -289,7 +289,20 @@
           2、编译插件时，不使用provided，仍使用compile引用宿主的混淆前jar编译插件，并应用第一步的mapping文件，完成后保留build/intermediates/transforms/proguard/下的jar包。
           3、将第一步和第二步的两个jar包按class粒度进行diff，即，将第一步中存在jar中的class文件，从第二步中的jar包中删除。得到新的jar包
           4、将新的jar包编译成dex，即得到了我们需要的插件dex，再将其写入插件apk，重签名即可
-
+      
+    7.1、最新脚本已支持对非独立插件进行混淆(2017-03-12)
+           
+          使用方法步骤如下：
+          1、在宿主中开启混淆编译，outputs目录下会生成一个混淆后的jar：host_[buildType]_obfuscated.jar，以及mapping目录
+          2、在非独立插件工程中开启混淆，同时将provided宿主jar的配置修改为compile宿主jar
+          3、在非独立插件工程的build.gradle下增加proguardRule相关配置，在rule文件中使用添加：-applymapping mapping文件路径。 此mappiing文件为第1步中编译宿主生成的文件
+          4、在非独立插件工程的build.gradle下增加如下配置
+               ext {
+                   //用于混淆配置， 此配置路径指向第1步中编译宿主产生的host_[buildType]_obfuscated.jar文件
+                   host_obfuscated_jar = host_output_dir + '/host_[buildType]_obfuscated.jar'
+               }
+          执行这4个步骤之后，编译出来的非独立插件即为混淆后的插件
+          
     8、android sdk中的build tools版本较低时也无法编译public.xml文件，因此如果采用public.xml的方式，应使用较新版本的buildtools。
     
     9、本项目除master分支外，其他分支不会更新维护。
