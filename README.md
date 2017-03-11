@@ -123,7 +123,7 @@
              需要在AndroidManifest.xml配置<exported-fragment>节点，具体参考demo
              
         3.5.1 插件Fragment
-              插件UI可通过fragment或者activity来实现        
+              插件UI可通过fragment、<pluginView/>或者activity来实现        
     
               如果是fragment实现的插件，又分为3种：
                   1、fragment运行在宿主中的普通Activity中
@@ -131,13 +131,23 @@
                   3、fragment运行在插件中的Activity中
 
                   对第1种，对Frament的开发有约束，要求Fragment中凡是要使用context的地方，都需要使用通过
-                  PluginLoader.getDefaultPluginContext(FragmentClass)或者通过context.createPackageContext(插件包名)获取的插件context，
-                  但是对fragment运行容器，即对宿主中的普通Activity没有特殊要求和约束。
+                        PluginLoader.getDefaultPluginContext(FragmentClass)
+                  或者 
+                        context.createPackageContext("插件包名")来获取的插件context，
+                        
+                  但对fragment的运行容器，即对宿主中的普通Activity没有特殊要求和约束。
+                  
+                  注意，，对这种Fragment中调用其View.getContext()返回的类型不是其所在的Activity，强转会出错。得到的真实类型是PluginContextTheme类型。
+                  若需要获取Activity，需要通过View.getRootView().getContext() 返回其所在的Activity对象
                                     
                   对第2种和第3种，对Fragmet的开发无约束，和正常写法没有任何区别，但是对其运行容器，即Activity有不同要求
-                  
+                 
                   对第2种，要求Activity上添加@PluginContainer注解，作用是通知框架这个fragment来自哪个插件，以便框架替换相应的Context
+                  若需要获取其所在的Activity、除了可以通过上述View.getRootView().getContext()方法之外，还可以通过
+                  ((PluginContextTheme)View.getContext()).getOuter()来获取其所在的Activity
+                        
                   对第3种，由于本身就是运行在自己的插件索提供的Activity中，则对Fragment和Activity都无特别要求和约束
+                  view.getContext()即为Activity对象
     
                   总结：
                        如果插件Fragment不是运行在自己的插件提供的Activity中，则要么约束Fragment的context的获取方法，要么约束其运行时的容器
@@ -149,13 +159,13 @@
 		
         3.6 如果此插件需要对外提供嵌入式View     
             如果需要在其他插件，或者宿主的Activity中嵌入插件提供的View
-            需要在其他插件，或者宿主的的布局文件中嵌入<pluginView> 节点，用法同普通控件，具体参考demo
+            需要在其他插件，或者宿主的的布局文件中嵌入<pluginView /> 节点，用法同普通控件，具体参考demo
             
             此类嵌入插件view的宿主Activity，需要添加@PluginContainer注解（无需指插件包名，插件包名通过pluginView节点指定），
             用来识别pluginVie标签并解析出插件包名。
             
             注意，在嵌入式插件View中调用getContext()返回的类型不是其所在的Activity，而是插件PluginContextTheme类型。
-            若想获得所在宿主的Activity对象，需要将getContext的返回强转成PluginContextTheme，再调用其getOuter方法。
+            若想获得所在宿主的Activity对象，需要使用((PluginContextTheme)View.getContext()).getOuter()获取
                 
         3.7 如果插件需要使用宿主中定义的主题
             插件中可以直接使用宿主中定义的主题。例如，宿主中定义了一个主题为AppHostTheme，
@@ -275,7 +285,7 @@
       补充：
           鉴于上述方案实现起来有一定难度，这里再提供另外一个较容易实现的思路。
           
-          1、正常编译宿主，保利mapping文件和build/intermediates/transforms/proguard/下的jar包
+          1、正常编译宿主，保留mapping文件和build/intermediates/transforms/proguard/下的jar包
           2、编译插件时，不使用provided，仍使用compile引用宿主的混淆前jar编译插件，并应用第一步的mapping文件，完成后保留build/intermediates/transforms/proguard/下的jar包。
           3、将第一步和第二步的两个jar包按class粒度进行diff，即，将第一步中存在jar中的class文件，从第二步中的jar包中删除。得到新的jar包
           4、将新的jar包编译成dex，即得到了我们需要的插件dex，再将其写入插件apk，重签名即可
