@@ -5,12 +5,13 @@ import org.xml.sax.helpers.DefaultHandler
 import javax.xml.parsers.ParserConfigurationException
 import javax.xml.parsers.SAXParser
 import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.OutputKeys
 import javax.xml.transform.sax.SAXTransformerFactory
 import javax.xml.transform.sax.TransformerHandler
 import javax.xml.transform.stream.StreamResult
-import javax.xml.transform.OutputKeys;
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import java.util.zip.*
 
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -148,8 +149,10 @@ afterEvaluate {
         props.load(new FileInputStream(propFile))
         hostVersionName = props.getProperty("host.versionName")
     }
+
     if (hostVersionName != null) {
         for (variant in android.applicationVariants) {
+
             for (baseVariant in variant.outputs) {
                 baseVariant.processResources.doFirst {
                     if (!new File(host_ap_path).exists()) {
@@ -165,10 +168,250 @@ afterEvaluate {
                     baseVariant.processResources.manifestFile = manifestFile
                 }
             }
+
+            //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
+            def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
+            def buildTypeName = variant.name;
+            if (proguardTask) {
+                proguardTask.doFirst {
+                    println "开始混淆任务"
+                }
+                proguardTask.doLast {
+                    println "混淆完成"
+                    if (project.getProperties().containsKey("host_obfuscated_jar")) {
+
+                        proguardTask.outputs.files.files.each { File file->
+                            //http://blog.csdn.net/sbsujjbcy/article/details/50839263
+                            //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
+                            project.logger.error "file outputs=>${file.absolutePath}"
+                            String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
+                            String absPath = file.absolutePath;
+                            println String.valueOf(absPath.contains(keyword)) + ", " + String.valueOf(absPath.endsWith(buildTypeName))
+                            if (absPath.contains(keyword) && absPath.endsWith(buildTypeName)) {
+                                //保留一个备份
+                                println "导出混淆后的插件jar包"
+                                copy {
+                                    from absPath + "/jars/3/1f/main.jar"
+                                    into("${project.buildDir}/outputs/")
+                                    rename('main', "plugin_" + buildTypeName + "_obfuscated")
+                                }
+
+                                println "开始处理混淆，通过基线和插件包做diff清理重复的class， base="  + host_obfuscated_jar
+
+                                diffJar(absPath + "/jars/3/1f/main.jar", host_obfuscated_jar);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
+def diffJar(String plugin, String host) {
+
+    project.logger.error "diffJar " + plugin + " " + host
+
+    if (!new File(host).exists()) {
+        println "基线混淆包不存在"
+        return
+    }
+
+    //先吧插件和宿主的都解压
+    ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
+    List<String> hostClasses =ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
+
+    //再把插件进行过滤后重现压回去
+    //ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", "${project.buildDir}/outputs/", "plugin_release_obfuscated_after_diff.jar", hostClasses)
+    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", plugin.replace("main.jar", ""), "plugin_release_obfuscated_after_diff.jar", hostClasses)
+
+    //再删掉源
+    new File(plugin).delete()
+}
+
+public class ZipUtil {
+
+    public static List<String> unZip(String path, String savepath) throws IOException
+    {
+        def resultList = new ArrayList<String>();
+        def count = -1;
+        def index = -1;
+        def flag = false;
+        def file = null;
+        def is = null;
+        def fos = null;
+        def bos = null;
+
+        ZipFile zipFile = new ZipFile(path);
+        Enumeration<?> entries = zipFile.entries();
+
+        while(entries.hasMoreElements())
+        {
+            def buf = new byte[2048];
+            ZipEntry entry = (ZipEntry)entries.nextElement();
+
+            def filename = savepath + entry.getName();
+
+            File file2 = new File(filename.substring(0, filename.lastIndexOf("/")));
+            if(!file2.exists()){
+                file2.mkdirs();
+            }
+
+            if(!filename.endsWith("/")){
+
+                file = new File(filename);
+                file.createNewFile();
+                is = zipFile.getInputStream(entry);
+                fos = new FileOutputStream(file);
+                bos = new BufferedOutputStream(fos, 2048);
+
+                while((count = is.read(buf)) > -1)
+                {
+                    bos.write(buf, 0, count );
+                }
+
+                bos.flush();
+
+                fos.close();
+                is.close();
+
+                resultList.add(entry.getName());
+            }
+        }
+
+        zipFile.close();
+
+        return resultList
+    }
+
+    /**
+     * 递归压缩文件夹
+     * @param srcRootDir 压缩文件夹根目录的子路径
+     * @param file 当前递归压缩的文件或目录对象
+     * @param zos 压缩文件存储对象
+     * @throws Exception
+     */
+    public static zip(String srcRootDir, File file, ZipOutputStream zos, ArrayList<String> filter) throws Exception
+    {
+        if (file == null)
+        {
+            return;
+        }
+
+        //如果是文件，则直接压缩该文件
+        if (file.isFile())
+        {
+            int count, bufferLen = 1024;
+            byte[] data = new byte[bufferLen];
+
+            //获取文件相对于压缩文件夹根目录的子路径
+            String subPath = file.getAbsolutePath();
+            int index = subPath.indexOf(srcRootDir);
+            if (index != -1)
+            {
+                subPath = subPath.substring(srcRootDir.length() + File.separator.length());
+            }
+
+            if (filter.contains(subPath)) {
+                System.out.println("从插件中剔除在宿主中已存在的类：" + subPath)
+                return;
+            }
+
+            ZipEntry entry = new ZipEntry(subPath);
+            zos.putNextEntry(entry);
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+            while ((count = bis.read(data, 0, bufferLen)) != -1)
+            {
+                zos.write(data, 0, count);
+            }
+            bis.close();
+            zos.closeEntry();
+        }
+        //如果是目录，则压缩整个目录
+        else
+        {
+            //压缩目录中的文件或子目录
+            File[] childFileList = file.listFiles();
+            for (int n=0; n<childFileList.length; n++)
+            {
+                childFileList[n].getAbsolutePath().indexOf(file.getAbsolutePath());
+                zip(srcRootDir, childFileList[n], zos, filter);
+            }
+        }
+    }
+
+    /**
+     * 对文件或文件目录进行压缩
+     * @param srcPath 要压缩的源文件路径。如果压缩一个文件，则为该文件的全路径；如果压缩一个目录，则为该目录的顶层目录路径
+     * @param zipPath 压缩文件保存的路径。注意：zipPath不能是srcPath路径下的子文件夹
+     * @param zipFileName 压缩文件名
+     * @throws Exception
+     */
+    public static zip(String srcPath, String zipPath, String zipFileName, ArrayList<String> filter) throws Exception
+    {
+        System.out.println("重新打包插件jar " + srcPath + " " + zipPath + zipFileName)
+
+        CheckedOutputStream cos = null;
+        ZipOutputStream zos = null;
+        try
+        {
+            File srcFile = new File(srcPath);
+
+            //判断压缩文件保存的路径是否存在，如果不存在，则创建目录
+            File zipDir = new File(zipPath);
+            if (!zipDir.exists() || !zipDir.isDirectory())
+            {
+                zipDir.mkdirs();
+            }
+
+            //创建压缩文件保存的文件对象
+            String zipFilePath = zipPath + File.separator + zipFileName;
+            File zipFile = new File(zipFilePath);
+            if (zipFile.exists())
+            {
+                ///删除已存在的目标文件
+                boolean success = zipFile.delete();
+                System.out.println("删除已存在的目标文件:" + success)
+
+            }
+
+            cos = new CheckedOutputStream(new FileOutputStream(zipFile), new CRC32());
+            zos = new ZipOutputStream(cos);
+
+            //如果只是压缩一个文件，则需要截取该文件的父目录
+            String srcRootDir = srcPath;
+            if (srcFile.isFile())
+            {
+                int index = srcPath.lastIndexOf(File.separator);
+                if (index != -1)
+                {
+                    srcRootDir = srcPath.substring(0, index);
+                }
+            }
+            //调用递归压缩方法进行目录或文件压缩
+            zip(srcRootDir, srcFile, zos, filter);
+            zos.flush();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+        finally
+        {
+            try
+            {
+                if (zos != null)
+                {
+                    zos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+}
 
 def applyThemePatch(taskName) {
 
