@@ -151,6 +151,11 @@ afterEvaluate {
     if (hostVersionName != null) {
         for (variant in android.applicationVariants) {
             for (baseVariant in variant.outputs) {
+                baseVariant.processResources.doFirst {
+                    if (!new File(host_ap_path).exists()) {
+                        throw new FileNotFoundException(" .ap_ 文件不存在, 请检查路径是否正确: \n", host_ap_path)
+                    }
+                }
                 def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
                 baseVariant.processManifest.doLast {
                     File manifestFile = new File(manifestFilePath)
