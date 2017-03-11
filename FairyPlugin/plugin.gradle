@@ -142,6 +142,7 @@ if (getProperties().containsKey("host_output_dir")) {
 }
 
 afterEvaluate {
+
     File propFile = file(host_output_dir + "/HostInfo.prop");
     def hostVersionName = null;
     if (propFile.exists()) {
@@ -150,15 +151,18 @@ afterEvaluate {
         hostVersionName = props.getProperty("host.versionName")
     }
 
-    if (hostVersionName != null) {
-        for (variant in android.applicationVariants) {
+    for (variant in android.applicationVariants) {
 
-            for (baseVariant in variant.outputs) {
-                baseVariant.processResources.doFirst {
-                    if (!new File(host_ap_path).exists()) {
-                        throw new FileNotFoundException(" .ap_ 文件不存在, 请检查路径是否正确: \n", host_ap_path)
-                    }
+        for (baseVariant in variant.outputs) {
+
+            baseVariant.processResources.doFirst {
+                if (!new File(host_ap_path).exists()) {
+                    throw new FileNotFoundException(" .ap_ 文件不存在, 请检查路径是否正确: \n", host_ap_path)
                 }
+            }
+
+            if (hostVersionName != null) {
+                //插入宿主版本号标识
                 def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
                 baseVariant.processManifest.doLast {
                     File manifestFile = new File(manifestFilePath)
@@ -168,38 +172,38 @@ afterEvaluate {
                     baseVariant.processResources.manifestFile = manifestFile
                 }
             }
+        }
 
-            //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
-            def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
-            def buildTypeName = variant.name;
-            if (proguardTask) {
-                proguardTask.doFirst {
-                    println "开始混淆任务"
-                }
-                proguardTask.doLast {
-                    println "混淆完成"
-                    if (project.getProperties().containsKey("host_obfuscated_jar")) {
+        //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
+        def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
+        def buildTypeName = variant.name;
+        if (proguardTask) {
+            proguardTask.doFirst {
+                println "开始混淆任务"
+            }
+            proguardTask.doLast {
+                println "混淆完成"
+                if (project.getProperties().containsKey("host_obfuscated_jar")) {
 
-                        proguardTask.outputs.files.files.each { File file->
-                            //http://blog.csdn.net/sbsujjbcy/article/details/50839263
-                            //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
-                            project.logger.error "file outputs=>${file.absolutePath}"
-                            String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                            String absPath = file.absolutePath;
-                            println String.valueOf(absPath.contains(keyword)) + ", " + String.valueOf(absPath.endsWith(buildTypeName))
-                            if (absPath.contains(keyword) && absPath.endsWith(buildTypeName)) {
-                                //保留一个备份
-                                println "导出混淆后的插件jar包"
-                                copy {
-                                    from absPath + "/jars/3/1f/main.jar"
-                                    into("${project.buildDir}/outputs/")
-                                    rename('main', "plugin_" + buildTypeName + "_obfuscated")
-                                }
-
-                                println "开始处理混淆，通过基线和插件包做diff清理重复的class， base="  + host_obfuscated_jar
-
-                                diffJar(absPath + "/jars/3/1f/main.jar", host_obfuscated_jar);
+                    proguardTask.outputs.files.files.each { File file->
+                        //http://blog.csdn.net/sbsujjbcy/article/details/50839263
+                        //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
+                        project.logger.error "file outputs=>${file.absolutePath}"
+                        String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
+                        String absPath = file.absolutePath;
+                        println String.valueOf(absPath.contains(keyword)) + ", " + String.valueOf(absPath.endsWith(buildTypeName))
+                        if (absPath.contains(keyword) && absPath.endsWith(buildTypeName)) {
+                            //保留一个备份
+                            println "导出混淆后的插件jar包"
+                            copy {
+                                from absPath + "/jars/3/1f/main.jar"
+                                into("${project.buildDir}/outputs/")
+                                rename('main', "plugin_" + buildTypeName + "_obfuscated")
                             }
+
+                            println "开始处理混淆，通过基线和插件包做diff清理重复的class， base="  + host_obfuscated_jar
+
+                            diffJar(absPath + "/jars/3/1f/main.jar", host_obfuscated_jar);
                         }
                     }
                 }
