@@ -3,6 +3,7 @@ package com.limpoxe.fairy.core;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.os.Build;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackAssetManager;
@@ -92,6 +93,23 @@ public class PluginCreator {
 		return null;
 	}
 
+	private static String getChromeApkPath() {
+        if (Build.VERSION.SDK_INT >= 21) {
+            try {
+                Resources hostRes = PluginLoader.getApplication().getResources();
+                int packageNameResId = hostRes.getIdentifier("android:string/config_webViewPackageName", "string", "android");
+                String chromePackagename = hostRes.getString(packageNameResId);
+                LogUtil.v("chromePackagename", chromePackagename);
+                String chromePath = PluginLoader.getApplication().createPackageContext(chromePackagename, 0).getApplicationInfo().sourceDir;
+                LogUtil.v("chrome app path", chromePath);
+                return chromePath;
+            } catch (Exception e) {
+                //ignore
+            }
+        }
+        return null;
+    }
+
 	private static String[] buildAssetPath(boolean isStandalone, String app, String plugin, String[] dependencies) {
 		dependencies = null;//暂不支持资源多级依赖, 会导致插件难以维护
 		String[] assetPaths = new String[isStandalone ? 1 : (2 + (dependencies==null?0:dependencies.length))];
@@ -115,7 +133,11 @@ public class PluginCreator {
 		// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
 		assetPaths[0] = plugin;
 		LogUtil.v("create Plugin Resource from: ", plugin);
-		if (!isStandalone) {
+
+        //TODO 需要将chrome添加到assetPath，以解决在webviw中弹出对话框的（如日历）是找不着资源的问题，但是部分系统不兼容
+        String chromePath = getChromeApkPath();
+
+        if (!isStandalone) {
 			if (dependencies != null) {
 				//插件间资源依赖，这里需要遍历添加dependencies
 				//这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持
