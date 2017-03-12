@@ -104,6 +104,9 @@
                 
                 //注意这里的.ap_文件，是通过编译宿主产生，不同的buildType请更换成不同的名字
                 host_ap_path = host_output_dir+ '/PluginMain-resources-debug.ap_'
+                
+                //用于混淆配置，如果需要混淆宿主和插件，需要此配置，具体看后文说明
+                //host_obfuscated_jar = host_output_dir + '/host_[buildType]_obfuscated.jar'
             }
         
             apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
