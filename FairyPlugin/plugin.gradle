@@ -204,7 +204,7 @@ afterEvaluate {
 
                             println "开始处理混淆，通过基线和插件包做diff清理重复的class， base="  + host_obfuscated_jar
 
-                            diffJar(absPath + "/jars/3/1f/main.jar", "plugin_" + buildTypeName + "_obfuscated", host_obfuscated_jar);
+                            diffJar(absPath + "/jars/3/1f/main.jar", host_obfuscated_jar, "plugin_" + buildTypeName + "_obfuscated");
                         }
                     }
                 } else {
