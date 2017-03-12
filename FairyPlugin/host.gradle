@@ -182,12 +182,13 @@ afterEvaluate {
 
         //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
         def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
+        def variantName = variant.name
         if (proguardTask) {
             proguardTask.doFirst {
-                println "开始混淆任务" + variant.name.capitalize()
+                println "开始混淆任务" + variantName.capitalize()
             }
             proguardTask.doLast {
-                println "混淆完成" + variant.name.capitalize()
+                println "混淆完成" + variantName.capitalize()
                 boolean isFind = false;
                 proguardTask.outputs.files.files.each { File file->
                     //http://blog.csdn.net/sbsujjbcy/article/details/50839263
@@ -198,12 +199,12 @@ afterEvaluate {
                     if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
 
                         isFind = true;
-                        println "导出混淆后的宿主jar包" + "${project.buildDir}/outputs/" + "host_" + variant.name + "_obfuscated" + ".jar"
+                        println "导出混淆后的宿主jar包" + "${project.buildDir}/outputs/" + "host_" + variantName + "_obfuscated" + ".jar"
 
                         copy {
                             from file.absolutePath + "/jars/3/1f/main.jar"
                             into("${project.buildDir}/outputs/")
-                            rename('main', "host_" + variant.name + "_obfuscated")
+                            rename('main', "host_" + variantName + "_obfuscated")
                         }
                     }
                 }
