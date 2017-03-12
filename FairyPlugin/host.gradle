@@ -127,7 +127,7 @@ afterEvaluate {
 
         //第5件事
         def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
-        String buildType = variant.buildType.name
+        def String buildType = variant.buildType.name
 
         javaCompile.doLast {
 
@@ -182,30 +182,33 @@ afterEvaluate {
 
         //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
         def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
-        def buildTypeName = variant.name;
         if (proguardTask) {
             proguardTask.doFirst {
-                println "开始混淆任务"
+                println "开始混淆任务" + variant.name.capitalize()
             }
             proguardTask.doLast {
-                println "混淆完成"
+                println "混淆完成" + variant.name.capitalize()
+                boolean isFind = false;
                 proguardTask.outputs.files.files.each { File file->
                     //http://blog.csdn.net/sbsujjbcy/article/details/50839263
                     //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
                     project.logger.error "file outputs=>${file.absolutePath}"
                     String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                    String absPath = file.absolutePath;
-                    println String.valueOf(absPath.contains(keyword)) + ", " + String.valueOf(absPath.endsWith(buildTypeName))
-                    if (absPath.contains(keyword) && absPath.endsWith(buildTypeName)) {
+                    println String.valueOf(file.absolutePath.contains(keyword)) + ", " + String.valueOf(file.absolutePath.endsWith(buildType))
+                    if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
 
+                        isFind = true;
                         println "导出混淆后的宿主jar包"
 
                         copy {
-                            from absPath + "/jars/3/1f/main.jar"
+                            from file.absolutePath + "/jars/3/1f/main.jar"
                             into("${project.buildDir}/outputs/")
-                            rename('main', "host_" + buildTypeName + "_obfuscated")
+                            rename('main', "host_" + buildType + "_obfuscated")
                         }
                     }
+                }
+                if (!isFind) {
+                    throw "obfuscated jar file not found, please check."
                 }
             }
         }
