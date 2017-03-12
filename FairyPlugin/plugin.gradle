@@ -204,14 +204,14 @@ afterEvaluate {
                         if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
                             isFind = true;
                             //保留一个备份
-                            println "导出混淆后的插件jar包 " + "${project.buildDir}/outputs/" + "plugin_" + buildType + "_obfuscated" + ".jar"
+                            println "导出混淆后的插件jar包 " + "${project.buildDir}/outputs/" + "plugin_" + variant.name + "_obfuscated" + ".jar"
                             copy {
                                 from file.absolutePath + "/jars/3/1f/main.jar"
                                 into("${project.buildDir}/outputs/")
-                                rename('main', "plugin_" + buildType + "_obfuscated")
+                                rename('main', "plugin_" + variant.name + "_obfuscated")
                             }
 
-                            diffJar(file.absolutePath + "/jars/3/1f/main.jar", host_obfuscated_jar, "plugin_" + buildType + "_obfuscated");
+                            diffJar(file.absolutePath + "/jars/3/1f/main.jar", host_obfuscated_jar, "plugin_" + variant.name + "_obfuscated");
                         }
                     }
                     if (!isFind) {
