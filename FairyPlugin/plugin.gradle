@@ -182,9 +182,17 @@ afterEvaluate {
                 println "开始混淆任务"
             }
             proguardTask.doLast {
+
                 println "混淆完成"
+
                 if (project.getProperties().containsKey("host_obfuscated_jar")) {
+
                     println "依赖的宿主混淆jar路径为：" + host_obfuscated_jar
+
+                    if (!new File(host_obfuscated_jar).exists()) {
+                        project.logger.error "基线混淆包不存在 " + host_obfuscated_jar
+                        throw new Exception("基线混淆包不存在 " + host_obfuscated_jar)
+                    }
 
                     proguardTask.outputs.files.files.each { File file->
                         //http://blog.csdn.net/sbsujjbcy/article/details/50839263
@@ -195,14 +203,12 @@ afterEvaluate {
                         println String.valueOf(absPath.contains(keyword)) + ", " + String.valueOf(absPath.endsWith(buildTypeName))
                         if (absPath.contains(keyword) && absPath.endsWith(buildTypeName)) {
                             //保留一个备份
-                            println "导出混淆后的插件jar包"
+                            println "导出混淆后的插件jar包 " + "${project.buildDir}/outputs/" + "plugin_" + buildTypeName + "_obfuscated" + ".jar"
                             copy {
                                 from absPath + "/jars/3/1f/main.jar"
                                 into("${project.buildDir}/outputs/")
                                 rename('main', "plugin_" + buildTypeName + "_obfuscated")
                             }
-
-                            println "开始处理混淆，通过基线和插件包做diff清理重复的class， base="  + host_obfuscated_jar
 
                             diffJar(absPath + "/jars/3/1f/main.jar", host_obfuscated_jar, "plugin_" + buildTypeName + "_obfuscated");
                         }
@@ -217,12 +223,10 @@ afterEvaluate {
 
 def diffJar(String plugin, String host, String name) {
 
-    project.logger.error "diffJar " + plugin + " " + host
 
-    if (!new File(host).exists()) {
-        println "基线混淆包不存在"
-        return
-    }
+    println "通过基线混淆包和插件混淆包做diff清理重复的class"
+
+    project.logger.error plugin + " " + host
 
     //先吧插件和宿主的都解压
     ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
@@ -235,6 +239,7 @@ def diffJar(String plugin, String host, String name) {
     new File(plugin).delete()
     //备份diff后的包
     copy {
+        println "备份diff清理后的插件混淆包"
         from plugin.replace("main.jar", name + "_after_diff.jar")
         into("${project.buildDir}/outputs/")
     }
@@ -324,7 +329,7 @@ public class ZipUtil {
             }
 
             if (filter.contains(subPath)) {
-                System.out.println("从插件中剔除在宿主中已存在的类：" + subPath)
+                System.out.println("过滤：" + subPath)
                 return;
             }
 
@@ -360,8 +365,6 @@ public class ZipUtil {
      */
     public static zip(String srcPath, String zipPath, String zipFileName, ArrayList<String> filter) throws Exception
     {
-        System.out.println("重新打包插件jar " + srcPath + " " + zipPath + zipFileName)
-
         CheckedOutputStream cos = null;
         ZipOutputStream zos = null;
         try
