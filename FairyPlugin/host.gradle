@@ -198,12 +198,12 @@ afterEvaluate {
                     if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
 
                         isFind = true;
-                        println "导出混淆后的宿主jar包"
+                        println "导出混淆后的宿主jar包" + "${project.buildDir}/outputs/" + "host_" + variant.name + "_obfuscated" + ".jar"
 
                         copy {
                             from file.absolutePath + "/jars/3/1f/main.jar"
                             into("${project.buildDir}/outputs/")
-                            rename('main', "host_" + buildType + "_obfuscated")
+                            rename('main', "host_" + variant.name + "_obfuscated")
                         }
                     }
                 }
