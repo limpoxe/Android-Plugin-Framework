@@ -184,6 +184,7 @@ afterEvaluate {
             proguardTask.doLast {
                 println "混淆完成"
                 if (project.getProperties().containsKey("host_obfuscated_jar")) {
+                    println "依赖的宿主混淆jar路径为：" + host_obfuscated_jar
 
                     proguardTask.outputs.files.files.each { File file->
                         //http://blog.csdn.net/sbsujjbcy/article/details/50839263
@@ -203,16 +204,18 @@ afterEvaluate {
 
                             println "开始处理混淆，通过基线和插件包做diff清理重复的class， base="  + host_obfuscated_jar
 
-                            diffJar(absPath + "/jars/3/1f/main.jar", host_obfuscated_jar);
+                            diffJar(absPath + "/jars/3/1f/main.jar", "plugin_" + buildTypeName + "_obfuscated", host_obfuscated_jar);
                         }
                     }
+                } else {
+                    project.logger.error "未配置宿主混淆jar路径！！host_obfuscated_jar = null"
                 }
             }
         }
     }
 }
 
-def diffJar(String plugin, String host) {
+def diffJar(String plugin, String host, String name) {
 
     project.logger.error "diffJar " + plugin + " " + host
 
@@ -223,14 +226,18 @@ def diffJar(String plugin, String host) {
 
     //先吧插件和宿主的都解压
     ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
-    List<String> hostClasses =ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
+    List<String> hostClasses = ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
 
     //再把插件进行过滤后重现压回去
-    //ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", "${project.buildDir}/outputs/", "plugin_release_obfuscated_after_diff.jar", hostClasses)
-    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", plugin.replace("main.jar", ""), "plugin_release_obfuscated_after_diff.jar", hostClasses)
+    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", plugin.replace("main.jar", ""), name + "_after_diff.jar", hostClasses)
 
     //再删掉源
     new File(plugin).delete()
+    //备份diff后的包
+    copy {
+        from plugin.replace("main.jar", name + "_after_diff.jar")
+        into("${project.buildDir}/outputs/")
+    }
 }
 
 public class ZipUtil {
