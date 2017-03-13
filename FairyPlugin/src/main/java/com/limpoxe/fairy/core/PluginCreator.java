@@ -57,7 +57,8 @@ public class PluginCreator {
 			         * bootstrap class loader.
 			         */
 					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
-					null,//独立插件无依赖
+                    dependences,//通常情况独立插件无子依赖, 此处参数size一般是0，但实际也可以依赖其他基础独立插件包，
+                                // 也即独立插件之间也可以建立依赖关系，前提和非独立插件一样，被依赖的插件不可以包含资源
 					pluginApkMultDexPath);
 		}
 
