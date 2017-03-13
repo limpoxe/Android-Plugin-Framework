@@ -169,7 +169,8 @@
             用来识别pluginVie标签并解析出插件包名。
             
             注意，在嵌入式插件View中调用getContext()返回的类型不是其所在的Activity，而是插件PluginContextTheme类型。
-            若想获得所在宿主的Activity对象，需要使用((PluginContextTheme)View.getContext()).getOuter()获取
+            若想获得所在宿主的Activity对象，需要使用((PluginContextTheme)View.getContext()).getOuter()获取，
+            或者通过View.getRootView().getContext()来获取
                 
         3.7 如果插件需要使用宿主中定义的主题
             插件中可以直接使用宿主中定义的主题。例如，宿主中定义了一个主题为AppHostTheme，
