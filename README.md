@@ -73,6 +73,7 @@
     1、新建一个插件工程（对独立插件和非独立插件含义后文有解释）
     
     2、如果是独立插件, 无需任何配置, 一个普通的apk编译出来即可当插件apk安装到宿主中
+       如果独立插件也需要依赖其他公共独立插件，同下述3.3做法
     
     3、如果是非独立插件：
      
@@ -291,10 +292,11 @@
           1、正常编译宿主，保留mapping文件和build/intermediates/transforms/proguard/下的jar包
           2、编译插件时，不使用provided，仍使用compile引用宿主的混淆前jar编译插件，并应用第一步的mapping文件，完成后保留build/intermediates/transforms/proguard/下的jar包。
           3、将第一步和第二步的两个jar包按class粒度进行diff，即，将第一步中存在jar中的class文件，从第二步中的jar包中删除。得到新的jar包
-          4、将新的jar包编译成dex，即得到了我们需要的插件dex，再将其写入插件apk，重签名即可
+          4、将新的jar包编译成dex，即得到了我们需要的插件dex，再将其写入插件apk，签名即可
       
     7.1、最新脚本已支持对非独立插件进行混淆(2017-03-12)
            
+          基于上述第7条的补充说明中的原理实现。
           使用方法步骤如下：
           1、在宿主中开启混淆编译，outputs目录下会生成一个混淆后的jar：host_[buildType]_obfuscated.jar，以及mapping目录
           2、在非独立插件工程中开启混淆，同时将provided宿主jar的配置修改为compile宿主jar
@@ -305,6 +307,13 @@
                    host_obfuscated_jar = host_output_dir + '/host_[buildType]_obfuscated.jar'
                }
           执行这4个步骤之后，编译出来的非独立插件即为混淆后的插件
+          
+          若混淆后出现运行时异常，请检查上述第7条补充说明第3步产生的临时文件，是否存在不该存在的类或者少了需要的类。
+          文件位于build/tmp/jarUnzip/host,build/tmp/jarUnzip/plugin;
+          host目录为宿主编译出来混淆后的jar包解压后目录，plugin为插件编译出来混淆后的jar包解压后目录
+          插件最终的混淆后jar包，即是通过这两个目录diff后从plugin中剔除了所有在host中存在的文件后压缩而成。
+          
+          插件混淆后的jar包和diff后的jar包，在插件outputs目录下都有备份。
           
           这里需要注意的是插件开启混淆以后，需要在插件的proguard里面增加对插件Fragment的keep，否则如果此fragment没有在插件自身
           使用，仅作为嵌入宿主使用，则progurad可能误以为这个类在插件中没有被使用过而被精简掉
