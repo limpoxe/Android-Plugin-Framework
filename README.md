@@ -312,7 +312,8 @@
           若混淆后出现运行时异常，请检查上述第7条补充说明第3步产生的临时文件，是否存在不该存在的类或者少了需要的类。
           文件位于build/tmp/jarUnzip/host,build/tmp/jarUnzip/plugin;
           host目录为宿主编译出来混淆后的jar包解压后目录，等同于对宿主反编译后得到class目录
-          plugin为插件编译出来混淆后的jar包解压后目录。正常情况下host目录的内容应该为plugin目录内容的子集。且host目录存在的每一个文件，必定在plugin相同路径下存在，否则很可能是依赖配置错误或者mapping文件配置错误。
+          plugin为插件编译出来混淆后的jar包解压后目录。正常情况下host目录的内容应该为plugin目录内容的子集。
+          且host目录存在的每一个文件，必定在plugin相同路径下存在，否则很可能是依赖配置错误或者mapping文件配置错误，会导致diff是出现遗漏而引起class异常
           插件最终的混淆后jar包，即是通过这两个目录diff后从plugin中剔除了所有在host中存在的文件后压缩而成。
           
           插件混淆后的jar包和diff后的jar包，在插件outputs目录下都有备份。
