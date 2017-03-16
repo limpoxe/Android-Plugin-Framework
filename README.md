@@ -239,9 +239,9 @@
 
        因此需要提前通知系统，宿主需要在哪些cpu模式下运行。提前通知的方式即内置占位so。
 
-    3、插件默认是在插件进程中运行，如需切到宿主进程，仅需将Fairy包的Manifest中配置的所有组件去都去掉掉process属性即可。
-       
-       demo中PluginMain工程下有几个插件进程的demo也需要去掉process属性
+    3、插件默认是在插件进程中运行，如需切到宿主进程，参考上文ext{}的配置。
+       如果是将插件中的Activity／Fragment／View作为组件嵌入宿主Activity中运行，需要将此宿主Activity也设置为插件进程。即加上android:process配置
+       因此，如需切到宿主进程，则此宿主的Activity的进程配置也需一并删除
 
     4、编译方法
 
