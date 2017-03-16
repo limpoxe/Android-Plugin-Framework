@@ -21,7 +21,7 @@
         dependencies {
             compile('com.limpoxe.fairy:FairyPlugin:0.0.49-snapshot@aar')
             //optional， 用于支持函数式服务，不使用函数服务不需要添加此依赖
-            compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
+            //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
         }
         
         apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
