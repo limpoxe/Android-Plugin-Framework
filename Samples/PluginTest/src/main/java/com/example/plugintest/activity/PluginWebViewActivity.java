@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.PluginState;
@@ -82,9 +83,17 @@ public class PluginWebViewActivity extends AppCompatActivity implements OnClickL
 			e.printStackTrace();
 		}
 
+		web.addJavascriptInterface(this, "test");
+
 		web.loadUrl("file:///android_asset/local_web_test.html");
 
 	}
+
+	@JavascriptInterface
+    public void onclick() {
+        Toast.makeText(this, "test js onclick", Toast.LENGTH_LONG).show();
+    }
+
 
 	@Override
 	public void onClick(View v) {
