@@ -142,12 +142,12 @@
                   但对fragment的运行容器，即对宿主中的普通Activity没有特殊要求和约束。
                   
                   注意，，对这种Fragment中调用其View.getContext()返回的类型不是其所在的Activity，强转会出错。得到的真实类型是PluginContextTheme类型。
-                  若需要获取Activity，需要通过View.getRootView().getContext() 返回其所在的Activity对象
+                  若需要获取Activity，需要通过View.getParent.getContext() 返回其所在的Activity对象, getParent的目的是拿到宿主控件
                                     
                   对第2种和第3种，对Fragmet的开发无约束，和正常写法没有任何区别，但是对其运行容器，即Activity有不同要求
                  
                   对第2种，要求Activity上添加@PluginContainer注解，作用是通知框架这个fragment来自哪个插件，以便框架替换相应的Context
-                  若需要获取其所在的Activity、除了可以通过上述View.getRootView().getContext()方法之外，还可以通过
+                  若需要获取其所在的Activity、除了可以通过上述View.getParent().getContext()方法之外，还可以通过
                   ((PluginContextTheme)View.getContext()).getOuter()来获取其所在的Activity
                         
                   对第3种，由于本身就是运行在自己的插件索提供的Activity中，则对Fragment和Activity都无特别要求和约束
@@ -170,7 +170,7 @@
             
             注意，在嵌入式插件View中调用getContext()返回的类型不是其所在的Activity，而是插件PluginContextTheme类型。
             若想获得所在宿主的Activity对象，需要使用((PluginContextTheme)View.getContext()).getOuter()获取，
-            或者通过View.getRootView().getContext()来获取
+            或者通过View.getParent.getContext()来获取， getParent 的目的是拿到宿主控件
                 
         3.7 如果插件需要使用宿主中定义的主题
             插件中可以直接使用宿主中定义的主题。例如，宿主中定义了一个主题为AppHostTheme，
@@ -365,6 +365,10 @@
     7、非独立插件暂不支持使用databinding，独立插件可使用
     
     8、可能不支持对插件或者宿主进行加壳加固处理，未尝试。
+    
+    9、插件中的webview不支持弹出原生native组件，例如通过html中的<input type="date"/>标签设置的时间选择器。
+       正常情况下点击后会弹出chrome提供的原生native组件。本可通过将chrome添加到插件assetsmanager中解决，
+       但经测试发现不同rom存在兼容问题。
   
 ##其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
