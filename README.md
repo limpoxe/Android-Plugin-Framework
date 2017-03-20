@@ -134,25 +134,17 @@
                   2、fragment运行在宿主中的特定Activity中
                   3、fragment运行在插件中的Activity中
 
-                  对第1种，对Frament的开发有约束，要求Fragment中凡是要使用context的地方，都需要使用通过
-                        PluginLoader.getDefaultPluginContext(FragmentClass)
-                  或者 
-                        context.createPackageContext("插件包名")来获取的插件context，
-                        
-                  但对fragment的运行容器，即对宿主中的普通Activity没有特殊要求和约束。
-                  
-                  注意，，对这种Fragment中调用其View.getContext()返回的类型不是其所在的Activity，强转会出错。得到的真实类型是PluginContextTheme类型。
-                  若需要获取Activity，需要通过View.getParent.getContext() 返回其所在的Activity对象, getParent的目的是拿到宿主控件
+                  第1种，对Frament的开发有约束，要求Fragment中凡是要使用context的地方，都需要使用通过
+                  PluginLoader.getDefaultPluginContext(FragmentClass)或者 context.createPackageContext("插件包名")来获取的插件context     
+                  但对其Fragment的运行容器，即对宿主中的普通Activity没有特殊要求和约束。
+                  注意，对这种Fragment中调用其View.getContext()返回的类型不是其所在的Activity，强转会出错。其真实类型是PluginContextTheme。
+                  若需要获取所在的Activity，需要通过View.getParent.getContext() 返回其所在的Activity对象, getParent的目的是拿到宿主控件
                                     
-                  对第2种和第3种，对Fragmet的开发无约束，和正常写法没有任何区别，但是对其运行容器，即Activity有不同要求
-                 
-                  对第2种，要求Activity上添加@PluginContainer注解，作用是通知框架这个fragment来自哪个插件，以便框架替换相应的Context
-                  若需要获取其所在的Activity、除了可以通过上述View.getParent().getContext()方法之外，还可以通过
-                  ((PluginContextTheme)View.getContext()).getOuter()来获取其所在的Activity
-                        
-                  对第3种，由于本身就是运行在自己的插件索提供的Activity中，则对Fragment和Activity都无特别要求和约束
-                  view.getContext()即为Activity对象
-    
+                  第2种和第3种，对Fragment开发无约束，和正常写法没有任何区别，但是对其运行容器即Activity有不同要求。
+ 
+                  第2种，需要在Activity上添加@PluginContainer注解。作用是通知框架这个fragment来自哪个插件，以便框架替换相应的Context。 
+                  第3种，对Activity无特别要求和约束。
+                  
                   总结：
                        如果插件Fragment不是运行在自己的插件提供的Activity中，则要么约束Fragment的context的获取方法，要么约束其运行时的容器
                        Activity的Context(通过@PluginContainer注解指明使用哪个插件的Context)
