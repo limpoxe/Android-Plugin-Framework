@@ -94,10 +94,10 @@ android {
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.49-snapshot@aar')
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.49-snapshot@aar')//通过后缀@aar来中断依赖传递
     //compile project(':FairyPlugin')
     //optional
-    compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
+    //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
 
     compile project(':Samples:PluginShareLib')
 
