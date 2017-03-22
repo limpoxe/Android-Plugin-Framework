@@ -199,7 +199,35 @@
             }
             
         3.10 如果插件中要使用需要appkey的sdk
-            插件中使用需要appkey的sdk，例如微信分享和百度地图sdk，参考demo：baidumapsdk，wxsdklibrary
+        
+             插件中使用需要appkey的sdk，例如将微信分享、百度地图sdk、友盟分享sdk集成到插件，请参考demo：baidumapsdk，wxsdklibrary，仔细阅读。
+             
+             需要使用appKey的sdk，通常需要使得sdk能同时正确的取到下面3个值，
+                 1、packageName
+                 2、meta-data
+                 3、signatures
+             SDK取到这3个值以后，会去它自身的服务器上验证appkey。
+             
+             然而，在插件中调用getPackageName等等相应的系统api，得到的是插件的packageName，插件的meta-data，以及插件的signatures。
+             
+             所以，在sdk平台上注册appkey时直接使用插件的包名，签名，然后将appkey的配置埋入插件的meta-data, 此种情况无需特别配置。插件集成此sdk即可正常使用。
+             
+             但是，实际中仍然会存在下面2种情况：
+                   1、可能sdk需要通过其自身的app来进行校验或者交互。例如微信分享sdk，它需要唤醒微信App，再由微信App和宿主App进行验证和交互，绕过了插件。
+                      此种sdk在平台上注册appkey时必须使用宿主的包名
+                   2、可能由于特殊原因，在sdk平台上注册appkey时已经使用了宿主的包名，不能在更换使用插件的包名进行注册。
+                   
+                   以上两种情况，sdk在拿到插件的Context以后（通常是在sdk的init方法里面传入的插件Application），
+                   sdk借助插件Context取不到正确的packageName、meta-data、signatures。正确的值全部在宿主中，插件拿到的全部是插件自己的。
+                   
+             sdk在获取packageName、meta-data、signatures这3个信息，都是通过传入的Context调用其getXXXX或者context.getPackageManager().getXXX来获取。
+             因此，针对这两种case，需要在初始化插件sdk是，传入fakeContext而不是插件的Context来欺骗sdk，使其能拿到正确信息。
+            
+             在demo中，微信sdk插件的FakeContext，和百度地图sdk的FakeContext，即是用来解决上面两种情况下的问题。
+             demo中的fakeContext重写了需要的相关方法。
+             
+             如要使用此类插件，请务必先完全理解上述解释，以及为何使用FakeContext可以达成目的。然后遇到各种相关问题都可迎刃而解。
+             
                   
     4、如果是非独立插件, 需要先编译宿主, 再编译插件, 因为从如上的配置可以看出非独立插件编译时需要依赖宿主编译时的输出物
        如果是非独立插件, 需要先编译宿主, 再编译插件
