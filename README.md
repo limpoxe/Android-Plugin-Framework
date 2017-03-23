@@ -45,6 +45,9 @@
         @Override
         protected void attachBaseContext(Context base) {
             super.attachBaseContext(base);
+            //框架日志开关
+            LogUtil.setEnable(true);
+            //初始化框架
             PluginLoader.initLoader(this);
             //这个方法是设置首次加载插件时, 定制loading页面的UI, 不传即默认没有loading页
             //在宿主中创建任意一个layout传进去即可
