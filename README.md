@@ -4,7 +4,7 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
-####最新版本: 0.0.49-snapshot
+#### 最新版本: 0.0.49-snapshot
 
 #### 项目结构
 
@@ -55,6 +55,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 # HOW TO USE
 #### 宿主侧
 1、 新建一个工程，作为宿主工程
+
 2、 在宿主工程的build.gradle文件下添加如下3个配置
 ```
     android {
@@ -127,7 +128,9 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 独立插件：新建一个工程, 作为插件工程，无需任何其他配置，编译出来即可当插件apk安装到宿主中。
 
 非独立插件：
+
 1、新建一个工程, 作为插件工程。
+
 2、在插件AndroidManifest.xml中manifest节点中增加如下配置:
 ```       
     <manifest android:sharedUserId="这里填写宿主工程包名"/>
@@ -162,9 +165,9 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
     apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
  ```       
   
-  完成以上3步后即可编译出非独立插件
+  完成以上3步后即可编译出非独立插件，以上所有内容及更多详情可以参考Demo
   
-####Demo编译方法
+#### Demo编译方法
     
    a）如果是命令行中：
    cd  Android-Plugin-Framework
@@ -190,6 +193,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         
 #其他指南
 1. 如何使非独立插件依赖其他插件
+
    例：插件A依赖插件B，则需在插件A的manifest文件中的application节点下增加如下配置：
        
         <uses-library android:name="这里填写被依赖的插件B的包名" android:required="true" />
@@ -200,10 +204,13 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
        限制：被插件依赖的插件只可以包含class和Manifest和assets等文件，不可以携带资源文件。可参考demo中的pluginBase工程
         
 2. 如何使独立插件依赖其他插件
+   
    同上。
        
-3. 如何将插件中的Fragment嵌入宿主中的Activity中？
+3. 如何将插件中的Fragment嵌入宿主中的Activity中
+
    首先，需要将此宿主Activity的android:process属性配置为插件进程（插件的代码需在插件进程运行，因此fragment的所在的Activity也需要在插件进程中）
+   
    然后，在此插件的AndroidManifest.xml配置<exported-fragment>节点：
    
        <exported-fragment android:name="这里为此Fragment设置一个唯一标识符Id" android:value="这里为此Fragment类全名"/>
@@ -217,7 +224,8 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         可参考demo中的plugintest工程。
         另：根据对宿主Activity的配置，此Fragment的写法又分为两种，见下文。
   
-4. 如何将插件的Fragment嵌入其他插件的Activity中？
+4. 如何将插件的Fragment嵌入其他插件的Activity中
+
    同上。区别在于此插件Activity无需再配置进程属性，因为插件就是运行在插件进程中。
 
 5. 插件UI可通过Fragment、pluginView或者直接使用Activity来实现        
@@ -251,9 +259,12 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         demo中都有例子。
 		
 		
-6. 如何将插件中的View是嵌入宿主中的Activity中使用？
+6. 如何将插件中的View是嵌入宿主中的Activity中使用
+
    鉴于实际情况中一些特殊场景可能不适合使用Fragment，框架也支持直接将插件View嵌入宿主Activity中使用。
+   
    首先，需要将此宿主Activity的android:process属性配置为插件进程，在宿主的布局文件中嵌入pluginView 节点，通过class="View的类全名"来指定使用的控件，
+   
    其他用法和普通控件无异，具体参考demo
         
         这些可以被嵌入插件view的宿主Activity，需要在Activity的class上添加@PluginContainer注解（无需指插件包名，插件包名通过pluginView节点指定），
@@ -271,6 +282,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         以上写法，IDE中可能会标红，但是不影响编译和运行。
             
 8. 如何在插件使用宿主中定义的其他资源
+
    分为在代码中和在资源文件中两种。代码中直接通过R即可使用。资源中，插件中可以直接使用宿主中定义的资源，但是写法和直接使用插件自己的资源略有不同,
    通常应写为：
         
@@ -294,6 +306,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
       
         
 10. 如何在插件中获取宿主包名
+
     插件getPackageName返回的是插件包名。如果要在插件中获取宿主包名，使用框架提供的FakeUtil.getHostPackageName()函数，参数为插件的context，例如插件activity或者插件Application
    
    
@@ -330,7 +343,9 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          如要使用此类插件，请务必先完全理解上述解释，以及为何使用FakeContext可以达成目的。然后遇到各种相关问题都可迎刃而解。
 
 12. 如何混淆宿主和插件
+
     若需要混淆宿主，请参考PluginMain工程下的混淆配置，以宿主防止混淆后框架异常。
+    
     若需要混淆非独立插件，步骤如下：
              
          1、在宿主中开启混淆编译，outputs目录下会生成一个混淆后的jar：host_[buildType]_obfuscated.jar，以及mapping目录下会生成一个mapping文件
