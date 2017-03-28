@@ -57,7 +57,8 @@ public class WhiteList {
         //android.vrsystem.IVRSystemService
         //android.webkit.IWebViewUpdateService
         //com.huawei.permission.IHoldService
-
+        //com.android.internal.app.IAppOpsService
+        //android.net.IConnectivityManager
     }
 
     public static void add(String descriptor, String implClassName) {
