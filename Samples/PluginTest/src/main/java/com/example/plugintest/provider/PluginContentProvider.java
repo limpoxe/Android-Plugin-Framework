@@ -35,7 +35,6 @@ public class PluginContentProvider extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			// TODO Auto-generated method stub
 			db.execSQL("CREATE TABLE IF NOT EXISTS " + TEST_FIRST_TABLENAME + "("
 					+ PluginFirstTable._ID + " INTEGER PRIMARY KEY, "
 					+ PluginFirstTable.MY_FIRST_PLUGIN_NAME + " TEXT, "
@@ -45,7 +44,6 @@ public class PluginContentProvider extends ContentProvider {
 
 		@Override
 		public void onOpen(SQLiteDatabase db) {
-			// TODO Auto-generated method stub
 			db.execSQL("CREATE TABLE IF NOT EXISTS " + TEST_FIRST_TABLENAME + "("
 					+ PluginFirstTable._ID + " INTEGER PRIMARY KEY, "
 					+ PluginFirstTable.MY_FIRST_PLUGIN_NAME + " TEXT, "
@@ -55,7 +53,6 @@ public class PluginContentProvider extends ContentProvider {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			// TODO Auto-generated method stub
 			db.execSQL("DROP TABLE IF EXISTS " + TEST_FIRST_TABLENAME);
 			onCreate(db);
 		}
@@ -71,7 +68,6 @@ public class PluginContentProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,	String[] selectionArgs, String sortOrder) {
-		// TODO Auto-generated method stub
 		String TABLE_NAME;
 		switch (sUriMatcher.match(uri)) {
 		case TEST_FIRST:
@@ -111,12 +107,10 @@ public class PluginContentProvider extends ContentProvider {
 
 	@Override
 	public String getType(Uri uri) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		// TODO Auto-generated method stub
 		String TABLE_NAME;
 		String nullColumnHack;
 		Resources r = Resources.getSystem();
@@ -157,7 +151,6 @@ public class PluginContentProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		String TABLE_NAME;
 		int count;
@@ -184,7 +177,6 @@ public class PluginContentProvider extends ContentProvider {
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		Long now = Long.valueOf(System.currentTimeMillis());
 

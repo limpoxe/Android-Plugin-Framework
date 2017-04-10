@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -114,7 +115,14 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		//mBuilder.setContentIntent()
 		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(123, mNotification);
-	}
+
+        PackageManager manager = getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> infos = manager.queryIntentActivities(intent, 0);
+
+        Log.e("xx", "infos=" + (infos==null?"0":infos.size()));
+    }
 
 	private static void startFragmentInHostActivity(Context context, String targetId) {
 		Intent pluginActivity = new Intent();
