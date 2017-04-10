@@ -105,7 +105,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     }
                 }
             } else {
-                //todo
+                //TODO android4.3以下对getInstalledPackages函数的hook
                 LogUtil.e("not support this method getInstalledPackages  for api version " + Build.VERSION.SDK_INT);
             }
             return invokeResult;
@@ -256,10 +256,15 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
     private static Object appendPluginResolveInfo(Object invokeResult, ArrayList<ResolveInfo> resolveInfos) {
         LogUtil.v("将插件组件信息插入结果集");
+        if (resolveInfos == null || resolveInfos.size() == 0) {
+            return invokeResult;
+        }
 
         if (Build.VERSION.SDK_INT <= 23) {
             if (invokeResult == null) {
                 invokeResult = resolveInfos;
+            } else {
+                ((List)invokeResult).addAll(resolveInfos);
             }
         } else {
             // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
@@ -280,9 +285,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
             LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
-                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
+                //TODO 只取第一个，忽略了多组件匹配到同一个Intent的情况
+                String className = classNames.get(0);
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
                 ResolveInfo info = new ResolveInfo();
-                info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
+                info.activityInfo = getActivityInfo(pluginDescriptor, className);
                 return info;
             }
             return super.beforeInvoke(target, method, args);
@@ -295,9 +302,11 @@ public class AndroidAppIPackageManager extends MethodProxy {
             LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
-                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
+                //TODO 只取第一个，忽略了多组件匹配到同一个Intent的情况
+                String className = classNames.get(0);
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
                 ResolveInfo info = new ResolveInfo();
-                info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
+                info.serviceInfo = getServiceInfo(pluginDescriptor, className);
                 return info;
             }
             return super.beforeInvoke(target, method, args);

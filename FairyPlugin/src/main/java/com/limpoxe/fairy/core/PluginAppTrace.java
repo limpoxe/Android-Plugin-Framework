@@ -192,7 +192,7 @@ public class PluginAppTrace implements Handler.Callback {
                 LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
                 if (loadedPlugin != null) {
                     //更新环境配置，如屏幕密度，系统语言，横竖屏等
-                    //TODO 这个方法已经过期，获取需要更改为通过反射调用它的隐藏方法
+                    //TODO updateConfiguration这个方法已经过期，后续需要更改为通过反射调用它的隐藏方法
                     LogUtil.v("updateConfiguration for ", pluginDescriptor.getPackageName());
                     loadedPlugin.pluginResource.updateConfiguration((Configuration)msg.obj, null);
                 }

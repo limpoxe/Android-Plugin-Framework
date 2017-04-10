@@ -129,10 +129,11 @@ public class PluginManagerProvider extends ContentProvider {
             LogUtil.v("callingPackage = ", getCallingPackage());
         }
 
-        LogUtil.v("Thead : id = " + Thread.currentThread().getId()
-                + ", name = " + Thread.currentThread().getName()
-                + ", method = " + method
-                + ", arg = " + arg);
+        LogUtil.d("跨进程调用统计"
+                + "Thead id", Thread.currentThread().getId()
+                + "name", Thread.currentThread().getName()
+                + "method", method
+                + "arg", arg);
 
         Bundle bundle = new Bundle();
 

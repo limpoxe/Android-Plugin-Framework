@@ -46,7 +46,7 @@ public class AndroidViewIWindowSession extends MethodDelegate {
                     if(pluginDescriptor != null) {
                         LogUtil.v("修正System api", methodName, params.packageName);
                         //这里修正packageName会引起弹PopupWindow时发生WindowManager异常，
-                        //TODO 此处暂不修正，原因待查
+                        //TODO 此处暂不修正，似乎无需修正，原因待查
                         //params.packageName = PluginLoader.getApplication().getPackageName();
                     }
                 }
