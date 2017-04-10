@@ -114,35 +114,30 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
     public static class queryIntentActivities extends MethodDelegate {
         @Override
-        public Object beforeInvoke(Object target, Method method, Object[] args) {
+        public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             LogUtil.v("beforeInvoke", method.getName());
-            LogUtil.v("优先匹配插件");
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 LogUtil.v("Plugin Activity Intent Match");
-                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
-                if (Build.VERSION.SDK_INT <= 23) {
-                    List<ResolveInfo> result = new ArrayList<>();
-                    ResolveInfo info = new ResolveInfo();
-                    result.add(info);
-                    info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
-                    return result;
-                } else {
-                    // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
-                    ArrayList<ResolveInfo> resultList = new ArrayList<>();
-                    ResolveInfo info = new ResolveInfo();
-                    resultList.add(info);
-                    info.activityInfo = getActivityInfo(pluginDescriptor, classNames.get(0));
-                    Object parceledListSlice = HackParceledListSlice.newParecledListSlice(resultList);
-                    if (parceledListSlice == null) {
-                        LogUtil.e("activity found but hack fail");
+                ArrayList<ResolveInfo> resolveInfos = new ArrayList<ResolveInfo>();
+                for(String className: classNames) {
+                    PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+                    if (pluginDescriptor != null) {
+                        ResolveInfo info = new ResolveInfo();
+                        info.activityInfo = getActivityInfo(pluginDescriptor, className);
+                        info.labelRes = 0;//需要时再加上
+                        resolveInfos.add(info);
+                    } else {
+                        LogUtil.v("PluginDescriptor Not Found");
                     }
-                    return parceledListSlice;
+                }
+                if (resolveInfos.size() > 0) {
+                    invokeResult = appendPluginResolveInfo(invokeResult, resolveInfos);
                 }
             } else {
-                LogUtil.w("It is not a Plugin Activity Intent");
+                LogUtil.v("It's not a plugin intent");
             }
-            return super.beforeInvoke(target, method, args);
+            return invokeResult;
         }
 
     }
@@ -233,32 +228,49 @@ public class AndroidAppIPackageManager extends MethodProxy {
 
     public static class queryIntentServices extends MethodDelegate {
         @Override
-        public Object beforeInvoke(Object target, Method method, Object[] args) {
+        public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             LogUtil.v("beforeInvoke", method.getName());
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 LogUtil.v("Plugin Service Intent Match");
-                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(classNames.get(0));
-                if (Build.VERSION.SDK_INT <= 23) {
-                    List<ResolveInfo> result = new ArrayList<>();
-                    ResolveInfo info = new ResolveInfo();
-                    result.add(info);
-                    info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
-                    return result;
-                } else {
-                    // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
-                    ArrayList<ResolveInfo> resultList = new ArrayList<ResolveInfo>();
-                    ResolveInfo info = new ResolveInfo();
-                    resultList.add(info);
-                    info.serviceInfo = getServiceInfo(pluginDescriptor, classNames.get(0));
-                    Object parceledListSlice = HackParceledListSlice.newParecledListSlice(resultList);
-                    return parceledListSlice;
+                ArrayList<ResolveInfo> resolveInfos = new ArrayList<ResolveInfo>();
+                for(String className: classNames) {
+                    PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
+                    if (pluginDescriptor != null) {
+                        ResolveInfo info = new ResolveInfo();
+                        info.serviceInfo = getServiceInfo(pluginDescriptor, className);
+                        resolveInfos.add(info);
+                    } else {
+                        LogUtil.v("PluginDescriptor Not Found");
+                    }
+                }
+                if (resolveInfos.size() > 0) {
+                    invokeResult = appendPluginResolveInfo(invokeResult, resolveInfos);
                 }
             } else {
-                LogUtil.v("It is not a Plugin Service Intent");
+                LogUtil.v("It's not a plugin intent");
             }
-            return super.beforeInvoke(target, method, args);
+            return invokeResult;
         }
+    }
+
+    private static Object appendPluginResolveInfo(Object invokeResult, ArrayList<ResolveInfo> resolveInfos) {
+        LogUtil.v("将插件组件信息插入结果集");
+
+        if (Build.VERSION.SDK_INT <= 23) {
+            if (invokeResult == null) {
+                invokeResult = resolveInfos;
+            }
+        } else {
+            // 高于7.0的版本应当返回的类型是 android.content.pm.ParceledListSlice
+            if (invokeResult == null) {
+                invokeResult = HackParceledListSlice.newParecledListSlice(resolveInfos);
+            } else {
+                List<ResolveInfo> resultList = (List<ResolveInfo>) new HackParceledListSlice(invokeResult).getList();
+                resultList.addAll(resolveInfos);
+            }
+        }
+        return invokeResult;
     }
 
     //ResolveInfo resolveIntent(Intent intent, String resolvedType, int flags, int userId);
