@@ -7,5 +7,6 @@
 .DS_Store
 /build
 build
+.idea/
 /captures
 .settings
