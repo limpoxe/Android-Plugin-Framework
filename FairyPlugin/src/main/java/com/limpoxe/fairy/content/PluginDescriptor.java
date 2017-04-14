@@ -394,9 +394,9 @@ public class PluginDescriptor implements Serializable {
 		return UNKOWN;
 	}
 
-	public List<String> matchPlugin(Intent intent, int type) {
+	public ArrayList<String> matchPlugin(Intent intent, int type) {
 		PluginDescriptor plugin = this;
-		List<String> result = null;
+        ArrayList<String> result = null;
 		String clazzName = null;
 		// 如果是通过组件进行匹配的, 这里忽略了packageName
 		if (intent.getComponent() != null) {
@@ -404,39 +404,20 @@ public class PluginDescriptor implements Serializable {
 				clazzName = intent.getComponent().getClassName();
 				result = new ArrayList<String>(1);
 				result.add(clazzName);
-				return result;//暂时不考虑不同的插件中配置了相同名称的组件的问题,先到先得
+                LogUtil.e("暂时不考虑不同的插件中配置了相同类全名的组件的问题, 先到先得");
+				return result;
 			}
 		} else {
 			// 如果是通过IntentFilter进行匹配的
+            ArrayList<String> list = null;
 			if (type == PluginDescriptor.ACTIVITY) {
-
-				ArrayList<String> list  = findClassNameByIntent(intent, plugin.getActivitys());
-
-				if (list != null && list.size() >0) {
-					result = new ArrayList<String>(1);
-					result.add(list.get(0));
-					return result;//暂时不考虑多个Activity配置了相同的Intent的问题,先到先得
-				}
-
+				list  = findClassNameByIntent(intent, plugin.getActivitys());
 			} else if (type == PluginDescriptor.SERVICE) {
-
-				ArrayList<String> list  = findClassNameByIntent(intent, plugin.getServices());
-
-				if (list != null && list.size() >0) {
-					result = new ArrayList<String>(1);
-					result.add(list.get(0));
-					return result;//service本身不支持多匹配,,先到先得
-				}
-
+				list  = findClassNameByIntent(intent, plugin.getServices());
 			} else if (type == PluginDescriptor.BROADCAST) {
-
-				ArrayList<String> list  = findClassNameByIntent(intent, plugin.getReceivers());
-				if (list != null && list.size() >0) {
-					result = new ArrayList<String>();
-					result.addAll(list);//暂时不考虑去重的问题
-					return result;
-				}
+				list  = findClassNameByIntent(intent, plugin.getReceivers());
 			}
+			return list;
 		}
 		return null;
 	}
@@ -462,7 +443,6 @@ public class PluginDescriptor implements Serializable {
 							targetClassNameList = new ArrayList<String>();
 						}
 						targetClassNameList.add(item.getKey());
-						break;
 					}
 				}
 			}

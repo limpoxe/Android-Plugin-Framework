@@ -164,7 +164,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		return PluginLoader.getApplication().getPackageName();
 	}
 
-	////@hide toast会用到
+	////@hide toast，ITelephony等服务会用到
 	public String getOpPackageName() {
 		return PluginLoader.getApplication().getPackageName();
 	}

@@ -80,13 +80,24 @@ android {
             universalApk true //generate an additional APK that contains all the ABIs
         }
     }
+
+    //test for flavor
+    //productFlavors {
+    //    one {
+    //        applicationId "com.example.pluginmain"
+    //    }
+
+    //    two {
+    //        applicationId "com.example.pluginmain"
+    //    }
+    //}
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.47-snapshot@aar')
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.51-snapshot@aar')//通过后缀@aar来中断依赖传递
     //compile project(':FairyPlugin')
     //optional
-    compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
+    //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
 
     compile project(':Samples:PluginShareLib')
 

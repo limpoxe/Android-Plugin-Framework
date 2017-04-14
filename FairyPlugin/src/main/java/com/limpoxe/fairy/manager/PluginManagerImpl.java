@@ -100,7 +100,11 @@ class PluginManagerImpl {
 
 	private boolean addOrReplace(PluginDescriptor pluginDescriptor) {
 		sInstalledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-		return savePlugins(INSTALLED_KEY, sInstalledPlugins);
+        boolean isSaveSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
+        if (!isSaveSuccess) {
+            sInstalledPlugins.remove(pluginDescriptor.getPackageName());
+        }
+        return isSaveSuccess;
 	}
 
 	private boolean pending(PluginDescriptor pluginDescriptor) {

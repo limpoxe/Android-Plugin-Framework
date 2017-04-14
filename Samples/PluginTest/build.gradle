@@ -25,15 +25,36 @@ android {
         xmlReport false
     }
 
-    buildTypes {
+    signingConfigs {
+        debug {
+            storeFile file("../PluginMain/limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+
         release {
+            storeFile file("../PluginMain/limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+    }
+
+    buildTypes {
+        debug {
             versionNameSuffix '_' + getDate()
+            debuggable true
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-
-        debug {
+        release {
             versionNameSuffix '_' + getDate()
+            debuggable true
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -58,7 +79,9 @@ dependencies {
     //如果是独立插件，无需任何特殊配置
     /////////////////////////////////////////////////////////////////////
 
+    //注意这里写的是debug，所以要debug编译宿主和PluginBase
     provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
+
     provided files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
 
 }
@@ -79,8 +102,12 @@ ext {
     //这2个常量在下面的apply的脚本中要用到
     //一个是指定宿主编译出来的output目录，一个是指定宿主编译出来的ap_文件
     host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
+
     //注意这里写的是debug的ap_文件，使用不同的buildType应换成不同的文件名
-    host_ap_path = host_output_dir+ '/PluginMain-resources-universal-debug.ap_'
+    host_ap_path = host_output_dir + '/PluginMain-resources-universal-debug.ap_'
+
+    //用于混淆配置
+    //host_obfuscated_jar = host_output_dir + '/host_debug_obfuscated.jar'
 }
 
 //apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'

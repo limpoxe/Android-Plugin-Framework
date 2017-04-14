@@ -91,11 +91,14 @@ public class PluginProviderClient {
         return null;
     }
 
-    public static String bindStubActivity(String pluginActivityClassName, int launchMode, String packageName, String themeId) {
+    public static String bindStubActivity(String pluginActivityClassName, int launchMode, String packageName, String themeId, String orientation) {
         Bundle arg = new Bundle();
         arg.putInt("launchMode", launchMode);
         arg.putString("packageName", packageName);
         arg.putString("themeId", themeId);
+        if (orientation != null) {
+            arg.putInt("orientation", Integer.valueOf(orientation));
+        }
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_BIND_ACTIVITY,
                 pluginActivityClassName, arg);

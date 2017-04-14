@@ -151,7 +151,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityStandard2"
+            android:exported="true"
+            android:process=":plugin"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <!--
             singleTask 的 launchmode
             需要注册的stub数量只需 >= 可能 同时 处于运行状态的singleTask模式的Activity的数量

@@ -6,6 +6,7 @@ import android.content.res.Resources;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackAssetManager;
+import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
@@ -56,7 +57,8 @@ public class PluginCreator {
 			         * bootstrap class loader.
 			         */
 					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
-					null,//独立插件无依赖
+                    dependences,//通常情况独立插件无子依赖, 此处参数size一般是0，但实际也可以依赖其他基础独立插件包，
+                                // 也即独立插件之间也可以建立依赖关系，前提和非独立插件一样，被依赖的插件不可以包含资源
 					pluginApkMultDexPath);
 		}
 
@@ -115,7 +117,12 @@ public class PluginCreator {
 		// 不可更改顺序否则不能兼容4.x，如华为P7-Android4.4.2
 		assetPaths[0] = plugin;
 		LogUtil.v("create Plugin Resource from: ", plugin);
-		if (!isStandalone) {
+
+        //TODO 需要将chrome添加到assetPath，以解决在webviw中弹出对话框的（如日历）是找不着资源的问题，但是部分系统不兼容
+        //@see CompatForWebViewFactoryApi21.addWebViewAssets()
+        String chromePath = CompatForWebViewFactoryApi21.getChromeApkPath();
+
+        if (!isStandalone) {
 			if (dependencies != null) {
 				//插件间资源依赖，这里需要遍历添加dependencies
 				//这里只处理1级依赖，若被依赖的插件又依赖其他插件，这里不做支持

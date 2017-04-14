@@ -2,16 +2,21 @@ package com.limpoxe.fairy.core;
 
 import android.app.Service;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
+import com.limpoxe.fairy.content.LoadedPlugin;
+import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackContextImpl;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -150,6 +155,12 @@ public class PluginAppTrace implements Handler.Callback {
 				afterCreateService(result);
 
 				break;
+
+            case CodeConst.CONFIGURATION_CHANGED:
+
+                afterConfigurationChanged(msg);
+
+                break;
 		}
 	}
 
@@ -173,6 +184,21 @@ public class PluginAppTrace implements Handler.Callback {
 			PluginInjector.replaceHostServiceContext(result.serviceName);
 		}
 	}
+
+	private static void afterConfigurationChanged(Message msg) {
+        if (ProcessUtil.isPluginProcess()) {
+            ArrayList<PluginDescriptor> pluginDescriptors = PluginManagerHelper.getPlugins();
+            for(PluginDescriptor pluginDescriptor : pluginDescriptors) {
+                LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
+                if (loadedPlugin != null) {
+                    //更新环境配置，如屏幕密度，系统语言，横竖屏等
+                    //TODO updateConfiguration这个方法已经过期，后续需要更改为通过反射调用它的隐藏方法
+                    LogUtil.v("updateConfiguration for ", pluginDescriptor.getPackageName());
+                    loadedPlugin.pluginResource.updateConfiguration((Configuration)msg.obj, null);
+                }
+            }
+        }
+    }
 
 	static class Result {
 		String serviceName;

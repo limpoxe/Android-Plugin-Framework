@@ -158,10 +158,11 @@ public class PluginInjector {
 
 				//是打开的用来显示插件组件的宿主activity, 比如在宿主Activity中显示插件Fragment或者插件View
 
-				if (!TextUtils.isEmpty(container.pluginId())) {
+                String pluginId = container.pluginId();
+				if (!TextUtils.isEmpty(pluginId)) {
 					//进入这里表示指定了这个宿主Activity "只显示" 某个插件的组件
 					// 因此直接将这个Activity的Context也替换成插件的Context
-					pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(container.pluginId());
+					pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 					if(pluginDescriptor == null) {
 						throw new PluginNotFoundError("plugin with class " + activity.getClass().getName() + " not found");
 					}
@@ -188,7 +189,8 @@ public class PluginInjector {
 
 			resetActivityContext(pluginContext, activity, pluginAppTheme);
 
-			resetWindowConfig(pluginContext, pluginDescriptor, activity, activityInfo, pluginActivityInfo);
+            //如果是配置了PluginContainer注解和pluginId的宿主Activity，此宿主的Activity的全屏配置可能会被插件的主题覆盖而丢失，可以通过代码设置回去
+            resetWindowConfig(pluginContext, pluginDescriptor, activity, activityInfo, pluginActivityInfo);
 
 			activity.setTitle(activity.getClass().getName());
 
@@ -270,6 +272,9 @@ public class PluginInjector {
 				//noinspection ResourceType
 				if (orientation != activityInfo.screenOrientation && !activity.isChild()) {
 					//noinspection ResourceType
+                    //框架中只内置了unspec和landscape两种screenOrientation
+                    //如果是其他类型，这里通过代码实现切换
+                    LogUtil.v("修改screenOrientation");
 					activity.setRequestedOrientation(orientation);
 				}
 			}

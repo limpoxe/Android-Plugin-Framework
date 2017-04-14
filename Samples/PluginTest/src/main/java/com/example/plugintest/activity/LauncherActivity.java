@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -12,6 +14,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
+import android.telephony.CellInfo;
+import android.telephony.TelephonyManager;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -26,11 +30,13 @@ import com.example.plugintest.Log;
 import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
+import com.limpoxe.fairy.util.LogUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 //import com.example.plugintest.databinding.PluginLauncherBinding;
 
@@ -54,6 +60,23 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugintest")));
 		Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
 		Log.e("xxx8", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginmain")));
+
+        if (Build.VERSION.SDK_INT >= 17) {
+            boolean isGranted = true;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") == PackageManager.PERMISSION_DENIED) {
+                    isGranted = false;
+                    requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 10086);
+                }
+            }
+            if (isGranted) {
+                TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+                List<CellInfo> list =  telephonyManager.getAllCellInfo();
+                if (list != null) {
+                    LogUtil.v(list);
+                }
+            }
+        }
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle("这是插件首屏");
@@ -92,7 +115,14 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		//mBuilder.setContentIntent()
 		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(123, mNotification);
-	}
+
+        PackageManager manager = getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> infos = manager.queryIntentActivities(intent, 0);
+
+        Log.e("xx", "infos=" + (infos==null?"0":infos.size()));
+    }
 
 	private static void startFragmentInHostActivity(Context context, String targetId) {
 		Intent pluginActivity = new Intent();

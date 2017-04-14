@@ -17,7 +17,6 @@ import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class PluginIntentResolver {
 
@@ -28,7 +27,8 @@ public class PluginIntentResolver {
 	public static void resolveService(Intent intent) {
 		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
-			String stubServiceName = PluginProviderClient.bindStubService(classNameList.get(0));
+            //TODO 只取第一个，忽略了多Service匹配到同一个Intent的情况
+            String stubServiceName = PluginProviderClient.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
 				intent.setComponent(new ComponentName(PluginLoader.getApplication().getPackageName(), stubServiceName));
 			}
@@ -135,7 +135,7 @@ public class PluginIntentResolver {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
 		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.ACTIVITY);
 		if (classNameList != null && classNameList.size() > 0) {
-
+            //TODO 只取第一个，忽略了多Activity匹配到同一个Intent的情况
 			String className = classNameList.get(0);
 			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
@@ -144,7 +144,8 @@ public class PluginIntentResolver {
 			String stubActivityName = PluginProviderClient.bindStubActivity(className,
 					Integer.parseInt(pluginActivityInfo.getLaunchMode()),
 					pluginDescriptor.getPackageName(),
-					pluginActivityInfo.getTheme());
+					pluginActivityInfo.getTheme(),
+                    pluginActivityInfo.getScreenOrientation());
 
 			intent.setComponent(
 					new ComponentName(PluginLoader.getApplication().getPackageName(), stubActivityName));
@@ -168,38 +169,57 @@ public class PluginIntentResolver {
 	/**
 	 */
 	public static ArrayList<String> matchPlugin(Intent intent, int type) {
-		ArrayList<String> result = null;
+
+        if (intent.getAction() != null && (
+                intent.getAction().endsWith(".STUB_DEFAULT") ||
+                intent.getAction().endsWith(".STUB_EXACT") ||
+                intent.getAction().contains(CLASS_SEPARATOR))) {
+            return null;
+        }
+
+        LogUtil.v("开始尝试匹配插件Intent");
+
+        ArrayList<String> result = null;
 
 		String packageName = intent.getPackage();
 		if (packageName == null && intent.getComponent() != null) {
 			packageName = intent.getComponent().getPackageName();
 		}
+		//如果指定了packname，就不用遍历插件列表了
 		if (packageName != null && !packageName.equals(PluginLoader.getApplication().getPackageName())) {
 			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
 			if (pluginDescriptor != null) {
-				List<String> list = pluginDescriptor.matchPlugin(intent, type);
-				if (list != null && list.size() > 0) {
-					if (result == null) {
-						result = new ArrayList<>();
-					}
-					result.addAll(list);
-				}
-			}
+                result = pluginDescriptor.matchPlugin(intent, type);
+				if (result != null && result.size() > 0) {
+                    LogUtil.v(packageName, "插件Intent匹配成功");
+                } else {
+                    LogUtil.w(packageName, "目标是插件，但在插件Maniest中未找到匹配的IntentFilter", type);
+                }
+			} else {
+                LogUtil.w(packageName, "目标不是插件，也可能是插件未正确安装");
+            }
 		} else {
-			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
+            //没有指定packageName，开始遍历插件列表
+            ArrayList<PluginDescriptor> pluginList = PluginManagerHelper.getPlugins();
+            LogUtil.v("已安装插件数量", pluginList.size());
+            Iterator<PluginDescriptor> itr = pluginList.iterator();
 			while (itr.hasNext()) {
-				List<String> list = itr.next().matchPlugin(intent, type);
-				if (list != null && list.size() > 0) {
+                PluginDescriptor pluginDescriptor = itr.next();
+                LogUtil.v("正在匹配插件", pluginDescriptor.getPackageName());
+                ArrayList<String> list = pluginDescriptor.matchPlugin(intent, type);
+				if (list != null) {
 					if (result == null) {
 						result = new ArrayList<>();
 					}
 					result.addAll(list);
-				}
-				if (result != null && type != PluginDescriptor.BROADCAST) {
-					break;
-				}
+                }
 			}
 
+            if (result == null || result.size() == 0) {
+                LogUtil.v("未匹配到插件Intent, 说明目标不是插件，也可能是插件未正确安装", packageName, intent.toString());
+            } else {
+                LogUtil.v(packageName, "插件Intent匹配成功");
+            }
 		}
 		return result;
 	}

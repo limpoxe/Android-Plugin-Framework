@@ -18,6 +18,7 @@ public class PluginCallbackImpl implements PluginCallback {
     @Override
     public void onInstall(int result, String packageName, String version,  String src) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+        intent.setPackage(PluginLoader.getApplication().getPackageName());
         intent.putExtra(extra_type, "install");
         intent.putExtra(extra_id, packageName);
         intent.putExtra(extra_version, version);
@@ -29,6 +30,7 @@ public class PluginCallbackImpl implements PluginCallback {
     @Override
     public void onRemove(String packageName, int code) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+        intent.setPackage(PluginLoader.getApplication().getPackageName());
         intent.putExtra(extra_type, "remove");
         intent.putExtra(extra_id, packageName);
         intent.putExtra(extra_result_code, code);
@@ -38,6 +40,7 @@ public class PluginCallbackImpl implements PluginCallback {
     @Override
     public void onRemoveAll(boolean success) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+        intent.setPackage(PluginLoader.getApplication().getPackageName());
         intent.putExtra(extra_type, "remove_all");
         intent.putExtra(extra_result_code, success?0:7);
         PluginLoader.getApplication().sendBroadcast(intent);
@@ -47,6 +50,7 @@ public class PluginCallbackImpl implements PluginCallback {
     @Override
     public void onStart(String packageName) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+        intent.setPackage(PluginLoader.getApplication().getPackageName());
         intent.putExtra(extra_type, "start");
         intent.putExtra(extra_id, packageName);
         PluginLoader.getApplication().sendBroadcast(intent);
@@ -56,6 +60,7 @@ public class PluginCallbackImpl implements PluginCallback {
     @Override
     public void onStop(String packageName) {
         Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
+        intent.setPackage(PluginLoader.getApplication().getPackageName());
         intent.putExtra(extra_type, "stop");
         intent.putExtra(extra_id, packageName);
         PluginLoader.getApplication().sendBroadcast(intent);

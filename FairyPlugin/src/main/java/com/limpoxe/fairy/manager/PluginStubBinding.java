@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+
 /**
  * 插件组件动态绑定到宿主的虚拟stub组件
  */
@@ -46,7 +48,8 @@ class PluginStubBinding {
 	private static HashMap<String, String> singleTopActivityMapping = new HashMap<String, String>();
 	private static HashMap<String, String> singleInstanceActivityMapping = new HashMap<String, String>();
 	private static String standardActivity = null;
-	private static String standardActivityTranslucent = null;
+    private static String standardLandspaceActivity = null;
+    private static String standardActivityTranslucent = null;
 	private static String receiver = null;
 	/**
 	 * key:stub Service Name
@@ -113,9 +116,11 @@ class PluginStubBinding {
 
 					if (resolveInfo.activityInfo.theme == android.R.style.Theme_Translucent) {
 						standardActivityTranslucent = resolveInfo.activityInfo.name;
-					} else {
-						standardActivity = resolveInfo.activityInfo.name;
-					}
+					} else if (resolveInfo.activityInfo.screenOrientation == SCREEN_ORIENTATION_LANDSCAPE) {
+                        standardLandspaceActivity = resolveInfo.activityInfo.name;
+                    } else {
+                        standardActivity = resolveInfo.activityInfo.name;
+                    }
 				}
 
 			}
@@ -196,7 +201,7 @@ class PluginStubBinding {
 	private static int sResId = -1;
 
 	public static synchronized String bindStubActivity(String pluginActivityClassName, int launchMode,
-													   String packageName, String themeId) {
+													   String packageName, String themeId, int orientation) {
 
 		initPool();
 
@@ -241,6 +246,10 @@ class PluginStubBinding {
 					}
 				}
 			}
+
+			if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                return standardLandspaceActivity;
+            }
 
 			return standardActivity;
 
@@ -491,6 +500,7 @@ class PluginStubBinding {
 
 		return isExact(className, PluginDescriptor.ACTIVITY)
 				|| className.equals(standardActivity)
+                || className.equals(standardLandspaceActivity)
 				|| className.equals(standardActivityTranslucent)
 				|| singleTaskActivityMapping.containsKey(className)
 				|| singleTopActivityMapping.containsKey(className)

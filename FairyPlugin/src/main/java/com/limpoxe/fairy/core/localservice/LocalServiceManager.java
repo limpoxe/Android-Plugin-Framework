@@ -24,7 +24,7 @@ public class LocalServiceManager {
             Class ServiceManager = Class.forName("com.limpoxe.support.servicemanager.ServiceManager");
             isSupport = ServiceManager != null;
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.e("ServiceManager was disabled");
         }
     }
 
