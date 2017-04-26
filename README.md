@@ -135,7 +135,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 ```       
     <manifest android:sharedUserId="这里填写宿主工程包名"/>
 ```       
-此配置```与其原始含义无关```。插件框架识别一个插件是否为独立插件，即是根据插件的manifest文件中的android:sharedUserId配置来判断，
+此配置```与其原始含义无关```。插件框架识别一个插件是否为独立插件，是根据插件的manifest文件中的android:sharedUserId配置来判断，
 将android:sharedUserId设置为宿主的packageName，则表示为非独立插件，不设置或者设置为其他值，则表示为独立插件。
                  
 3、在build.gradle中添加如下2个配置
@@ -170,11 +170,15 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 #### Demo编译方法
     
    a）如果是命令行中：
+   
    cd  Android-Plugin-Framework
+   
    ./gradlew clean
+   
    ./gradlew assembleDebug
 
    b）如果是studio中：
+   
    打开studio右侧gradle面板区，点clean、点assembleDebug。不要使用菜单栏的菜单编译。
 
    重要：
@@ -191,7 +195,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
    或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
 
         
-#其他指南
+# 其他指南
 1. 如何使非独立插件依赖其他插件
 
    例：插件A依赖插件B，则需在插件A的manifest文件中的application节点下增加如下配置：
@@ -370,14 +374,35 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          这里需要注意的是插件开启混淆以后，需要在插件的proguard里面增加对插件Fragment的keep，否则如果此fragment没有在插件自身
          使用，仅作为嵌入宿主使用，则progurad可能误以为这个类在插件中没有被使用过而被精简掉
              
+13. 如何使外部应用或者系统可以直接通过插件组件的Intent打开插件
+
+    由于插件并没有正常安装到系统中，插件组件的Intent不能被系统识别，因此外部应用或者系统需要直接唤起插件组件时，需要将插件Intent在宿主的Manifest中        
+    也预置一份，并在IntentFilter增加STUB_EXACT配置，如：
+
+        <receiver android:name="com.example.plugintest.receiver.BootCompletedReceiver"
+              android:process=":plugin">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+            </intent-filter>
+            <!--下面是额外添加的配置项，作用是使得框架将此组件配置识别为插件组件 -->
+            <intent-filter>
+                <action
+                    android:name="${applicationId}.STUB_EXACT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        
+       可以参考demo        
+
 
 # 注意事项
 
     1、非独立插件中的class不能同时存在于宿主和插件程序中
       
-       如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，
-       包括共享库的代码以及R文件，只需在编译时以provided方式添加到classpath中，公共库仅参与编译，不参与打包，
-       且插件中如果要使用共享依赖库中的资源，需要使用共享库的R文件来进行引用。参看demo。
+       如果插件和宿主共享依赖库，常见的如supportv4，那么编译插件的时候不可将共享库编译到插件当中，包括共享库的代码以及R文件。
+       只需在编译时以provided方式添加到classpath中，公共库仅参与编译，不参与打包。参看demo。
     
     2、若插件中包含so，则需要在宿主的相应目录下添加至少一个so文件，以确保插件和宿主支持的so种类完全相同
     
@@ -406,12 +431,12 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
        
     以上所有内容及更多详情可以参考Demo
   
-##其他
+## 其他
 1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
 2. [使用Public.xml的坑和填坑](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E7%9A%84%E5%9D%91%E5%92%8C%E5%A1%AB%E5%9D%91).
 3. [更新记录](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95)
 
-##联系作者：
+## 联系作者：
   Q：15871365851，添加时请注明插件开发
 
   Q群：116993004、207397154(已满)，重要：添加前请务必仔细阅读此ReadMe！请务必仔细阅读Demo！
