@@ -120,6 +120,20 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+
+        <receiver android:name="com.example.plugintest.receiver.BootCompletedReceiver"
+                  android:process=":plugin">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+            </intent-filter>
+            <intent-filter>
+                <action
+                    android:name="${applicationId}.STUB_EXACT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

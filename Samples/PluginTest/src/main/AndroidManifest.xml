@@ -200,6 +200,13 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.example.plugintest.receiver.BootCompletedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+            </intent-filter>
+        </receiver>
+
         <provider
             android:exported="true"
             android:authorities="com.example.plugintest.provider"
