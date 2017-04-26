@@ -18,10 +18,10 @@ import java.util.Map;
  */
 public class PluginViewInflater {
 
-    static final Class<?>[] sConstructorSignature = new Class[] {
+    final Class<?>[] sConstructorSignature = new Class[] {
             Context.class, AttributeSet.class};
 
-    private static final Map<String, Constructor<? extends View>> sConstructorMap = new HashMap<>();
+    private final Map<String, Constructor<? extends View>> sConstructorMap = new HashMap<>();
 
     private final LayoutInflater.Factory mViewfactory;
     private final Context mContext;
