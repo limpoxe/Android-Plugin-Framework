@@ -82,9 +82,9 @@ public class PluginProviderClient {
                 PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
     }
 
-    public static String bindStubReceiver() {
+    public static String bindStubReceiver(String className) {
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
-                PluginManagerProvider.ACTION_BIND_RECEIVER, null, null);
+                PluginManagerProvider.ACTION_BIND_RECEIVER, className, null);
         if (bundle != null) {
             return bundle.getString(PluginManagerProvider.BIND_RECEIVER_RESULT);
         }

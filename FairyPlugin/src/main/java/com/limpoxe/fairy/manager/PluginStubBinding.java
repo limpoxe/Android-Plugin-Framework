@@ -178,7 +178,18 @@ class PluginStubBinding {
 			}
 		}
 
-	}
+        //精确匹配的receiver
+        resolveInfos = PluginLoader.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+
+        if (resolveInfos != null && resolveInfos.size() > 0) {
+            if (mExcatStubSet == null) {
+                mExcatStubSet = new HashSet<String>();
+            }
+            for(ResolveInfo info:resolveInfos) {
+                mExcatStubSet.add(info.activityInfo.name);
+            }
+        }
+    }
 
 	private static void loadStubReceiver() {
 		Intent exactStub = new Intent();
@@ -193,8 +204,13 @@ class PluginStubBinding {
 
 	}
 
-	public static String bindStubReceiver() {
+	public static String bindStubReceiver(String pluginReceiverClassName) {
 		initPool();
+        if (pluginReceiverClassName != null) {
+            if (isExact(pluginReceiverClassName, PluginDescriptor.BROADCAST)) {
+                return pluginReceiverClassName;
+            }
+        }
 		return receiver;
 	}
 

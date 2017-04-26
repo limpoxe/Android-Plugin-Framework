@@ -224,7 +224,7 @@ public class PluginManagerProvider extends ContentProvider {
             PluginStubBinding.unBindStubService(arg);
 
         } else if (ACTION_BIND_RECEIVER.equals(method)) {
-            bundle.putString(BIND_RECEIVER_RESULT, PluginStubBinding.bindStubReceiver());
+            bundle.putString(BIND_RECEIVER_RESULT, PluginStubBinding.bindStubReceiver(arg));
 
             return bundle;
 
