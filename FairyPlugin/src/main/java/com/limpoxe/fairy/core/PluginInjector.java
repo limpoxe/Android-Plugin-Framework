@@ -390,7 +390,9 @@ public class PluginInjector {
 	 * 如果插件中不包含service、receiver，是不需要替换classloader的
 	 */
 	public static void hackHostClassLoaderIfNeeded() {
-		HackApplication hackApplication = new HackApplication(PluginLoader.getApplication());
+        LogUtil.v("hackHostClassLoaderIfNeeded");
+
+        HackApplication hackApplication = new HackApplication(PluginLoader.getApplication());
 		Object mLoadedApk = hackApplication.getLoadedApk();
 		if (mLoadedApk == null) {
 			//重试一次

@@ -514,7 +514,7 @@ class PluginStubBinding {
 	public static boolean isStub(String className) {
 		initPool();
 
-		return isExact(className, PluginDescriptor.ACTIVITY)
+		return isExact(className, PluginDescriptor.UNKOWN)
 				|| className.equals(standardActivity)
                 || className.equals(standardLandspaceActivity)
 				|| className.equals(standardActivityTranslucent)

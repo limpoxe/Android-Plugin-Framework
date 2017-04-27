@@ -35,7 +35,7 @@ public class HostClassLoader extends DexClassLoader {
 
 		if (className.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 
-			LogUtil.v("className ", className, PluginShadowService.class.getName());
+			LogUtil.v("className ", className);
 
 			// 这里返回PluginShadowService是因为service的构造函数以及onCreate函数
 			// 2个函数在ActivityThread的同一个函数中被调用,框架没机会在构造器执行之后,oncreate执行之前,
@@ -43,27 +43,27 @@ public class HostClassLoader extends DexClassLoader {
 			// 因此这里返回一个fake的service, 在fake service的oncreate方法里面手动调用构造器和oncreate
 			// 这里返回了这个Service以后, 由于在框架中hook了ActivityManager的serviceDoneExecuting方法,
 			// 在serviceDoneExecuting这个方法里面, 会将这个service再还原成插件的servcie对象
-			if (className.equals(PluginIntentResolver.CLASS_PREFIX_SERVICE + "null")) {
-				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound", className);
-				return TolerantService.class;
-			} else {
-				return PluginShadowService.class;
+			if (!className.equals(PluginIntentResolver.CLASS_PREFIX_SERVICE_NOT_FOUND)) {
+                return PluginShadowService.class;
 			}
 
+            LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound", className);
+            return TolerantService.class;
 
 		} else if (className.startsWith(PluginIntentResolver.CLASS_PREFIX_RECEIVER)) {
 
-			String realName = className.replace(PluginIntentResolver.CLASS_PREFIX_RECEIVER, "");
+            LogUtil.v("className ", className);
 
-			Class clazz = PluginLoader.loadPluginClassByName(realName);
+            if (!className.equals(PluginIntentResolver.CLASS_PREFIX_RECEIVER_NOT_FOUND)) {
+                String realName = className.replace(PluginIntentResolver.CLASS_PREFIX_RECEIVER, "");
+                Class clazz = PluginLoader.loadPluginClassByName(realName);
+                if (clazz != null) {
+                    return clazz;
+                }
+            }
 
-			if (clazz != null) {
-				LogUtil.v("className ", className, "target", realName, "found");
-				return clazz;
-			} else {
-				LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound", className);
-				return TolerantBroadcastReceiver.class;
-			}
+            LogUtil.e("到了这里说明出bug了,这里做个容错处理, 避免出现classnotfound", className);
+            return TolerantBroadcastReceiver.class;
 		}
 
 		return super.loadClass(className, resolve);
@@ -72,7 +72,8 @@ public class HostClassLoader extends DexClassLoader {
 	public static class TolerantBroadcastReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-		}
+            LogUtil.w("容错TolerantBroadcastReceiver被触发");
+        }
 	}
 
 	public static class TolerantService extends Service {
@@ -80,6 +81,12 @@ public class HostClassLoader extends DexClassLoader {
 		public IBinder onBind(Intent intent) {
 			return null;
 		}
-	}
+
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId) {
+            LogUtil.w("容错TolerantService被触发");
+            return super.onStartCommand(intent, flags, startId);
+        }
+    }
 
 }

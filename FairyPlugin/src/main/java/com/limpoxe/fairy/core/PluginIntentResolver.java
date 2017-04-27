@@ -1,6 +1,7 @@
 package com.limpoxe.fairy.core;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
@@ -24,7 +25,10 @@ public class PluginIntentResolver {
 	public static final String CLASS_PREFIX_RECEIVER = "#";//字符串越短,判断时效率越高
 	public static final String CLASS_PREFIX_SERVICE = "%";//字符串越短,判断时效率越高
 
-	public static void resolveService(Intent intent) {
+    public static final String CLASS_PREFIX_RECEIVER_NOT_FOUND = CLASS_PREFIX_RECEIVER + "NOT_FOUND";
+    public static final String CLASS_PREFIX_SERVICE_NOT_FOUND = CLASS_PREFIX_SERVICE + "NOT_FOUND";
+
+    public static void resolveService(Intent intent) {
 		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
             //TODO 只取第一个，忽略了多Service匹配到同一个Intent的情况
@@ -65,53 +69,66 @@ public class PluginIntentResolver {
 		return result;
 	}
 
-	/* package */static Class resolveReceiverForClassLoader(final Object msgObj) {
-		HackReceiverData hackReceiverData = new HackReceiverData(msgObj);
-		Intent intent = hackReceiverData.getIntent();
-        String className = intent.getComponent().getClassName();
-        String stubClassName = PluginProviderClient.bindStubReceiver(className);
-        if (className.equals(stubClassName)) {
-            String realReceiverClassName = null;
-            String[] targetClassName = null;
-            if (PluginProviderClient.isExact(className, PluginDescriptor.BROADCAST)) {
-                realReceiverClassName = className;
-            } else {
-                String action = intent.getAction();
-                if (action != null) {
-                    targetClassName = action.split(CLASS_SEPARATOR);
-                    realReceiverClassName = targetClassName[0];
-                }
-            }
-            if (realReceiverClassName == null) {
-                return null;
-            }
+	/* package */static Context resolveReceiverForClassLoader(final Object msgObj) {
 
-            @SuppressWarnings("rawtypes")
-            Class clazz = PluginLoader.loadPluginClassByName(realReceiverClassName);
+        if (ProcessUtil.isPluginProcess()) {
 
-            if (clazz != null) {
-                intent.setExtrasClassLoader(clazz.getClassLoader());
-                if (targetClassName != null) {
-                    //由于之前intent被修改过 这里再吧Intent还原到原始的intent
-                    if (targetClassName.length > 1) {
-                        intent.setAction(targetClassName[1]);
-                    } else {//length等于1的情况是因为原始的intent可能不是通过Action过来的，而是直接通过Component过来的
-                        intent.setAction(null);
-                    }
+            PluginInjector.hackHostClassLoaderIfNeeded();
+
+            HackReceiverData hackReceiverData = new HackReceiverData(msgObj);
+            Intent intent = hackReceiverData.getIntent();
+            String className = intent.getComponent().getClassName();
+            String stubClassName = PluginProviderClient.bindStubReceiver(className);
+            if (className.equals(stubClassName)) {
+                String realReceiverClassName = null;
+                String[] targetClassName = null;
+                if (PluginProviderClient.isExact(className, PluginDescriptor.BROADCAST)) {
+                    realReceiverClassName = className;
                 } else {
-                    //isExact 无需对intent进行恢复
-                }
-                // PluginClassLoader检测到这个特殊标记后会进行替换
-                intent.setComponent(new ComponentName(intent.getComponent().getPackageName(),
-                        CLASS_PREFIX_RECEIVER + realReceiverClassName));
-                if (Build.VERSION.SDK_INT >= 21) {
-                    if (intent.getExtras() != null) {
-                        hackReceiverData.setIntent(new PluginReceiverIntent(intent));
+                    String action = intent.getAction();
+                    if (action != null) {
+                        targetClassName = action.split(CLASS_SEPARATOR);
+                        realReceiverClassName = targetClassName[0];
                     }
                 }
-                return clazz;
+                if (realReceiverClassName == null) {
+                    return null;
+                }
+
+                @SuppressWarnings("rawtypes")
+                Class clazz = PluginLoader.loadPluginClassByName(realReceiverClassName);
+
+                if (clazz != null) {
+                    intent.setExtrasClassLoader(clazz.getClassLoader());
+                    if (targetClassName != null) {
+                        //由于之前intent被修改过 这里再吧Intent还原到原始的intent
+                        if (targetClassName.length > 1) {
+                            intent.setAction(targetClassName[1]);
+                        } else {//length等于1的情况是因为原始的intent可能不是通过Action过来的，而是直接通过Component过来的
+                            intent.setAction(null);
+                        }
+                    } else {
+                        //isExact 无需对intent进行恢复
+                    }
+
+                    // HostClassLoader检测到这个特殊标记后会进行替换
+                    intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER + realReceiverClassName));
+
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        if (intent.getExtras() != null) {
+                            hackReceiverData.setIntent(new PluginReceiverIntent(intent));
+                        }
+                    }
+                    return PluginLoader.getDefaultPluginContext(clazz);
+                } else {
+                    //在未安装插件的情况下收到了由宿主桥接到插件的广播，例如开关机广播，会到这里来
+                    if(targetClassName == null) {
+                        LogUtil.w("返回容错标记， 交给HostClassLoader处理");
+                        intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER_NOT_FOUND));
+                    }
+                }
             }
-		}
+        }
 		return null;
 	}
 
@@ -135,9 +152,9 @@ public class PluginIntentResolver {
 				info.name =  CLASS_PREFIX_SERVICE + targetClassName;
 			} else if (PluginProviderClient.isStub(info.name)) {
 				String dumpString = PluginProviderClient.dumpServiceInfo();
-				LogUtil.w("hackServiceName 没有找到映射关系, 可能映射表出了异常", info.name, dumpString);
-
-				info.name = CLASS_PREFIX_SERVICE + "null";
+				LogUtil.w("没有找到映射关系, 可能映射表出了异常", info.name, dumpString);
+                LogUtil.w("返回容错标记， 交给HostClassLoader处理");
+                info.name = CLASS_PREFIX_SERVICE_NOT_FOUND;
 			} else {
 				LogUtil.v("是宿主service", info.name);
 			}
