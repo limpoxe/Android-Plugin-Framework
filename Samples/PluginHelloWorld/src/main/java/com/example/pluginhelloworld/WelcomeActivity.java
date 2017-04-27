@@ -75,6 +75,9 @@ public class WelcomeActivity extends AppCompatActivity {
 
         WebView webView = (WebView) findViewById(R.id.webview);
         webView.loadUrl("file:///android_asset/local_page_1.html");
+
+        Intent intent = new Intent("test.thirdparty.open");
+        sendBroadcast(intent);
     }
 
     @Override

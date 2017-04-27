@@ -126,6 +126,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+                <action android:name="test.thirdparty.open"/>
             </intent-filter>
             <intent-filter>
                 <action
