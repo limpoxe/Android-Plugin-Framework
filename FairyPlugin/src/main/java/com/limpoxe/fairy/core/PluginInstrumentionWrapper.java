@@ -166,9 +166,16 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 					if (clazz != null) {
 						cl = clazz.getClassLoader();
+                        //添加一个标记符
+                        intent.addCategory(RELAUNCH_FLAG + className);
 					} else {
-						throw new ClassNotFoundException("className : " + className, new Throwable());
-					}
+						//精确匹配却找不着目标，有多种可能，其中一个可能是收到外部发来的组件Intent时，插件还没安装
+                        //因此这里强行返回容错的class
+                        className = HostClassLoader.TolerantActivity.class.getName();
+                        cl = HostClassLoader.TolerantActivity.class.getClassLoader();
+                        //添加一个标记符
+                        intent.addCategory(RELAUNCH_FLAG + className);
+                    }
 				} else {
 					//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了
 					//这里只能通过之前添加的标记符来查找className

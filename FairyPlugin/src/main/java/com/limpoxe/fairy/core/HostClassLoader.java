@@ -1,9 +1,11 @@
 package com.limpoxe.fairy.core;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 
 import com.limpoxe.fairy.util.LogUtil;
@@ -86,6 +88,14 @@ public class HostClassLoader extends DexClassLoader {
         public int onStartCommand(Intent intent, int flags, int startId) {
             LogUtil.w("容错TolerantService被触发");
             return super.onStartCommand(intent, flags, startId);
+        }
+    }
+
+    public static class TolerantActivity extends Activity {
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            LogUtil.w("容错TolerantActivity被触发");
         }
     }
 
