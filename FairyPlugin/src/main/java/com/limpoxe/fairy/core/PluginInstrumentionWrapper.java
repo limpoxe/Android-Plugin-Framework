@@ -199,11 +199,18 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 								}
 
 								Class clazz = PluginLoader.loadPluginClassByName(pluginDescriptor, className);
-
-								cl = clazz.getClassLoader();
-								found = true;
-								break;
-							}
+                                if (clazz != null) {
+                                    cl = clazz.getClassLoader();
+                                    found = true;
+                                } else {
+                                    //这里也需要处理STUB_EXACT匹配但插件尚未安装的情况
+                                    if (className.equals(HostClassLoader.TolerantActivity.class.getName())) {
+                                        cl = HostClassLoader.TolerantActivity.class.getClassLoader();
+                                        found = true;
+                                    }
+                                }
+                                break;
+                            }
 						}
 					}
 					if (!found) {
