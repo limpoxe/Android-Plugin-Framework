@@ -98,3 +98,7 @@
 -keep public class * extends android.app.Instrumentation {public *;}
 -keep public class * extends android.content.ContextWrapper {public *;}
 # 保护FairyPlugin不受混淆影响 End
+
+# bugly sdk
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.**{*;}

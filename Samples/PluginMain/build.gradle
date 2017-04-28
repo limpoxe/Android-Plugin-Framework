@@ -102,6 +102,8 @@ dependencies {
     compile project(':Samples:PluginShareLib')
 
     compile 'com.android.support:design:25.1.0'
+
+    compile 'com.tencent.bugly:crashreport:2.1.5'
 }
 
 ext {
