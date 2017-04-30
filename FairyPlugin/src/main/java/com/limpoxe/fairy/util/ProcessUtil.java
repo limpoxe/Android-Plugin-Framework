@@ -10,6 +10,11 @@ import android.os.Build;
 import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.manager.PluginManagerProvider;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import java.util.List;
 
 public class ProcessUtil {
@@ -19,7 +24,7 @@ public class ProcessUtil {
     public static boolean isPluginProcess(Context context) {
 
         if (isPluginProcess == null) {
-            String processName = getCurProcessName(context);
+            String processName = getCurProcessName();
             String pluginProcessName = getPluginProcessName(context);
 
             isPluginProcess = processName.equals(pluginProcessName);
@@ -31,15 +36,28 @@ public class ProcessUtil {
         return isPluginProcess(PluginLoader.getApplication());
     }
 
-    private static String getCurProcessName(Context context) {
-        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> list = activityManager.getRunningAppProcesses();
-        for (ActivityManager.RunningAppProcessInfo appProcess : list) {
-            if (appProcess.pid == android.os.Process.myPid()) {
-                return appProcess.processName;
-            }
-        }
-        return "";
+    private static String getCurProcessName() {
+        BufferedReader mBufferedReader=null;
+	       final int pid = android.os.Process.myPid();
+	       try {
+                       File file = new File("proc/" + pid + "/" + "cmdline");
+                       mBufferedReader = new BufferedReader(new FileReader(file));
+                       String processName = mBufferedReader.readLine().trim();
+                       mBufferedReader.close();
+                       return processName;
+               } catch (Exception e) {
+                       e.printStackTrace();
+
+               } finally {
+                       if (mBufferedReader != null) {
+                               try {
+                                       mBufferedReader.close();
+                               } catch (IOException e) {
+                                       e.printStackTrace();
+                               }
+                       }
+               }
+               return "";
     }
 
     private static String getPluginProcessName(Context context) {
