@@ -23,6 +23,7 @@ import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplication;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
+import com.limpoxe.fairy.core.exception.PluginResInitError;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.manager.PluginActivityMonitor;
@@ -92,8 +93,8 @@ public class PluginLauncher implements Serializable {
 			LogUtil.v("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
 			Resources pluginRes = PluginCreator.createPluginResource(
-					FairyConfig.getApplication().getApplicationInfo().sourceDir,
-					FairyConfig.getApplication().getResources(), pluginDescriptor);
+					FairyGlobal.getApplication().getApplicationInfo().sourceDir,
+					FairyGlobal.getApplication().getResources(), pluginDescriptor);
 
 			if (pluginRes == null) {
 				LogUtil.e("初始化插件失败 : res");
@@ -114,7 +115,7 @@ public class PluginLauncher implements Serializable {
 
 			PluginContextTheme pluginContext = (PluginContextTheme)PluginCreator.createPluginContext(
 					pluginDescriptor,
-					FairyConfig.getApplication().getBaseContext(),
+					FairyGlobal.getApplication().getBaseContext(),
 					pluginRes,
 					pluginClassLoader);
 
@@ -172,7 +173,7 @@ public class PluginLauncher implements Serializable {
 		LogUtil.i("初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName() + ", 耗时:" + (t3 - t13));
 
 		try {
-			HackActivityThread.installPackageInfo(FairyConfig.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
+			HackActivityThread.installPackageInfo(FairyGlobal.getApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
 					pluginClassLoader, pluginRes, pluginApplication);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -211,7 +212,7 @@ public class PluginLauncher implements Serializable {
 		}
 
 		//安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前
-		PluginInjector.installContentProviders(FairyConfig.getApplication(), application, pluginDescriptor.getProviderInfos().values());
+		PluginInjector.installContentProviders(FairyGlobal.getApplication(), application, pluginDescriptor.getProviderInfos().values());
 
 		//执行onCreate
 		if (application != null) {
@@ -238,7 +239,7 @@ public class PluginLauncher implements Serializable {
 				//由于我们把插件Activity内部的application成员变量替换调用了  会导致不会触发宿主中注册的ActivityLifecycleCallbacks
 				//那么我们在这里给插件的Application对象注册一个callback bridge。将插件的call发给宿主的call，
 				//从而使得宿主application中注册的callback能监听到插件Activity的声明周期
-				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge(FairyConfig.getApplication()));
+				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge(FairyGlobal.getApplication()));
 			} else {
 				//对于小于14的版本，影响是，StubActivity的绑定关系不能被回收，
 				// 意味着宿主配置的非Stand的StubActivity的个数不能小于插件中对应的类型的个数的总数，否则可能会出现找不到映射的StubActivity
@@ -265,7 +266,7 @@ public class PluginLauncher implements Serializable {
 
 		//退出Activity
 		LogUtil.d("退出Activity");
-		FairyConfig.getApplication().sendBroadcast(new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
+		FairyGlobal.getApplication().sendBroadcast(new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
 
 		//退出 LocalBroadcastManager
 		LogUtil.d("退出LocalBroadcastManager");
@@ -303,7 +304,7 @@ public class PluginLauncher implements Serializable {
 			@Override
 			public void run() {
 				//这个方法需要在UI线程运行
-				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(FairyConfig.getApplication());
+				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(FairyGlobal.getApplication());
 
 				//退出BroadcastReceiver
 				//广播一般有个注册方式

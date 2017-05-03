@@ -23,7 +23,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 
-import com.limpoxe.fairy.core.FairyConfig;
+import com.limpoxe.fairy.core.FairyGlobal;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -38,11 +38,11 @@ public class FakeUtil {
      * @return
      */
     public static Context fakeContext(Context context) {
-        if (!context.getPackageName().equals(FairyConfig.getApplication().getPackageName())) {
+        if (!context.getPackageName().equals(FairyGlobal.getApplication().getPackageName())) {
             context = new ContextWrapper(context) {
                 @Override
                 public String getPackageName() {
-                    return FairyConfig.getApplication().getPackageName();
+                    return FairyGlobal.getApplication().getPackageName();
                 }
             };
         }

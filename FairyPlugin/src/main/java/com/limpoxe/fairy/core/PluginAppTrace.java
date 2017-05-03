@@ -96,7 +96,7 @@ public class PluginAppTrace implements Handler.Callback {
 			//找到class说明是插件中定义的receiver
 			if (newBase != null) {
 
-				Context baseContext = FairyConfig.getApplication().getBaseContext();
+				Context baseContext = FairyGlobal.getApplication().getBaseContext();
 
 				PluginInjector.replaceReceiverContext(baseContext, newBase);
 

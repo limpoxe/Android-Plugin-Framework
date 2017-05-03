@@ -33,6 +33,8 @@ import com.limpoxe.fairy.core.android.HackWindow;
 import com.limpoxe.fairy.core.annotation.AnnotationProcessor;
 import com.limpoxe.fairy.core.annotation.PluginContainer;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7_23_2;
+import com.limpoxe.fairy.core.exception.PluginNotFoundError;
+import com.limpoxe.fairy.core.exception.PluginNotInitError;
 import com.limpoxe.fairy.core.loading.WaitForLoadingPluginActivity;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginProviderClient;
@@ -257,7 +259,7 @@ public class PluginInjector {
 		if (pluginActivityInfo != null) {
 
 			//如果PluginContextTheme的getPackageName返回了插件包名,需要在这里对attribute修正
-			activity.getWindow().getAttributes().packageName = FairyConfig.getApplication().getPackageName();
+			activity.getWindow().getAttributes().packageName = FairyGlobal.getApplication().getPackageName();
 
 			if (null != pluginActivityInfo.getWindowSoftInputMode()) {
 				activity.getWindow().setSoftInputMode(Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
@@ -392,7 +394,7 @@ public class PluginInjector {
 	public static void hackHostClassLoaderIfNeeded() {
         LogUtil.v("hackHostClassLoaderIfNeeded");
 
-        HackApplication hackApplication = new HackApplication(FairyConfig.getApplication());
+        HackApplication hackApplication = new HackApplication(FairyGlobal.getApplication());
 		Object mLoadedApk = hackApplication.getLoadedApk();
 		if (mLoadedApk == null) {
 			//重试一次
@@ -407,9 +409,9 @@ public class PluginInjector {
 			ClassLoader originalLoader = hackLoadedApk.getClassLoader();
 			if (!(originalLoader instanceof HostClassLoader)) {
 				HostClassLoader newLoader = new HostClassLoader("",
-						FairyConfig.getApplication()
+						FairyGlobal.getApplication()
 						.getCacheDir().getAbsolutePath(),
-						FairyConfig.getApplication().getCacheDir().getAbsolutePath(),
+						FairyGlobal.getApplication().getCacheDir().getAbsolutePath(),
 						originalLoader);
 				hackLoadedApk.setClassLoader(newLoader);
 			}

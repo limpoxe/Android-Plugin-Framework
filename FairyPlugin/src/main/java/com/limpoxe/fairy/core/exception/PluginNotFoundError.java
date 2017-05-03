@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core;
+package com.limpoxe.fairy.core.exception;
 
 /**
  * Created by cailiming on 16/11/18.

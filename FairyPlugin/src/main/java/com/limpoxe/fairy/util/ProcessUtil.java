@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 
-import com.limpoxe.fairy.core.FairyConfig;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.manager.PluginManagerProvider;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class ProcessUtil {
     }
 
     public static boolean isPluginProcess() {
-        return isPluginProcess(FairyConfig.getApplication());
+        return isPluginProcess(FairyGlobal.getApplication());
     }
 
     private static String getCurProcessName(Context context) {

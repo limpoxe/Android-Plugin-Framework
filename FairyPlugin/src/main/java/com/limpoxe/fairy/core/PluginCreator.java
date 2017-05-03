@@ -219,7 +219,7 @@ public class PluginCreator {
         if (plugin != null) {
             PluginContextTheme newContext = (PluginContextTheme)PluginCreator.createPluginContext(
                     ((PluginContextTheme) plugin.pluginContext).getPluginDescriptor(),
-                    FairyConfig.getApplication().getBaseContext(), plugin.pluginResource, plugin.pluginClassLoader);
+                    FairyGlobal.getApplication().getBaseContext(), plugin.pluginResource, plugin.pluginClassLoader);
 
             newContext.setPluginApplication(plugin.pluginApplication);
 
@@ -247,7 +247,7 @@ public class PluginCreator {
 
             newContext.setPluginApplication((Application) ((PluginContextTheme) pluginContext).getApplicationContext());
 
-            newContext.setTheme(FairyConfig.getApplication().getApplicationContext().getApplicationInfo().theme);
+            newContext.setTheme(FairyGlobal.getApplication().getApplicationContext().getApplicationInfo().theme);
         }
         return newContext;
     }

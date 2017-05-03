@@ -21,7 +21,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 
-import com.limpoxe.fairy.core.FairyConfig;
+import com.limpoxe.fairy.core.FairyGlobal;
 
 import java.util.List;
 
@@ -93,7 +93,7 @@ public class PluginMultiDexHelper {
 
             @Override
             public ApplicationInfo getApplicationInfo(String packageName, int flags) throws NameNotFoundException {
-                if (packageName.equals(FairyConfig.getApplication().getPackageName())) {
+                if (packageName.equals(FairyGlobal.getApplication().getPackageName())) {
                     packageName = pluginPackageName;
                 }
                 return packageManager.getApplicationInfo(packageName, flags);

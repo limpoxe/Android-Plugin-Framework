@@ -7,7 +7,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.util.SparseArray;
 
-import com.limpoxe.fairy.core.FairyConfig;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.android.HackAssetManager;
 import com.limpoxe.fairy.core.android.HackWebViewFactory;
 import com.limpoxe.fairy.util.LogUtil;
@@ -37,11 +37,11 @@ public class CompatForWebViewFactoryApi21 {
     public static String getChromeApkPath() {
         if (Build.VERSION.SDK_INT >= 21) {
             try {
-                Resources hostRes = FairyConfig.getApplication().getResources();
+                Resources hostRes = FairyGlobal.getApplication().getResources();
                 int packageNameResId = hostRes.getIdentifier("android:string/config_webViewPackageName", "string", "android");
                 String chromePackagename = hostRes.getString(packageNameResId);
                 LogUtil.v("chromePackagename", chromePackagename);
-                ApplicationInfo applicationInfo = FairyConfig.getApplication().createPackageContext(chromePackagename, 0).getApplicationInfo();
+                ApplicationInfo applicationInfo = FairyGlobal.getApplication().createPackageContext(chromePackagename, 0).getApplicationInfo();
                 String chromePath = applicationInfo.sourceDir;
                 LogUtil.i(applicationInfo.logo + " " + applicationInfo.icon + " " + applicationInfo.labelRes);
                 LogUtil.v("chrome app path", chromePath);

@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.FairyConfig;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginCreator;
 import com.limpoxe.fairy.core.PluginLauncher;
 import com.limpoxe.fairy.core.PluginManifestParser;
@@ -61,7 +61,7 @@ class PluginManagerImpl {
 	}
 
 	private String getPluginRootDir() {
-		return FairyConfig.getApplication().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
+		return FairyGlobal.getApplication().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -199,8 +199,8 @@ class PluginManagerImpl {
 		}
 
 		// 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
-		if (!srcPluginFile.startsWith(FairyConfig.getApplication().getCacheDir().getAbsolutePath())) {
-			String tempFilePath = FairyConfig.getApplication().getCacheDir().getAbsolutePath()
+		if (!srcPluginFile.startsWith(FairyGlobal.getApplication().getCacheDir().getAbsolutePath())) {
+			String tempFilePath = FairyGlobal.getApplication().getCacheDir().getAbsolutePath()
 					+ File.separator + System.currentTimeMillis() + ".apk";
 			if (FileUtil.copyFile(srcPluginFile, tempFilePath)) {
 				srcPluginFile = tempFilePath;
@@ -232,7 +232,7 @@ class PluginManagerImpl {
         // 所以先校验minSdkVersion，再校验签名
         //sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
         Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
-        boolean isDebugable = (0 != (FairyConfig.getApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+        boolean isDebugable = (0 != (FairyGlobal.getApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
         if (pluginSignatures == null) {
             LogUtil.e("插件签名验证失败", srcPluginFile);
             new File(srcPluginFile).delete();
@@ -245,7 +245,7 @@ class PluginManagerImpl {
         if (NEED_VERIFY_CERT && !isDebugable) {
             Signature[] mainSignatures = null;
             try {
-                PackageInfo pkgInfo = FairyConfig.getApplication().getPackageManager().getPackageInfo(FairyConfig.getApplication().getPackageName(), PackageManager.GET_SIGNATURES);
+                PackageInfo pkgInfo = FairyGlobal.getApplication().getPackageManager().getPackageInfo(FairyGlobal.getApplication().getPackageName(), PackageManager.GET_SIGNATURES);
                 mainSignatures = pkgInfo.signatures;
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
@@ -258,12 +258,12 @@ class PluginManagerImpl {
         }
 
         // 检查当前宿主版本是否匹配此非独立插件需要的版本
-        PackageManager packageManager = FairyConfig.getApplication().getPackageManager();
+        PackageManager packageManager = FairyGlobal.getApplication().getPackageManager();
         String requireHostVerName = pluginDescriptor.getRequiredHostVersionName();
         if (!pluginDescriptor.isStandalone() && requireHostVerName != null) {
             //是非独立插件，而且指定了插件运行需要的的宿主版本
             try {
-                PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyConfig.getApplication().getPackageName(), PackageManager.GET_META_DATA);
+                PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getApplication().getPackageName(), PackageManager.GET_META_DATA);
                 //判断宿主版本是否满足要求
                 LogUtil.v(pluginDescriptor.getPackageName(), requireHostVerName, hostPackageInfo.versionName);
                 if (!requireHostVerName.equals(hostPackageInfo.versionName)) {
@@ -371,7 +371,7 @@ class PluginManagerImpl {
 
 				//打印一下目录结构
 				if (isDebugable) {
-					FileUtil.printAll(new File(FairyConfig.getApplication().getApplicationInfo().dataDir));
+					FileUtil.printAll(new File(FairyGlobal.getApplication().getApplicationInfo().dataDir));
 				}
 
 				return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
@@ -380,7 +380,7 @@ class PluginManagerImpl {
 	}
 
 	private static SharedPreferences getSharedPreference() {
-		SharedPreferences sp = FairyConfig.getApplication().getSharedPreferences("plugins.installed",
+		SharedPreferences sp = FairyGlobal.getApplication().getSharedPreferences("plugins.installed",
 				Build.VERSION.SDK_INT < 11 ? Context.MODE_PRIVATE : Context.MODE_PRIVATE | 0x0004);
 		return sp;
 	}

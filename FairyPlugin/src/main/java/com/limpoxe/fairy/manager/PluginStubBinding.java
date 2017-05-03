@@ -13,7 +13,7 @@ import android.util.Base64;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.FairyConfig;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginLauncher;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
@@ -62,11 +62,11 @@ class PluginStubBinding {
 	private static boolean isPoolInited = false;
 
 	private static String buildDefaultAction() {
-		return FairyConfig.getApplication().getPackageName() + ".STUB_DEFAULT";
+		return FairyGlobal.getApplication().getPackageName() + ".STUB_DEFAULT";
 	}
 
 	private static String buildExactAction() {
-		return FairyConfig.getApplication().getPackageName() + ".STUB_EXACT";
+		return FairyGlobal.getApplication().getPackageName() + ".STUB_EXACT";
 	}
 
 	private static void initPool() {
@@ -93,9 +93,9 @@ class PluginStubBinding {
 	private static void loadStubActivity() {
 		Intent launchModeIntent = new Intent();
 		launchModeIntent.setAction(buildDefaultAction());
-		launchModeIntent.setPackage(FairyConfig.getApplication().getPackageName());
+		launchModeIntent.setPackage(FairyGlobal.getApplication().getPackageName());
 
-		List<ResolveInfo> list = FairyConfig.getApplication().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = FairyGlobal.getApplication().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
@@ -131,9 +131,9 @@ class PluginStubBinding {
 	private static synchronized void loadStubService() {
 		Intent launchModeIntent = new Intent();
 		launchModeIntent.setAction(buildDefaultAction());
-		launchModeIntent.setPackage(FairyConfig.getApplication().getPackageName());
+		launchModeIntent.setPackage(FairyGlobal.getApplication().getPackageName());
 
-		List<ResolveInfo> list = FairyConfig.getApplication().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> list = FairyGlobal.getApplication().getPackageManager().queryIntentServices(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (list != null && list.size() >0) {
 			for (ResolveInfo resolveInfo:
@@ -152,10 +152,10 @@ class PluginStubBinding {
 	private static void loadStubExactly() {
 		Intent exactStub = new Intent();
 		exactStub.setAction(buildExactAction());
-		exactStub.setPackage(FairyConfig.getApplication().getPackageName());
+		exactStub.setPackage(FairyGlobal.getApplication().getPackageName());
 
 		//精确匹配的activity
-		List<ResolveInfo> resolveInfos = FairyConfig.getApplication().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> resolveInfos = FairyGlobal.getApplication().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -167,7 +167,7 @@ class PluginStubBinding {
 		}
 
 		//精确匹配的service
-		resolveInfos = FairyConfig.getApplication().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		resolveInfos = FairyGlobal.getApplication().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -179,7 +179,7 @@ class PluginStubBinding {
 		}
 
         //精确匹配的receiver
-        resolveInfos = FairyConfig.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+        resolveInfos = FairyGlobal.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
         if (resolveInfos != null && resolveInfos.size() > 0) {
             if (mExcatStubSet == null) {
@@ -194,9 +194,9 @@ class PluginStubBinding {
 	private static void loadStubReceiver() {
 		Intent exactStub = new Intent();
 		exactStub.setAction(buildDefaultAction());
-		exactStub.setPackage(FairyConfig.getApplication().getPackageName());
+		exactStub.setPackage(FairyGlobal.getApplication().getPackageName());
 
-		List<ResolveInfo> resolveInfos = FairyConfig.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> resolveInfos = FairyGlobal.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() >0) {
 			receiver = resolveInfos.get(0).activityInfo.name;
@@ -446,7 +446,7 @@ class PluginStubBinding {
 			byte[] data = byteArrayOutputStream.toByteArray();
 			String list = Base64.encodeToString(data, Base64.DEFAULT);
 
-			FairyConfig.getApplication()
+			FairyGlobal.getApplication()
 					.getSharedPreferences("plugins.serviceMapping", Context.MODE_PRIVATE)
 					.edit().putString("plugins.serviceMapping.map", list).commit();
 
@@ -473,7 +473,7 @@ class PluginStubBinding {
 	}
 
 	private static HashMap<String, String> restore() {
-		String list = FairyConfig.getApplication()
+		String list = FairyGlobal.getApplication()
 				.getSharedPreferences("plugins.serviceMapping", Context.MODE_PRIVATE)
 				.getString("plugins.serviceMapping.map", "");
 		Serializable object = null;

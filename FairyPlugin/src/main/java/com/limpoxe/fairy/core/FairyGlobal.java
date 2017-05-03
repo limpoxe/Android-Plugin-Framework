@@ -4,15 +4,15 @@ import android.app.Application;
 
 import com.limpoxe.fairy.util.LogUtil;
 
-public class FairyConfig {
+public class FairyGlobal {
     private static Application sApplication;
-    private static boolean sIsLocalHtmlEnable = false;
+    private static boolean sIsLocalHtmlEnable;
     private static int sLoadingResId;
     private static long sMinLoadingTime = 400;
 
     public static Application getApplication() {
         if (sApplication == null) {
-            throw new IllegalStateException("Application not set，be sure PluginLoader.initLoader has called！");
+            throw new IllegalStateException("application not set！");
         }
         return sApplication;
     }
