@@ -2,7 +2,7 @@ package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.view.WindowManager;
 
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
 import com.limpoxe.fairy.util.LogUtil;
@@ -35,7 +35,7 @@ public class AndroidViewWindowManager extends MethodDelegate {
             for (Object object : args) {
                 if (object instanceof WindowManager.LayoutParams) {
                     LogUtil.v("修正WindowManager", methodName, "方法参数中的packageName", ((WindowManager.LayoutParams)object).packageName);
-                    ((WindowManager.LayoutParams)object).packageName = PluginLoader.getApplication().getPackageName();
+                    ((WindowManager.LayoutParams)object).packageName = FairyConfig.getApplication().getPackageName();
                 }
             }
         }

@@ -5,7 +5,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.view.ViewConfiguration;
 
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.android.HackServiceManager;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
@@ -38,8 +38,8 @@ public class AndroidOsServiceManager extends MethodProxy {
             //触发初始化WindowGlobal中的静态成员变量，即触发WindowManagerGlobal.getWindowManagerService()函数被调用
             //避免7.＋的系统中对window服务代理，
             //7.+的系统代理window服务会被SELinux拒绝导致陷入死循环
-            ViewConfiguration.get(PluginLoader.getApplication());
-            PluginLoader.getApplication().getSystemService(Context.KEYGUARD_SERVICE);
+            ViewConfiguration.get(FairyConfig.getApplication());
+            FairyConfig.getApplication().getSystemService(Context.KEYGUARD_SERVICE);
             //上面两行代码都是为了触发初始化
         }
 

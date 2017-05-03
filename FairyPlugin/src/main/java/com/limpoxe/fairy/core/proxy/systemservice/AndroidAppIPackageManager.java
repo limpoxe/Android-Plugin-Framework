@@ -15,8 +15,8 @@ import android.text.TextUtils;
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.PluginIntentResolver;
-import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplicationPackageManager;
 import com.limpoxe.fairy.core.android.HackParceledListSlice;
@@ -68,10 +68,10 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
             LogUtil.v("beforeInvoke", method.getName(), packageName);
-            if (!packageName.equals(PluginLoader.getApplication().getPackageName())) {
+            if (!packageName.equals(FairyConfig.getApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
-                    PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
+                    PackageInfo packageInfo = FairyConfig.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
                     if (packageInfo.applicationInfo != null) {
                         packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
                         packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
@@ -95,7 +95,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     List<PackageInfo> resultList = (List<PackageInfo>) new HackParceledListSlice(invokeResult).getList();
                     if (resultList != null) {
                         for(PluginDescriptor pluginDescriptor:plugins) {
-                            PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
+                            PackageInfo packageInfo = FairyConfig.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
                             if (packageInfo != null && packageInfo.applicationInfo != null) {
                                 packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
                                 packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
@@ -155,7 +155,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             String packageName = (String)args[0];
             LogUtil.v("beforeInvoke", method.getName(), packageName);
-            if (!packageName.equals(PluginLoader.getApplication().getPackageName())) {
+            if (!packageName.equals(FairyConfig.getApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
                     return getApplicationInfo(pluginDescriptor);
@@ -362,7 +362,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         if (!TextUtils.isEmpty(targetSdkVersion)) {
             info.targetSdkVersion = Integer.valueOf(targetSdkVersion);
         } else {
-            info.targetSdkVersion = PluginLoader.getApplication().getApplicationInfo().targetSdkVersion;
+            info.targetSdkVersion = FairyConfig.getApplication().getApplicationInfo().targetSdkVersion;
         }
         return info;
     }
@@ -404,9 +404,9 @@ public class AndroidAppIPackageManager extends MethodProxy {
         //加上插件中配置进程名称后缀
         String process = pluginDescriptor.getServiceInfos().get(className);
         if (process == null) {
-            serviceInfo.processName = PluginLoader.getApplication().getPackageName();
+            serviceInfo.processName = FairyConfig.getApplication().getPackageName();
         } else if (process.startsWith(":")) {
-            serviceInfo.processName = PluginLoader.getApplication().getPackageName() + process;
+            serviceInfo.processName = FairyConfig.getApplication().getPackageName() + process;
         } else {
             serviceInfo.processName = process;
         }

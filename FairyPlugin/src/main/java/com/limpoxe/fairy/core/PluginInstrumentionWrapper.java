@@ -123,7 +123,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					if (pluginDescriptor != null) {
 						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
 						if (!isRunning) {
-							if (PluginLoader.getMinLoadingTime() > 0 && PluginLoader.getLoadingResId() != 0) {
+							if (FairyConfig.getMinLoadingTime() > 0 && FairyConfig.getLoadingResId() != 0) {
 								return waitForLoading(pluginDescriptor);
 							} else {
 								//这个else是为了处理内嵌在tabactivity中的情况, 需要提前start，否则内嵌tab会被拉出tab单独显示
@@ -155,7 +155,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
 					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
-					if (pluginDescriptor != null && PluginLoader.getMinLoadingTime() > 0 && PluginLoader.getLoadingResId() != 0) {
+					if (pluginDescriptor != null && FairyConfig.getMinLoadingTime() > 0 && FairyConfig.getLoadingResId() != 0) {
 						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
 						if (!isRunning) {
 							return waitForLoading(pluginDescriptor);
@@ -191,7 +191,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 								PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
-								if (pluginDescriptor != null && PluginLoader.getMinLoadingTime() > 0 && PluginLoader.getLoadingResId() != 0) {
+								if (pluginDescriptor != null && FairyConfig.getMinLoadingTime() > 0 && FairyConfig.getLoadingResId() != 0) {
 									boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
 									if (!isRunning) {//理论上这里的isRunning应当是true
 										return waitForLoading(pluginDescriptor);
@@ -288,7 +288,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				}
 				if (HackContextImpl.instanceOf(base)) {
 					HackContextImpl impl = new HackContextImpl(base);
-					String packageName = PluginLoader.getApplication().getPackageName();
+					String packageName = FairyConfig.getApplication().getPackageName();
 					String packageName1 = activity.getPackageName();
 					impl.setBasePackageName(packageName);
 					impl.setOpPackageName(packageName);

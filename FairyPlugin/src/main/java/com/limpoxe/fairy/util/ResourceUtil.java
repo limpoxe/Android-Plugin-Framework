@@ -10,7 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -91,7 +91,7 @@ public class ResourceUtil {
     }
 
     public static String getLabel(PluginDescriptor pluginDescriptor) {
-        PackageManager pm = PluginLoader.getApplication().getPackageManager();
+        PackageManager pm = FairyConfig.getApplication().getPackageManager();
         PackageInfo info = pm.getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), PackageManager.GET_ACTIVITIES);
         if (info != null) {
             ApplicationInfo appInfo = info.applicationInfo;
@@ -111,7 +111,7 @@ public class ResourceUtil {
                     if (id != 0) {
                         //再宿主中查一次
                         try {
-                            label = PluginLoader.getApplication().getResources().getString(id);
+                            label = FairyConfig.getApplication().getResources().getString(id);
                         } catch (Resources.NotFoundException e) {
                         }
                     }
@@ -126,7 +126,7 @@ public class ResourceUtil {
 
     public static Bundle getApplicationMetaData(String apkPath) {
         //暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
-        PackageInfo info = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
+        PackageInfo info = FairyConfig.getApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
         if (info != null && info.applicationInfo != null) {
             return info.applicationInfo.metaData;
         }
@@ -135,7 +135,7 @@ public class ResourceUtil {
 
     public static Drawable getLogo(PluginDescriptor pd) {
         if (Build.VERSION.SDK_INT >= 9) {
-            PackageManager pm = PluginLoader.getApplication().getPackageManager();
+            PackageManager pm = FairyConfig.getApplication().getPackageManager();
             PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
             if (info != null) {
                 ApplicationInfo appInfo = info.applicationInfo;
@@ -150,7 +150,7 @@ public class ResourceUtil {
 
     public static Drawable getIcon(PluginDescriptor pd) {
         if (Build.VERSION.SDK_INT >= 9) {
-            PackageManager pm = PluginLoader.getApplication().getPackageManager();
+            PackageManager pm = FairyConfig.getApplication().getPackageManager();
             PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
             if (info != null) {
                 ApplicationInfo appInfo = info.applicationInfo;

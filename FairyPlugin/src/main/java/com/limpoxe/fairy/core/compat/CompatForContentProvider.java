@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.android.HackContentProviderClient;
 import com.limpoxe.fairy.core.android.HackIContentProvider;
 import com.limpoxe.fairy.util.LogUtil;
@@ -18,7 +18,7 @@ public class CompatForContentProvider {
 
     public static Bundle call(Uri uri, String method, String arg, Bundle extras) {
 
-        ContentResolver resolver = PluginLoader.getApplication().getContentResolver();
+        ContentResolver resolver = FairyConfig.getApplication().getContentResolver();
 
         if (Build.VERSION.SDK_INT >= 11) {
             try {

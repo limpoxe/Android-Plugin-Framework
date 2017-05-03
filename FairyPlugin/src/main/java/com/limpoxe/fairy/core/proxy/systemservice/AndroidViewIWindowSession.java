@@ -3,7 +3,7 @@ package com.limpoxe.fairy.core.proxy.systemservice;
 import android.view.WindowManager;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
@@ -39,7 +39,7 @@ public class AndroidViewIWindowSession extends MethodDelegate {
 
                 WindowManager.LayoutParams params = ((WindowManager.LayoutParams)object);
 
-                if (params.packageName != null && !params.packageName.equals(PluginLoader.getApplication().getPackageName())) {
+                if (params.packageName != null && !params.packageName.equals(FairyConfig.getApplication().getPackageName())) {
 
                     //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
                     PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(params.packageName);

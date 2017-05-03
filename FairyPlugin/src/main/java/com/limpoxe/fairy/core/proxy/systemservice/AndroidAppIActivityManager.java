@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.PluginShadowService;
 import com.limpoxe.fairy.core.android.HackActivityManagerNative;
 import com.limpoxe.fairy.core.android.HackActivityThread;
@@ -71,7 +71,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                 List<ActivityManager.RunningAppProcessInfo> result = (List<ActivityManager.RunningAppProcessInfo>)invokeResult;
                 for (ActivityManager.RunningAppProcessInfo appProcess : result) {
                     if (appProcess.pid == android.os.Process.myPid()) {
-                        appProcess.processName = PluginLoader.getApplication().getPackageName();
+                        appProcess.processName = FairyConfig.getApplication().getPackageName();
                         break;
                     }
                 }
@@ -92,7 +92,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName(), args[1]);
             int type = (int)args[0];
-            args[1] = PluginLoader.getApplication().getPackageName();
+            args[1] = FairyConfig.getApplication().getPackageName();
             if (type != INTENT_SENDER_ACTIVITY_RESULT) {
                 for (int i = 0; i < args.length; i++) {
                     if (args[i] != null && args[i].getClass().isAssignableFrom(Intent[].class)) {

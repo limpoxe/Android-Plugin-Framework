@@ -12,9 +12,9 @@ import android.os.Handler;
 import android.os.IBinder;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.PluginAppTrace;
 import com.limpoxe.fairy.core.PluginInstrumentionWrapper;
-import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 
@@ -72,7 +72,7 @@ public class HackActivityThread {
 
         //有些情况下上面的方法拿不到，下面再换个方法尝试一次
         if (sCurrentActivityThread == null) {
-            Object impl = HackContextImpl.getImpl(PluginLoader.getApplication());
+            Object impl = HackContextImpl.getImpl(FairyConfig.getApplication());
             if (impl != null) {
                 sCurrentActivityThread = new HackContextImpl(impl).getMainThread();
             }
@@ -146,8 +146,8 @@ public class HackActivityThread {
                     HackLoadedApk loadedApk = new HackLoadedApk(pluginLoadedApk);
                     loadedApk.setApplication(pluginApplication);
                     loadedApk.setResources(pluginResource);
-                    loadedApk.setDataDirFile(new File(PluginLoader.getApplication().getApplicationInfo().dataDir));
-                    loadedApk.setDataDir(PluginLoader.getApplication().getApplicationInfo().dataDir);
+                    loadedApk.setDataDirFile(new File(FairyConfig.getApplication().getApplicationInfo().dataDir));
+                    loadedApk.setDataDir(FairyConfig.getApplication().getApplicationInfo().dataDir);
                     //TODO 需要时再说
                     //loadedApk.setLibDir();
                 }

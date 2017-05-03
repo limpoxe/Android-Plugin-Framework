@@ -1,7 +1,7 @@
 package com.limpoxe.fairy.core.proxy.systemservice;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
@@ -62,13 +62,13 @@ public class SystemApiDelegate extends MethodDelegate {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof String && ((String)args[i]).contains(".")) {
                     // 包含.号, 基本可以判定是packageName
-                    if (!args[i].equals(PluginLoader.getApplication().getPackageName())) {
+                    if (!args[i].equals(FairyConfig.getApplication().getPackageName())) {
                         //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
                         PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId((String)args[i]);
                         if(pluginDescriptor != null) {
                             LogUtil.v("修正System Api", descriptor, methodName, "的参数为宿主包名", args[i]);
                             // 参数传的是插件包名, 修正为宿主包名
-                            args[i] = PluginLoader.getApplication().getPackageName();
+                            args[i] = FairyConfig.getApplication().getPackageName();
                             // 这里或许需要break,提高效率,
                             // 因为一个接口的参数里面出现两个packageName的可能性较小
                             // break;

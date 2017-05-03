@@ -191,7 +191,7 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 		// 2、可以方便的创建一个插件ApplicationContext副本。用于满足一些特定的业务需要
 		if (PluginManagerHelper.getPluginDescriptorByPluginId(packageName) != null) {
             LogUtil.v(packageName, "创建插件Context");
-            return PluginLoader.getNewPluginApplicationContext(packageName);
+            return PluginCreator.getNewPluginApplicationContext(packageName);
 		} else {
             LogUtil.v(packageName, "创建正常Context");
         }

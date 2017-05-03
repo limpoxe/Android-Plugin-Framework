@@ -147,7 +147,7 @@ public class PluginInjector {
 					throw new PluginNotInitError("插件尚未初始化 " + pluginDescriptor.getPackageName() + " " + plugin);
 				}
 
-				pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
+				pluginContext = PluginCreator.createNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 				//获取插件Application对象
 				Application pluginApp = plugin.pluginApplication;
@@ -169,7 +169,7 @@ public class PluginInjector {
 
 					//插件可能尚未初始化，确保使用前已经初始化
 					LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
-					pluginContext = PluginLoader.getNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
+					pluginContext = PluginCreator.createNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 				} else {
 					//do nothing
@@ -257,7 +257,7 @@ public class PluginInjector {
 		if (pluginActivityInfo != null) {
 
 			//如果PluginContextTheme的getPackageName返回了插件包名,需要在这里对attribute修正
-			activity.getWindow().getAttributes().packageName = PluginLoader.getApplication().getPackageName();
+			activity.getWindow().getAttributes().packageName = FairyConfig.getApplication().getPackageName();
 
 			if (null != pluginActivityInfo.getWindowSoftInputMode()) {
 				activity.getWindow().setSoftInputMode(Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
@@ -335,7 +335,7 @@ public class PluginInjector {
 
 		HackService hackService = new HackService(service);
 		hackService.setBase(
-				PluginLoader.getNewPluginComponentContext(plugin.pluginContext,
+				PluginCreator.createNewPluginComponentContext(plugin.pluginContext,
 						service.getBaseContext(), pd.getApplicationTheme()));
 		hackService.setApplication(plugin.pluginApplication);
 		hackService.setClassName(PluginProviderClient.bindStubService(service.getClass().getName()));
@@ -392,7 +392,7 @@ public class PluginInjector {
 	public static void hackHostClassLoaderIfNeeded() {
         LogUtil.v("hackHostClassLoaderIfNeeded");
 
-        HackApplication hackApplication = new HackApplication(PluginLoader.getApplication());
+        HackApplication hackApplication = new HackApplication(FairyConfig.getApplication());
 		Object mLoadedApk = hackApplication.getLoadedApk();
 		if (mLoadedApk == null) {
 			//重试一次
@@ -407,9 +407,9 @@ public class PluginInjector {
 			ClassLoader originalLoader = hackLoadedApk.getClassLoader();
 			if (!(originalLoader instanceof HostClassLoader)) {
 				HostClassLoader newLoader = new HostClassLoader("",
-						PluginLoader.getApplication()
+						FairyConfig.getApplication()
 						.getCacheDir().getAbsolutePath(),
-						PluginLoader.getApplication().getCacheDir().getAbsolutePath(),
+						FairyConfig.getApplication().getCacheDir().getAbsolutePath(),
 						originalLoader);
 				hackLoadedApk.setClassLoader(newLoader);
 			}

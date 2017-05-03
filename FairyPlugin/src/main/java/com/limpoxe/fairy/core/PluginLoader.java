@@ -32,118 +32,108 @@ import dalvik.system.DexClassLoader;
 
 public class PluginLoader {
 
-	private static Application sApplication;
 	private static boolean isLoaderInited = false;
-	private static int sLoadingResId;
-	private static long sMinLoadingTime = 400;
 
 	private PluginLoader() {
 	}
 
-	public static Application getApplication() {
-		if (sApplication == null) {
-			throw new IllegalStateException("框架尚未初始化，请确定在当前进程中，PluginLoader.initLoader方法已执行！");
-		}
-		return sApplication;
-	}
-
-	/**
+    /**
 	 * 初始化loader, 只可调用一次
 	 * 
 	 * @param app
 	 */
 	public static synchronized void initLoader(Application app) {
-		if (!isLoaderInited) {
-			LogUtil.v("插件框架初始化中...");
-
-			long t1 = System.currentTimeMillis();
-
-			isLoaderInited = true;
-			sApplication = app;
-
-			//这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
-			//原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
-			boolean isPluginProcess = ProcessUtil.isPluginProcess();
-
-			if(ProcessUtil.isPluginProcess()) {
-				AndroidOsServiceManager.installProxy();
-			}
-
-			AndroidAppIActivityManager.installProxy();
-			AndroidAppINotificationManager.installProxy();
-			AndroidAppIPackageManager.installProxy(sApplication.getPackageManager());
-
-			if (isPluginProcess) {
-				HackLayoutInflater.installPluginCustomViewConstructorCache();
-				CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache();
-				//不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
-				new Handler().post(new Runnable() {
-					@Override
-					public void run() {
-						AndroidWebkitWebViewFactoryProvider.installProxy();
-					}
-				});
-			}
-
-			PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
-			PluginInjector.injectInstrumentation();
-			PluginInjector.injectBaseContext(sApplication);
-
-			if (isPluginProcess) {
-				if (Build.VERSION.SDK_INT >= 14) {
-					sApplication.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-						@Override
-						public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-						}
-
-						@Override
-						public void onActivityStarted(Activity activity) {
-						}
-
-						@Override
-						public void onActivityResumed(Activity activity) {
-						}
-
-						@Override
-						public void onActivityPaused(Activity activity) {
-						}
-
-						@Override
-						public void onActivityStopped(Activity activity) {
-						}
-
-						@Override
-						public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-						}
-
-						@Override
-						public void onActivityDestroyed(Activity activity) {
-							Intent intent = activity.getIntent();
-							if (intent != null && intent.getComponent() != null) {
-                                LogUtil.v("回收绑定关系");
-                                PluginProviderClient.unBindLaunchModeStubActivity(intent.getComponent().getClassName(), activity.getClass().getName());
-							}
-						}
-					});
-				}
-			}
-
-            removeNotSupportedPluginIfUpgraded();
-
-			long t2 = System.currentTimeMillis();
-			LogUtil.w("插件框架初始化完成", "耗时：" + (t2-t1));
+		if (isLoaderInited) {
+			return;
 		}
+
+        LogUtil.v("插件框架初始化中...");
+        long t1 = System.currentTimeMillis();
+
+        isLoaderInited = true;
+        FairyConfig.setApplication(app);
+
+        //这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
+        //原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
+        boolean isPluginProcess = ProcessUtil.isPluginProcess();
+        if(ProcessUtil.isPluginProcess()) {
+            AndroidOsServiceManager.installProxy();
+        }
+
+        AndroidAppIActivityManager.installProxy();
+        AndroidAppINotificationManager.installProxy();
+        AndroidAppIPackageManager.installProxy(FairyConfig.getApplication().getPackageManager());
+
+        if (isPluginProcess) {
+            HackLayoutInflater.installPluginCustomViewConstructorCache();
+            CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache();
+            //不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    AndroidWebkitWebViewFactoryProvider.installProxy();
+                }
+            });
+        }
+
+        PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
+        PluginInjector.injectInstrumentation();
+        PluginInjector.injectBaseContext(FairyConfig.getApplication());
+
+        if (isPluginProcess) {
+            if (Build.VERSION.SDK_INT >= 14) {
+                FairyConfig.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+                    @Override
+                    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                    }
+
+                    @Override
+                    public void onActivityStarted(Activity activity) {
+                    }
+
+                    @Override
+                    public void onActivityResumed(Activity activity) {
+                    }
+
+                    @Override
+                    public void onActivityPaused(Activity activity) {
+                    }
+
+                    @Override
+                    public void onActivityStopped(Activity activity) {
+                    }
+
+                    @Override
+                    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+                    }
+
+                    @Override
+                    public void onActivityDestroyed(Activity activity) {
+                        Intent intent = activity.getIntent();
+                        if (intent != null && intent.getComponent() != null) {
+                            LogUtil.v("回收绑定关系");
+                            PluginProviderClient.unBindLaunchModeStubActivity(intent.getComponent().getClassName(), activity.getClass().getName());
+                        }
+                    }
+                });
+            }
+        }
+
+        removeNotSupportedPluginIfUpgraded();
+
+        long t2 = System.currentTimeMillis();
+        LogUtil.w("插件框架初始化完成", "耗时：" + (t2-t1));
 	}
 
     private static void removeNotSupportedPluginIfUpgraded() {
         //如果宿主进行了覆盖安装的升级操作，移除已经安装的对宿主版本有要求的非独立插件
         String KEY = "last_host_versionName";
-        SharedPreferences prefs = sApplication.getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
+        SharedPreferences prefs = FairyConfig.getApplication().getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
         String lastHostVersoinName = prefs.getString(KEY, null);
         String hostVersionName = null;
         try {
-            PackageManager packageManager = PluginLoader.getApplication().getPackageManager();
-            PackageInfo hostPackageInfo = packageManager.getPackageInfo(PluginLoader.getApplication().getPackageName(), PackageManager.GET_META_DATA);
+            PackageManager packageManager = FairyConfig.getApplication().getPackageManager();
+            PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyConfig.getApplication().getPackageName(), PackageManager.GET_META_DATA);
             hostVersionName = hostPackageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -271,73 +261,4 @@ public class PluginLoader {
 
 		return pluginContext;
 	}
-
-	/**
-	 * 根据当前插件的默认Context, 为当前插件的组件创建一个单独的context
-	 *
-	 * @param pluginContext
-	 * @param base  由系统创建的Context。 其实际类型应该是ContextImpl
-	 * @return
-	 */
-	/*package*/ static Context getNewPluginComponentContext(Context pluginContext, Context base, int theme) {
-		PluginContextTheme newContext = null;
-		if (pluginContext != null) {
-			newContext = (PluginContextTheme)PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
-					base, pluginContext.getResources(),
-					(DexClassLoader) pluginContext.getClassLoader());
-
-			newContext.setPluginApplication((Application) ((PluginContextTheme) pluginContext).getApplicationContext());
-
-			newContext.setTheme(sApplication.getApplicationContext().getApplicationInfo().theme);
-		}
-		return newContext;
-	}
-
-	public static Context getNewPluginApplicationContext(String pluginId) {
-		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
-
-		//插件可能尚未初始化，确保使用前已经初始化
-		LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
-
-		if (plugin != null) {
-			PluginContextTheme newContext = (PluginContextTheme)PluginCreator.createPluginContext(
-					((PluginContextTheme) plugin.pluginContext).getPluginDescriptor(),
-					sApplication.getBaseContext(), plugin.pluginResource, plugin.pluginClassLoader);
-
-			newContext.setPluginApplication(plugin.pluginApplication);
-
-			newContext.setTheme(pluginDescriptor.getApplicationTheme());
-
-			return newContext;
-		}
-
-		return null;
-	}
-
-    /**
-     * 首次打开插件时，如果是通过Activity打开，会显示一个空白loading页，
-     * 通过resId设置loading页ui
-     * @param resId
-     */
-	public static void setLoadingResId(int resId) {
-		sLoadingResId = resId;
-	}
-
-	public static int getLoadingResId() {
-		return sLoadingResId;
-	}
-
-    /**
-     * 设置loading页最小等待时间，用于在插件较简单，初始化较快时，避免loading页一闪而过
-     * 时间设置为0表示无loading页
-     * @param minLoadingTime
-     */
-	public static void setMinLoadingTime(long minLoadingTime) {
-		sMinLoadingTime = minLoadingTime;
-	}
-
-	public static long getMinLoadingTime() {
-		return sMinLoadingTime;
-	}
-
 }

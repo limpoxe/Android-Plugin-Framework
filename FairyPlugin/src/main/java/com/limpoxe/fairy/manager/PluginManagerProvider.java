@@ -9,7 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class PluginManagerProvider extends ContentProvider {
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
-            CONTENT_URI = Uri.parse("content://"+ PluginLoader.getApplication().getPackageName() + ".manager" + "/call");
+            CONTENT_URI = Uri.parse("content://"+ FairyConfig.getApplication().getPackageName() + ".manager" + "/call");
         }
         return CONTENT_URI;
     }

@@ -161,12 +161,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	//@hide tabactivity会用到
 	public String getBasePackageName() {
 		//ViewRootImpl中会调用这个方法, 这是个hide方法.
-		return PluginLoader.getApplication().getPackageName();
+		return FairyConfig.getApplication().getPackageName();
 	}
 
 	////@hide toast，ITelephony等服务会用到
 	public String getOpPackageName() {
-		return PluginLoader.getApplication().getPackageName();
+		return FairyConfig.getApplication().getPackageName();
 	}
 
 	@Override

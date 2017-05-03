@@ -7,7 +7,7 @@ import android.os.Environment;
 import android.os.Looper;
 import android.widget.Toast;
 
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -45,7 +45,7 @@ public class FileUtil {
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (dest.startsWith(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-				int permissionState = PluginLoader.getApplication().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+				int permissionState = FairyConfig.getApplication().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 				if (permissionState != PackageManager.PERMISSION_GRANTED) {
 					//6.0的系统即使申请了读写sdcard的权限,仍然可以在设置中关闭, 则需要requestPermissons
 					LogUtil.e("6.0以上的系统, targetSDK>=23时, sdcard读写默认为未授权,需requestPermissons或者在设置中开启", dest);
@@ -133,7 +133,7 @@ public class FileUtil {
 			if (!isSuccess) {
 				LogUtil.e("安装 " + so + " 失败: NO_MATCHING_ABIS");
 				if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-					Toast.makeText(PluginLoader.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+					Toast.makeText(FairyConfig.getApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 				}
 			}
 		} catch(Exception e) {

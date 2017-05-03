@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
 
-import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.android.HackWebViewFactory;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
@@ -35,7 +35,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                 Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
                 HackWebViewFactory.setProviderInstance(webViewFactoryProviderProxy);
 
-                WebView wb = new WebView(PluginLoader.getApplication());
+                WebView wb = new WebView(FairyConfig.getApplication());
                 wb.loadUrl("");//触发webview渲染引擎初始化
 
             } else {

@@ -7,8 +7,8 @@ import android.view.Window;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.fairy.core.PluginLauncher;
-import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.util.LogUtil;
 
 /**
@@ -41,7 +41,7 @@ public class WaitForLoadingPluginActivity extends Activity {
         // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
         //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        int resId = PluginLoader.getLoadingResId();
+        int resId = FairyConfig.getLoadingResId();
         LogUtil.i("WaitForLoadingPluginActivity ContentView Id = " + resId);
 
         if (resId != 0) {
@@ -71,7 +71,7 @@ public class WaitForLoadingPluginActivity extends Activity {
 
                     PluginLauncher.instance().startPlugin(pluginDescriptor);
 
-                    long remainTime = (loadingAt + PluginLoader.getMinLoadingTime()) - System.currentTimeMillis();
+                    long remainTime = (loadingAt + FairyConfig.getMinLoadingTime()) - System.currentTimeMillis();
 
                     handler.postDelayed(new Runnable() {
                         @Override

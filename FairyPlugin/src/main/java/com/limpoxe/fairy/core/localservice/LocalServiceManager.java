@@ -1,11 +1,11 @@
 package com.limpoxe.fairy.core.localservice;
 
+import com.limpoxe.fairy.core.FairyConfig;
 import com.limpoxe.support.servicemanager.ServiceManager;
 import com.limpoxe.support.servicemanager.local.ServicePool;
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.PluginLauncher;
-import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class LocalServiceManager {
         if (!isSupport) {
             return;
         }
-        ServiceManager.init(PluginLoader.getApplication());
+        ServiceManager.init(FairyConfig.getApplication());
     }
 
     public static void registerService(PluginDescriptor plugin) {
