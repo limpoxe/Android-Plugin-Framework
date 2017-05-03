@@ -85,8 +85,8 @@ public class PluginCreator {
 
 				return pluginRes;
 			} catch (Exception e) {
-				e.printStackTrace();
-			}
+                LogUtil.printException("创建插件res失败" + absolutePluginApkPath, e);
+            }
 		} else {
 			LogUtil.e("插件文件不存在", absolutePluginApkPath);
 		}

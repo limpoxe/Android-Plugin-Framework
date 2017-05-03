@@ -42,7 +42,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	Resources.Theme mTheme;
 	private LayoutInflater mInflater;
 	private ApplicationInfo mApplicationInfo;
-	Resources mResources;
+	final Resources mResources;
 	private final ClassLoader mClassLoader;
 	private Application mPluginApplication;
 	protected final PluginDescriptor mPluginDescriptor;

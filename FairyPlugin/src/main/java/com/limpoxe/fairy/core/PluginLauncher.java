@@ -97,6 +97,7 @@ public class PluginLauncher implements Serializable {
 
 			if (pluginRes == null) {
 				LogUtil.e("初始化插件失败 : res");
+                throw new PluginResInitError("初始化插件失败 : res");
 			}
 
 			long t1 = System.currentTimeMillis();
