@@ -1,9 +1,11 @@
 package com.limpoxe.fairy.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -228,5 +230,94 @@ public class RefInvoker {
 		}
 		return convertedClass;
 	}
+
+	public static void dumpAllInfo(Object object) {
+        ArrayList arrayList = new ArrayList();
+
+        Class clazz = object.getClass();
+        LogUtil.i("clazz=" + clazz.getName());
+        LogUtil.i("Superclass=" + clazz.getSuperclass());
+
+        Constructor[] ctors = clazz.getDeclaredConstructors();
+        if (ctors != null) {
+            LogUtil.i("DeclaredConstructors--------------------");
+            for(Constructor c : ctors){
+                LogUtil.i(c);
+                arrayList.add(c);
+            }
+        }
+
+        Constructor[] publicCtors = clazz.getConstructors();
+        if (publicCtors != null) {
+            LogUtil.i("Constructors-------------------------");
+            for(Constructor c :publicCtors){
+                LogUtil.i(c);
+                arrayList.add(c);
+            }
+        }
+
+        Method[] mtds = clazz.getDeclaredMethods();
+        if (mtds != null) {
+            LogUtil.i("DeclaredMethods-------------------------");
+            for(Method m : mtds){
+                LogUtil.i(m);
+                arrayList.add(m);
+            }
+        }
+
+        Method[] mts = clazz.getMethods();
+        if (mts != null) {
+            LogUtil.i("Methods-------------------------");
+            for(Method m : mts){
+                LogUtil.i(m);
+                arrayList.add(m);
+            }
+        }
+
+        Class<?>[] inners = clazz.getDeclaredClasses();
+        if (inners != null) {
+            LogUtil.i("DeclaredClasses-------------------------");
+            for(Class c : inners){
+                LogUtil.i(c.getName());
+                arrayList.add(c.getName());
+            }
+        }
+
+        Class<?>[] classes = clazz.getClasses();
+        if (classes != null) {
+            LogUtil.i("classes-------------------------");
+            for(Class c : classes){
+                LogUtil.i(c.getName());
+                arrayList.add(c.getName());
+            }
+        }
+
+        Field[] dfields = clazz.getDeclaredFields();
+        if (dfields != null) {
+            LogUtil.i("DeclaredFields-------------------------");
+            for(Field f : dfields){
+                LogUtil.i(f);
+                arrayList.add(f);
+            }
+        }
+
+        Field[] fields = clazz.getFields();
+        if (fields != null) {
+            LogUtil.i("Fields-------------------------");
+            for(Field f : fields){
+                LogUtil.i(f);
+                arrayList.add(f);
+            }
+        }
+
+        Annotation[] anns = clazz.getAnnotations();
+        if (anns != null) {
+            LogUtil.i("Annotations-------------------------");
+            for(Annotation an : anns){
+                LogUtil.i(an);
+                arrayList.add(an);
+            }
+        }
+    }
 
 }
