@@ -96,9 +96,17 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     if (resultList != null) {
                         for(PluginDescriptor pluginDescriptor:plugins) {
                             PackageInfo packageInfo = PluginLoader.getApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
-                            if (packageInfo.applicationInfo != null) {
+                            if (packageInfo != null && packageInfo.applicationInfo != null) {
                                 packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
                                 packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
+                            } else {
+                                //for trace
+                                if (!TextUtils.isEmpty(pluginDescriptor.getInstalledPath())) {
+                                    File file = new File(pluginDescriptor.getInstalledPath());
+                                    LogUtil.e("getPackageArchiveInfo fail", file.exists(), file.canRead(), file.canWrite());
+                                } else {
+                                    LogUtil.e("getPackageArchiveInfo fail, path is empth");
+                                }
                             }
                             resultList.add(packageInfo);
                         }
