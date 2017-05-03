@@ -5,20 +5,29 @@ import android.app.Application;
 import com.limpoxe.fairy.util.LogUtil;
 
 public class FairyGlobal {
+    private static boolean sIsInited;
     private static Application sApplication;
     private static boolean sIsLocalHtmlEnable;
     private static int sLoadingResId;
     private static long sMinLoadingTime = 400;
 
     public static Application getApplication() {
-        if (sApplication == null) {
-            throw new IllegalStateException("application not set！");
+        if (!isInited()) {
+            throw new IllegalStateException("not inited yet");
         }
         return sApplication;
     }
 
     /*package*/ static void setApplication(Application application) {
         sApplication = application;
+    }
+
+    /*package*/ static void setIsInited(boolean isInited) {
+        sIsInited = isInited;
+    }
+
+    /*package*/ static boolean isInited() {
+        return sIsInited;
     }
 
     public static void setLocalHtmlenable(boolean isLocalHtmlEnable) {

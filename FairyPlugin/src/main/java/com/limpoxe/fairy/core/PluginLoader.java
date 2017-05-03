@@ -41,13 +41,14 @@ public class PluginLoader {
 	 * @param app
 	 */
 	public static synchronized void initLoader(Application app) {
-		if (FairyGlobal.getApplication() != null) {
+		if (FairyGlobal.isInited()) {
 			return;
 		}
 
         LogUtil.v("插件框架初始化中...");
         long t1 = System.currentTimeMillis();
 
+        FairyGlobal.setIsInited(true);
         FairyGlobal.setApplication(app);
 
         //这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
