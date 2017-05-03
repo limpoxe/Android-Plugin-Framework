@@ -231,10 +231,19 @@ public class RefInvoker {
 		return convertedClass;
 	}
 
-	public static void dumpAllInfo(Object object) {
+    public static ArrayList dumpAllInfo(String className) {
+        try {
+            Class clazz = Class.forName(className);
+            return dumpAllInfo(clazz);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static ArrayList dumpAllInfo(Class clazz) {
         ArrayList arrayList = new ArrayList();
 
-        Class clazz = object.getClass();
         LogUtil.i("clazz=" + clazz.getName());
         LogUtil.i("Superclass=" + clazz.getSuperclass());
 
@@ -318,6 +327,12 @@ public class RefInvoker {
                 arrayList.add(an);
             }
         }
+        return arrayList;
+    }
+
+	public static ArrayList dumpAllInfo(Object object) {
+        Class clazz = object.getClass();
+        return dumpAllInfo(clazz);
     }
 
 }
