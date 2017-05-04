@@ -249,7 +249,7 @@ public class RefInvoker {
 
         Constructor[] ctors = clazz.getDeclaredConstructors();
         if (ctors != null) {
-            LogUtil.i("DeclaredConstructors--------------------");
+            LogUtil.w("DeclaredConstructors--------------------" + ctors.length);
             for(Constructor c : ctors){
                 LogUtil.i(c);
                 arrayList.add(c);
@@ -258,7 +258,7 @@ public class RefInvoker {
 
         Constructor[] publicCtors = clazz.getConstructors();
         if (publicCtors != null) {
-            LogUtil.i("Constructors-------------------------");
+            LogUtil.w("Constructors-------------------------" + publicCtors.length);
             for(Constructor c :publicCtors){
                 LogUtil.i(c);
                 arrayList.add(c);
@@ -267,7 +267,7 @@ public class RefInvoker {
 
         Method[] mtds = clazz.getDeclaredMethods();
         if (mtds != null) {
-            LogUtil.i("DeclaredMethods-------------------------");
+            LogUtil.w("DeclaredMethods-------------------------" + mtds.length);
             for(Method m : mtds){
                 LogUtil.i(m);
                 arrayList.add(m);
@@ -276,7 +276,7 @@ public class RefInvoker {
 
         Method[] mts = clazz.getMethods();
         if (mts != null) {
-            LogUtil.i("Methods-------------------------");
+            LogUtil.w("Methods-------------------------" + mts.length);
             for(Method m : mts){
                 LogUtil.i(m);
                 arrayList.add(m);
@@ -285,7 +285,7 @@ public class RefInvoker {
 
         Class<?>[] inners = clazz.getDeclaredClasses();
         if (inners != null) {
-            LogUtil.i("DeclaredClasses-------------------------");
+            LogUtil.w("DeclaredClasses-------------------------" + inners.length);
             for(Class c : inners){
                 LogUtil.i(c.getName());
                 arrayList.add(c.getName());
@@ -294,7 +294,7 @@ public class RefInvoker {
 
         Class<?>[] classes = clazz.getClasses();
         if (classes != null) {
-            LogUtil.i("classes-------------------------");
+            LogUtil.w("classes-------------------------" + classes.length);
             for(Class c : classes){
                 LogUtil.i(c.getName());
                 arrayList.add(c.getName());
@@ -303,7 +303,7 @@ public class RefInvoker {
 
         Field[] dfields = clazz.getDeclaredFields();
         if (dfields != null) {
-            LogUtil.i("DeclaredFields-------------------------");
+            LogUtil.w("DeclaredFields-------------------------" + dfields.length);
             for(Field f : dfields){
                 LogUtil.i(f);
                 arrayList.add(f);
@@ -312,7 +312,7 @@ public class RefInvoker {
 
         Field[] fields = clazz.getFields();
         if (fields != null) {
-            LogUtil.i("Fields-------------------------");
+            LogUtil.w("Fields-------------------------" + fields.length);
             for(Field f : fields){
                 LogUtil.i(f);
                 arrayList.add(f);
@@ -321,7 +321,7 @@ public class RefInvoker {
 
         Annotation[] anns = clazz.getAnnotations();
         if (anns != null) {
-            LogUtil.i("Annotations-------------------------");
+            LogUtil.w("Annotations-------------------------" + anns.length);
             for(Annotation an : anns){
                 LogUtil.i(an);
                 arrayList.add(an);
