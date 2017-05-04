@@ -24,6 +24,7 @@ import com.example.pluginsharelib.ShareService;
 import com.example.plugintest.IMyAidlInterface;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.util.LogUtil;
 
 public class TestCaseListActivity extends AppCompatActivity implements View.OnClickListener {
     private ServiceConnection scn;
@@ -139,6 +140,7 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
         mNotification.flags = Notification.FLAG_ONGOING_EVENT;
         //mBuilder.setContentIntent()
         NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        LogUtil.e("NotificationManager.notify");
         mNotificationManager.notify(456, mNotification);
     }
 
