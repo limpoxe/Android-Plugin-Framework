@@ -1,10 +1,13 @@
 package com.limpoxe.fairy.core.proxy.systemservice;
 
+import android.content.ComponentName;
+
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
-import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.core.android.HackComponentName;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.lang.reflect.Method;
@@ -58,6 +61,16 @@ public class SystemApiDelegate extends MethodDelegate {
      * @param args
      */
     private void fixPackageName(String methodName, Object[] args) {
+
+        //由android.media.session.MediaSessionManager.addOnActiveSessionsChangedListener触发
+        if (methodName.equals("addSessionsListener")) {
+            if (args.length > 2 && args[1] instanceof ComponentName) {
+                LogUtil.v("修正System Api", descriptor, methodName, "的参数为宿主包名");
+                new HackComponentName(args[1]).setPackageName(FairyGlobal.getApplication().getPackageName());
+                return;
+            }
+        }
+
         if(args != null && args.length>0) {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof String && ((String)args[i]).contains(".")) {

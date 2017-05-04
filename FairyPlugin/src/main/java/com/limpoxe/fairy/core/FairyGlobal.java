@@ -7,7 +7,7 @@ import com.limpoxe.fairy.util.LogUtil;
 public class FairyGlobal {
     private static boolean sIsInited;
     private static Application sApplication;
-    private static boolean sIsLocalHtmlEnable;
+    private static boolean sIsLocalHtmlEnable = true;
     private static int sLoadingResId;
     private static long sMinLoadingTime = 400;
 
@@ -31,7 +31,7 @@ public class FairyGlobal {
     }
 
     /**
-     * 插件中是否支持使用本地html文件，默认不支持。
+     * 插件中是否支持使用本地html文件
      * @param isLocalHtmlEnable
      */
     public static void setLocalHtmlenable(boolean isLocalHtmlEnable) {

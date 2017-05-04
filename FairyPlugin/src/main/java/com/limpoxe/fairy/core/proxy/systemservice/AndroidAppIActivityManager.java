@@ -45,13 +45,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
     public static void installProxy() {
         LogUtil.d("安装ActivityManagerProxy");
-
-        //RefInvoker.dumpAllInfo("android.app.ActivityManagerNative");
-
         Object androidAppActivityManagerProxy = HackActivityManagerNative.getDefault();
-
-        //RefInvoker.dumpAllInfo(androidAppActivityManagerProxy);
-
         Object androidAppIActivityManagerStubProxyProxy = ProxyUtil.createProxy(androidAppActivityManagerProxy, new AndroidAppIActivityManager());
         Object singleton = HackActivityManagerNative.getGDefault();
         if (singleton != null) {
@@ -64,6 +58,8 @@ public class AndroidAppIActivityManager extends MethodProxy {
         } else {
             //TODO
             LogUtil.e("Android O 没有gDefault这个成员了");
+            //RefInvoker.dumpAllInfo("android.app.ActivityManagerNative");
+            //RefInvoker.dumpAllInfo(androidAppActivityManagerProxy);
         }
         LogUtil.d("安装完成");
     }
