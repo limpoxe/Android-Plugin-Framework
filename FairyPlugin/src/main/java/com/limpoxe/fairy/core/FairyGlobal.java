@@ -30,6 +30,10 @@ public class FairyGlobal {
         return sIsInited;
     }
 
+    /**
+     * 插件中是否支持使用本地html文件，默认不支持。
+     * @param isLocalHtmlEnable
+     */
     public static void setLocalHtmlenable(boolean isLocalHtmlEnable) {
         sIsLocalHtmlEnable = isLocalHtmlEnable;
     }

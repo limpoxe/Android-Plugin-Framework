@@ -20,6 +20,9 @@ import com.limpoxe.fairy.util.LogUtil;
 public class CompatForWebViewFactoryApi21 {
 
     public static void addWebViewAssets(AssetManager assetsManager) {
+        if (!FairyGlobal.isLocalHtmlEnable()) {
+            return;
+        }
         if (Build.VERSION.SDK_INT >= 21) {
             PackageInfo packageInfo = HackWebViewFactory.getLoadedPackageInfo();
             if (packageInfo != null) {
@@ -35,6 +38,9 @@ public class CompatForWebViewFactoryApi21 {
     }
 
     public static String getChromeApkPath() {
+        if (!FairyGlobal.isLocalHtmlEnable()) {
+            return null;
+        }
         if (Build.VERSION.SDK_INT >= 21) {
             try {
                 Resources hostRes = FairyGlobal.getApplication().getResources();

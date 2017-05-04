@@ -25,6 +25,9 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
     }
 
     public static void installProxy() {
+        if (!FairyGlobal.isLocalHtmlEnable()) {
+            return;
+        }
         //Debug.waitForDebugger();
         if (Build.VERSION.SDK_INT >= 19) {
             LogUtil.d("安装WebViewFactoryProviderProxy");
@@ -81,6 +84,9 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
      * @param pluginActivity
      */
     public static void switchWebViewContext(Context pluginActivity) {
+        if (!FairyGlobal.isLocalHtmlEnable()) {
+            return;
+        }
         LogUtil.d("尝试切换WebView Context, 不同的WebView内核, 实现方式可能不同, 本方法基于Chrome的WebView实现");
         try {
             /**
