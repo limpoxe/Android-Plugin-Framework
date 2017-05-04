@@ -105,17 +105,24 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		findViewById( R.id.onClickPluginTestService).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestService2).setOnClickListener(this);
 
-		NotificationCompat.Builder mBuilder;
-		mBuilder = new NotificationCompat.Builder(this);
-		mBuilder.setSmallIcon(com.example.pluginmain.R.drawable.ic_launcher);
-		mBuilder.setContentTitle("PluginTest Title").setContentText("PluginTest Content")
-				.setTicker("PluginTest Ticker");
-		Notification mNotification = mBuilder.build();
-		mNotification.flags = Notification.FLAG_ONGOING_EVENT;
-		//mBuilder.setContentIntent()
-		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		mNotificationManager.notify(123, mNotification);
+        testQueryIntentActivities();
+    }
 
+    private void testNotification() {
+        NotificationCompat.Builder mBuilder;
+        mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setSmallIcon(com.example.pluginmain.R.drawable.ic_launcher);
+        mBuilder.setContentTitle("PluginTest Title").setContentText("PluginTest Content")
+                .setTicker("PluginTest Ticker");
+        Notification mNotification = mBuilder.build();
+        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+        //mBuilder.setContentIntent()
+        NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        LogUtil.e("NotificationManager.notify");
+        mNotificationManager.notify(123, mNotification);
+    }
+
+    private void testQueryIntentActivities() {
         PackageManager manager = getPackageManager();
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -304,6 +311,8 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	public void onClickDesignActivity(View v) {
 		Intent intent = new Intent(this, DesignActivity.class);
 		startActivity(intent);
+
+        testNotification();
 	}
 
 	public void onClickPluginTestReceiver(View v) {
