@@ -55,7 +55,7 @@ public class PluginShadowService extends Service {
 		} catch (Exception e) {
 			throw new RuntimeException(
 					"Unable to instantiate service " + mClassName
-							+ ": " + e.toString(), e);
+							+ ", realName " + realName + " : " + e.toString(), e);
 		}
 
 		try {
