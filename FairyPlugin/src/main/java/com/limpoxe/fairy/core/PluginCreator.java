@@ -91,8 +91,10 @@ public class PluginCreator {
             }
 		} else {
 			LogUtil.e("插件文件不存在", absolutePluginApkPath);
-		}
-
+            LogUtil.e("插件文件可能已损坏，正在卸载此插件...");
+            PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+            LogUtil.e("卸载完成");
+        }
 		return null;
 	}
 
