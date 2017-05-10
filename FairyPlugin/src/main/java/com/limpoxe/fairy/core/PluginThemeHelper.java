@@ -39,11 +39,12 @@ public class PluginThemeHelper {
 				if (pluginRstyle != null) {
 					Field[] fields = pluginRstyle.getDeclaredFields();
 					if (fields != null) {
-						for (Field field :
-								fields) {
+						for (Field field : fields) {
 							field.setAccessible(true);
-							int themeResId = field.getInt(null);
-							themes.put(field.getName(), themeResId);
+                            if (field.getType().isPrimitive()) {
+                                int themeResId = field.getInt(null);
+                                themes.put(field.getName(), themeResId);
+                            }
 						}
 					}
 				}

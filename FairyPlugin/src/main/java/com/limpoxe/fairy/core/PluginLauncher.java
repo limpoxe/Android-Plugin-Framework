@@ -23,6 +23,7 @@ import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplication;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
+import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginResInitError;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
@@ -189,7 +190,7 @@ public class PluginLauncher implements Serializable {
 
 	private Application callPluginApplicationOnCreate(Context pluginContext, DexClassLoader classLoader, PluginDescriptor pluginDescriptor) {
 
-		Application application = null;
+		Application pluginApplication = null;
 
 		try {
 			LogUtil.d("创建插件Application", pluginDescriptor.getApplicationName());
@@ -197,57 +198,49 @@ public class PluginLauncher implements Serializable {
 			//为了支持插件中使用multidex
 			((PluginContextTheme)pluginContext).setCrackPackageManager(true);
 
-			application = Instrumentation.newApplication(classLoader.loadClass(pluginDescriptor.getApplicationName()),
+            pluginApplication = Instrumentation.newApplication(classLoader.loadClass(pluginDescriptor.getApplicationName()),
 					pluginContext);
 
 			//为了支持插件中使用multidex
 			((PluginContextTheme)pluginContext).setCrackPackageManager(false);
 
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} 	catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+            throw new PluginNotFoundError(e);
 		}
 
 		//安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前
-		PluginInjector.installContentProviders(FairyGlobal.getApplication(), application, pluginDescriptor.getProviderInfos().values());
+		PluginInjector.installContentProviders(FairyGlobal.getApplication(), pluginApplication, pluginDescriptor.getProviderInfos().values());
 
 		//执行onCreate
-		if (application != null) {
 
-			((PluginContextTheme)pluginContext).setPluginApplication(application);
+        ((PluginContextTheme)pluginContext).setPluginApplication(pluginApplication);
 
-			LogUtil.v("屏蔽插件中的UncaughtExceptionHandler");
+        LogUtil.v("屏蔽插件中的UncaughtExceptionHandler");
+        //先拿到宿主的crashHandler
+        Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
 
-			//先拿到宿主的crashHandler
-			Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
+        pluginApplication.onCreate();
 
-			application.onCreate();
+        // 再还原宿主的crashHandler，这里之所以需要还原CrashHandler，
+        // 是因为如果插件中自己设置了自己的crashHandler（通常是在oncreate中），
+        // 会导致当前进程的主线程的handler被意外修改。
+        // 如果有多个插件都有设置自己的crashHandler，也会导致混乱
+        // 所以这里直接屏蔽掉插件的crashHandler
+        //TODO 或许也可以做成消息链进行分发？
+        Thread.setDefaultUncaughtExceptionHandler(old);
 
-			// 再还原宿主的crashHandler，这里之所以需要还原CrashHandler，
-			// 是因为如果插件中自己设置了自己的crashHandler（通常是在oncreate中），
-			// 会导致当前进程的主线程的handler被意外修改。
-			// 如果有多个插件都有设置自己的crashHandler，也会导致混乱
-			// 所以这里直接屏蔽掉插件的crashHandler
-			//TODO 或许也可以做成消息链进行分发？
-			Thread.setDefaultUncaughtExceptionHandler(old);
+        if (Build.VERSION.SDK_INT >= 14) {
+            // ActivityLifecycleCallbacks 的回调实际是由Activity内部在自己的声明周期函数内主动调用application的注册的callback触发的
+            //由于我们把插件Activity内部的application成员变量替换调用了  会导致不会触发宿主中注册的ActivityLifecycleCallbacks
+            //那么我们在这里给插件的Application对象注册一个callback bridge。将插件的call发给宿主的call，
+            //从而使得宿主application中注册的callback能监听到插件Activity的声明周期
+            pluginApplication.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge(FairyGlobal.getApplication()));
+        } else {
+            //对于小于14的版本，影响是，StubActivity的绑定关系不能被回收，
+            // 意味着宿主配置的非Stand的StubActivity的个数不能小于插件中对应的类型的个数的总数，否则可能会出现找不到映射的StubActivity
+        }
 
-			if (Build.VERSION.SDK_INT >= 14) {
-				// ActivityLifecycleCallbacks 的回调实际是由Activity内部在自己的声明周期函数内主动调用application的注册的callback触发的
-				//由于我们把插件Activity内部的application成员变量替换调用了  会导致不会触发宿主中注册的ActivityLifecycleCallbacks
-				//那么我们在这里给插件的Application对象注册一个callback bridge。将插件的call发给宿主的call，
-				//从而使得宿主application中注册的callback能监听到插件Activity的声明周期
-				application.registerActivityLifecycleCallbacks(new LifecycleCallbackBridge(FairyGlobal.getApplication()));
-			} else {
-				//对于小于14的版本，影响是，StubActivity的绑定关系不能被回收，
-				// 意味着宿主配置的非Stand的StubActivity的个数不能小于插件中对应的类型的个数的总数，否则可能会出现找不到映射的StubActivity
-			}
-
-		}
-
-		return application;
+		return pluginApplication;
 	}
 
 	public void stopPlugin(String packageName, PluginDescriptor pluginDescriptor) {
