@@ -17,6 +17,7 @@ public class HackServiceManager {
     private static final String Field_sCache = "sCache";
 
     private static final String Method_getIServiceManager = "getIServiceManager";
+    private static final String Method_getService = "getService";
 
     public static Object getIServiceManager() {
         return RefInvoker.invokeMethod(null, ClassName, Method_getIServiceManager, (Class[])null, (Object[])null);
@@ -28,5 +29,9 @@ public class HackServiceManager {
 
     public static HashMap<String, IBinder> getCache() {
         return (HashMap<String, IBinder>)RefInvoker.getField(null, ClassName, Field_sCache);
+    }
+
+    public static IBinder getService(String name) {
+        return (IBinder)RefInvoker.invokeMethod(null, ClassName, Method_getService, new Class[]{String.class}, new Object[]{name});
     }
 }
