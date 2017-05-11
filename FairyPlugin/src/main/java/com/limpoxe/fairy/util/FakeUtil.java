@@ -1,5 +1,6 @@
 package com.limpoxe.fairy.util;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,7 +19,7 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
-import android.content.res.*;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
@@ -542,5 +543,17 @@ public class FakeUtil {
         }
         //到这里context的实际类型应当是ContextImpl类，可以返回宿主packageName
         return context.getPackageName();
+    }
+
+    public static Context fakeWindowContext(final Activity pluginActivity) {
+        return new ContextWrapper(FairyGlobal.getApplication()) {
+            @Override
+            public Object getSystemService(String name) {
+                if (WINDOW_SERVICE.equals(name)) {
+                    return pluginActivity.getSystemService(name);
+                }
+                return super.getSystemService(name);
+            }
+        };
     }
 }
