@@ -104,6 +104,10 @@ dependencies {
     compile 'com.android.support:design:25.1.0'
 
     compile 'com.tencent.bugly:crashreport:2.1.5'
+
+    //Test ButterKnife
+    compile 'com.jakewharton:butterknife:8.5.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }
 
 ext {

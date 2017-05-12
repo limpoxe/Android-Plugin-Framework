@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.PopupWindow;
 
 import com.example.pluginsharelib.BaseActivity;
@@ -38,11 +39,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import butterknife.BindView;
+
 //import com.example.plugintest.databinding.PluginLauncherBinding;
 
 public class LauncherActivity extends BaseActivity implements View.OnClickListener {
 
-	@Override
+    //Test ButterKnife
+    @BindView(R.id.onClickHellowrld)
+    Button butterTest;
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         //测试databinding
@@ -51,6 +58,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		//bing.setTest(dataBindingTestVO);
 
 		setContentView(R.layout.plugin_launcher);
+        ButterKnifeCompat.bind(this);
 
 		Log.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
 		Log.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
@@ -60,6 +68,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugintest")));
 		Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
 		Log.e("xxx8", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginmain")));
+        Log.e("xxx9", butterTest.getText());
 
         if (Build.VERSION.SDK_INT >= 17) {
             boolean isGranted = true;

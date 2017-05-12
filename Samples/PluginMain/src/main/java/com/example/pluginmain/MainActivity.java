@@ -35,10 +35,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
 
     private BaseAdapter listAdapter;
     private ListView mListView;
+
+    @BindView(R.id.install)
+    Button butterTest;
+
     private ArrayList<PluginDescriptor> plugins = new ArrayList<PluginDescriptor>();
 	private Button install;
     private boolean isInstalled = false;
@@ -63,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.main_activity);
+        ButterKnife.bind(this);
 
 		setTitle("插件列表");
 
@@ -79,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         List<ResolveInfo> infos = manager.queryIntentActivities(intent, 0);
 
         Log.e("xx", "infos=" + (infos==null?"0":infos.size()));
+        Log.e("xx", butterTest.getText().toString());
+
     }
 
 	private void initView() {
