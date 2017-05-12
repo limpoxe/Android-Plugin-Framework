@@ -331,14 +331,15 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          
          然而，在插件中调用getPackageName等等相应的系统api，得到的是插件的packageName，插件的meta-data，以及插件的signatures。
          
-         所以，在sdk平台上注册appkey时直接使用插件的包名，签名，然后将appkey的配置埋入插件的meta-data, 此种情况无需特别配置。插件集成此sdk即可正常使用。
+         所以，在sdk平台上注册appkey时直接使用插件的包名，签名，然后将appkey的配置埋入插件的meta-data, 
+         此种情况无需特别配置。插件集成此sdk即可正常使用，例如百度地图SDK即符合此种情形。
          
-         但是，实际中仍然会存在下面2种情况：
+         但是，实际应用中仍然会存在下面2种情况：
                1、可能sdk需要通过其自身的app来进行校验或者交互。例如微信分享sdk，它需要唤醒微信App，再由微信App和宿主App进行验证和交互（第三方app要唤起插件中的静态组件必须由宿
                   主程序进行桥接，方法请参看wxsdklibrary工程的用法），绕过了插件。
                   此种sdk在平台上注册appkey时必须使用宿主的包名
                
-               2、可能由于特殊原因，在sdk平台上注册appkey时已经使用了宿主的包名，不能在更换使用插件的包名进行注册。
+               2、可能由于特殊原因，在sdk平台上注册appkey时已经使用了宿主的包名，业务上不能再更换使用插件的包名进行注册。
                
                以上两种情况，sdk在拿到插件的Context以后（通常是在sdk的init方法里面传入的插件Application），
                sdk借助插件Context取不到正确的packageName、meta-data、signatures。正确的值全部在宿主中，插件拿到的全部是插件自己的。
@@ -346,7 +347,10 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          sdk在获取packageName、meta-data、signatures这3个信息，都是通过传入的Context调用其getXXXX或者context.getPackageManager().getXXX来获取。
          因此，针对这两种case，需要在初始化插件sdk是，传入fakeContext而不是插件的Context来欺骗sdk，使其能拿到正确信息。
         
-         在demo中，微信sdk插件的FakeContext，和百度地图sdk的FakeContext，即是用来解决上面两种情况下的问题。
+         在demo中，微信sdk插件的FakeContext，即是用来解决上面所说的第一种情况。
+         百度地图sdk的FakeContext，即是用来解决上面所说的第二种情况（实际上百度地图SDK可以直接使用插件包去平台上注册，
+         不需要使用宿主注册，demo这里仅仅作为验证演示，特意使用了宿主注册appkey）。
+         
          demo中的fakeContext重写了需要的相关方法。
          
          如要使用此类插件，请务必先完全理解上述解释，以及为何使用FakeContext可以达成目的。然后遇到各种相关问题都可迎刃而解。
