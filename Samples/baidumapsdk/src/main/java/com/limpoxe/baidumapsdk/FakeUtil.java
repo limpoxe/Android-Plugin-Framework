@@ -79,8 +79,8 @@ public class FakeUtil {
                     public PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException {
                         PackageInfo packageInfo = pm.getPackageInfo(packageName, flags);
                         if ((flags & PackageManager.GET_SIGNATURES) != 0 ) {
-                            //可在此处修改签名
-                            //packageInfo.signatures =
+                            //返回宿主签名
+                            packageInfo.signatures = pm.getPackageInfo(getPackageName(), flags).signatures;
                         }
                         return packageInfo;
                     }
@@ -89,8 +89,12 @@ public class FakeUtil {
                     public ApplicationInfo getApplicationInfo(String packageName, int flags) throws NameNotFoundException {
                         ApplicationInfo applicationInfo = pm.getApplicationInfo(packageName, flags);
                         if ((flags & PackageManager.GET_META_DATA) != 0 ) {
-                            //可在此处修改meta
-                            applicationInfo.metaData = getBaseContext().getApplicationInfo().metaData;
+                            Context context = getBaseContext();
+                            while (context instanceof ContextWrapper) {
+                                context = ((ContextWrapper) context).getBaseContext();
+                            }
+                            //返回宿主meta
+                            applicationInfo.metaData = context.getApplicationInfo().metaData;
                         }
                         return applicationInfo;
                     }

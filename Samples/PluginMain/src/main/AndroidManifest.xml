@@ -64,6 +64,10 @@
         android:label="@string/app_name"
         android:theme="@style/ShareTheme" >
 
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="zcV8rayjavRIRLmepXmzGBVx" />
+
         <activity android:name=".MainActivity" >
             <intent-filter>
                 <action
