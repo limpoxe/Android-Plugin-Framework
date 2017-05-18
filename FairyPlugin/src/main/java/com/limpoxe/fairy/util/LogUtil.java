@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class LogUtil {
 	
-	private static boolean isEnable = true;
+	private static boolean isEnable = false;
 
     private static final int stackLevel = 4;
 
