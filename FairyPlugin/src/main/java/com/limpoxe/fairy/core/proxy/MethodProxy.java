@@ -2,6 +2,8 @@ package com.limpoxe.fairy.core.proxy;
 
 
 
+import com.limpoxe.fairy.util.LogUtil;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +21,10 @@ public abstract class MethodProxy extends MethodDelegate {
 
     @Override
     public Object beforeInvoke(Object target, Method method, Object[] args) {
-        MethodDelegate deleate = findMethodDelegate(method.getName(), args);
+        String methodName = method.getName();
+        MethodDelegate deleate = findMethodDelegate(methodName, args);
         if (deleate != null) {
+            LogUtil.v("beforeInvoke", methodName);
             return deleate.beforeInvoke(target, method, args);
         }
         return super.beforeInvoke(target, method, args);
@@ -28,8 +32,10 @@ public abstract class MethodProxy extends MethodDelegate {
 
     @Override
     public Object afterInvoke(Object target, Method method, Object[] args, Object before, Object invokeResult) {
-        MethodDelegate deleate = findMethodDelegate(method.getName(), args);
+        String methodName = method.getName();
+        MethodDelegate deleate = findMethodDelegate(methodName, args);
         if (deleate != null) {
+            LogUtil.v("afterInvoke", methodName);
             return deleate.afterInvoke(target, method, args, before, invokeResult);
         }
         return super.afterInvoke(target, method, args, before, invokeResult);

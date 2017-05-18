@@ -8,6 +8,7 @@ import android.os.IBinder;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginShadowService;
+import com.limpoxe.fairy.core.android.HackActivityManager;
 import com.limpoxe.fairy.core.android.HackActivityManagerNative;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackSingleton;
@@ -47,6 +48,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
         LogUtil.d("安装ActivityManagerProxy");
         Object androidAppActivityManagerProxy = HackActivityManagerNative.getDefault();
         Object androidAppIActivityManagerStubProxyProxy = ProxyUtil.createProxy(androidAppActivityManagerProxy, new AndroidAppIActivityManager());
+        //O Preview版本暂时不能通过SDK_INT来区分 2017-5-18
         Object singleton = HackActivityManagerNative.getGDefault();
         if (singleton != null) {
             //如果是IActivityManager
@@ -56,10 +58,13 @@ public class AndroidAppIActivityManager extends MethodProxy {
                 new HackSingleton(singleton).setInstance(androidAppIActivityManagerStubProxyProxy);
             }
         } else {
-            //TODO
-            LogUtil.e("Android O 没有gDefault这个成员了");
-            //RefInvoker.dumpAllInfo("android.app.ActivityManagerNative");
-            //RefInvoker.dumpAllInfo(androidAppActivityManagerProxy);
+            //适配：Android O 没有gDefault这个成员了, 变量被移到了ActivityManager这个类中
+            singleton = HackActivityManager.getIActivityManagerSingleton();
+            if (singleton != null) {
+                new HackSingleton(singleton).setInstance(androidAppIActivityManagerStubProxyProxy);
+            } else {
+                LogUtil.e("WTF!!");
+            }
         }
         LogUtil.d("安装完成");
     }
@@ -140,18 +145,20 @@ public class AndroidAppIActivityManager extends MethodProxy {
     public static class serviceDoneExecuting extends MethodDelegate {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             if (ProcessUtil.isPluginProcess()) {
-                for (Object obj: args) {
-                    if (obj instanceof IBinder) {
-                        Map<IBinder, Service> services = HackActivityThread.get().getServices();
-                        Service service = services.get(obj);
-                        if (service instanceof PluginShadowService) {
-                            if (((PluginShadowService) service).realService != null) {
-                                services.put((IBinder) obj, ((PluginShadowService) service).realService);
-                            } else {
-                                throw new IllegalStateException("unable to create service");
+                if (((Integer)args[1]).equals(HackActivityThread.getSERVICE_DONE_EXECUTING_ANON())) {
+                    for (Object obj: args) {
+                        if (obj instanceof IBinder) {
+                            Map<IBinder, Service> services = HackActivityThread.get().getServices();
+                            Service service = services.get(obj);
+                            if (service instanceof PluginShadowService) {
+                                if (((PluginShadowService) service).realService != null) {
+                                    services.put((IBinder) obj, ((PluginShadowService) service).realService);
+                                } else {
+                                    throw new IllegalStateException("unable to create service");
+                                }
                             }
+                            break;
                         }
-                        break;
                     }
                 }
             }
