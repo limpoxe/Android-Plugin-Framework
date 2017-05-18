@@ -42,6 +42,10 @@ public class FairyGlobal {
         return sIsLocalHtmlEnable;
     }
 
+    /**
+     * 控制框架日志是否打印
+     * @param isLogEnable
+     */
     public static void setLogEnable(boolean isLogEnable) {
         LogUtil.setEnable(isLogEnable);
     }
@@ -61,7 +65,7 @@ public class FairyGlobal {
 
     /**
      * 设置loading页最小等待时间，用于在插件较简单，初始化较快时，避免loading页一闪而过
-     * 时间设置为0表示无loading页
+     * 时间设置为0表示无loading页， 默认400ms
      * @param minLoadingTime
      */
     public static void setMinLoadingTime(long minLoadingTime) {
