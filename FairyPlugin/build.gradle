@@ -2,13 +2,13 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.3"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
-        versionCode 53
-        versionName "0.0.53-snapshot"
+        targetSdkVersion 25
+        versionCode 54
+        versionName "0.0.54-snapshot"
     }
 
     lintOptions {
@@ -31,23 +31,6 @@ dependencies {
     //这个依赖不是必须, 引入这个库是为了增强插件间通信能力
     //https://github.com/limpoxe/Android-ServiceManager
     compile 'com.limpoxe.support:android-servicemanager:1.0.5@aar'
-}
-
-tasks.whenTaskAdded { task ->
-    android.buildTypes.all { buildType ->
-        if (task.name.equalsIgnoreCase("bundle" + buildType.name)) {
-            task.doLast {
-                println '导出 ' + buildType.name + ' jar包到build/outputs/aar目录'
-                project.copy {
-                    from(buildDir.absolutePath + '/intermediates/bundles/' + buildType.name) {
-                        include "classes.jar"
-                    }
-                    into(buildDir.absolutePath + "/outputs/aar")
-                    rename('classes', project.name + "-" + buildType.name)
-                }
-            }
-        }
-    }
 }
 
 apply from: "./jcenter.gradle"
