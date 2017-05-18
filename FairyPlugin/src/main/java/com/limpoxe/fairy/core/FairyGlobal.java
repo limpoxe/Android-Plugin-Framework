@@ -7,7 +7,7 @@ import com.limpoxe.fairy.util.LogUtil;
 public class FairyGlobal {
     private static boolean sIsInited;
     private static Application sApplication;
-    private static boolean sIsLocalHtmlEnable = true;
+    private static boolean sIsLocalHtmlEnable = false;
     private static int sLoadingResId;
     private static long sMinLoadingTime = 400;
 
