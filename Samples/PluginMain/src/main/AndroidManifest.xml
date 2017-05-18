@@ -60,13 +60,16 @@
 
     <application
         android:name=".MyApplication"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/cust_ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/ShareTheme" >
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="zcV8rayjavRIRLmepXmzGBVx" />
+
+        <meta-data android:value="591d0ae61061d23ca5000dbf" android:name="UMENG_APPKEY"/>
+        <meta-data android:value="Main_CN" android:name="UMENG_CHANNEL"/>
 
         <activity android:name=".MainActivity" >
             <intent-filter>

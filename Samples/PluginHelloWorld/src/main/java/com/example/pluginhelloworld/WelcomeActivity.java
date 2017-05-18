@@ -27,8 +27,8 @@ public class WelcomeActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle("这是App首屏");
         actionBar.setSubtitle("这是副标题");
-        actionBar.setLogo(R.drawable.ic_launcher);
-        actionBar.setIcon(R.drawable.ic_launcher);
+        actionBar.setLogo(R.mipmap.custom_plugin_icon);
+        actionBar.setIcon(R.mipmap.custom_plugin_icon);
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
                 | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
 

@@ -94,7 +94,7 @@ android {
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.53-snapshot@aar')//通过后缀@aar来中断依赖传递
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.54-snapshot@aar')//通过后缀@aar来中断依赖传递
     //compile project(':FairyPlugin')
     //optional
     //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
@@ -104,6 +104,7 @@ dependencies {
     compile 'com.android.support:design:25.1.0'
 
     compile 'com.tencent.bugly:crashreport:2.1.5'
+    compile 'com.umeng.analytics:analytics:latest.integration'
 
     //Test ButterKnife
     compile 'com.jakewharton:butterknife:8.5.1'

@@ -28,6 +28,7 @@ import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.FileUtil;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ResourceUtil;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.io.IOException;
@@ -303,9 +304,16 @@ public class MainActivity extends AppCompatActivity {
 		super.onResume();
 		//打印一下目录结构
 		FileUtil.printAll(new File(getApplicationInfo().dataDir));
+        MobclickAgent.onResume(this);
 	}
 
-	@Override
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		LogUtil.d(keyCode);
 		return super.onKeyDown(keyCode, event);

@@ -322,6 +322,10 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		startActivity(intent);
 
         testNotification();
+
+//        Intent resultIntnet = new Intent();
+//        resultIntnet.setClassName("com.example.pluginmain", "com.example.pluginmain.TestCaseListActivity");
+//        startActivityForResult(resultIntnet, 10086);
 	}
 
 	public void onClickPluginTestReceiver(View v) {
@@ -445,4 +449,13 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		return super.onKeyUp(keyCode, event);
 	}
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+//        LogUtil.d("onActivityResult", requestCode, resultCode);
+//        if (data != null) {
+//            LogUtil.d("onActivityResult data", data.getStringExtra("ret"));
+//        }
+    }
 }

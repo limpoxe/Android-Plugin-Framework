@@ -159,4 +159,11 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
         }
     };
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("ret", "宿主反馈OK");
+        setResult(RESULT_OK, intent);
+        super.onBackPressed();
+    }
 }
