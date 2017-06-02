@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 				assestInput = getAssets().open(name);
                 file = getCacheDir();
                 if (file == null) {
-                    Toast.makeText(MainActivity.this, "ExternalFilesDir not exist", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "CacheDir not exist", Toast.LENGTH_LONG).show();
                     return;
                 }
 				dest = file.getAbsolutePath() + "/" + name;
