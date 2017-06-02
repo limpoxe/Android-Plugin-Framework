@@ -3,8 +3,10 @@ package com.example.plugintest.activity;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -13,6 +15,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBar;
 import android.telephony.CellInfo;
@@ -27,6 +31,7 @@ import android.widget.Button;
 import android.widget.PopupWindow;
 
 import com.example.pluginsharelib.BaseActivity;
+import com.example.pluginsharelib.IHostAidlInterface;
 import com.example.pluginsharelib.SharePOJO;
 import com.example.plugintest.Log;
 import com.example.plugintest.R;
@@ -55,6 +60,19 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 
     //Test UmengSdk
     Activity fakeThisForUmengSdk;
+
+    private IHostAidlInterface mService;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = IHostAidlInterface.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+    };
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -124,6 +142,12 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		findViewById( R.id.onClickPluginTestService2).setOnClickListener(this);
 
         testQueryIntentActivities();
+
+        Intent intent = new Intent();
+        intent.setAction("com.example.HostService");
+        //从 Android 5.0开始 隐式Intent绑定服务的方式已不能使用,所以这里需要设置Service所在服务端的包名
+        intent.setPackage("com.example.pluginmain");
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     private void testNotification() {
@@ -223,6 +247,14 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         Intent intent = getPackageManager().getLaunchIntentForPackage("com.example.pluginhelloworld");
         intent.putExtra("testParam", "testParam");
 		startActivity(intent);
+
+        if (mService != null) {
+            try {
+                mService.basicTypes(1,2,true,4f,5d,"hostAIDL");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
 	}
 
 	public void onClickPluginNormalFragment(View v) {
@@ -531,5 +563,13 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         };
         new HackActivity(fakeActivity).setApplication(FairyGlobal.getApplication());
         return fakeActivity;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (connection != null) {
+            unbindService(connection);
+        }
     }
 }

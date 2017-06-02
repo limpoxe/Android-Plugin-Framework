@@ -8,6 +8,7 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="22" />
 
-    <application />
+    <application >
+    </application>
 
 </manifest>

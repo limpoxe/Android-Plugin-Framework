@@ -10,6 +10,7 @@ import com.example.plugintest.IMyAidlInterface;
 import com.example.plugintest.Log;
 import com.example.plugintest.R;
 import com.example.plugintest.vo.ParamVO;
+import com.limpoxe.fairy.util.LogUtil;
 
 /**
  * @author cailiming
@@ -58,7 +59,7 @@ public class PluginTestService extends Service {
 
 			@Override
 			public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
-				Log.d(aString, anInt, aLong);
+				LogUtil.d(aString, anInt, aLong);
 			}
 		};
 	}

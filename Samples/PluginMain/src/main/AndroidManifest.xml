@@ -144,6 +144,14 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".HostService">
+            <intent-filter>
+                <action android:name="com.example.HostService" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
