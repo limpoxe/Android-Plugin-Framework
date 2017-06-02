@@ -225,12 +225,22 @@ public class MainActivity extends AppCompatActivity {
 	private void copyAndInstall(String name) {
 		try {
 			InputStream assestInput = getAssets().open(name);
-			String dest = getExternalFilesDir(null).getAbsolutePath() + "/" + name;
+            File file = getExternalFilesDir(null);
+            if (file == null) {
+                Toast.makeText(MainActivity.this, "ExternalFilesDir not exist", Toast.LENGTH_LONG).show();
+                return;
+            }
+			String dest = file.getAbsolutePath() + "/" + name;
 			if (FileUtil.copyFile(assestInput, dest)) {
 				PluginManagerHelper.installPlugin(dest);
 			} else {
 				assestInput = getAssets().open(name);
-				dest = getCacheDir().getAbsolutePath() + "/" + name;
+                file = getCacheDir();
+                if (file == null) {
+                    Toast.makeText(MainActivity.this, "ExternalFilesDir not exist", Toast.LENGTH_LONG).show();
+                    return;
+                }
+				dest = file.getAbsolutePath() + "/" + name;
 				if (FileUtil.copyFile(assestInput, dest)) {
 					PluginManagerHelper.installPlugin(dest);
 				} else {
