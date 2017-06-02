@@ -7,13 +7,15 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.example.pluginsharelib.IHostAidlInterface;
+import com.limpoxe.fairy.util.LogUtil;
 
 public class HostService extends Service {
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-	}
+        LogUtil.d("HostService onCreate");
+    }
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -31,4 +33,9 @@ public class HostService extends Service {
         };
 	}
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LogUtil.d("HostService onDestroy");
+    }
 }
