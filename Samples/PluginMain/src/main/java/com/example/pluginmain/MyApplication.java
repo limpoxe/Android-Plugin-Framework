@@ -14,6 +14,7 @@ public class MyApplication extends PluginApplication {
         CrashReport.initCrashReport(getApplicationContext(), "c38ae3f8a6", true);
 
         //UMENG SDK
+        MobclickAgent.setDebugMode(true);
         MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
 
         FairyGlobal.setLogEnable(true);

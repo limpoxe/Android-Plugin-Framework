@@ -101,7 +101,9 @@ public class MainActivity extends AppCompatActivity {
 
 			@Override
 			public void onClick(View v) {
-				if (!isInstalled) {
+                MobclickAgent.onEvent(MainActivity.this, "test_0");
+
+                if (!isInstalled) {
 					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
 						int permissionState = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 						if (permissionState != PackageManager.PERMISSION_GRANTED) {
@@ -173,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        MobclickAgent.onEvent(MainActivity.this, "test_1");
                         testStartActivity2(pluginDescriptor);
                     }
                 });
@@ -180,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
                 uninstall.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        MobclickAgent.onEvent(MainActivity.this, "test_2");
                         PluginManagerHelper.remove(pluginDescriptor.getPackageName());
                         refreshListView();
                     }
@@ -193,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
         other.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MobclickAgent.onEvent(MainActivity.this, "test_3");
                 startActivity(new Intent(MainActivity.this, TestCaseListActivity.class));
             }
         });
