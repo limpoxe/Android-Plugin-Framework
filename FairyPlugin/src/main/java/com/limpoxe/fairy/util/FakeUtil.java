@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 
 import com.limpoxe.fairy.core.FairyGlobal;
+import com.limpoxe.fairy.core.android.HackActivity;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -559,5 +560,30 @@ public class FakeUtil {
                 return super.getSystemService(name);
             }
         };
+    }
+
+    public static Activity fakeActivityForUMengSdk(Activity activity) {
+        //getApplication();
+        //getApplicationContext();
+        //getPackageName();
+        //getLocalClassName();
+        final String className = activity.getClass().getSimpleName();
+        Activity fakeActivity = new Activity() {
+            @Override
+            public Context getApplicationContext() {
+                return FairyGlobal.getApplication().getApplicationContext();
+            }
+
+            @Override
+            public String getPackageName() {
+                return FairyGlobal.getApplication().getPackageName();
+            }
+
+            public String getLocalClassName() {
+                return className;
+            }
+        };
+        new HackActivity(fakeActivity).setApplication(FairyGlobal.getApplication());
+        return fakeActivity;
     }
 }
