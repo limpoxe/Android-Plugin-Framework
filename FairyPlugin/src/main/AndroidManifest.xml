@@ -156,6 +156,7 @@
             android:exported="true"
             android:process=":plugin"
             android:screenOrientation="landscape"
+            android:configChanges="screenSize|orientation"
             android:theme="@android:style/Theme">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
