@@ -5,7 +5,6 @@ import android.view.View;
 import com.limpoxe.fairy.util.RefInvoker;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,7 +22,7 @@ public class CompatForSupportv7ViewInflater {
             Map cache = (Map) RefInvoker.getField(null, AppCompatViewInflater,
                     android_support_v7_app_AppCompatViewInflater_sConstructorMap);
             if (cache != null) {
-                ConstructorHashMap<String, Constructor<? extends View>> newCacheMap = new ConstructorHashMap<String, Constructor<? extends View>>();
+                EmptyHashMap<String, Constructor<? extends View>> newCacheMap = new EmptyHashMap<String, Constructor<? extends View>>();
                 newCacheMap.putAll(cache);
                 RefInvoker.setField(null, AppCompatViewInflater,
                         android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
@@ -31,16 +30,6 @@ public class CompatForSupportv7ViewInflater {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    public static class ConstructorHashMap<K, V> extends HashMap<K, V> {
-
-        @Override
-        public V put(K key, V value) {
-            //不缓存
-            return super.put(key, null);
-        }
-
     }
 
 }
