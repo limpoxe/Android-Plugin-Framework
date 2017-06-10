@@ -179,6 +179,16 @@ public class PluginIntentResolver {
 					pluginActivityInfo.getTheme(),
                     pluginActivityInfo.getScreenOrientation());
 
+            if (stubActivityName == null) {
+                LogUtil.e("绑定StubAtivity失败",
+                        className,
+                        Integer.parseInt(pluginActivityInfo.getLaunchMode()),
+                        pluginDescriptor.getPackageName(),
+                        pluginActivityInfo.getTheme(),
+                        pluginActivityInfo.getScreenOrientation());
+                return;
+            }
+
 			intent.setComponent(
 					new ComponentName(FairyGlobal.getApplication().getPackageName(), stubActivityName));
 			//PluginInstrumentationWrapper检测到这个标记后会进行替换
