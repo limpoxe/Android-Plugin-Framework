@@ -15,6 +15,7 @@ import android.os.Handler;
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackLayoutInflater;
+import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7ViewInflater;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIActivityManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppINotificationManager;
@@ -65,6 +66,8 @@ public class PluginLoader {
         if (isPluginProcess) {
             HackLayoutInflater.installPluginCustomViewConstructorCache();
             CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache();
+            CompatForFragmentClassCache.installFragmentClassCache();
+            CompatForFragmentClassCache.installSupportV4FragmentClassCache();
             //不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
             new Handler().post(new Runnable() {
                 @Override

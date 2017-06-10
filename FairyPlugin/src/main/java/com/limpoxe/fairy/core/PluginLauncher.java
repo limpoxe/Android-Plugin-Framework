@@ -23,6 +23,7 @@ import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplication;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
+import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
 import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginResInitError;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
@@ -319,7 +320,8 @@ public class PluginLauncher implements Serializable {
 
 		//退出fragment
 		//即退出由FragmentManager保存的Fragment
-		//TODO fragment如何退出？
+        CompatForFragmentClassCache.clearFragmentClassCache();
+        CompatForFragmentClassCache.clearSupportV4FragmentClassCache();
 
 		loadedPluginMap.remove(packageName);
 	}

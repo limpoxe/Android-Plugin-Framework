@@ -34,6 +34,11 @@ import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
 
+/**
+ * 这里不必重写StartActivity的相关方法，是因为所有从Context.startActivity发起的调用，
+ * 最后都会调用mMainThread.getInstrumentation().execStartActivity来执行
+ * 而框架替换了Instrumentation，因此所有的StartActivity相关方法都会在PluginInstrumentation中做处理
+ */
 public class PluginBaseContextWrapper extends ContextWrapper {
 
 	public PluginBaseContextWrapper(Context base) {

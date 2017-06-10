@@ -490,4 +490,15 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		hackInstrumentation.execStartActivityFromAppTask(who, contextThread, appTask, intent, options);
 	}
+
+	//7.1?
+    public ActivityResult execStartActivityAsCaller(Context who, IBinder contextThread, IBinder token, Activity target,
+            Intent intent, int requestCode, Bundle options, boolean ignoreTargetSecurity,
+            int userId) {
+
+        PluginIntentResolver.resolveActivity(intent);
+
+        return hackInstrumentation.execStartActivityAsCaller(who, contextThread, token, target, intent, requestCode, options, ignoreTargetSecurity, userId);
+    }
+
 }

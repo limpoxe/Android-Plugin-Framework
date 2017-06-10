@@ -146,4 +146,18 @@ public class HackInstrumentation {
             e.printStackTrace();
         }
     }
+
+    //7.1?
+    public Instrumentation.ActivityResult execStartActivityAsCaller(
+            Context who, IBinder contextThread, IBinder token, Activity target,
+            Intent intent, int requestCode, Bundle options, boolean ignoreTargetSecurity,
+            int userId) {
+
+        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+                Method_execStartActivityAsCaller, new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
+                        Intent.class, int.class, Bundle.class, boolean.class, int.class}, new Object[] { who, contextThread,
+                        token, target, intent, requestCode, options, ignoreTargetSecurity, userId});
+
+        return (Instrumentation.ActivityResult)result;
+    }
 }
