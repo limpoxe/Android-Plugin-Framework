@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import com.example.pluginsharelib.BaseActivity;
 import com.example.pluginsharelib.IHostAidlInterface;
@@ -148,6 +150,18 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         //从 Android 5.0开始 隐式Intent绑定服务的方式已不能使用,所以这里需要设置Service所在服务端的包名
         intent.setPackage("com.example.pluginmain");
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        try {
+            ApplicationInfo application = (ApplicationInfo)getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+            int hellowMeta = (int)application.metaData.get("abcdef");
+            Toast.makeText(this, hellowMeta + "", Toast.LENGTH_SHORT).show();
+
+            int metaData = (int)getApplicationInfo().metaData.get("abcdef");
+
+            LogUtil.d("abcdef", metaData);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void testNotification() {
