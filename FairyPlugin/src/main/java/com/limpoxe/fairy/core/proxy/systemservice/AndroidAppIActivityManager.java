@@ -3,6 +3,7 @@ package com.limpoxe.fairy.core.proxy.systemservice;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -49,8 +50,8 @@ public class AndroidAppIActivityManager extends MethodProxy {
         Object androidAppActivityManagerProxy = HackActivityManagerNative.getDefault();
         Object androidAppIActivityManagerStubProxyProxy = ProxyUtil.createProxy(androidAppActivityManagerProxy, new AndroidAppIActivityManager());
         //O Preview版本暂时不能通过SDK_INT来区分 2017-5-18
-        Object singleton = HackActivityManagerNative.getGDefault();
-        if (singleton != null) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
+            Object singleton = HackActivityManagerNative.getGDefault();
             //如果是IActivityManager
             if (singleton.getClass().isAssignableFrom(androidAppIActivityManagerStubProxyProxy.getClass())) {
                 HackActivityManagerNative.setGDefault(androidAppIActivityManagerStubProxyProxy);
@@ -58,8 +59,8 @@ public class AndroidAppIActivityManager extends MethodProxy {
                 new HackSingleton(singleton).setInstance(androidAppIActivityManagerStubProxyProxy);
             }
         } else {
-            //适配：Android O 没有gDefault这个成员了, 变量被移到了ActivityManager这个类中
-            singleton = HackActivityManager.getIActivityManagerSingleton();
+            //Android O 没有gDefault这个成员了, 变量被移到了ActivityManager这个类中
+            Object singleton = HackActivityManager.getIActivityManagerSingleton();
             if (singleton != null) {
                 new HackSingleton(singleton).setInstance(androidAppIActivityManagerStubProxyProxy);
             } else {
