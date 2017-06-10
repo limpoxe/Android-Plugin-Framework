@@ -3,14 +3,14 @@ apply plugin: 'com.android.application'
 configurations.all {
     resolutionStrategy {
         cacheChangingModulesFor(1, 'HOURS')
-        //force 'com.android.support:appcompat-v7:23.3.0'
+        //force 'com.android.support:appcompat-v7:25.1.0'
     }
 }
 
 android {
 
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "26.0.0"
 
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId "com.example.pluginmain"
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1.1.2"
         ndk {
@@ -94,7 +94,7 @@ android {
 }
 
 dependencies {
-    compile('com.limpoxe.fairy:FairyPlugin:0.0.54-snapshot@aar')//通过后缀@aar来中断依赖传递
+    compile('com.limpoxe.fairy:FairyPlugin:0.0.55-snapshot@aar')//通过后缀@aar来中断依赖传递
     //compile project(':FairyPlugin')
     //optional
     //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
