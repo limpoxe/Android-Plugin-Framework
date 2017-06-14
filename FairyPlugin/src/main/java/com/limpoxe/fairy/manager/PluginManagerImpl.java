@@ -36,8 +36,6 @@ import java.util.Set;
 
 class PluginManagerImpl {
 
-	private static final boolean NEED_VERIFY_CERT = true;
-
 	private static final String INSTALLED_KEY = "plugins.list";
 	private static final String PENDING_KEY = "plugins.pending";
 
@@ -242,7 +240,7 @@ class PluginManagerImpl {
         //可选步骤，验证插件APK证书是否和宿主程序证书相同。
         //证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
         //公钥相同意味着是同一个作者发布的程序
-        if (NEED_VERIFY_CERT && !isDebugable) {
+        if (FairyGlobal.isNeedVerifyPlugin() && !isDebugable) {
             Signature[] mainSignatures = null;
             try {
                 PackageInfo pkgInfo = FairyGlobal.getApplication().getPackageManager().getPackageInfo(FairyGlobal.getApplication().getPackageName(), PackageManager.GET_SIGNATURES);

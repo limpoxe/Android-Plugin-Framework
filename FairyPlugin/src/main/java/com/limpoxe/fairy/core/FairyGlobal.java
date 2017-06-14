@@ -10,6 +10,7 @@ public class FairyGlobal {
     private static boolean sIsLocalHtmlEnable = false;
     private static int sLoadingResId;
     private static long sMinLoadingTime = 400;
+    private static boolean sIsNeedVerifyPluginSign = true;
 
     public static Application getApplication() {
         if (!isInited()) {
@@ -74,6 +75,14 @@ public class FairyGlobal {
 
     public static long getMinLoadingTime() {
         return sMinLoadingTime;
+    }
+
+    public static void setNeedVerifyPlugin(boolean needVerify) {
+        sIsNeedVerifyPluginSign = needVerify;
+    }
+
+    public static boolean isNeedVerifyPlugin() {
+        return sIsNeedVerifyPluginSign;
     }
 
 }
