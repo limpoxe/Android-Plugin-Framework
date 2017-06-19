@@ -90,6 +90,8 @@ public class HackActivityThread {
             Handler handler = hackActivityThread.getHandler();
             Handler.Callback callback = new PluginAppTrace(handler);
             new HackHandler(handler).setCallback(callback);
+        } else {
+            LogUtil.e("wrapHandler fail!!");
         }
     }
 
@@ -100,6 +102,8 @@ public class HackActivityThread {
             if (!(originalInstrumentation instanceof PluginInstrumentionWrapper)) {
                 hackActivityThread.setInstrumentation(new PluginInstrumentionWrapper(originalInstrumentation));
             }
+        } else {
+            LogUtil.e("wrapInstrumentation fail!!");
         }
     }
 
