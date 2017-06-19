@@ -52,6 +52,10 @@ public class PluginIntentResolver {
 			for(String className: classNameList) {
 				Intent newIntent = new Intent(intent);
 				newIntent.setComponent(new ComponentName(FairyGlobal.getApplication().getPackageName(),
+                        //因为此时已经在插件中匹配到intent，
+                        //此时不用关心原intent是不是精确匹配的intent，到了这一步时，是将目标替换为stub还是exact已经无所谓了，
+                        // resolveReceiverForClassLoader都可以拿到真实classname
+                        //只需给出默认的stubReceiver即可，因此这里的参数使用null
                         PluginProviderClient.bindStubReceiver(null)));
 				//hackReceiverForClassLoader检测到这个标记后会进行替换
 				newIntent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
@@ -59,7 +63,8 @@ public class PluginIntentResolver {
 			}
 		} else {
 			if (intent.getComponent() != null && null != PluginManagerHelper.getPluginDescriptorByPluginId(intent.getComponent().getPackageName())) {
-				intent.setComponent(new ComponentName(FairyGlobal.getApplication().getPackageName(), intent.getComponent().getClassName()));
+                //如果intent是指向插件的，但是matchPlugin又没有找到目标，这时强行修正intent指向宿主
+                intent.setComponent(new ComponentName(FairyGlobal.getApplication().getPackageName(), intent.getComponent().getClassName()));
 			}
 		}
 
@@ -77,9 +82,10 @@ public class PluginIntentResolver {
 
             HackReceiverData hackReceiverData = new HackReceiverData(msgObj);
             Intent intent = hackReceiverData.getIntent();
+            //className要么是真组件，要么是stub，要么是exact的组件
             String className = intent.getComponent().getClassName();
-            String stubClassName = PluginProviderClient.bindStubReceiver(className);
-            if (className.equals(stubClassName)) {
+            //当是stub或者exact时，需要处理className，供classloader使用
+            if (PluginProviderClient.isStub(className)) {
                 String realReceiverClassName = null;
                 String[] targetClassName = null;
                 if (PluginProviderClient.isExact(className, PluginDescriptor.BROADCAST)) {
@@ -111,7 +117,7 @@ public class PluginIntentResolver {
                         //isExact 无需对intent进行恢复
                     }
 
-                    // HostClassLoader检测到这个特殊标记后会进行替换
+                    // HostClassLoader检测到这个特殊标记后会进行替换，得到真实的className
                     intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER + realReceiverClassName));
 
                     if (Build.VERSION.SDK_INT >= 21) {

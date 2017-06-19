@@ -68,6 +68,8 @@ public class HostClassLoader extends DexClassLoader {
             return TolerantBroadcastReceiver.class;
 		}
 
+		//如果这里出现classnotfound，但是className确实是一个插件的receiver或者service，
+        //那么很可能是PluginAppTrace没有替换成功，或者替换成功了但是又被其他东西覆盖替换掉了。
 		return super.loadClass(className, resolve);
 	}
 
