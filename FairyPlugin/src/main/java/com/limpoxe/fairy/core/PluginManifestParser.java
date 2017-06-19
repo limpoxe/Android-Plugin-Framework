@@ -186,6 +186,7 @@ public class PluginManifestParser {
                             String immersive = parser.getAttributeValue(namespaceAndroid, "immersive");//int string
                             String uiOptions = parser.getAttributeValue(namespaceAndroid, "uiOptions");//int string
                             String configChanges = parser.getAttributeValue(namespaceAndroid, "configChanges");//int string
+                            String useHostPackageName = parser.getAttributeValue(null, "useHostPackageName");
 
                             HashMap<String, ArrayList<PluginIntentFilter>> map = desciptor.getActivitys();
                             if (map == null) {
@@ -219,7 +220,6 @@ public class PluginManifestParser {
                             if (configChanges != null) {
                                 pluginActivityInfo.setConfigChanges(Integer.parseInt(configChanges.replace("0x", ""), 16));
                             }
-                            String useHostPackageName = parser.getAttributeValue(null, "useHostPackageName");
                             pluginActivityInfo.setUseHostPackageName("true".equals(useHostPackageName));
 
                         } else if ("receiver".equals(tag)) {
