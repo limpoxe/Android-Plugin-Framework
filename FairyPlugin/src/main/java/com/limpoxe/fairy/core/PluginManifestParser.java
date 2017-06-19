@@ -219,6 +219,8 @@ public class PluginManifestParser {
                             if (configChanges != null) {
                                 pluginActivityInfo.setConfigChanges(Integer.parseInt(configChanges.replace("0x", ""), 16));
                             }
+                            String useHostPackageName = parser.getAttributeValue(null, "useHostPackageName");
+                            pluginActivityInfo.setUseHostPackageName("true".equals(useHostPackageName));
 
                         } else if ("receiver".equals(tag)) {
 

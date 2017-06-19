@@ -21,6 +21,7 @@ public class PluginActivityInfo implements Serializable {
 	private String immersive;//int string
 	private String uiOptions;
 	private int configChanges;
+    private boolean useHostPackageName = false;
 
 	public int getConfigChanges() {
 		return configChanges;
@@ -93,4 +94,13 @@ public class PluginActivityInfo implements Serializable {
 	public void setTheme(String theme) {
 		this.theme = theme;
 	}
+
+    public boolean isUseHostPackageName() {
+        return useHostPackageName;
+    }
+
+    public void setUseHostPackageName(boolean useHostPackageName) {
+        this.useHostPackageName = useHostPackageName;
+    }
+
 }

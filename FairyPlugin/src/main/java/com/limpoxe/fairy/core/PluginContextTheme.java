@@ -49,7 +49,10 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 
 	private ArrayList<BroadcastReceiver> receivers = new ArrayList<BroadcastReceiver>();
 
+    //用于插件安装multidex
 	private boolean crackPackageManager = false;
+    //用于不能修改包名的特殊插件Activity，如一些三方sdk
+    private boolean useHostPackageName = false;
 
 	public PluginContextTheme(PluginDescriptor pluginDescriptor,
 							  Context base, Resources resources,
@@ -149,12 +152,16 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public String getPackageName() {
 
+        if (useHostPackageName) {
+            return FairyGlobal.getApplication().getPackageName();
+        }
+
 		//packagemanager、activitymanager、wifi、window、inputservice
 		//等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
 		//而这里返回的正是插件本身的packageName, 因此需要通过安装AndroidOsServiceManager这个hook去修正,
 		//如果不安装AndroidOsServiceManager或者安装失败,这里应当返回宿主的packageName
 		return mPluginDescriptor.getPackageName();
-		//return PluginLoader.getApplication().getPackageName();
+
 
 	}
 
@@ -246,6 +253,10 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	public void setCrackPackageManager(boolean crackPackageManager) {
 		this.crackPackageManager = crackPackageManager;
 	}
+
+	public void setUseHostPackageName(boolean useHostPackageName) {
+        this.useHostPackageName = useHostPackageName;
+    }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

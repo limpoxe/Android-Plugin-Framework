@@ -141,8 +141,8 @@ public class PluginInjector {
 
 				pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(activity.getClass().getName());
 				if(pluginDescriptor == null) {
-					throw new PluginNotFoundError("plugin with class " + activity.getClass().getName() + " not found");
-				}
+                    throw new PluginNotFoundError("未找到插件：" + activity.getClass().getName() + ", 插件未安装或已损坏");
+                }
 
 				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
 				if (plugin == null || plugin.pluginApplication == null) {
@@ -188,6 +188,11 @@ public class PluginInjector {
 			int pluginAppTheme = getPluginTheme(activityInfo, pluginActivityInfo, pluginDescriptor);
 
 			LogUtil.e("Theme", "0x" + Integer.toHexString(pluginAppTheme), activity.getClass().getName());
+
+            if (pluginActivityInfo.isUseHostPackageName()) {
+                LogUtil.e("useHostPackageName true");
+                ((PluginContextTheme)pluginContext).setUseHostPackageName(true);
+            }
 
 			resetActivityContext(pluginContext, activity, pluginAppTheme);
 
@@ -287,11 +292,12 @@ public class PluginInjector {
 				}
 			}
 
-			LogUtil.v(activity.getClass().getName(), "immersive", pluginActivityInfo.getImmersive());
-			LogUtil.v(activity.getClass().getName(), "screenOrientation", pluginActivityInfo.getScreenOrientation());
-			LogUtil.v(activity.getClass().getName(), "launchMode", pluginActivityInfo.getLaunchMode());
-			LogUtil.v(activity.getClass().getName(), "windowSoftInputMode", pluginActivityInfo.getWindowSoftInputMode());
-			LogUtil.v(activity.getClass().getName(), "uiOptions", pluginActivityInfo.getUiOptions());
+			String activityClassName = activity.getClass().getName();
+			LogUtil.v(activityClassName, "immersive", pluginActivityInfo.getImmersive());
+			LogUtil.v(activityClassName, "screenOrientation", pluginActivityInfo.getScreenOrientation());
+			LogUtil.v(activityClassName, "launchMode", pluginActivityInfo.getLaunchMode());
+			LogUtil.v(activityClassName, "windowSoftInputMode", pluginActivityInfo.getWindowSoftInputMode());
+			LogUtil.v(activityClassName, "uiOptions", pluginActivityInfo.getUiOptions());
 		}
 
 		//如果是独立插件，由于没有合并资源，这里还需要替换掉 mActivityInfo，
