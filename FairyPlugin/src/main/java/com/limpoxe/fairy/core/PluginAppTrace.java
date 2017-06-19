@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Process;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -46,7 +47,16 @@ public class PluginAppTrace implements Handler.Callback {
 
 			LogUtil.v(">>> done: " + CodeConst.codeToString(msg.what));
 
-		} finally {
+		} catch (Exception e) {
+            //插件进程出现异常时直接kill掉
+            //或许应该给个机会上传异常信息？
+
+            LogUtil.e("插件进程出现异常，kill掉", e);
+
+            if (ProcessUtil.isPluginProcess()) {
+                Process.killProcess(Process.myPid());
+            }
+        } finally {
 
 			afterHandle(msg, result);
 			
