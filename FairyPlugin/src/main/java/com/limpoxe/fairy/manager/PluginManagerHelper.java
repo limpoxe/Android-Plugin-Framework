@@ -54,7 +54,8 @@ public class PluginManagerHelper {
             // 或者AndroidAppIPackageManager
             // 或者PluginBaseContextWrapper.createPackageContext
             // 中拦截了由系统发起的查询操作, 被拦截之后转到了这里
-            // 所有在这做个快速判断.
+            // 所以在这做个快速判断.
+            LogUtil.d("默认com.android.开头的包名不是插件");
             return null;
         }
 

@@ -166,7 +166,7 @@ public class PluginInjector {
 					// 因此直接将这个Activity的Context也替换成插件的Context
 					pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 					if(pluginDescriptor == null) {
-						throw new PluginNotFoundError("plugin with class " + activity.getClass().getName() + " not found");
+						throw new PluginNotFoundError("未找到插件：" + pluginId + ", 插件未安装或已损坏");
 					}
 
 					//插件可能尚未初始化，确保使用前已经初始化
