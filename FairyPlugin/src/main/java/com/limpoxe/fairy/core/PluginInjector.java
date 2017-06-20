@@ -189,7 +189,8 @@ public class PluginInjector {
 
 			LogUtil.e("Theme", "0x" + Integer.toHexString(pluginAppTheme), activity.getClass().getName());
 
-            if (pluginActivityInfo.isUseHostPackageName()) {
+            //pluginActivityInfo != null的判断是为了避免在Fragment插件嵌入其他Activity时没有pluginActivityInfo造成NPE
+            if (pluginActivityInfo != null && pluginActivityInfo.isUseHostPackageName()) {
                 LogUtil.e("useHostPackageName true");
                 ((PluginContextTheme)pluginContext).setUseHostPackageName(true);
             }
