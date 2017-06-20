@@ -10,6 +10,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        LogUtil.e(intent);
+        LogUtil.e("BootCompletedReceiver.onReceive", intent);
     }
 }
