@@ -156,12 +156,15 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
             return FairyGlobal.getApplication().getPackageName();
         }
 
+        if (mPluginDescriptor.isUseHostPackageName()) {
+            return FairyGlobal.getApplication().getPackageName();
+        }
+
 		//packagemanager、activitymanager、wifi、window、inputservice
 		//等等系统服务会获取packageName去查询信息，如果获取到插件的packageName则会crash
 		//而这里返回的正是插件本身的packageName, 因此需要通过安装AndroidOsServiceManager这个hook去修正,
 		//如果不安装AndroidOsServiceManager或者安装失败,这里应当返回宿主的packageName
 		return mPluginDescriptor.getPackageName();
-
 
 	}
 

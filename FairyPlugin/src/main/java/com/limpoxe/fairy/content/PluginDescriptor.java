@@ -60,6 +60,8 @@ public class PluginDescriptor implements Serializable {
 
 	private int applicationTheme;
 
+    private boolean useHostPackageName;
+
 	/**
 	 * 定义在插件Manifest中的meta-data标签
 	 */
@@ -325,7 +327,15 @@ public class PluginDescriptor implements Serializable {
 		this.providerInfos = providerInfos;
 	}
 
-	/**
+    public boolean isUseHostPackageName() {
+        return useHostPackageName;
+    }
+
+    public void setUseHostPackageName(boolean useHostPackageName) {
+        this.useHostPackageName = useHostPackageName;
+    }
+
+    /**
 	 * 需要根据id查询的只有fragment
 	 * @param clazzId
 	 * @return

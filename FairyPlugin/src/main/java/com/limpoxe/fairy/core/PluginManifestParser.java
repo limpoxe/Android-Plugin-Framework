@@ -55,6 +55,7 @@ public class PluginManifestParser {
                             namespaceAndroid = parser.getNamespace("android");
                             
                             packageName = parser.getAttributeValue(null, "package");
+                            String useHostPackageName = parser.getAttributeValue(null, "useHostPackageName");
                             String versionCode = parser.getAttributeValue(namespaceAndroid, "versionCode");
                             String versionName = parser.getAttributeValue(namespaceAndroid, "versionName");
                             String platformBuildVersionCode = parser.getAttributeValue(namespaceAndroid, "platformBuildVersionCode");
@@ -77,6 +78,8 @@ public class PluginManifestParser {
                             if (!desciptor.isStandalone() && !TextUtils.isEmpty(requiredHostVersionName)) {
                                 desciptor.setRequiredHostVersionName(requiredHostVersionName);
                             }
+
+                            desciptor.setUseHostPackageName("true".equals(useHostPackageName));
 
                             LogUtil.v(packageName, versionCode, versionName, sharedUserId);
                         } else if ("uses-sdk".equals(tag))  {
