@@ -151,6 +151,15 @@
                 <action android:name="com.example.HostService" />
             </intent-filter>
         </service>
+        
+        <!--Demo config for plugin AdMob begin -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="10260000" />
+        <meta-data
+            android:name="android.support.VERSION"
+            android:value="25.3.1" />
+        <!--Demo config for plugin AdMob end -->
 
     </application>
 
