@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,7 +70,7 @@ class PluginStubBinding {
 		return FairyGlobal.getApplication().getPackageName() + ".STUB_EXACT";
 	}
 
-	private static void initPool() {
+	private static void initStubPool() {
 
 		if(!ProcessUtil.isPluginProcess()) {
 			throw new IllegalAccessError("此类只能在插件所在进程使用");
@@ -205,7 +206,7 @@ class PluginStubBinding {
 	}
 
 	public static String bindStubReceiver(String pluginReceiverClassName) {
-		initPool();
+        initStubPool();
         if (pluginReceiverClassName != null) {
             if (isExact(pluginReceiverClassName, PluginDescriptor.BROADCAST)) {
                 return pluginReceiverClassName;
@@ -216,10 +217,25 @@ class PluginStubBinding {
 
 	private static int sResId = -1;
 
+    /**
+     * Manifest中Activity节点下的各种组合比较多，
+     * 而框架内置的stub有限，若有不同于框架内置的stub需要添加，则可以通过注册StubMappingProcessor来添加自定义的处理器
+     */
 	public static synchronized String bindStubActivity(String pluginActivityClassName, int launchMode,
 													   String packageName, String themeId, int orientation) {
 
-		initPool();
+        //先看看有没有注册自定义的processor
+        ArrayList<StubMappingProcessor> list = FairyGlobal.getStubMappingProcessors();
+        if(list != null) {
+            for(StubMappingProcessor processor : list) {
+                String stubActivityClass = processor.bindStub(packageName, pluginActivityClassName, StubMappingProcessor.TYPE_ACTIVITY);
+                if (!TextUtils.isEmpty(stubActivityClass)) {
+                    return stubActivityClass;
+                }
+            }
+        }
+
+        initStubPool();
 
 		if (isExact(pluginActivityClassName, PluginDescriptor.ACTIVITY)) {
 			return pluginActivityClassName;
@@ -317,7 +333,7 @@ class PluginStubBinding {
 	}
 
 	public static boolean isExact(String name, int type) {
-		initPool();
+        initStubPool();
 
 		if (mExcatStubSet != null && mExcatStubSet.size() > 0) {
 			return mExcatStubSet.contains(name);
@@ -347,7 +363,7 @@ class PluginStubBinding {
 
 	public static synchronized String getBindedPluginServiceName(String stubServiceName) {
 
-		initPool();
+        initStubPool();
 
 		if (isExact(stubServiceName, PluginDescriptor.SERVICE)) {
 			return stubServiceName;
@@ -383,7 +399,7 @@ class PluginStubBinding {
 
 	public static synchronized String bindStubService(String pluginServiceClassName) {
 
-		initPool();
+        initStubPool();
 
 		if (isExact(pluginServiceClassName, PluginDescriptor.SERVICE)) {
 			return pluginServiceClassName;
@@ -516,7 +532,7 @@ class PluginStubBinding {
 	}
 
 	public static boolean isStub(String className) {
-		initPool();
+        initStubPool();
 
 		return isExact(className, PluginDescriptor.UNKOWN)
 				|| className.equals(standardActivity)
@@ -528,4 +544,5 @@ class PluginStubBinding {
 				|| serviceMapping.containsKey(className)
 				|| className.equals(receiver);
 	}
+
 }
