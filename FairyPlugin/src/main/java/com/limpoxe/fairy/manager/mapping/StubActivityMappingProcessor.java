@@ -94,7 +94,7 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                 }
             }
 
-            if (Integer.parseInt(info.getScreenOrientation()) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            if (info.getScreenOrientation() != null && Integer.parseInt(info.getScreenOrientation()) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
                 return standardLandspaceActivity;
             }
 
