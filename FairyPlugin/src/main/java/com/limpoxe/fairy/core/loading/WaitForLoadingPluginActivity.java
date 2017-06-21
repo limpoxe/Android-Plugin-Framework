@@ -1,6 +1,7 @@
 package com.limpoxe.fairy.core.loading;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
@@ -8,6 +9,7 @@ import android.view.Window;
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
+import com.limpoxe.fairy.core.PluginIntentResolver;
 import com.limpoxe.fairy.core.PluginLauncher;
 import com.limpoxe.fairy.util.LogUtil;
 
@@ -19,6 +21,7 @@ import com.limpoxe.fairy.util.LogUtil;
 public class WaitForLoadingPluginActivity extends Activity {
 
     private PluginDescriptor pluginDescriptor;
+    private String pluginClassName;
     private Handler handler;
     private long loadingAt = 0;
 
@@ -79,7 +82,22 @@ public class WaitForLoadingPluginActivity extends Activity {
                             LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
                             if (loadedPlugin != null && loadedPlugin.pluginApplication != null) {
                                 LogUtil.i("WaitForLoadingPluginActivity open target");
-                                startActivity(getIntent());
+                                LogUtil.e("注意，对首次启动的首屏Activity来说，进入了WaitFor界面后忽略了startActivityForResult");
+
+                                Intent intent = getIntent();
+                                if (intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
+                                    String[] targetClassName  = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR);
+                                    if (targetClassName.length >1) {
+                                        intent.setAction(targetClassName[1]);
+                                    } else {
+                                        intent.setAction(null);
+                                    }
+                                }
+                                intent.setClassName(pluginDescriptor.getPackageName(), pluginClassName);
+                                //重新resoloveIntent，绑定stub
+                                PluginIntentResolver.resolveActivity(intent);
+
+                                startActivity(intent);
                                 finish();
                             } else {
                                 LogUtil.w("WTF!", pluginDescriptor, loadedPlugin);
@@ -95,7 +113,8 @@ public class WaitForLoadingPluginActivity extends Activity {
         }
     }
 
-    public void setTargetPlugin(PluginDescriptor pluginDescriptor) {
+    public void setTargetPlugin(PluginDescriptor pluginDescriptor, String targetClassName) {
         this.pluginDescriptor = pluginDescriptor;
+        this.pluginClassName = targetClassName;
     }
 }

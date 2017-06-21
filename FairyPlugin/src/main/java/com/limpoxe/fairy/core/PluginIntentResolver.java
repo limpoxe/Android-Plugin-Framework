@@ -169,7 +169,7 @@ public class PluginIntentResolver {
 		return info.name;
 	}
 
-	public static void resolveActivity(Intent intent) {
+	public static void resolveActivity(final Intent intent) {
 		// 如果在插件中发现Intent的匹配项，记下匹配的插件Activity的ClassName
 		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.ACTIVITY);
 		if (classNameList != null && classNameList.size() > 0) {
@@ -193,6 +193,8 @@ public class PluginIntentResolver {
                         pluginActivityInfo.getTheme(),
                         pluginActivityInfo.getScreenOrientation());
                 return;
+            } else {
+                LogUtil.v("绑定StubAtivity成功", className);
             }
 
 			intent.setComponent(
@@ -201,6 +203,7 @@ public class PluginIntentResolver {
 			intent.setAction(className + CLASS_SEPARATOR + (intent.getAction()==null?"":intent.getAction()));
 		} else {
 			if (intent.getComponent() != null) {
+                //如果没有匹配到，但是intent里面指定的packageName是插件的，强行修正packageName
                 String targetPackageName = intent.getComponent().getPackageName();
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(targetPackageName);
                 if (pluginDescriptor != null) {

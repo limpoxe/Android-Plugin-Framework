@@ -91,6 +91,8 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                     } catch (NoSuchFieldException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    LogUtil.e("插件尚未运行，无法获取pluginResource对象");
                 }
             }
 

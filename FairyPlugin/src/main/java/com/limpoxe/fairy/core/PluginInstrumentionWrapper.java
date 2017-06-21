@@ -124,7 +124,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
 						if (!isRunning) {
 							if (FairyGlobal.getMinLoadingTime() > 0 && FairyGlobal.getLoadingResId() != 0) {
-								return waitForLoading(pluginDescriptor);
+								return waitForLoading(pluginDescriptor, pluginClassName);
 							} else {
 								//这个else是为了处理内嵌在tabactivity中的情况, 需要提前start，否则内嵌tab会被拉出tab单独显示
 								PluginLauncher.instance().startPlugin(pluginDescriptor);
@@ -158,7 +158,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					if (pluginDescriptor != null && FairyGlobal.getMinLoadingTime() > 0 && FairyGlobal.getLoadingResId() != 0) {
 						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
 						if (!isRunning) {
-							return waitForLoading(pluginDescriptor);
+							return waitForLoading(pluginDescriptor, className);
 						}
 					}
 
@@ -179,6 +179,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				} else {
 					//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了
 					//这里只能通过之前添加的标记符来查找className
+                    LogUtil.e("check with RELAUNCH_FLAG");
 					boolean found = false;
 					Set<String> category = intent.getCategories();
 					if (category != null) {
@@ -194,7 +195,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 								if (pluginDescriptor != null && FairyGlobal.getMinLoadingTime() > 0 && FairyGlobal.getLoadingResId() != 0) {
 									boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
 									if (!isRunning) {//理论上这里的isRunning应当是true
-										return waitForLoading(pluginDescriptor);
+										return waitForLoading(pluginDescriptor, className);
 									}
 								}
 
@@ -247,9 +248,9 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 		}
 	}
 
-	private Activity waitForLoading(PluginDescriptor pluginDescriptor) {
+	private Activity waitForLoading(PluginDescriptor pluginDescriptor, String targetClassName) {
 		WaitForLoadingPluginActivity waitForLoadingPluginActivity = new WaitForLoadingPluginActivity();
-		waitForLoadingPluginActivity.setTargetPlugin(pluginDescriptor);
+		waitForLoadingPluginActivity.setTargetPlugin(pluginDescriptor, targetClassName);
 		return waitForLoadingPluginActivity;
 	}
 
