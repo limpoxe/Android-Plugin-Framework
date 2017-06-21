@@ -423,7 +423,10 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
     将此配置加在插件manifest文件的<manifest/>节点中
     Demo参考Admob。
     
-
+15. 如何添加自定义的Stub
+   
+    框架内置的stub模版有限，特别是对Activity来说，配置组合起来会比较多，若插件stub模版不满足要求时，可以通过添加自定义的stub映射处理器来进行stub映射
+    使用 FairyGlobal.registStubMappingProcessor() 来添加自定义的stub映射处理器
 
 # 注意事项
 
