@@ -2,7 +2,7 @@ package com.limpoxe.fairy.core;
 
 import android.app.Application;
 
-import com.limpoxe.fairy.manager.StubMappingProcessor;
+import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class FairyGlobal {
     private static int sLoadingResId;
     private static long sMinLoadingTime = 400;
     private static boolean sIsNeedVerifyPluginSign = true;
-    private static ArrayList<StubMappingProcessor> mappingProcessors = null;
+    private static ArrayList<StubMappingProcessor> mappingProcessors = new ArrayList<StubMappingProcessor>();
 
     public static Application getApplication() {
         if (!isInited()) {

@@ -2,7 +2,6 @@ package com.limpoxe.fairy.manager;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -10,6 +9,9 @@ import android.os.Bundle;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
+import com.limpoxe.fairy.manager.mapping.StubExact;
+import com.limpoxe.fairy.manager.mapping.PluginStubBinding;
+import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
@@ -196,40 +198,35 @@ public class PluginManagerProvider extends ContentProvider {
 
         } else if (ACTION_BIND_ACTIVITY.equals(method)) {
 
-            bundle.putString(BIND_ACTIVITY_RESULT,
-                    PluginStubBinding.bindStubActivity(arg,
-                            extras.getInt("launchMode"),
-                            extras.getString("packageName"),
-                            extras.getString("themeId"),
-                            extras.getInt("orientation", ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)));
+            bundle.putString(BIND_ACTIVITY_RESULT, PluginStubBinding.bindStub(arg, extras.getString("packageName"), StubMappingProcessor.TYPE_ACTIVITY));
 
             return bundle;
 
         } else if (ACTION_UNBIND_ACTIVITY.equals(method)) {
 
-            PluginStubBinding.unBindLaunchModeStubActivity(arg, extras.getString("className"));
+            PluginStubBinding.unBind(arg, extras.getString("className"), StubMappingProcessor.TYPE_ACTIVITY);
 
         } else if (ACTION_BIND_SERVICE.equals(method)) {
-            bundle.putString(BIND_SERVICE_RESULT, PluginStubBinding.bindStubService(arg));
+            bundle.putString(BIND_SERVICE_RESULT, PluginStubBinding.bindStub(arg, null, StubMappingProcessor.TYPE_SERVICE));
 
             return bundle;
 
         } else if (ACTION_GET_BINDED_SERVICE.equals(method)) {
-            bundle.putString(GET_BINDED_SERVICE_RESULT, PluginStubBinding.getBindedPluginServiceName(arg));
+            bundle.putString(GET_BINDED_SERVICE_RESULT, PluginStubBinding.getBindedPluginClassName(arg, StubMappingProcessor.TYPE_SERVICE));
 
             return bundle;
 
         } else if (ACTION_UNBIND_SERVICE.equals(method)) {
 
-            PluginStubBinding.unBindStubService(arg);
+            PluginStubBinding.unBind(null, arg, StubMappingProcessor.TYPE_SERVICE);
 
         } else if (ACTION_BIND_RECEIVER.equals(method)) {
-            bundle.putString(BIND_RECEIVER_RESULT, PluginStubBinding.bindStubReceiver(arg));
+            bundle.putString(BIND_RECEIVER_RESULT, PluginStubBinding.bindStub(arg, null, StubMappingProcessor.TYPE_RECEIVER));
 
             return bundle;
 
         } else if (ACTION_IS_EXACT.equals(method)) {
-            bundle.putBoolean(IS_EXACT_RESULT, PluginStubBinding.isExact(arg, extras.getInt("type")));
+            bundle.putBoolean(IS_EXACT_RESULT, StubExact.isExact(arg, extras.getInt("type")));
 
             return bundle;
 
@@ -239,7 +236,7 @@ public class PluginManagerProvider extends ContentProvider {
             return bundle;
 
         } else if (ACTION_DUMP_SERVICE_INFO.equals(method)) {
-            bundle.putString(DUMP_SERVICE_INFO_RESULT, PluginStubBinding.dumpServieInfo());
+            bundle.putString(DUMP_SERVICE_INFO_RESULT, "TODO: not implement yet");
             return bundle;
         }
 

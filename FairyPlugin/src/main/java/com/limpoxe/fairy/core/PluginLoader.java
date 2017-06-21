@@ -24,6 +24,9 @@ import com.limpoxe.fairy.core.proxy.systemservice.AndroidOsServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginProviderClient;
+import com.limpoxe.fairy.manager.mapping.StubActivityMappingProcessor;
+import com.limpoxe.fairy.manager.mapping.StubReceiverMappingProcessor;
+import com.limpoxe.fairy.manager.mapping.StubServiceMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -51,6 +54,9 @@ public class PluginLoader {
 
         FairyGlobal.setIsInited(true);
         FairyGlobal.setApplication(app);
+        FairyGlobal.registStubMappingProcessor(new StubActivityMappingProcessor());
+        FairyGlobal.registStubMappingProcessor(new StubServiceMappingProcessor());
+        FairyGlobal.registStubMappingProcessor(new StubReceiverMappingProcessor());
 
         //这里的isPluginProcess方法需要在安装AndroidAppIActivityManager之前执行一次。
         //原因见AndroidAppIActivityManager的getRunningAppProcesses()方法
