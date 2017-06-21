@@ -414,6 +414,16 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         
        可以参考demo        
 
+14. 如何使插件返回宿主包名
+
+    默认情况下，插件getPackageName返回插件包名。虽然框架中会在一些系统api上将packageName修正为宿主的，
+    但是仍然可能有些特殊原因，比如在插件中接了一些三方sdk，sdk中有些api框架没有修正，导致出现packageName错误。
+    
+    这种情况下，如果通过上面提到的fakeContext无法解决，可以使用useHostPackageName="true"这个配置指定插件使用宿主包名。
+    将此配置加在插件manifest文件的<manifest/>节点中
+    Demo参考Admob。
+    
+
 
 # 注意事项
 
