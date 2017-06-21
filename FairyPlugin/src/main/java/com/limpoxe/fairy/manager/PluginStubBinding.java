@@ -228,9 +228,12 @@ class PluginStubBinding {
         ArrayList<StubMappingProcessor> list = FairyGlobal.getStubMappingProcessors();
         if(list != null) {
             for(StubMappingProcessor processor : list) {
-                String stubActivityClass = processor.bindStub(packageName, pluginActivityClassName, StubMappingProcessor.TYPE_ACTIVITY);
-                if (!TextUtils.isEmpty(stubActivityClass)) {
-                    return stubActivityClass;
+                PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+                if (pluginDescriptor != null) {
+                    String stubActivityClass = processor.bindStub(pluginDescriptor, pluginActivityClassName, StubMappingProcessor.TYPE_ACTIVITY);
+                    if (!TextUtils.isEmpty(stubActivityClass)) {
+                        return stubActivityClass;
+                    }
                 }
             }
         }
@@ -343,6 +346,14 @@ class PluginStubBinding {
 	}
 
 	public static synchronized void unBindLaunchModeStubActivity(String stubActivityName, String pluginActivityName) {
+
+        //先看看有没有注册自定义的processor
+        ArrayList<StubMappingProcessor> list = FairyGlobal.getStubMappingProcessors();
+        if(list != null) {
+            for(StubMappingProcessor processor : list) {
+                processor.unBindStub(stubActivityName, pluginActivityName, StubMappingProcessor.TYPE_ACTIVITY);
+            }
+        }
 
 		LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 

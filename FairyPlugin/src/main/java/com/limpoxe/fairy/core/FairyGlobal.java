@@ -90,6 +90,9 @@ public class FairyGlobal {
     }
 
     public static void registStubMappingProcessor(StubMappingProcessor processor) {
+        if (processor == null) {
+            return;
+        }
         if (mappingProcessors == null) {
             mappingProcessors = new ArrayList<StubMappingProcessor>();
         }
