@@ -89,6 +89,10 @@ public class FairyGlobal {
         return sIsNeedVerifyPluginSign;
     }
 
+    /**
+     * 如果两个processor可以处理同一个映射关系，则后添加processor生效，先添加的processor会被忽略
+     * @param processor
+     */
     public static void registStubMappingProcessor(StubMappingProcessor processor) {
         if (processor == null) {
             return;

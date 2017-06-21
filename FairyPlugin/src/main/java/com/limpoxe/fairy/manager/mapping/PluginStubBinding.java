@@ -20,7 +20,8 @@ public class PluginStubBinding {
 	public static synchronized String bindStub(String pluginClassName, String packageName, int type) {
         ArrayList<StubMappingProcessor> list = FairyGlobal.getStubMappingProcessors();
         if(list != null) {
-            for(StubMappingProcessor processor : list) {
+            for(int i = list.size() - 1; i >= 0; i--) {
+                StubMappingProcessor processor = list.get(i);
                 if (processor.getType() == type) {
                     PluginDescriptor pluginDescriptor = null;
                     if (!TextUtils.isEmpty(packageName)) {
@@ -39,7 +40,8 @@ public class PluginStubBinding {
 	public static synchronized void unBind(String stubClassName, String pluginClassName, int type) {
         ArrayList<StubMappingProcessor> list = FairyGlobal.getStubMappingProcessors();
         if(list != null) {
-            for(StubMappingProcessor processor : list) {
+            for(int i = list.size() - 1; i >= 0; i--) {
+                StubMappingProcessor processor = list.get(i);
                 if (processor.getType() == type) {
                     processor.unBindStub(stubClassName, pluginClassName);
                 }
@@ -50,7 +52,8 @@ public class PluginStubBinding {
 	public static synchronized String getBindedPluginClassName(String stubClassName, int type) {
         ArrayList<StubMappingProcessor> list = FairyGlobal.getStubMappingProcessors();
         if(list != null) {
-            for(StubMappingProcessor processor : list) {
+            for(int i = list.size() - 1; i >= 0; i--) {
+                StubMappingProcessor processor = list.get(i);
                 if (processor.getType() == type) {
                     String bindedClass = processor.getBindedPluginClassName(stubClassName);
                     if (!TextUtils.isEmpty(bindedClass)) {
@@ -65,7 +68,8 @@ public class PluginStubBinding {
 	public static boolean isStub(String className) {
         ArrayList<StubMappingProcessor> list = FairyGlobal.getStubMappingProcessors();
         if(list != null) {
-            for(StubMappingProcessor processor : list) {
+            for(int i = list.size() - 1; i >= 0; i--) {
+                StubMappingProcessor processor = list.get(i);
                 if (processor.isStub(className)) {
                     return true;
                 }
