@@ -384,7 +384,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         if (pluginDescriptor.getType(className) == PluginDescriptor.ACTIVITY) {
             PluginActivityInfo detail = pluginDescriptor.getActivityInfos().get(className);
             activityInfo.launchMode = Integer.valueOf(detail.getLaunchMode());
-            activityInfo.theme = ResourceUtil.getResourceId(detail.getTheme());
+            activityInfo.theme = ResourceUtil.parseResId(detail.getTheme());
             if (detail.getUiOptions() != null) {
                 activityInfo.uiOptions = Integer.parseInt(detail.getUiOptions().replace("0x", ""), 16);
             }

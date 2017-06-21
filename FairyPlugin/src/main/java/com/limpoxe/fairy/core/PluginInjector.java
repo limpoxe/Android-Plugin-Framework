@@ -378,7 +378,7 @@ public class PluginInjector {
 	private static int getPluginTheme(ActivityInfo activityInfo, PluginActivityInfo pluginActivityInfo, PluginDescriptor pd) {
 		int pluginAppTheme = 0;
 		if (pluginActivityInfo != null ) {
-			pluginAppTheme = ResourceUtil.getResourceId(pluginActivityInfo.getTheme());
+			pluginAppTheme = ResourceUtil.parseResId(pluginActivityInfo.getTheme());
 		}
 		if (pluginAppTheme == 0) {
 			pluginAppTheme = pd.getApplicationTheme();

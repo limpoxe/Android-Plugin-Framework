@@ -239,9 +239,13 @@ class PluginStubBinding {
 							f.setAccessible(true);
 							sResId = (int)f.get(null);
 						}
-						int styleId = ResourceUtil.getResourceId(themeId);
+						int styleId = ResourceUtil.parseResId(themeId);
 						if (styleId != 0) {
 							//maybe need cache
+                            //根据目标Activity的主题id构造一个主题对象，
+                            //并尝试从此主题中取出用于配置透明的属性：windowIsTranslucent
+                            //如果取到了，说明目标Activity是使用的透明主题
+                            //则返回透明主题的stubActivity
 							Resources.Theme theme = loadedPlugin.pluginResource.newTheme();
 							Resources.Theme baseTheme = ((ContextWrapper)loadedPlugin.pluginContext).getBaseContext().getTheme();
 							if (baseTheme != null) {

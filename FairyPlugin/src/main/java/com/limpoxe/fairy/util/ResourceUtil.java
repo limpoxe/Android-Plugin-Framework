@@ -71,7 +71,15 @@ public class ResourceUtil {
         return null;
     }
 
+    /**
+     * use parseResId() instead
+     */
+    @Deprecated
     public static int getResourceId(String value) {
+        return parseResId(value);
+    }
+
+    public static int parseResId(String value) {
         String idHex = null;
         if (value != null && value.startsWith("@") && value.length() == 9) {
             idHex = value.replace("@", "");
@@ -107,7 +115,7 @@ public class ResourceUtil {
             if (label == null || label.equals(pluginDescriptor.getPackageName())) {
                 //可能设置的lable是来自宿主的资源
                 if (pluginDescriptor.getDescription() != null) {
-                    int id = ResourceUtil.getResourceId(pluginDescriptor.getDescription());
+                    int id = ResourceUtil.parseResId(pluginDescriptor.getDescription());
                     if (id != 0) {
                         //再宿主中查一次
                         try {
