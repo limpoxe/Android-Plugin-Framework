@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionCode 56
-        versionName "0.0.56-snapshot"
+        versionCode 57
+        versionName "0.0.57-snapshot"
     }
 
     lintOptions {
