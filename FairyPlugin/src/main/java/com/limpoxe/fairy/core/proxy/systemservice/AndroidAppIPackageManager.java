@@ -379,7 +379,9 @@ public class AndroidAppIPackageManager extends MethodProxy {
         activityInfo.exported = false;
         activityInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
         activityInfo.taskAffinity = null;//需要时再加上
-        //activityInfo.targetActivity =
+        //activityInfo.targetActivity = //需要时再加上
+        //activityInfo.softInputMode = //需要时再加上
+        //activityInfo.screenOrientation = //需要时再加上
 
         if (pluginDescriptor.getType(className) == PluginDescriptor.ACTIVITY) {
             PluginActivityInfo detail = pluginDescriptor.getActivityInfos().get(className);
