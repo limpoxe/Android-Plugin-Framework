@@ -41,6 +41,7 @@ import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.android.HackActivity;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 import com.umeng.analytics.MobclickAgent;
 
@@ -258,9 +259,17 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	public void onClickHellowrld(View v) {
         MobclickAgent.onEvent(fakeThisForUmengSdk, "test_4");
 
-        Intent intent = getPackageManager().getLaunchIntentForPackage("com.example.pluginhelloworld");
-        intent.putExtra("testParam", "testParam");
-		startActivity(intent);
+        if (PluginManagerHelper.isInstalled("com.example.pluginhelloworld")) {
+            Intent intent = getPackageManager().getLaunchIntentForPackage("com.example.pluginhelloworld");
+            if (intent != null) {
+                intent.putExtra("testParam", "testParam");
+                startActivity(intent);
+            } else {
+                Log.e("onClickHellowrld", "No Launcher Intent");
+            }
+        } else {
+            Log.e("onClickHellowrld", "Not Installed");
+        }
 
         if (mService != null) {
             try {
