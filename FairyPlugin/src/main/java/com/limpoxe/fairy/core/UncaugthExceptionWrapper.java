@@ -91,6 +91,8 @@ public class UncaugthExceptionWrapper implements Thread.UncaughtExceptionHandler
                         StackTraceElement element = elements[i];
                         //异常栈里面包含插件的包名，则认为是这个插件抛出的异常
                         LogUtil.d("EEE", element.getClassName() + " packageName=" + packageName);
+                        //这里只是简单的通过判断异常调用栈是否包含插件的包名来判断插件来源，不一定准确
+                        //不过应该也可以覆盖大部分情况了
                         if (element.getClassName() != null && element.getClassName().startsWith(packageName)) {
                             LogUtil.e("识别出此异常来源，交给插件处理", packageName);
                             pluginHandler.uncaughtException(t, e);

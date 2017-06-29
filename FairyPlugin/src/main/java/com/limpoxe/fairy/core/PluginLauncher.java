@@ -349,6 +349,7 @@ public class PluginLauncher implements Serializable {
         CompatForFragmentClassCache.clearSupportV4FragmentClassCache();
 
         //移除插件注册的crashHandler
+        //这里不一定能清理干净，因为UncaugthExceptionWrapper可能会被创建多个实例。不过也没什么大的影响
         Thread.UncaughtExceptionHandler exceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
         if (exceptionHandler instanceof UncaugthExceptionWrapper) {
             ((UncaugthExceptionWrapper) exceptionHandler).removeHandler(pluginDescriptor.getPackageName());
