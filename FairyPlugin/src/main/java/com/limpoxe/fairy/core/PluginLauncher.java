@@ -219,16 +219,41 @@ public class PluginLauncher implements Serializable {
         LogUtil.v("屏蔽插件中的UncaughtExceptionHandler");
         //先拿到宿主的crashHandler
         Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(null);
 
         pluginApplication.onCreate();
+
+        Thread.UncaughtExceptionHandler pluginExHandler = Thread.getDefaultUncaughtExceptionHandler();
 
         // 再还原宿主的crashHandler，这里之所以需要还原CrashHandler，
         // 是因为如果插件中自己设置了自己的crashHandler（通常是在oncreate中），
         // 会导致当前进程的主线程的handler被意外修改。
         // 如果有多个插件都有设置自己的crashHandler，也会导致混乱
-        // 所以这里直接屏蔽掉插件的crashHandler
-        //TODO 或许也可以做成消息链进行分发？
-        Thread.setDefaultUncaughtExceptionHandler(old);
+        if (old == null && pluginExHandler == null) {
+            //do nothing
+        } else if (old == null && pluginExHandler != null) {
+            UncaugthExceptionWrapper handlerWrapper = new UncaugthExceptionWrapper();
+            handlerWrapper.addHandler(pluginDescriptor.getPackageName(), pluginExHandler);
+            Thread.setDefaultUncaughtExceptionHandler(handlerWrapper);
+        } else if (old != null && pluginExHandler == null) {
+            Thread.setDefaultUncaughtExceptionHandler(old);
+        } else if (old != null && pluginExHandler != null) {
+            if (old == pluginExHandler) {
+                //do nothing
+            } else {
+                if (old instanceof UncaugthExceptionWrapper) {
+                    ((UncaugthExceptionWrapper) old).addHandler(pluginDescriptor.getPackageName(), pluginExHandler);
+                    Thread.setDefaultUncaughtExceptionHandler(old);
+                } else {
+                    //old是宿主设置和handler
+                    UncaugthExceptionWrapper handlerWrapper = new UncaugthExceptionWrapper();
+                    handlerWrapper.setHostHandler(old);
+                    handlerWrapper.addHandler(pluginDescriptor.getPackageName(), pluginExHandler);
+
+                    Thread.setDefaultUncaughtExceptionHandler(handlerWrapper);
+                }
+            }
+        }
 
         if (Build.VERSION.SDK_INT >= 14) {
             // ActivityLifecycleCallbacks 的回调实际是由Activity内部在自己的声明周期函数内主动调用application的注册的callback触发的
@@ -322,6 +347,12 @@ public class PluginLauncher implements Serializable {
 		//即退出由FragmentManager保存的Fragment
         CompatForFragmentClassCache.clearFragmentClassCache();
         CompatForFragmentClassCache.clearSupportV4FragmentClassCache();
+
+        //移除插件注册的crashHandler
+        Thread.UncaughtExceptionHandler exceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+        if (exceptionHandler instanceof UncaugthExceptionWrapper) {
+            ((UncaugthExceptionWrapper) exceptionHandler).removeHandler(pluginDescriptor.getPackageName());
+        }
 
 		loadedPluginMap.remove(packageName);
 	}
