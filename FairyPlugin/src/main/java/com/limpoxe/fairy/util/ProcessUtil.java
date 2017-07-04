@@ -35,7 +35,7 @@ public class ProcessUtil {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> list = activityManager.getRunningAppProcesses();
         for (ActivityManager.RunningAppProcessInfo appProcess : list) {
-            if (appProcess.pid == android.os.Process.myPid()) {
+            if (appProcess != null && appProcess.pid == android.os.Process.myPid()) {
                 return appProcess.processName;
             }
         }
@@ -49,7 +49,7 @@ public class ProcessUtil {
                 //因为Contentprovider是被配置在插件进程的.
                 //但是这个api只支持9及以上,
                 ProviderInfo pinfo = context.getPackageManager().getProviderInfo(new ComponentName(context, PluginManagerProvider.class), 0);
-                return pinfo.processName;
+                return pinfo==null?"":pinfo.processName;
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

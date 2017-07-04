@@ -171,7 +171,7 @@ public class PluginAppTrace implements Handler.Callback {
 
 	private static void afterCreateService(Result result) {
 		//这里不做进程判断,是因为如果是宿主进程, 也需要为宿主service换context
-		if (result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
+		if (result.serviceName != null && result.serviceName.startsWith(PluginIntentResolver.CLASS_PREFIX_SERVICE)) {
 			//替换service的context
 			//在引入了PluginShadowService以后,这个已经是多余的了, 注释掉先.
 			//PluginInjector.replacePluginServiceContext(result.serviceName.replace(PluginIntentResolver.CLASS_PREFIX_SERVICE, ""));

@@ -143,6 +143,11 @@ public class PluginIntentResolver {
 		HackCreateServiceData hackCreateServiceData = new HackCreateServiceData(msgObj);
 		ServiceInfo info = hackCreateServiceData.getInfo();
 
+        if (info == null) {
+            LogUtil.e("反射失败？");
+            return null;
+        }
+
 		if (ProcessUtil.isPluginProcess()) {
 
 			PluginInjector.hackHostClassLoaderIfNeeded();

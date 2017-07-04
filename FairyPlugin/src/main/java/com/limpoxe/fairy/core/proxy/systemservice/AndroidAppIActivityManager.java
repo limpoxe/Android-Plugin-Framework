@@ -83,7 +83,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
             if (ProcessUtil.isPluginProcess()) {
                 List<ActivityManager.RunningAppProcessInfo> result = (List<ActivityManager.RunningAppProcessInfo>)invokeResult;
                 for (ActivityManager.RunningAppProcessInfo appProcess : result) {
-                    if (appProcess.pid == android.os.Process.myPid()) {
+                    if (appProcess != null && appProcess.pid == android.os.Process.myPid()) {
                         appProcess.processName = FairyGlobal.getApplication().getPackageName();
                         break;
                     }
