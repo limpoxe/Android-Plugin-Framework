@@ -24,6 +24,7 @@ import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplication;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
 import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
+import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginResInitError;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
@@ -181,10 +182,8 @@ public class PluginLauncher implements Serializable {
 			e.printStackTrace();
 		}
 
-        // 下面这行代码可以解决插件中webview加载html时<input type=date />控件出错的问题，
-        // 但是在部分系统上又会造成插件assets资源混乱而导致crash
-        // 先注释掉
-        // CompatForWebViewFactoryApi21.addWebViewAssets(plugin.pluginApplication.getAssets());
+        // 解决插件中webview加载html时<input type=date />控件出错的问题，兼容性待验证
+        CompatForWebViewFactoryApi21.addWebViewAssets(pluginRes.getAssets());
 
 		LogUtil.w("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}

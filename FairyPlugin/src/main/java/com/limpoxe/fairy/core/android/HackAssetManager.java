@@ -34,6 +34,7 @@ public class HackAssetManager {
 
     }
 
+    //Android L
     public SparseArray<String> getAssignedPackageIdentifiers() {
         SparseArray<String> packageIdentifiers = (SparseArray<String>) RefInvoker.invokeMethod(instance,
                 ClassName, Method_getAssignedPackageIdentifiers, null, null);

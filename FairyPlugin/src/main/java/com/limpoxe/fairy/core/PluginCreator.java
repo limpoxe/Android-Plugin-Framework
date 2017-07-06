@@ -122,11 +122,6 @@ public class PluginCreator {
 		assetPaths[0] = plugin;
 		LogUtil.v("create Plugin Resource from: ", plugin);
 
-        //TODO 需要将chrome添加到assetPath，以解决在webviw中弹出对话框的（如日历）是找不着资源的问题，但是部分系统不兼容
-        //@see CompatForWebViewFactoryApi21.addWebViewAssets()
-        //unused, just for test
-        String chromePath = CompatForWebViewFactoryApi21.getChromeApkPath();
-
         if (!isStandalone) {
 			if (dependencies != null) {
 				//插件间资源依赖，这里需要遍历添加dependencies
