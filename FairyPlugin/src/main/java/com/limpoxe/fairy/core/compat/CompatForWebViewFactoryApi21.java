@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
-import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.limpoxe.fairy.core.FairyGlobal;
@@ -35,7 +34,7 @@ public class CompatForWebViewFactoryApi21 {
                 HackAssetManager hackhostAssetManager = new HackAssetManager(FairyGlobal.getApplication().getAssets());
                 SparseArray<String> hostPackageIdentifiers = hackhostAssetManager.getAssignedPackageIdentifiers();
                 printPackages(hostPackageIdentifiers);
-                LogUtil.v("------");
+                LogUtil.v("------------------------------------");
                 printPackages(packageIdentifiers);
                 //End:Just For Debug
             }
@@ -43,19 +42,32 @@ public class CompatForWebViewFactoryApi21 {
             if (!isAdded(packageIdentifiers, packageInfo.packageName)) {
                 LogUtil.i("Loaded WebView Package : " + packageInfo.packageName + " version " + packageInfo.versionName + " (code " + packageInfo.versionCode + ")" + packageInfo.applicationInfo.sourceDir);
                 LogUtil.i("WebView logo " + packageInfo.applicationInfo.logo + "，icon " + packageInfo.applicationInfo.icon + ", labelRes" + packageInfo.applicationInfo.labelRes);
-                hackAssetManager.addAssetPath(packageInfo.applicationInfo.sourceDir);
+                //TODO 由于目前的资源id分组方案是限制宿主范围，插件使用原生范围，因此如果webview也使用了原生的范围，则会和插件冲突
+                //为避免webview的资源id和插件的资源id冲突，这里做个判断
+                if (packageInfo.applicationInfo.icon != 0 && (packageInfo.applicationInfo.icon >> 24) != 0x7f) {
+                    LogUtil.w("add webview assets " + packageInfo.applicationInfo.sourceDir);
+                    hackAssetManager.addAssetPath(packageInfo.applicationInfo.sourceDir);
+                } else {
+                    //TODO 既然宿主可以使用和自己相同packageId的webview，可能问题还是出在assets的添加顺序上。
+                }
             }
         } else {
-            String chrome = getChromeApkPath();
-            LogUtil.v("getChromeApkPath", chrome);
-            if (!TextUtils.isEmpty(chrome)) {
-                HackAssetManager hackAssetManager = new HackAssetManager(pluginAssetManager);
-                hackAssetManager.addAssetPath(chrome);
+            ApplicationInfo chrome = getWebViewPackage();
+            if (chrome != null) {
+                String chromePath = chrome.sourceDir;
+                LogUtil.i("WebView logo " + chrome.logo + "，icon " + chrome.icon + ", labelRes" + chrome.labelRes + ", path " + chromePath);
+                if (chrome.icon != 0 && (chrome.icon >> 24) != 0x7f) {
+                    LogUtil.w("add webview assets " + packageInfo.applicationInfo.sourceDir);
+                    HackAssetManager hackAssetManager = new HackAssetManager(pluginAssetManager);
+                    hackAssetManager.addAssetPath(chromePath);
+                } else {
+                    //TODO 既然宿主可以使用和自己相同packageId的webview，可能问题还是出在assets的添加顺序上。
+                }
             }
         }
     }
 
-    public static String getChromeApkPath() {
+    public static ApplicationInfo getWebViewPackage() {
         if (!FairyGlobal.isLocalHtmlEnable()) {
             return null;
         }
@@ -64,12 +76,9 @@ public class CompatForWebViewFactoryApi21 {
                 Resources hostRes = FairyGlobal.getApplication().getResources();
                 int packageNameResId = hostRes.getIdentifier("android:string/config_webViewPackageName", "string", "android");
                 String chromePackagename = hostRes.getString(packageNameResId);
-                LogUtil.v("chromePackagename", chromePackagename);
+                LogUtil.v("Webview PackageName", chromePackagename);
                 ApplicationInfo applicationInfo = FairyGlobal.getApplication().createPackageContext(chromePackagename, 0).getApplicationInfo();
-                String chromePath = applicationInfo.sourceDir;
-                LogUtil.i(applicationInfo.logo + " " + applicationInfo.icon + " " + applicationInfo.labelRes);
-                LogUtil.v("chrome app path", chromePath);
-                return chromePath;
+                return applicationInfo;
             } catch (Exception e) {
                 //ignore
             }
