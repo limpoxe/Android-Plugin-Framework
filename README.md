@@ -52,7 +52,12 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
   第三方app要唤起插件中的静态组件必须由宿主程序进行桥接，即此组件需同时预埋到宿主和插件的Manifest中
 - 不支持android.app.NativeActivity
 - 不支持当一个插件依赖另一个插件时，被插件依赖的包含资源
-- 不支持插件中的webview弹出```原生Chrome组件```，例如通过html的<input type="date"/>标签设置时间选择器,（可将Chrome路径添加到插件Assets解决，但似乎存在ROM兼容问题）
+- 不支持插件中的webview弹出```原生Chrome组件```
+  例如通过html的<input type="date"/>标签设置时间选择器。
+  说明：是否能支持原生组件取决于系统中使用WebView的实现。
+       如果是使用的Android System Webview，则可以支持。因为它packageId是以0x3f开头；
+       如果是使用的Chrome Webview，则不支持。因为它packageId是以0x7f开头，会和插件冲突。
+       这是采用Public.xml进行资源分组的缺陷。
 - 可能不支持对插件或者宿主进行加壳加固处理，未尝试
     
 # HOW TO USE
