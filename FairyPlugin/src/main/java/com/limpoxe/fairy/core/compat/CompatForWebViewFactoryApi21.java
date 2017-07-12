@@ -41,13 +41,14 @@ public class CompatForWebViewFactoryApi21 {
             //如果插件的AssetManager尚未添加webview的包，则补上。
             if (!isAdded(packageIdentifiers, packageInfo.packageName)) {
                 LogUtil.i("Loaded WebView Package : " + packageInfo.packageName + " version " + packageInfo.versionName + " (code " + packageInfo.versionCode + ")" + packageInfo.applicationInfo.sourceDir);
-                LogUtil.i("WebView logo " + packageInfo.applicationInfo.logo + "，icon " + packageInfo.applicationInfo.icon + ", labelRes" + packageInfo.applicationInfo.labelRes);
+                LogUtil.i("WebView logo " + packageInfo.applicationInfo.logo + "，icon " + packageInfo.applicationInfo.icon + ", labelRes " + packageInfo.applicationInfo.labelRes);
                 //TODO 由于目前的资源id分组方案是限制宿主范围，插件使用原生范围，因此如果webview也使用了原生的范围，则会和插件冲突
                 //为避免webview的资源id和插件的资源id冲突，这里做个判断
                 if (packageInfo.applicationInfo.icon != 0 && (packageInfo.applicationInfo.icon >> 24) != 0x7f) {
                     LogUtil.w("add webview assets " + packageInfo.applicationInfo.sourceDir);
                     hackAssetManager.addAssetPath(packageInfo.applicationInfo.sourceDir);
                 } else {
+                    LogUtil.w("WebView Assets Not Added " + packageInfo.applicationInfo.sourceDir);
                     //TODO 既然宿主可以使用和自己相同packageId的webview，可能问题还是出在assets的添加顺序上。
                 }
             }
@@ -57,10 +58,11 @@ public class CompatForWebViewFactoryApi21 {
                 String chromePath = chrome.sourceDir;
                 LogUtil.i("WebView logo " + chrome.logo + "，icon " + chrome.icon + ", labelRes" + chrome.labelRes + ", path " + chromePath);
                 if (chrome.icon != 0 && (chrome.icon >> 24) != 0x7f) {
-                    LogUtil.w("add webview assets " + packageInfo.applicationInfo.sourceDir);
+                    LogUtil.w("add webview assets " + chromePath);
                     HackAssetManager hackAssetManager = new HackAssetManager(pluginAssetManager);
                     hackAssetManager.addAssetPath(chromePath);
                 } else {
+                    LogUtil.w("WebView Assets Not Added " + chromePath);
                     //TODO 既然宿主可以使用和自己相同packageId的webview，可能问题还是出在assets的添加顺序上。
                 }
             }
