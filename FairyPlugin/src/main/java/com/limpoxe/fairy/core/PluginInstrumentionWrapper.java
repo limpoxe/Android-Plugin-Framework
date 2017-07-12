@@ -75,13 +75,17 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 	}
 
 	@Override
-	public boolean onException(Object obj, Throwable e) {
-		if (obj instanceof Activity) {
-			((Activity) obj).finish();
-		} else if (obj instanceof Service) {
-			((Service) obj).stopSelf();
-		}
-		return super.onException(obj, e);
+	public boolean onException(Object obj, Throwable throwable) {
+		try {
+            if (obj instanceof Activity) {
+                ((Activity) obj).finish();
+            } else if (obj instanceof Service) {
+                ((Service) obj).stopSelf();
+            }
+        } catch (Exception e1) {
+            //
+        }
+		return super.onException(obj, throwable);
 	}
 
 	@Override
