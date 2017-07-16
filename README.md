@@ -396,6 +396,15 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
              
          这里需要注意的是插件开启混淆以后，需要在插件的proguard里面增加对插件Fragment的keep，否则如果此fragment没有在插件自身
          使用，仅作为嵌入宿主使用，则progurad可能误以为这个类在插件中没有被使用过而被精简掉
+         
+         ---------------------------------------------------
+         以Demo为例，启用PluginTest插件的Debug版本的混淆，方法如下：
+            1、修改PluginMain工程的build.gradle中的buildTypes.debug.minifyEnabled为true
+            2、修改PluginTest工程的build.gradle中的buildTypes.debug.minifyEnabled为true
+            3、修改PluginTest工程的build.gradle中的provided files(project(':Samples:PluginMain')... 为compile files(project(':Samples:PluginMain')...
+            4、放开PluginTest工程的build.gradle中对ext.host_obfuscated_jar的配置的注释
+            5、检查PluginTest工程的proguard-rules.pro文件中的-applymapping配置路径是否准确
+            6、clean && assembleDebug
              
 13. 如何使外部应用或者系统可以直接通过插件组件的Intent打开插件
 
