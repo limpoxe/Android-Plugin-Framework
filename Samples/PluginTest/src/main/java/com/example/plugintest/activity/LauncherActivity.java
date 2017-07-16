@@ -3,9 +3,11 @@ package com.example.plugintest.activity;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -39,6 +41,7 @@ import com.example.plugintest.Log;
 import com.example.plugintest.R;
 import com.example.plugintest.receiver.PluginTestReceiver2;
 import com.example.plugintest.service.PluginTestService;
+import com.example.plugintest.vo.ParamVO;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.android.HackActivity;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
@@ -77,6 +80,16 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         }
     };
 
+    BroadcastReceiver broadcastReceiver =  new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            intent.setExtrasClassLoader(ParamVO.class.getClassLoader());
+            String msg = intent.getStringExtra("msg");
+            ParamVO paramVO = (ParamVO)intent.getSerializableExtra("vo");
+            Toast.makeText(context, msg + ", " + paramVO, Toast.LENGTH_SHORT).show();
+        }
+    };
+
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -88,34 +101,11 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		setContentView(R.layout.plugin_launcher);
         ButterKnifeCompat.bind(this);
 
-		Log.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
-		Log.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
-		Log.e("xxx3", getResources().getString(R.string.app_name) + "  " + getPackageManager().getApplicationLabel(getApplicationInfo()));
-		Log.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
-		Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
-		Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugintest")));
-		Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
-		Log.e("xxx8", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginmain")));
-        Log.e("xxx9", butterTest.getText());
+		testLog();
 
         fakeThisForUmengSdk = fakeActivityForUMengSdk(LauncherActivity.this);
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            boolean isGranted = true;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                if (checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") == PackageManager.PERMISSION_DENIED) {
-                    isGranted = false;
-                    requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 10086);
-                }
-            }
-            if (isGranted) {
-                TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-                List<CellInfo> list =  telephonyManager.getAllCellInfo();
-                if (list != null) {
-                    LogUtil.v(list);
-                }
-            }
-        }
+        requestPermission();
 
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle("这是插件首屏");
@@ -145,13 +135,12 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		findViewById( R.id.onClickPluginTestService2).setOnClickListener(this);
 
         testQueryIntentActivities();
+        testAlarm();
+        testService();
+        testMeta();
+    }
 
-        Intent intent = new Intent();
-        intent.setAction("com.example.HostService");
-        //从 Android 5.0开始 隐式Intent绑定服务的方式已不能使用,所以这里需要设置Service所在服务端的包名
-        intent.setPackage("com.example.pluginmain");
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
-
+    private void testMeta() {
         try {
             ApplicationInfo application = (ApplicationInfo)getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
             int hellowMeta = (int)application.metaData.get("abcdef");
@@ -163,6 +152,38 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private void testAlarm() {
+        registerReceiver(broadcastReceiver, new IntentFilter("ACTION_ALARM_TEST"));
+
+//        Intent intent = new Intent("ACTION_ALARM_TEST");
+//        intent.putExtra("msg", "测试Alarm");
+//        intent.putExtra("vo", new ParamVO());
+//        intent.setExtrasClassLoader(ParamVO.class.getClassLoader());
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+//        AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
+//        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5*1000, pendingIntent);
+    }
+
+    private void testService() {
+        Intent intent = new Intent();
+        intent.setAction("com.example.HostService");
+        //从 Android 5.0开始 隐式Intent绑定服务的方式已不能使用,所以这里需要设置Service所在服务端的包名
+        intent.setPackage("com.example.pluginmain");
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void testLog() {
+        Log.e("xxx1", "activity_welcome ID= " + R.layout.plugin_launcher);
+        Log.e("xxx2", getResources().getResourceEntryName(R.layout.plugin_launcher));
+        Log.e("xxx3", getResources().getString(R.string.app_name) + "  " + getPackageManager().getApplicationLabel(getApplicationInfo()));
+        Log.e("xxx4", getPackageName() + ", " + getText(R.string.app_name));
+        Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
+        Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugintest")));
+        Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
+        Log.e("xxx8", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginmain")));
+        Log.e("xxx9", butterTest.getText());
     }
 
     private void testNotification() {
@@ -186,6 +207,25 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         List<ResolveInfo> infos = manager.queryIntentActivities(intent, 0);
 
         Log.e("xx", "infos=" + (infos==null?"0":infos.size()));
+    }
+
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= 17) {
+            boolean isGranted = true;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") == PackageManager.PERMISSION_DENIED) {
+                    isGranted = false;
+                    requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 10086);
+                }
+            }
+            if (isGranted) {
+                TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+                List<CellInfo> list =  telephonyManager.getAllCellInfo();
+                if (list != null) {
+                    LogUtil.v(list);
+                }
+            }
+        }
     }
 
 	private static void startFragmentInHostActivity(Context context, String targetId) {
@@ -594,5 +634,6 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         if (connection != null) {
             unbindService(connection);
         }
+        unregisterReceiver(broadcastReceiver);
     }
 }
