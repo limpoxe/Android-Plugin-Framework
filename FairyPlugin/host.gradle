@@ -326,7 +326,9 @@ public class ThemeProcessor extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
         if (qName.equals("bool") || qName.equals("color") || qName.equals("dimen") || qName.equals("eat-comment")
-                || qName.equals("integer") || qName.equals("string") || qName.equals("ns2:g") || qName.equals("ns1:g")) {
+                || qName.equals("integer") || qName.equals("string")
+                || qName.equals("ns2:g") || qName.equals("ns1:g")
+                || qName.equals("u")) {
             stack.add(new Node(attributes.getValue("name"), false, true));
             return;
         }
