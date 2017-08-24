@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
@@ -138,6 +139,28 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         testAlarm();
         testService();
         testMeta();
+        testVersion1();
+        testVersion2();
+    }
+
+    private void testVersion1() {
+        try {
+            PackageManager pm = getPackageManager();
+            PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);
+            LogUtil.v("plugin", pi.versionName, pi.versionCode);
+        } catch (Exception e) {
+            Log.e("VersionInfo", "Exception", e);
+        }
+    }
+
+    private void testVersion2() {
+        try {
+            PackageManager pm = getPackageManager();
+            PackageInfo pi = pm.getPackageInfo(FairyGlobal.getApplication().getPackageName(), 0);
+            LogUtil.v("host", pi.versionName, pi.versionCode);
+        } catch (Exception e) {
+            Log.e("VersionInfo", "Exception", e);
+        }
     }
 
     private void testMeta() {
