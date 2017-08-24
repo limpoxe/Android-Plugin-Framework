@@ -40,11 +40,11 @@ public class FakeUtil {
      * @return
      */
     public static Context fakeContext(Context context) {
-        if (!context.getPackageName().equals(FairyGlobal.getApplication().getPackageName())) {
+        if (!context.getPackageName().equals(FairyGlobal.getHostApplication().getPackageName())) {
             context = new ContextWrapper(context) {
                 @Override
                 public String getPackageName() {
-                    return FairyGlobal.getApplication().getPackageName();
+                    return FairyGlobal.getHostApplication().getPackageName();
                 }
             };
         }
@@ -551,7 +551,7 @@ public class FakeUtil {
     }
 
     public static Context fakeWindowContext(final Activity pluginActivity) {
-        return new ContextWrapper(FairyGlobal.getApplication()) {
+        return new ContextWrapper(FairyGlobal.getHostApplication()) {
             @Override
             public Object getSystemService(String name) {
                 if (WINDOW_SERVICE.equals(name)) {
@@ -563,7 +563,7 @@ public class FakeUtil {
     }
 
     public static Activity fakeActivityForUMengSdk(Activity activity) {
-        //getApplication();
+        //getHostApplication();
         //getApplicationContext();
         //getPackageName();
         //getLocalClassName();
@@ -571,19 +571,19 @@ public class FakeUtil {
         Activity fakeActivity = new Activity() {
             @Override
             public Context getApplicationContext() {
-                return FairyGlobal.getApplication().getApplicationContext();
+                return FairyGlobal.getHostApplication().getApplicationContext();
             }
 
             @Override
             public String getPackageName() {
-                return FairyGlobal.getApplication().getPackageName();
+                return FairyGlobal.getHostApplication().getPackageName();
             }
 
             public String getLocalClassName() {
                 return className;
             }
         };
-        new HackActivity(fakeActivity).setApplication(FairyGlobal.getApplication());
+        new HackActivity(fakeActivity).setApplication(FairyGlobal.getHostApplication());
         return fakeActivity;
     }
 }

@@ -67,7 +67,7 @@ public class PluginLoader {
 
         AndroidAppIActivityManager.installProxy();
         AndroidAppINotificationManager.installProxy();
-        AndroidAppIPackageManager.installProxy(FairyGlobal.getApplication().getPackageManager());
+        AndroidAppIPackageManager.installProxy(FairyGlobal.getHostApplication().getPackageManager());
 
         if (isPluginProcess) {
             HackLayoutInflater.installPluginCustomViewConstructorCache();
@@ -85,11 +85,11 @@ public class PluginLoader {
 
         PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
         PluginInjector.injectInstrumentation();
-        PluginInjector.injectBaseContext(FairyGlobal.getApplication());
+        PluginInjector.injectBaseContext(FairyGlobal.getHostApplication());
 
         if (isPluginProcess) {
             if (Build.VERSION.SDK_INT >= 14) {
-                FairyGlobal.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+                FairyGlobal.getHostApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                     @Override
                     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
                     }
@@ -135,12 +135,12 @@ public class PluginLoader {
     private static void removeNotSupportedPluginIfUpgraded() {
         //如果宿主进行了覆盖安装的升级操作，移除已经安装的对宿主版本有要求的非独立插件
         String KEY = "last_host_versionName";
-        SharedPreferences prefs = FairyGlobal.getApplication().getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
+        SharedPreferences prefs = FairyGlobal.getHostApplication().getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
         String lastHostVersoinName = prefs.getString(KEY, null);
         String hostVersionName = null;
         try {
-            PackageManager packageManager = FairyGlobal.getApplication().getPackageManager();
-            PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getApplication().getPackageName(), PackageManager.GET_META_DATA);
+            PackageManager packageManager = FairyGlobal.getHostApplication().getPackageManager();
+            PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_META_DATA);
             hostVersionName = hostPackageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

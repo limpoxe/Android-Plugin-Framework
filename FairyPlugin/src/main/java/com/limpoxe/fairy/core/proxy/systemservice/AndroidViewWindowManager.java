@@ -35,7 +35,7 @@ public class AndroidViewWindowManager extends MethodDelegate {
             for (Object object : args) {
                 if (object instanceof WindowManager.LayoutParams) {
                     LogUtil.v("修正WindowManager", methodName, "方法参数中的packageName", ((WindowManager.LayoutParams)object).packageName);
-                    ((WindowManager.LayoutParams)object).packageName = FairyGlobal.getApplication().getPackageName();
+                    ((WindowManager.LayoutParams)object).packageName = FairyGlobal.getHostApplication().getPackageName();
                 }
             }
         }

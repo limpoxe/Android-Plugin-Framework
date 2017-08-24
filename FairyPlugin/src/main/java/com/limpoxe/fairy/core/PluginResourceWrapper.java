@@ -33,7 +33,7 @@ public class PluginResourceWrapper extends Resources {
     @Override
     public String getResourcePackageName(int resid) throws NotFoundException {
         if (idCaches.contains(resid)) {
-            return FairyGlobal.getApplication().getPackageName();
+            return FairyGlobal.getHostApplication().getPackageName();
         }
         try {
             return super.getResourcePackageName(resid);
@@ -43,7 +43,7 @@ public class PluginResourceWrapper extends Resources {
             //华为、三星、小米等手机不会到这里来。
             if (!mPluginDescriptor.isStandalone() && ResourceUtil.isMainResId(resid)) {
                 idCaches.add(resid);
-                return FairyGlobal.getApplication().getPackageName();
+                return FairyGlobal.getHostApplication().getPackageName();
             }
             LogUtil.printStackTrace();
             throw new NotFoundException("Unable to find resource ID #0x"
@@ -59,7 +59,7 @@ public class PluginResourceWrapper extends Resources {
             LogUtil.e("NotFoundException Try Following");
             //vivo
             if (!mPluginDescriptor.isStandalone() && ResourceUtil.isMainResId(resid)) {
-                return FairyGlobal.getApplication().getResources().getResourceName(resid);
+                return FairyGlobal.getHostApplication().getResources().getResourceName(resid);
             }
             LogUtil.printStackTrace();
             throw new NotFoundException("Unable to find resource ID #0x"
@@ -75,7 +75,7 @@ public class PluginResourceWrapper extends Resources {
             LogUtil.e("NotFoundException Try Following");
             //vivo
             if (!mPluginDescriptor.isStandalone() && ResourceUtil.isMainResId(resid)) {
-                return FairyGlobal.getApplication().getResources().getResourceEntryName(resid);
+                return FairyGlobal.getHostApplication().getResources().getResourceEntryName(resid);
             }
             LogUtil.printStackTrace();
             throw new NotFoundException("Unable to find resource ID #0x"
@@ -91,7 +91,7 @@ public class PluginResourceWrapper extends Resources {
             LogUtil.e("NotFoundException Try Following");
             //vivo
             if (!mPluginDescriptor.isStandalone() && ResourceUtil.isMainResId(resid)) {
-                return FairyGlobal.getApplication().getResources().getResourceTypeName(resid);
+                return FairyGlobal.getHostApplication().getResources().getResourceTypeName(resid);
             }
             LogUtil.printStackTrace();
             throw new NotFoundException("Unable to find resource ID #0x"
@@ -110,7 +110,7 @@ public class PluginResourceWrapper extends Resources {
         }
 
         //传了packageName，而且不是宿主的packageName， 则直接返回
-        if (!TextUtils.isEmpty(defPackage) && !FairyGlobal.getApplication().getPackageName().equals(defPackage)) {
+        if (!TextUtils.isEmpty(defPackage) && !FairyGlobal.getHostApplication().getPackageName().equals(defPackage)) {
             return super.getIdentifier(name, defType, defPackage);
         }
 
@@ -145,7 +145,7 @@ public class PluginResourceWrapper extends Resources {
         }
 
         //传了宿主的packageName
-        if (FairyGlobal.getApplication().getPackageName().equals(packageName)) {
+        if (FairyGlobal.getHostApplication().getPackageName().equals(packageName)) {
             if (mPluginDescriptor.isStandalone()) {
                 //如果是独立插件, 取不到宿主资源, 这里强制切换到插件
                 packageName = mPluginDescriptor.getPackageName();
@@ -161,7 +161,7 @@ public class PluginResourceWrapper extends Resources {
                         packageName = mPluginDescriptor.getPackageName();
                     } else {
                         //在宿主中, 通过宿主的Context获取
-                        return FairyGlobal.getApplication().getResources().getIdentifier(entry, type, packageName);
+                        return FairyGlobal.getHostApplication().getResources().getIdentifier(entry, type, packageName);
                     }
                 } catch (Exception e) {
                     //不在宿主中，切换到插件

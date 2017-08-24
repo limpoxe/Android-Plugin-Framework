@@ -192,9 +192,9 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
     private static void loadStubActivity() {
         Intent launchModeIntent = new Intent();
         launchModeIntent.setAction(buildDefaultAction());
-        launchModeIntent.setPackage(FairyGlobal.getApplication().getPackageName());
+        launchModeIntent.setPackage(FairyGlobal.getHostApplication().getPackageName());
 
-        List<ResolveInfo> list = FairyGlobal.getApplication().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        List<ResolveInfo> list = FairyGlobal.getHostApplication().getPackageManager().queryIntentActivities(launchModeIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
         if (list != null && list.size() >0) {
             for (ResolveInfo resolveInfo:

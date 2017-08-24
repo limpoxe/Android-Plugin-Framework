@@ -32,7 +32,7 @@ public class LocalServiceManager {
         if (!isSupport) {
             return;
         }
-        ServiceManager.init(FairyGlobal.getApplication());
+        ServiceManager.init(FairyGlobal.getHostApplication());
     }
 
     public static void registerService(PluginDescriptor plugin) {

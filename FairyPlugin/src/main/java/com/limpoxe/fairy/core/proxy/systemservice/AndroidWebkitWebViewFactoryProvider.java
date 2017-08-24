@@ -38,7 +38,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                 Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
                 HackWebViewFactory.setProviderInstance(webViewFactoryProviderProxy);
 
-                WebView wb = new WebView(FairyGlobal.getApplication());
+                WebView wb = new WebView(FairyGlobal.getHostApplication());
                 wb.loadUrl("");//触发webview渲染引擎初始化
 
             } else {

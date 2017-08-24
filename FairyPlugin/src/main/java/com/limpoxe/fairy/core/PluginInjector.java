@@ -265,7 +265,7 @@ public class PluginInjector {
 		if (pluginActivityInfo != null) {
 
 			//如果PluginContextTheme的getPackageName返回了插件包名,需要在这里对attribute修正
-			activity.getWindow().getAttributes().packageName = FairyGlobal.getApplication().getPackageName();
+			activity.getWindow().getAttributes().packageName = FairyGlobal.getHostApplication().getPackageName();
 
 			if (null != pluginActivityInfo.getWindowSoftInputMode()) {
 				activity.getWindow().setSoftInputMode(Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
@@ -401,7 +401,7 @@ public class PluginInjector {
 	public static void hackHostClassLoaderIfNeeded() {
         LogUtil.v("hackHostClassLoaderIfNeeded");
 
-        HackApplication hackApplication = new HackApplication(FairyGlobal.getApplication());
+        HackApplication hackApplication = new HackApplication(FairyGlobal.getHostApplication());
 		Object mLoadedApk = hackApplication.getLoadedApk();
 		if (mLoadedApk == null) {
 			//重试一次
@@ -416,9 +416,9 @@ public class PluginInjector {
 			ClassLoader originalLoader = hackLoadedApk.getClassLoader();
 			if (!(originalLoader instanceof HostClassLoader)) {
 				HostClassLoader newLoader = new HostClassLoader("",
-						FairyGlobal.getApplication()
+						FairyGlobal.getHostApplication()
 						.getCacheDir().getAbsolutePath(),
-						FairyGlobal.getApplication().getCacheDir().getAbsolutePath(),
+						FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath(),
 						originalLoader);
 				hackLoadedApk.setClassLoader(newLoader);
 			}

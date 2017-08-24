@@ -31,7 +31,7 @@ public class CompatForWebViewFactoryApi21 {
             if (Build.VERSION.SDK_INT >= 21) {
                 packageIdentifiers = hackAssetManager.getAssignedPackageIdentifiers();
                 //Beign:Just For Debug
-                HackAssetManager hackhostAssetManager = new HackAssetManager(FairyGlobal.getApplication().getAssets());
+                HackAssetManager hackhostAssetManager = new HackAssetManager(FairyGlobal.getHostApplication().getAssets());
                 SparseArray<String> hostPackageIdentifiers = hackhostAssetManager.getAssignedPackageIdentifiers();
                 printPackages(hostPackageIdentifiers);
                 LogUtil.v("------------------------------------");
@@ -79,11 +79,11 @@ public class CompatForWebViewFactoryApi21 {
         }
         if (Build.VERSION.SDK_INT >= 21) {
             try {
-                Resources hostRes = FairyGlobal.getApplication().getResources();
+                Resources hostRes = FairyGlobal.getHostApplication().getResources();
                 int packageNameResId = hostRes.getIdentifier("android:string/config_webViewPackageName", "string", "android");
                 String chromePackagename = hostRes.getString(packageNameResId);
                 LogUtil.v("Webview PackageName", chromePackagename);
-                ApplicationInfo applicationInfo = FairyGlobal.getApplication().createPackageContext(chromePackagename, 0).getApplicationInfo();
+                ApplicationInfo applicationInfo = FairyGlobal.getHostApplication().createPackageContext(chromePackagename, 0).getApplicationInfo();
                 return applicationInfo;
             } catch (Exception e) {
                 //ignore

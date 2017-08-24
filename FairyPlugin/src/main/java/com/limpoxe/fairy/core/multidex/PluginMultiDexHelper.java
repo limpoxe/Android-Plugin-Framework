@@ -93,7 +93,7 @@ public class PluginMultiDexHelper {
 
             @Override
             public ApplicationInfo getApplicationInfo(String packageName, int flags) throws NameNotFoundException {
-                if (packageName.equals(FairyGlobal.getApplication().getPackageName())) {
+                if (packageName.equals(FairyGlobal.getHostApplication().getPackageName())) {
                     packageName = pluginPackageName;
                 }
                 return packageManager.getApplicationInfo(packageName, flags);

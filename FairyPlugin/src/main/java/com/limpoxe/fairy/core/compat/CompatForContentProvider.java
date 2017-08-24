@@ -18,7 +18,7 @@ public class CompatForContentProvider {
 
     public static Bundle call(Uri uri, String method, String arg, Bundle extras) {
 
-        ContentResolver resolver = FairyGlobal.getApplication().getContentResolver();
+        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
 
         if (Build.VERSION.SDK_INT >= 11) {
             try {

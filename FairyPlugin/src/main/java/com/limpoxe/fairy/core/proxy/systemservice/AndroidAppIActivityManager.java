@@ -84,7 +84,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                 List<ActivityManager.RunningAppProcessInfo> result = (List<ActivityManager.RunningAppProcessInfo>)invokeResult;
                 for (ActivityManager.RunningAppProcessInfo appProcess : result) {
                     if (appProcess != null && appProcess.pid == android.os.Process.myPid()) {
-                        appProcess.processName = FairyGlobal.getApplication().getPackageName();
+                        appProcess.processName = FairyGlobal.getHostApplication().getPackageName();
                         break;
                     }
                 }
@@ -105,7 +105,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName(), args[1]);
             int type = (int)args[0];
-            args[1] = FairyGlobal.getApplication().getPackageName();
+            args[1] = FairyGlobal.getHostApplication().getPackageName();
             if (type != INTENT_SENDER_ACTIVITY_RESULT) {
                 for (int i = 0; i < args.length; i++) {
                     if (args[i] != null && args[i].getClass().isAssignableFrom(Intent[].class)) {

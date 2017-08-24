@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class PluginStubBinding {
 
     public static String buildDefaultAction() {
-        return FairyGlobal.getApplication().getPackageName() + ".STUB_DEFAULT";
+        return FairyGlobal.getHostApplication().getPackageName() + ".STUB_DEFAULT";
     }
 
 	public static synchronized String bindStub(String pluginClassName, String packageName, int type) {

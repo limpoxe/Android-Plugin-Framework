@@ -153,11 +153,11 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	public String getPackageName() {
 
         if (useHostPackageName) {
-            return FairyGlobal.getApplication().getPackageName();
+            return FairyGlobal.getHostApplication().getPackageName();
         }
 
         if (mPluginDescriptor.isUseHostPackageName()) {
-            return FairyGlobal.getApplication().getPackageName();
+            return FairyGlobal.getHostApplication().getPackageName();
         }
 
 		//packagemanager、activitymanager、wifi、window、inputservice
@@ -171,12 +171,12 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	//@hide tabactivity会用到
 	public String getBasePackageName() {
 		//ViewRootImpl中会调用这个方法, 这是个hide方法.
-		return FairyGlobal.getApplication().getPackageName();
+		return FairyGlobal.getHostApplication().getPackageName();
 	}
 
 	////@hide toast，ITelephony等服务会用到
 	public String getOpPackageName() {
-		return FairyGlobal.getApplication().getPackageName();
+		return FairyGlobal.getHostApplication().getPackageName();
 	}
 
 	@Override

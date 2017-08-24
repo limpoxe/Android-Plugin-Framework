@@ -56,9 +56,9 @@ public class StubReceiverMappingProcessor implements StubMappingProcessor {
     private static void loadStubReceiver() {
         Intent exactStub = new Intent();
         exactStub.setAction(buildDefaultAction());
-        exactStub.setPackage(FairyGlobal.getApplication().getPackageName());
+        exactStub.setPackage(FairyGlobal.getHostApplication().getPackageName());
 
-        List<ResolveInfo> resolveInfos = FairyGlobal.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+        List<ResolveInfo> resolveInfos = FairyGlobal.getHostApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
         if (resolveInfos != null && resolveInfos.size() >0) {
             //框架只内置了1个receiver，所以这里直接就get(0)了

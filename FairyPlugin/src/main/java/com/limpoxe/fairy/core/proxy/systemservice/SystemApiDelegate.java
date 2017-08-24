@@ -66,7 +66,7 @@ public class SystemApiDelegate extends MethodDelegate {
         if (methodName.equals("addSessionsListener")) {
             if (args.length > 2 && args[1] instanceof ComponentName) {
                 LogUtil.v("修正System Api", descriptor, methodName, "的参数为宿主包名");
-                new HackComponentName(args[1]).setPackageName(FairyGlobal.getApplication().getPackageName());
+                new HackComponentName(args[1]).setPackageName(FairyGlobal.getHostApplication().getPackageName());
                 return;
             }
         }
@@ -75,13 +75,13 @@ public class SystemApiDelegate extends MethodDelegate {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] instanceof String && ((String)args[i]).contains(".")) {
                     // 包含.号, 基本可以判定是packageName
-                    if (!args[i].equals(FairyGlobal.getApplication().getPackageName())) {
+                    if (!args[i].equals(FairyGlobal.getHostApplication().getPackageName())) {
                         //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
                         PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId((String)args[i]);
                         if(pluginDescriptor != null) {
                             LogUtil.v("修正System Api", descriptor, methodName, "的参数为宿主包名", args[i]);
                             // 参数传的是插件包名, 修正为宿主包名
-                            args[i] = FairyGlobal.getApplication().getPackageName();
+                            args[i] = FairyGlobal.getHostApplication().getPackageName();
                             // 这里或许需要break,提高效率,
                             // 因为一个接口的参数里面出现两个packageName的可能性较小
                             // break;

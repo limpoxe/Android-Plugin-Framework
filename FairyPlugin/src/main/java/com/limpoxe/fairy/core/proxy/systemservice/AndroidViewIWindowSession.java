@@ -39,7 +39,7 @@ public class AndroidViewIWindowSession extends MethodDelegate {
 
                 WindowManager.LayoutParams params = ((WindowManager.LayoutParams)object);
 
-                if (params.packageName != null && !params.packageName.equals(FairyGlobal.getApplication().getPackageName())) {
+                if (params.packageName != null && !params.packageName.equals(FairyGlobal.getHostApplication().getPackageName())) {
 
                     //尝试读取插件, 注意, 这个方法调用会触发ContentProvider调用
                     PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(params.packageName);
@@ -47,7 +47,7 @@ public class AndroidViewIWindowSession extends MethodDelegate {
                         LogUtil.v("修正System api", methodName, params.packageName);
                         //这里修正packageName会引起弹PopupWindow时发生WindowManager异常，
                         //TODO 此处暂不修正，似乎无需修正，原因待查
-                        //params.packageName = PluginLoader.getApplication().getPackageName();
+                        //params.packageName = PluginLoader.getHostApplication().getPackageName();
                     }
                 }
             }

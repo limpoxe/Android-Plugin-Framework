@@ -28,7 +28,7 @@ public class ProcessUtil {
     }
 
     public static boolean isPluginProcess() {
-        return isPluginProcess(FairyGlobal.getApplication());
+        return isPluginProcess(FairyGlobal.getHostApplication());
     }
 
     private static String getCurProcessName(Context context) {

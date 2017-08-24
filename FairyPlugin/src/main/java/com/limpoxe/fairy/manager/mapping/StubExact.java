@@ -16,7 +16,7 @@ public class StubExact {
 	private static Set<String> mExcatStubSet;
 
 	private static String buildExactAction() {
-		return FairyGlobal.getApplication().getPackageName() + ".STUB_EXACT";
+		return FairyGlobal.getHostApplication().getPackageName() + ".STUB_EXACT";
 	}
 
 	private static void initStubPool() {
@@ -30,10 +30,10 @@ public class StubExact {
 	private static void loadStubExactly() {
 		Intent exactStub = new Intent();
 		exactStub.setAction(buildExactAction());
-		exactStub.setPackage(FairyGlobal.getApplication().getPackageName());
+		exactStub.setPackage(FairyGlobal.getHostApplication().getPackageName());
 
 		//精确匹配的activity
-		List<ResolveInfo> resolveInfos = FairyGlobal.getApplication().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		List<ResolveInfo> resolveInfos = FairyGlobal.getHostApplication().getPackageManager().queryIntentActivities(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -45,7 +45,7 @@ public class StubExact {
 		}
 
 		//精确匹配的service
-		resolveInfos = FairyGlobal.getApplication().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+		resolveInfos = FairyGlobal.getHostApplication().getPackageManager().queryIntentServices(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
 		if (resolveInfos != null && resolveInfos.size() > 0) {
 			if (mExcatStubSet == null) {
@@ -57,7 +57,7 @@ public class StubExact {
 		}
 
         //精确匹配的receiver
-        resolveInfos = FairyGlobal.getApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
+        resolveInfos = FairyGlobal.getHostApplication().getPackageManager().queryBroadcastReceivers(exactStub, PackageManager.MATCH_DEFAULT_ONLY);
 
         if (resolveInfos != null && resolveInfos.size() > 0) {
             if (mExcatStubSet == null) {

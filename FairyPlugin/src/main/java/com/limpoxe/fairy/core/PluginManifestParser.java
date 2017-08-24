@@ -74,7 +74,7 @@ public class PluginManifestParser {
                             desciptor.setPlatformBuildVersionCode(platformBuildVersionCode);
                             desciptor.setPlatformBuildVersionName(platformBuildVersionName);
 
-                            desciptor.setStandalone(sharedUserId == null || !FairyGlobal.getApplication().getPackageName().equals(sharedUserId));
+                            desciptor.setStandalone(sharedUserId == null || !FairyGlobal.getHostApplication().getPackageName().equals(sharedUserId));
                             if (!desciptor.isStandalone() && !TextUtils.isEmpty(requiredHostVersionName)) {
                                 desciptor.setRequiredHostVersionName(requiredHostVersionName);
                             }

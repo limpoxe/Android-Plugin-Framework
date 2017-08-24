@@ -38,8 +38,8 @@ public class AndroidOsServiceManager extends MethodProxy {
             //触发初始化WindowGlobal中的静态成员变量，即触发WindowManagerGlobal.getWindowManagerService()函数被调用
             //避免7.＋的系统中对window服务代理，
             //7.+的系统代理window服务会被SELinux拒绝导致陷入死循环
-            ViewConfiguration.get(FairyGlobal.getApplication());
-            FairyGlobal.getApplication().getSystemService(Context.KEYGUARD_SERVICE);
+            ViewConfiguration.get(FairyGlobal.getHostApplication());
+            FairyGlobal.getHostApplication().getSystemService(Context.KEYGUARD_SERVICE);
             //上面两行代码都是为了触发初始化
         }
 

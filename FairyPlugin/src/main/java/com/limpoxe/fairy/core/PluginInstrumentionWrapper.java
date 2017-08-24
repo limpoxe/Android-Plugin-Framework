@@ -292,7 +292,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				}
 				if (HackContextImpl.instanceOf(base)) {
 					HackContextImpl impl = new HackContextImpl(base);
-					String packageName = FairyGlobal.getApplication().getPackageName();
+					String packageName = FairyGlobal.getHostApplication().getPackageName();
 					String packageName1 = activity.getPackageName();
 					impl.setBasePackageName(packageName);
 					impl.setOpPackageName(packageName);

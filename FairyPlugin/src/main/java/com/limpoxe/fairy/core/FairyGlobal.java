@@ -16,11 +16,16 @@ public class FairyGlobal {
     private static boolean sIsNeedVerifyPluginSign = true;
     private static ArrayList<StubMappingProcessor> mappingProcessors = new ArrayList<StubMappingProcessor>();
 
-    public static Application getApplication() {
+    public static Application getHostApplication() {
         if (!isInited()) {
             throw new IllegalStateException("not inited yet");
         }
         return sApplication;
+    }
+
+    @Deprecated
+    public static Application getApplication() {
+        return getHostApplication();
     }
 
     /*package*/ static void setApplication(Application application) {

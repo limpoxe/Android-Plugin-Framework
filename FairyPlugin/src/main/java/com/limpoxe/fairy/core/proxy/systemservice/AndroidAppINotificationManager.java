@@ -47,7 +47,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
-            args[0] = FairyGlobal.getApplication().getPackageName();
+            args[0] = FairyGlobal.getHostApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
@@ -62,7 +62,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
-            args[0] = FairyGlobal.getApplication().getPackageName();
+            args[0] = FairyGlobal.getHostApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
@@ -77,7 +77,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
-            args[0] = FairyGlobal.getApplication().getPackageName();
+            args[0] = FairyGlobal.getHostApplication().getPackageName();
             for(Object obj: args) {
                 if (obj instanceof Notification) {
                     resolveRemoteViews((Notification)obj);
@@ -90,7 +90,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
 
     private static void resolveRemoteViews(Notification notification) {
 
-        String hostPackageName = FairyGlobal.getApplication().getPackageName();
+        String hostPackageName = FairyGlobal.getHostApplication().getPackageName();
 
         if (Build.VERSION.SDK_INT >= 23) {
             Icon mSmallIcon = (Icon)RefInvoker.getField(notification, Notification.class, "mSmallIcon");
@@ -177,7 +177,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
                 new HackRemoteViews(notification.headsUpContentView).setApplicationInfo(newInfo);
             }
 
-            ApplicationInfo applicationInfo = FairyGlobal.getApplication().getApplicationInfo();
+            ApplicationInfo applicationInfo = FairyGlobal.getHostApplication().getApplicationInfo();
             newInfo.packageName = applicationInfo.packageName;
             newInfo.sourceDir = applicationInfo.sourceDir;
             newInfo.dataDir = applicationInfo.dataDir;
@@ -188,7 +188,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
                 newInfo.packageName = pluginDescriptor.getPackageName();
                 //要确保publicSourceDir这个路径可以被SystemUI应用读取，
                 newInfo.publicSourceDir = prepareNotificationResourcePath(pluginDescriptor.getInstalledPath(),
-                        FairyGlobal.getApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
+                        FairyGlobal.getHostApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
 
             } else if (packageName != null && packageName.equals(hostPackageName)) {
                 //如果packageName是宿主，由于前面已经判断出，layoutid不是来自插件，则尝试查找notifications的目标页面，如果目标是插件，则尝试使用此插件作为通知栏的资源来源
@@ -200,7 +200,7 @@ public class AndroidAppINotificationManager extends MethodProxy {
                         newInfo.packageName = pluginDescriptor.getPackageName();
                         //要确保publicSourceDir这个路径可以被SystemUI应用读取，
                         newInfo.publicSourceDir = prepareNotificationResourcePath(pluginDescriptor.getInstalledPath(),
-                                FairyGlobal.getApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
+                                FairyGlobal.getHostApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk");
                     }
                 }
             }
