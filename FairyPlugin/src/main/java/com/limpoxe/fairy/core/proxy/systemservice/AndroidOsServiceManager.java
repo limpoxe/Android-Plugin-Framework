@@ -62,7 +62,7 @@ public class AndroidOsServiceManager extends MethodProxy {
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             LogUtil.i("ServiceManager.getService", args[0], invokeResult != null);
             if (ProcessUtil.isPluginProcess() && invokeResult != null) {
-                IBinder binder = AndroidOsIBinder.installProxy((IBinder) invokeResult);
+                IBinder binder = AndroidOsIBinder.installProxy((String)args[0], (IBinder) invokeResult);
                 //0 = "package" //7.0
                 //1 = "window" //7.0
                 //2 = "alarm" //7.0
