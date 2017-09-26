@@ -233,15 +233,19 @@ def diffJar(String plugin, String host, String name) {
 
     project.logger.error plugin + " " + host
 
-    //先吧插件和宿主的都解压
+    println "先吧插件和宿主的都解压 " + "${project.buildDir}/tmp/jarUnzip/plugin/" + ", " + "${project.buildDir}/tmp/jarUnzip/host/"
+
     ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
+
     List<String> hostClasses = ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
 
-    //再把插件进行过滤后重现压回去
+    println "再把插件进行过滤后重现压回去 " + "${project.buildDir}/tmp/jarUnzip/plugin"
+
     ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", plugin.replace("main.jar", ""), name + "_after_diff.jar", hostClasses)
 
-    //再删掉源
+    println "再删掉源 " + plugin
     new File(plugin).delete()
+
     //备份diff后的包
     copy {
         println "备份diff清理后的插件混淆包"
