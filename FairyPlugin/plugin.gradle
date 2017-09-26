@@ -199,9 +199,9 @@ afterEvaluate {
                     proguardTask.outputs.files.files.each { File file->
                         //http://blog.csdn.net/sbsujjbcy/article/details/50839263
                         //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
-                        project.logger.error "file outputs=>${file.absolutePath}"
+                        println "file outputs=>${file.absolutePath}"
                         String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                        println String.valueOf(file.absolutePath.contains(keyword)) + ", " + String.valueOf(file.absolutePath.endsWith(buildType))
+                        println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildType + " " + String.valueOf(file.absolutePath.endsWith(buildType))
                         if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
                             isFind = true;
                             //保留一个备份
@@ -220,6 +220,7 @@ afterEvaluate {
                     }
                 } else {
                     project.logger.error "未配置宿主混淆jar路径！！host_obfuscated_jar = null"
+                    println "未配置宿主混淆jar路径！！host_obfuscated_jar = null"
                 }
             }
         }
@@ -231,15 +232,15 @@ def diffJar(String plugin, String host, String name) {
 
     println "通过基线混淆包和插件混淆包做diff清理重复的class"
 
-    project.logger.error plugin + " " + host
+    println plugin + " " + host
 
-    println "先吧插件和宿主的都解压 " + "${project.buildDir}/tmp/jarUnzip/plugin/" + ", " + "${project.buildDir}/tmp/jarUnzip/host/"
+    println "先把插件和宿主的都解压 " + "${project.buildDir}/tmp/jarUnzip/plugin/" + ", " + "${project.buildDir}/tmp/jarUnzip/host/"
 
     ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
 
     List<String> hostClasses = ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
 
-    println "再把插件进行过滤后重现压回去 " + "${project.buildDir}/tmp/jarUnzip/plugin"
+    println "再把插件进行过滤后重现压回去 " + "${project.buildDir}/tmp/jarUnzip/plugin， host classSize = " + hostClasses.size()
 
     ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", plugin.replace("main.jar", ""), name + "_after_diff.jar", hostClasses)
 
@@ -283,6 +284,8 @@ public class ZipUtil {
             }
 
             if(!filename.endsWith("/")){
+
+                System.out.println("解压：" + filename);
 
                 file = new File(filename);
                 file.createNewFile();
@@ -340,6 +343,8 @@ public class ZipUtil {
             if (filter.contains(subPath)) {
                 System.out.println("过滤：" + subPath)
                 return;
+            } else {
+                System.out.println("压缩：" + subPath)
             }
 
             ZipEntry entry = new ZipEntry(subPath);
