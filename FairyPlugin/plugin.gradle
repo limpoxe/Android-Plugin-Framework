@@ -278,12 +278,12 @@ public class ZipUtil {
 
             def filename = savepath + entry.getName();
 
-            File file2 = new File(filename.substring(0, filename.lastIndexOf("/")));
-            if(!file2.exists()){
-                file2.mkdirs();
+            File folder = new File(filename).getParentFile();
+            if(!folder.exists()){
+                folder.mkdirs();
             }
 
-            if(!filename.endsWith("/")){
+            if(!filename.endsWith(File.separator)){
 
                 System.out.println("解压：" + filename);
 
