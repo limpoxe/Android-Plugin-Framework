@@ -192,11 +192,24 @@ class PluginManagerImpl {
 	synchronized InstallResult installPlugin(String srcPluginFile) {
 		LogUtil.w("开始安装插件", srcPluginFile);
 		long startAt = System.currentTimeMillis();
-		if (TextUtils.isEmpty(srcPluginFile) || !new File(srcPluginFile).exists()) {
+		if (TextUtils.isEmpty(srcPluginFile)) {
 			return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 		}
 
-		// 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
+		File srcFile = new File(srcPluginFile);
+        if (!srcFile.exists() || !srcFile.isFile()) {
+            return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
+        }
+
+        try {
+            //解析相对路径，得到真实绝对路径
+            srcPluginFile = srcFile.getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new InstallResult(PluginManagerHelper.INSTALL_FAIL);
+        }
+
+        // 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
 		if (!srcPluginFile.startsWith(FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath())) {
 			String tempFilePath = FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath()
 					+ File.separator + System.currentTimeMillis() + ".apk";
