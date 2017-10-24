@@ -240,6 +240,13 @@ afterEvaluate {
     }
 }
 
+//将宿主编译产物作为基线包存档，这样可以使插件脱离宿主工程独立编译
+task makeHostBaseLine(type: Zip) {
+    extension "bar" //Baseline Application Resource
+    baseName 'host'
+    from('build/outputs')
+}
+
 //导出主题patch
 def createThemePatch(String flavor, String buildType) {
 
