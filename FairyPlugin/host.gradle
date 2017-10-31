@@ -229,6 +229,8 @@ afterEvaluate {
                     createThemePatch(buildFavType.replace("Release", "").toLowerCase(), "release");
                 }
             }
+        } else if (task.name.startsWith("assemble")) {
+            task.finalizedBy makeHostBaseLine
         }
     }
 
