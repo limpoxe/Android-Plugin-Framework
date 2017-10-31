@@ -211,7 +211,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 	
    待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新
    打包安装PluginMain。
-   或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginLoader.installPlugin("插件apk绝对路径")进行安装。
+   或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginManagerHelper.installPlugin("插件apk绝对路径")进行安装。
 
         
 # 其他指南
