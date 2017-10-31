@@ -32,6 +32,9 @@ public class PluginIntentResolver {
 		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.SERVICE);
 		if (classNameList != null && classNameList.size() > 0) {
             //TODO 只取第一个，忽略了多Service匹配到同一个Intent的情况
+            if (classNameList.size() > 1) {
+                LogUtil.w("只取第一个，忽略了多Service匹配到同一个Intent的情况");
+            }
             String stubServiceName = PluginProviderClient.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
 				intent.setComponent(new ComponentName(FairyGlobal.getHostApplication().getPackageName(), stubServiceName));
@@ -179,6 +182,9 @@ public class PluginIntentResolver {
 		ArrayList<String> classNameList = matchPlugin(intent, PluginDescriptor.ACTIVITY);
 		if (classNameList != null && classNameList.size() > 0) {
             //TODO 只取第一个，忽略了多Activity匹配到同一个Intent的情况
+            if (classNameList.size() > 1) {
+                LogUtil.w("只取第一个，忽略了多Activity匹配到同一个Intent的情况");
+            }
 			String className = classNameList.get(0);
 			PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 

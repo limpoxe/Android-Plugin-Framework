@@ -294,6 +294,9 @@ public class AndroidAppIPackageManager extends MethodProxy {
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.ACTIVITY);
             if (classNames != null && classNames.size() > 0) {
                 //TODO 只取第一个，忽略了多组件匹配到同一个Intent的情况
+                if (classNames.size() > 1) {
+                    LogUtil.w("只取第一个，忽略了多组件匹配到同一个Intent的情况");
+                }
                 String className = classNames.get(0);
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
                 ResolveInfo info = new ResolveInfo();
@@ -311,6 +314,9 @@ public class AndroidAppIPackageManager extends MethodProxy {
             ArrayList<String> classNames = PluginIntentResolver.matchPlugin((Intent) args[0], PluginDescriptor.SERVICE);
             if (classNames != null && classNames.size() > 0) {
                 //TODO 只取第一个，忽略了多组件匹配到同一个Intent的情况
+                if (classNames.size() > 1) {
+                    LogUtil.w("只取第一个，忽略了多组件匹配到同一个Intent的情况");
+                }
                 String className = classNames.get(0);
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
                 ResolveInfo info = new ResolveInfo();

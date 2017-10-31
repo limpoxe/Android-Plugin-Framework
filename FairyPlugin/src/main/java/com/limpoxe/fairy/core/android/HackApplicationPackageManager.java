@@ -18,6 +18,6 @@ public class HackApplicationPackageManager {
     }
 
     public void setPM(Object pm) {
-        RefInvoker.setField(instance, "android.app.ApplicationPackageManager", "mPM", pm);
+        RefInvoker.setField(instance, ClassName, Field_mPM, pm);
     }
 }
