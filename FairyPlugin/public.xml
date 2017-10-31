@@ -25,5 +25,11 @@
     <public-padding type="menu" name="public_static_final_host_menu_"     start="0x7f3f0000" end="0x7f3f0000" />
     <public-padding type="mipmap" name="public_static_final_host_mipmap_"     start="0x7f400000" end="0x7f400000" />
     <public-padding type="animator" name="public_static_final_host_animator"     start="0x7f410000" end="0x7f410000" />
+    <public-padding type="fraction" name="public_static_final_host_fraction"     start="0x7f420000" end="0x7f420000" />
+    <public-padding type="font" name="public_static_final_host_font"     start="0x7f430000" end="0x7f430000" />
+    <public-padding type="plurals" name="public_static_final_host_plurals"     start="0x7f440000" end="0x7f440000" />
+    <public-padding type="interpolator" name="public_static_final_host_interpolator"     start="0x7f450000" end="0x7f450000" />
+    <public-padding type="transition" name="public_static_final_host_transition"     start="0x7f460000" end="0x7f460000" />
+    <public-padding type="_aapt" name="public_static_final_host__aapt"     start="0x7f470000" end="0x7f470000" />
 
 </resources>
