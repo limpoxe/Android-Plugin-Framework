@@ -26,14 +26,44 @@ import java.util.zip.*
 ////////////////////////////////////////////////////////////////
 
 //第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
-if (getProperties().containsKey("host_ap_path")) {
-    println "additionalParameters -I " + ext.host_ap_path
-    android.aaptOptions.additionalParameters('-I', host_ap_path)
+def host_ap_path = "BaselineAp FileNotFound!! Check your dependencies!!";
+configurations.each {  file ->
+    if (file.name.equals("baselineAp")) {
+        file.files.each { it ->
+            host_ap_path = it.absolutePath;
+            println "additionalParameters -I " + host_ap_path
+            android.aaptOptions.additionalParameters('-I', host_ap_path)
+        }
+    }
+}
+
+def host_patch_path = "BaselinePatch FileNotFound!! Check your dependencies!!";
+configurations.each {  file ->
+    if (file.name.equals("baselinePatch")) {
+        file.files.each { it ->
+            //只留最后个
+            host_patch_path = it.absolutePath;
+            println "发现宿主基线配置：" + host_patch_path
+        }
+    }
 }
 
 HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
 
-if (getProperties().containsKey("host_output_dir")) {
+ext {
+    host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/';
+}
+
+if (file(host_patch_path).exists()) {
+    copy {
+        println "正在解压宿主基线patch文件..."
+        def zipFile = file(host_patch_path);
+        def outputDir = file(host_output_dir)
+        outputDir.deleteDir();
+        from zipTree(zipFile)
+        into outputDir
+    }
+
     tasks.whenTaskAdded { task ->
         if (task.name.startsWith("merge") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
             task.setOnlyIf { true }
@@ -139,6 +169,8 @@ if (getProperties().containsKey("host_output_dir")) {
             }
         }
     }
+} else {
+    println "宿主基线资源配置不存在，请先编译宿主:\n" + host_patch_path
 }
 
 afterEvaluate {
@@ -157,7 +189,7 @@ afterEvaluate {
 
             baseVariant.processResources.doFirst {
                 if (!new File(host_ap_path).exists()) {
-                    throw new FileNotFoundException("宿主基线apk文件不存在, 请检查路径是否正确: \n", host_ap_path)
+                    throw new FileNotFoundException("宿主基线apk文件不存在, 请检查baselineAp依赖配置是否正确: \n", host_ap_path)
                 }
             }
 
