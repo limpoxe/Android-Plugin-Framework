@@ -16,7 +16,7 @@ import java.util.zip.ZipInputStream
 //在宿主脚本中apply此脚本, 此脚本一共做了6件事
 //1、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情, 下面第4步需要此文件
 //2、编译宿主资源时插入public.xml，用来控制宿主资源id分组
-//3、编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包
+//
 //4、编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包
 //5、编译完成后导出宿主的jar，包括宿主的src和其依赖的所有class, 编译非独立插件时需要此包
 //6、编译完成后导出宿主混淆后的jar，包括宿主的src和其依赖的所有class, 编译非独立插件时若插件需要混淆则需要此包
@@ -104,6 +104,7 @@ afterEvaluate {
                 //指定插件进程名，设置为空串或者null即是和宿主同进程
                 //不设置即使用默认进程(:plugin)
                 if (hasExtPluginProcessName) {
+                    println '正在修改插件进程配置'
                     def customPluginProcessName = "";
                     if (pluginProcessName != null) {
                         customPluginProcessName = "android:process=\"" + pluginProcessName + "\""
@@ -114,15 +115,16 @@ afterEvaluate {
                 }
             }
 
-            def processResourcesTask = baseVariant.getProcessResources();
-            processResourcesTask.doLast {
-                copy {
-                    println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
-                    from processResourcesTask.resPackageOutputFolder
-                    into("${project.buildDir}/outputs/")
-                    rename('resources', project.name + "-resources")
-                }
-            }
+//            最新版sdk和gralde不需要ap_文件,直接指定apk即可
+//            def processResourcesTask = baseVariant.getProcessResources();
+//            processResourcesTask.doLast {
+//                copy {
+//                    println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
+//                    from processResourcesTask.resPackageOutputFolder
+//                    into("${project.buildDir}/outputs/")
+//                    rename('resources', project.name + "-resources")
+//                }
+//            }
         }
 
         //第5件事
