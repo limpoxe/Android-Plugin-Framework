@@ -155,10 +155,11 @@
         <!--Demo config for plugin AdMob begin -->
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="10260000" />
+            android:value="11717000" />
+
         <meta-data
             android:name="android.support.VERSION"
-            android:value="25.3.1" />
+            android:value="27.0.0" />
         <!--Demo config for plugin AdMob end -->
 
     </application>
