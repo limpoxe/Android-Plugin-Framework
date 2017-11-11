@@ -26,25 +26,17 @@ import java.util.zip.*
 ////////////////////////////////////////////////////////////////
 
 ext {
-    host_patch_path = "BaselinePatch FileNotFound!! Check your dependencies!!";
+    host_patch_path = "BaselinePatch FileNotFound, Check Your Dependencies!!";
     host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch';
 }
 
 //第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
-def host_ap_path = "BaselineAp FileNotFound!! Check your dependencies!!";
 configurations.each {  file ->
-    if (file.name.equals("baselineAp")) {
-        file.files.each { it ->
-            host_ap_path = it.absolutePath;
-            println project.name + " additionalParameters -I " + host_ap_path
-            android.aaptOptions.additionalParameters('-I', host_ap_path)
-        }
-    }
     if (file.name.equals("baselinePatch")) {
         file.files.each { it ->
-            //只留最后个
             host_patch_path = it.absolutePath;
             println project.name + "发现宿主基线配置指向：" + host_patch_path
+            android.aaptOptions.additionalParameters('-I', host_patch_path)
         }
     }
 }
@@ -182,8 +174,8 @@ afterEvaluate {
 
             baseVariant.processResources.doFirst {
                 println "开始处理插件工程资源.."
-                if (!new File(host_ap_path).exists()) {
-                    throw new FileNotFoundException("宿主基线apk文件不存在, 请先编译宿主，并检查baselineAp依赖配置是否正确: \n", host_ap_path)
+                if (!new File(host_patch_path).exists()) {
+                    throw new FileNotFoundException("宿主基线ap文件不存在, 请先编译宿主，并检查baselinePatch依赖配置是否正确: \n", host_patch_path)
                 }
                 if (!file(host_output_dir).exists()) {
                     throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译宿主，并检查baselinePatch依赖配置是否正确: \n", host_output_dir)
