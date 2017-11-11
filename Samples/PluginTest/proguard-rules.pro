@@ -124,5 +124,12 @@
 }
 # 保护AIDL End
 
+-keep class com.example.plugintest.fragment.PluginSpecFragment {
+    *;
+}
+-keep class com.example.plugintest.fragment.PluginNormalFragment {
+    *;
+}
+
 # 注意检查这个配置的路径是否正确，这里使用的debug路径
 -applymapping ../PluginMain/build/outputs/mapping/debug/mapping.txt
