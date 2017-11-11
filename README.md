@@ -166,17 +166,9 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
        
 ```       
     ext {
-        //表示指定宿主工程的编译输出目录
-        //***这是demo中的示例，请根据自己的实际情况修改***
-        host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
-        
-        //表示指定宿主工程编译后产物apk文件的路径
-        //***这是demo中的示例，请根据自己的实际情况修改***
-        host_ap_path = host_output_dir+ '/PluginMain-resources-debug.apk'
-        
         //用于混淆配置，如果需要混淆宿主和插件，需要此配置，具体看后文说明
         //***这是demo中的示例，请根据自己的实际情况修改***
-        //host_obfuscated_jar = host_output_dir + '/host_[buildType]_obfuscated.jar'
+        //host_obfuscated_jar = '/host_[buildType]_obfuscated.jar'
     }
     
     apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
@@ -381,7 +373,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          4、在非独立插件工程的build.gradle下增加如下配置
               ext {
                   //用于混淆配置， 此配置路径指向第1步中编译宿主产生的混淆后的jar：host_[buildType]_obfuscated.jar文件
-                  host_obfuscated_jar = host_output_dir + '/host_[buildType]_obfuscated.jar'
+                  host_obfuscated_jar = '/host_[buildType]_obfuscated.jar'
               }
          执行这4个步骤之后，编译出来的非独立插件即为混淆后的插件
          
