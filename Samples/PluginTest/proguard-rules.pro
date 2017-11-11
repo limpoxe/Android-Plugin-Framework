@@ -5,6 +5,7 @@
 -dontpreverify  #不预校验
 -verbose #混淆时是否记录日志
 -ignorewarning #忽略警告
+-dontshrink #禁用压缩--重要
 
 #混淆时所采用的算法
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
