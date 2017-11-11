@@ -25,25 +25,21 @@ import java.util.zip.*
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+ext {
+    host_patch_path = "BaselinePatch FileNotFound!! Check your dependencies!!";
+    host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch';
+}
+
 //第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
 def host_ap_path = "BaselineAp FileNotFound!! Check your dependencies!!";
 configurations.each {  file ->
     if (file.name.equals("baselineAp")) {
         file.files.each { it ->
             host_ap_path = it.absolutePath;
-            println project.name + "添加宿主apk到aapt：" + host_ap_path
+            println project.name + " additionalParameters -I " + host_ap_path
             android.aaptOptions.additionalParameters('-I', host_ap_path)
         }
     }
-}
-
-
-ext {
-    host_patch_path = "BaselinePatch FileNotFound!! Check your dependencies!!";
-    host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/';
-}
-
-configurations.each {  file ->
     if (file.name.equals("baselinePatch")) {
         file.files.each { it ->
             //只留最后个
@@ -54,7 +50,6 @@ configurations.each {  file ->
 }
 
 HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
-
 
 tasks.whenTaskAdded { task ->
     if (task.name.startsWith("merge") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
@@ -191,7 +186,7 @@ afterEvaluate {
                     throw new FileNotFoundException("宿主基线apk文件不存在, 请先编译宿主，并检查baselineAp依赖配置是否正确: \n", host_ap_path)
                 }
                 if (!file(host_output_dir).exists()) {
-                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译宿主，并检查baselinePatch依赖配置是否正确: \n", host_ap_path)
+                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译宿主，并检查baselinePatch依赖配置是否正确: \n", host_output_dir)
                 }
             }
 
@@ -219,45 +214,41 @@ afterEvaluate {
             proguardTask.doLast {
 
                 println "混淆完成 " + variantName.capitalize()
-                if (project.getProperties().containsKey("host_obfuscated_jar")) {
 
-                    println "依赖的宿主混淆jar路径为：" + host_obfuscated_jar
-
-                    if (!new File(host_obfuscated_jar).exists()) {
-                        project.logger.error "基线混淆包不存在 " + host_obfuscated_jar
-                        throw new Exception("基线混淆包不存在 " + host_obfuscated_jar)
-                    }
-
-                    boolean isFind = false;
-                    proguardTask.outputs.files.files.each { File file->
-                        //http://blog.csdn.net/sbsujjbcy/article/details/50839263
-                        //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
-                        //最新版本路径已发生变化；2017-11-12
-                        println "file outputs=>${file.absolutePath}"
-                        String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                        println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildType + " " + String.valueOf(file.absolutePath.endsWith(buildType))
-                        if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
-                            isFind = true;
-                            //保留一个备份
-                            println "导出混淆后的插件jar包 "
-                            println "From " + file.absolutePath + "/0.jar"
-                            println "To " + "${project.buildDir}/outputs/" + "plugin_" + variantName + "_obfuscated.jar"
-                            copy {
-                                from file.absolutePath + "/0.jar"
-                                into("${project.buildDir}/outputs/")
-                                rename('0', "plugin_" + variantName + "_obfuscated")
-                            }
-
-                            diffJar(file.absolutePath + "/0.jar", host_obfuscated_jar, "plugin_" + variantName + "_obfuscated");
-                        }
-                    }
-                    if (!isFind) {
-                        throw "obfuscated jar file not found, please check."
-                    }
-                } else {
-                    project.logger.error "未配置宿主混淆jar路径！！host_obfuscated_jar = null"
-                    println "未配置宿主混淆jar路径！！host_obfuscated_jar = null"
+                def host_obfuscated_jar = host_output_dir + "/host_" + variantName.capitalize() + "_obfuscated.jar"
+                if (!new File(host_obfuscated_jar).exists()) {
+                    project.logger.error "基线混淆包不存在 " + host_obfuscated_jar
+                    throw new Exception("基线混淆包不存在 " + host_obfuscated_jar)
                 }
+                println "依赖的宿主混淆jar路径为：" + host_obfuscated_jar
+
+                boolean isFind = false;
+                proguardTask.outputs.files.files.each { File file->
+                    //http://blog.csdn.net/sbsujjbcy/article/details/50839263
+                    //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
+                    //最新版本路径已发生变化；2017-11-12
+                    println "file outputs=>${file.absolutePath}"
+                    String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
+                    println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildType + " " + String.valueOf(file.absolutePath.endsWith(buildType))
+                    if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
+                        isFind = true;
+                        //保留一个备份
+                        println "导出混淆后的插件jar包 "
+                        println "From " + file.absolutePath + "/0.jar"
+                        println "To " + "${project.buildDir}/outputs/" + "plugin_" + variantName + "_obfuscated.jar"
+                        copy {
+                            from file.absolutePath + "/0.jar"
+                            into("${project.buildDir}/outputs/")
+                            rename('0', "plugin_" + variantName + "_obfuscated")
+                        }
+
+                        diffJar(file.absolutePath + "/0.jar", host_obfuscated_jar, "plugin_" + variantName + "_obfuscated");
+                    }
+                }
+                if (!isFind) {
+                    throw "obfuscated jar file not found, please check."
+                }
+
             }
         }
     }

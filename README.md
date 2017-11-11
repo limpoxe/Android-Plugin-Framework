@@ -164,13 +164,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
     }
 ```
        
-```       
-    ext {
-        //用于混淆配置，如果需要混淆宿主和插件，需要此配置，具体看后文说明
-        //***这是demo中的示例，请根据自己的实际情况修改***
-        //host_obfuscated_jar = '/host_[buildType]_obfuscated.jar'
-    }
-    
+```
     apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
  ```       
   
@@ -370,11 +364,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          1、在宿主中开启混淆编译，outputs目录下会生成一个混淆后的jar：host_[buildType]_obfuscated.jar，以及mapping目录下会生成一个mapping文件
          2、在非独立插件工程中开启混淆，同时将provided宿主jar的配置修改为compile宿主jar
          3、在非独立插件工程的build.gradle下增加proguardRule相关配置，在rule文件中使用添加：-applymapping mapping文件路径。 此mappiing文件为第1步中编译宿主生成的文件
-         4、在非独立插件工程的build.gradle下增加如下配置
-              ext {
-                  //用于混淆配置， 此配置路径指向第1步中编译宿主产生的混淆后的jar：host_[buildType]_obfuscated.jar文件
-                  host_obfuscated_jar = '/host_[buildType]_obfuscated.jar'
-              }
+
          执行这4个步骤之后，编译出来的非独立插件即为混淆后的插件
          
          若混淆后出现运行时异常，请检查临时文件是否存在不该存在的类或者少了需要的类。
@@ -394,10 +384,9 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
             1、修改PluginMain工程的build.gradle中的buildTypes.debug.minifyEnabled为true
             2、修改PluginTest工程的build.gradle中的buildTypes.debug.minifyEnabled为true
             3、修改PluginTest工程的build.gradle中的provided files(project(':Samples:PluginMain')... 为compile files(project(':Samples:PluginMain')...
-            4、放开PluginTest工程的build.gradle中对ext.host_obfuscated_jar的配置的注释
-            5、检查PluginTest工程的proguard-rules.pro文件中的-applymapping配置路径是否准确
+            4、检查PluginTest工程的proguard-rules.pro文件中的-applymapping配置路径是否准确
                确保插件和宿主的混淆规则中都配置了禁止压缩：-dontshrink
-            6、在settings.gradle中注释调PluginTest2； clean && assembleDebug
+            5、在settings.gradle中注释掉PluginTest2； clean && assembleDebug
 
             说明：若宿主中的某些类或者方法，没有在宿主中使用过，则宿主在混淆的时候可能会删除了这些类和方法
                  此时如果插件使用了这个被删减的方法，会出错，这种情况只能在编译宿主是禁用代码压缩（配置-dontshrink）
