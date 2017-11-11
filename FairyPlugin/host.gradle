@@ -115,7 +115,7 @@ afterEvaluate {
                 }
             }
 
-//            最新版sdk和gralde不需要ap_文件,直接指定apk即可
+//            最新版sdk和gralde直接指定apk即可
 //            def processResourcesTask = baseVariant.getProcessResources();
 //            processResourcesTask.doLast {
 //                copy {

@@ -157,7 +157,7 @@ afterEvaluate {
 
             baseVariant.processResources.doFirst {
                 if (!new File(host_ap_path).exists()) {
-                    throw new FileNotFoundException(" .ap_ 文件不存在, 请检查路径是否正确: \n", host_ap_path)
+                    throw new FileNotFoundException("宿主基线apk文件不存在, 请检查路径是否正确: \n", host_ap_path)
                 }
             }
 
