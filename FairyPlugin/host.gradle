@@ -9,6 +9,7 @@ import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -115,16 +116,17 @@ afterEvaluate {
                 }
             }
 
-//            最新版sdk和gralde直接指定apk即可
-//            def processResourcesTask = baseVariant.getProcessResources();
-//            processResourcesTask.doLast {
-//                copy {
-//                    println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
-//                    from processResourcesTask.resPackageOutputFolder
-//                    into("${project.buildDir}/outputs/")
-//                    rename('resources', project.name + "-resources")
-//                }
-//            }
+            //实际上最新版sdk和gralde可以直接指定apk了
+            def processResourcesTask = baseVariant.getProcessResources();
+            def processResFullName = baseVariant.apkData.fullName
+            processResourcesTask.doLast {
+                copy {
+                    println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
+                    from processResourcesTask.resPackageOutputFolder
+                    into("${project.buildDir}/outputs/")
+                    rename("-${processResFullName}", "")
+                }
+            }
         }
 
         //第5件事
@@ -249,7 +251,10 @@ afterEvaluate {
 task makeHostBaseLine(type: Zip) {
     extension "bar" //Baseline Application Resource
     baseName 'host'
-    from('build/outputs')
+    from zipTree("build/outputs/resources.ap_")
+    from('build/outputs') {
+        exclude '*.ap_'
+    }
 }
 
 //导出主题patch
