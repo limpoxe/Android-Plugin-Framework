@@ -74,7 +74,7 @@ afterEvaluate {
 ext {
     //这2个常量在下面的apply的脚本中要用到
     host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
-    host_ap_path = host_output_dir+ '/PluginMain-resources-universalDebug.ap_'
+    host_ap_path = host_output_dir+ '/apk/debug/PluginMain-universal-debug.apk'
 }
 
 apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'

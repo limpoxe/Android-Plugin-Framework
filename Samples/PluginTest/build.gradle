@@ -104,11 +104,11 @@ afterEvaluate {
 
 ext {
     //这2个常量在下面的apply的脚本中要用到
-    //一个是指定宿主编译出来的output目录，一个是指定宿主编译出来的ap_文件
+    //一个是指定宿主编译出来的output目录，一个是指定宿主编译出来的apk文件
     host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
 
-    //注意这里写的是debug的ap_文件，使用不同的buildType应换成不同的文件名
-    host_ap_path = host_output_dir + '/PluginMain-resources-universalDebug.ap_'
+    //注意这里写的是debug的apk文件，使用不同的buildType应换成不同的文件名
+    host_ap_path = host_output_dir + '/apk/debug/PluginMain-universal-debug.apk'
 
     //用于混淆配置
     //host_obfuscated_jar = host_output_dir + '/host_debug_obfuscated.jar'
