@@ -37,7 +37,12 @@ configurations.each {  file ->
     }
 }
 
-def host_patch_path = "BaselinePatch FileNotFound!! Check your dependencies!!";
+
+ext {
+    host_patch_path = "BaselinePatch FileNotFound!! Check your dependencies!!";
+    host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/';
+}
+
 configurations.each {  file ->
     if (file.name.equals("baselinePatch")) {
         file.files.each { it ->
@@ -50,127 +55,120 @@ configurations.each {  file ->
 
 HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
 
-ext {
-    host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/';
-}
 
-if (file(host_patch_path).exists()) {
-    copy {
-        println "正在解压宿主基线patch文件..."
-        def zipFile = file(host_patch_path);
-        def outputDir = file(host_output_dir)
-        outputDir.deleteDir();
-        from zipTree(zipFile)
-        into outputDir
-    }
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith("merge") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
+        task.setOnlyIf { true }
+        task.outputs.upToDateWhen { false }
+        task.doLast {
 
-    tasks.whenTaskAdded { task ->
-        if (task.name.startsWith("merge") && task.name.endsWith("Resources") && !task.name.contains("AndroidTest")) {
-            task.setOnlyIf { true }
-            task.outputs.upToDateWhen { false }
-            task.doLast {
-                //第二件事
-                applyThemePatch(task.name);
-
-                //第三件事<一>
-                String buildType = task.name.replace("merge", "").replace("Resources", "").toLowerCase();
-                File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values.xml");
-                if (originVaules.exists()) {
-
-                    File valuesProcessed = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml");
-
-                    println "fixDeclareStyle " + originVaules + ", " + valuesProcessed.absolutePath
-
-                    StyleProcessor styleProcessor = StyleProcessor.fixDeclareStyle(originVaules, valuesProcessed);
-
-                    SortedMap<String, ArrayList<String>> map = styleProcessor.attrList;
-                    if (map != null) {
-                        declareStyleMap.put(buildType, map)
-                    }
-                    originVaules.delete()
-
-                    //第四件事，修正layout文件中的自定义属性的枚举用法
-                    File resDir = new File(project.buildDir, "intermediates/res/merged/" + buildType);
-                    resDir.eachFileRecurse({file ->
-                        if (file.absolutePath.contains("/layout") && file.name.endsWith(".xml")) {
-                            String fileText = file.text;
-                            Iterator<Map.Entry<String, String>> itr = styleProcessor.enumItemList.iterator();
-                            println "try fix enum attr for " + file.absolutePath
-                            while(itr.hasNext()) {
-                                Map.Entry<String, String> entryItem = itr.next();
-                                fileText = fileText.replaceAll(entryItem.key, entryItem.value)
-                            }
-
-                            println "try fix flag attr for " + file.absolutePath
-                            fileText = StyleProcessor.fixAttrFlag(fileText, styleProcessor.attrFlagMap);
-
-                            file.write(fileText);
-                        }
-                    }
-                    )
-                }
+            if (!file(host_patch_path).exists()) {
+                def outputDir = file(host_output_dir)
+                outputDir.deleteDir();
+                println project.name + "宿主基线配置指向文件不存在，请先编译宿主；若不是编译命令则忽略：" + host_patch_path
+                return
             }
-        } else if (task.name.startsWith("generate") && task.name.endsWith("Sources")) {
-            task.doLast {
-                //第三件事<二>
-                //处理R文件，生成decalre-style
-                String buildType = task.name.replace("generate", "").replace("Sources", "").toLowerCase()
 
-                FileTree rfiles = fileTree(dir: project.buildDir.absolutePath + "/generated/source/r/"+ buildType, include: ['**/R.java'])
-                rfiles.each { File itemFile ->
+            //第二件事
+            applyThemePatch(task.name);
 
-                    File newR = new File(itemFile.getAbsolutePath()+ "_temp");
-                    File originR = itemFile;
+            //第三件事<一>
+            String buildType = task.name.replace("merge", "").replace("Resources", "").toLowerCase();
+            File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values.xml");
+            if (originVaules.exists()) {
 
-                    println "fix R.java, \n" + newR.absolutePath + ", \n" + originR.absolutePath
+                File valuesProcessed = new File(project.buildDir, "intermediates/res/merged/" + buildType + "/values/values_processed.xml");
 
-                    newR.delete()
-                    SortedMap<String, ArrayList<String>> map = declareStyleMap.get(buildType);
+                println "fixDeclareStyle " + originVaules + ", " + valuesProcessed.absolutePath
 
-                    if (originR.exists() && map != null) {
-                        BufferedReader br = new BufferedReader(new FileReader(originR));
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
-                        String srcLine = null;
-                        boolean hasStyleable = false;
-                        while((srcLine = br.readLine()) != null) {
-                            if (srcLine.equals("public final class R {")) {
-                                bw.writeLine(srcLine);
+                StyleProcessor styleProcessor = StyleProcessor.fixDeclareStyle(originVaules, valuesProcessed);
 
-                                bw.writeLine("  public static final class styleable {");
-                                Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
-                                while(itr.hasNext()) {
-                                    Map.Entry<String, ArrayList<String>> item = itr.next();
-                                    String key = item.key;
-                                    StringBuilder sb = new StringBuilder();
-                                    for(int i = 0; i < item.value.size(); i++) {
-                                        bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
-                                        sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
-                                    }
-                                    if (sb.length() > 0) {
-                                        sb.deleteCharAt(sb.length()-1)
-                                    }
-                                    bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
-                                }
-                                bw.writeLine("  }")
-                            } else if (srcLine.contains("public static final class styleable {")) {
-                                hasStyleable = true;
-                            } else if (hasStyleable && srcLine.trim().equals("}")) {
-                                hasStyleable = false;
-                            } else {
-                                bw.writeLine(srcLine);
-                            }
+                SortedMap<String, ArrayList<String>> map = styleProcessor.attrList;
+                if (map != null) {
+                    declareStyleMap.put(buildType, map)
+                }
+                originVaules.delete()
+
+                //第四件事，修正layout文件中的自定义属性的枚举用法
+                File resDir = new File(project.buildDir, "intermediates/res/merged/" + buildType);
+                resDir.eachFileRecurse({file ->
+                    if (file.absolutePath.contains("/layout") && file.name.endsWith(".xml")) {
+                        String fileText = file.text;
+                        Iterator<Map.Entry<String, String>> itr = styleProcessor.enumItemList.iterator();
+                        println "try fix enum attr for " + file.absolutePath
+                        while(itr.hasNext()) {
+                            Map.Entry<String, String> entryItem = itr.next();
+                            fileText = fileText.replaceAll(entryItem.key, entryItem.value)
                         }
-                        bw.close()
-                        br.close()
+
+                        println "try fix flag attr for " + file.absolutePath
+                        fileText = StyleProcessor.fixAttrFlag(fileText, styleProcessor.attrFlagMap);
+
+                        file.write(fileText);
                     }
+                }
+                )
+            }
+        }
+    } else if (task.name.startsWith("generate") && task.name.endsWith("Sources")) {
+        task.doLast {
+            //第三件事<二>
+            //处理R文件，生成decalre-style
+            String buildType = task.name.replace("generate", "").replace("Sources", "").toLowerCase()
+
+            FileTree rfiles = fileTree(dir: project.buildDir.absolutePath + "/generated/source/r/"+ buildType, include: ['**/R.java'])
+            rfiles.each { File itemFile ->
+
+                File newR = new File(itemFile.getAbsolutePath()+ "_temp");
+                File originR = itemFile;
+
+                println "fix R.java, \n" + newR.absolutePath + ", \n" + originR.absolutePath
+
+                newR.delete()
+                SortedMap<String, ArrayList<String>> map = declareStyleMap.get(buildType);
+
+                if (originR.exists() && map != null) {
+                    BufferedReader br = new BufferedReader(new FileReader(originR));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
+                    String srcLine = null;
+                    boolean hasStyleable = false;
+                    while((srcLine = br.readLine()) != null) {
+                        if (srcLine.equals("public final class R {")) {
+                            bw.writeLine(srcLine);
+
+                            bw.writeLine("  public static final class styleable {");
+                            Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
+                            while(itr.hasNext()) {
+                                Map.Entry<String, ArrayList<String>> item = itr.next();
+                                String key = item.key;
+                                StringBuilder sb = new StringBuilder();
+                                for(int i = 0; i < item.value.size(); i++) {
+                                    bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
+                                    sb.append(android.defaultConfig.applicationId).append(".R.attr.").append(item.value.get(i)).append(",")
+                                }
+                                if (sb.length() > 0) {
+                                    sb.deleteCharAt(sb.length()-1)
+                                }
+                                bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
+                            }
+                            bw.writeLine("  }")
+                        } else if (srcLine.contains("public static final class styleable {")) {
+                            hasStyleable = true;
+                        } else if (hasStyleable && srcLine.trim().equals("}")) {
+                            hasStyleable = false;
+                        } else {
+                            bw.writeLine(srcLine);
+                        }
+                    }
+                    bw.close()
+                    br.close()
+
                     originR.delete()
                     newR.renameTo(originR)
                 }
             }
         }
     }
-} else {
-    println project.name + "宿主基线配置指向文件不存在，请先编译宿主；若不是编译命令则忽略：" + host_patch_path
 }
 
 afterEvaluate {
@@ -188,8 +186,12 @@ afterEvaluate {
         for (baseVariant in variant.outputs) {
 
             baseVariant.processResources.doFirst {
+                println "开始处理插件工程资源.."
                 if (!new File(host_ap_path).exists()) {
-                    throw new FileNotFoundException("宿主基线apk文件不存在, 请检查baselineAp依赖配置是否正确: \n", host_ap_path)
+                    throw new FileNotFoundException("宿主基线apk文件不存在, 请先编译宿主，并检查baselineAp依赖配置是否正确: \n", host_ap_path)
+                }
+                if (!file(host_output_dir).exists()) {
+                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译宿主，并检查baselinePatch依赖配置是否正确: \n", host_ap_path)
                 }
             }
 
@@ -212,11 +214,11 @@ afterEvaluate {
         //println variant.name + " " + variant.buildType.name
         if (proguardTask) {
             proguardTask.doFirst {
-                println "开始混淆任务" + variantName.capitalize()
+                println "开始混淆任务 " + variantName.capitalize()
             }
             proguardTask.doLast {
 
-                println "混淆完成" + variantName.capitalize()
+                println "混淆完成 " + variantName.capitalize()
                 if (project.getProperties().containsKey("host_obfuscated_jar")) {
 
                     println "依赖的宿主混淆jar路径为：" + host_obfuscated_jar
@@ -230,20 +232,23 @@ afterEvaluate {
                     proguardTask.outputs.files.files.each { File file->
                         //http://blog.csdn.net/sbsujjbcy/article/details/50839263
                         //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
+                        //最新版本路径已发生变化；2017-11-12
                         println "file outputs=>${file.absolutePath}"
                         String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
                         println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildType + " " + String.valueOf(file.absolutePath.endsWith(buildType))
                         if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
                             isFind = true;
                             //保留一个备份
-                            println "导出混淆后的插件jar包 " + "${project.buildDir}/outputs/" + "plugin_" + variantName + "_obfuscated" + ".jar"
+                            println "导出混淆后的插件jar包 "
+                            println "From " + file.absolutePath + "/0.jar"
+                            println "To " + "${project.buildDir}/outputs/" + "plugin_" + variantName + "_obfuscated.jar"
                             copy {
-                                from file.absolutePath + "/jars/3/1f/main.jar"
+                                from file.absolutePath + "/0.jar"
                                 into("${project.buildDir}/outputs/")
-                                rename('main', "plugin_" + variantName + "_obfuscated")
+                                rename('0', "plugin_" + variantName + "_obfuscated")
                             }
 
-                            diffJar(file.absolutePath + "/jars/3/1f/main.jar", host_obfuscated_jar, "plugin_" + variantName + "_obfuscated");
+                            diffJar(file.absolutePath + "/0.jar", host_obfuscated_jar, "plugin_" + variantName + "_obfuscated");
                         }
                     }
                     if (!isFind) {
@@ -263,26 +268,28 @@ def diffJar(String plugin, String host, String name) {
 
     println "通过基线混淆包和插件混淆包做diff清理重复的class"
 
-    println plugin + " " + host
+    println "插件：" + plugin + "，  宿主：" + host
 
     println "先把插件和宿主的都解压 " + "${project.buildDir}/tmp/jarUnzip/plugin/" + ", " + "${project.buildDir}/tmp/jarUnzip/host/"
 
     ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
-
     List<String> hostClasses = ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
 
-    println "再把插件进行过滤后重现压回去 " + "${project.buildDir}/tmp/jarUnzip/plugin， host classSize = " + hostClasses.size()
-
-    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", plugin.replace("main.jar", ""), name + "_after_diff.jar", hostClasses)
-
-    println "再删掉源 " + plugin
+    println "再删掉插件的源 " + plugin
     new File(plugin).delete()
+
+    println "通过压缩过滤重新生成插件的源，替换之前被删掉的源， host classSize = " + hostClasses.size() + " " + file(plugin).getName()
+    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", file(plugin).getParent(), "0.jar", hostClasses)
+    println "重新生成的插件的源 " + plugin
 
     //备份diff后的包
     copy {
-        println "备份diff清理后的插件混淆包"
-        from plugin.replace("main.jar", name + "_after_diff.jar")
+        println "备份diff后重新生成的插件的源包到插件out目录"
+        println "From " + plugin
+        println "To " + "${project.buildDir}/outputs/" + name + "_after_diff.jar"
+        from plugin
         into("${project.buildDir}/outputs/")
+        rename("0", name + "_after_diff")
     }
 }
 
@@ -473,6 +480,15 @@ public class ZipUtil {
 }
 
 def applyThemePatch(taskName) {
+
+    copy {
+        println "正在解压宿主基线patch文件..."
+        def zipFile = file(host_patch_path);
+        def outputDir = file(host_output_dir)
+        outputDir.deleteDir();
+        from zipTree(zipFile)
+        into outputDir
+    }
 
     def buildType = taskName.replace("merge", "").replace("Resources", "").toLowerCase();
     def fromDir = host_output_dir + "/theme_patch/" + buildType;
