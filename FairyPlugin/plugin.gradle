@@ -37,6 +37,9 @@ configurations.each {  file ->
             host_patch_path = it.absolutePath;
             println project.name + "发现宿主基线配置指向：" + host_patch_path
             android.aaptOptions.additionalParameters('-I', host_patch_path)
+
+            String hostClasses = host_output_dir + "/host_classes.jar"
+            configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClasses)))
         }
     }
 }

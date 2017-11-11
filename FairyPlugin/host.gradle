@@ -137,9 +137,9 @@ afterEvaluate {
 
             def flavorBuildType = javaCompile.name.replace("compile", "").replace("JavaWithJavac", "");
             def flavor = flavorBuildType.toLowerCase().replace(buildType, "")
-            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildType
+            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildType + ", " + flavorBuildType + ", " + flavor
 
-            File jarFile = new File(project.buildDir, "outputs/" + project.name + "-" + flavorBuildType + ".jar")
+            File jarFile = new File(project.buildDir, "outputs/host_classes.jar")
             if (jarFile.exists()) {
                 jarFile.delete()
             }
