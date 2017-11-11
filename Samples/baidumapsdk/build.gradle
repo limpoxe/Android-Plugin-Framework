@@ -1,13 +1,17 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    google()
+}
+
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.1"
 
     defaultConfig {
         applicationId "com.limpoxe.baidumapsdk"
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
     }
@@ -20,6 +24,18 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.1.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:27.0.0'
+}
+
+
+afterEvaluate {
+    tasks.getByName("packageDebug").doLast {
+        copy {
+            println "复制插件" + apkPathList.get(0).absolutePath + "到宿主assets目录"
+            from apkPathList.get(0).getParent()
+            include project.name + '-debug.apk'
+            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+        }
+    }
 }

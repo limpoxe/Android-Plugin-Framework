@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.1"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
     }
@@ -27,20 +27,19 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
-    provided files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
+    compileOnly files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
+    compileOnly files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
 
 }
 
 afterEvaluate {
-    tasks.getByName("assembleDebug").doLast {
-        println '复制插件 debug apk 到 PluginMain/src/main/assets/目录下, 便于测试'
+    tasks.getByName("packageDebug").doLast {
         copy {
-            from(buildDir.absolutePath + '/outputs/apk/') {
-                include project.name + '-' + 'debug' + '.apk'
-            }
+            println "复制插件" + apkPathList.get(0).absolutePath + "到宿主assets目录"
+            from apkPathList.get(0).getParent()
+            include project.name + '-debug.apk'
             into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
         }
     }
