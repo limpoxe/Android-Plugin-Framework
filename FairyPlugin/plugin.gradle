@@ -162,14 +162,13 @@ afterEvaluate {
             }
 
             if (hostVersionName != null) {
-                //插入宿主版本号标识
-                def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
                 baseVariant.processManifest.doLast {
-                    File manifestFile = new File(manifestFilePath)
+                    println "插入宿主版本号标识 requiredHostVersionName"
+                    String manifestPath = "$manifestOutputDirectory/AndroidManifest.xml"
+                    File manifestFile = new File(manifestPath)
                     def originManifestContent = manifestFile.getText('UTF-8')
                     def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest requiredHostVersionName=\"" + hostVersionName + "\" ");
                     manifestFile.write(modifyedManifestContent, 'UTF-8')
-                    baseVariant.processResources.manifestFile = manifestFile
                 }
             }
         }

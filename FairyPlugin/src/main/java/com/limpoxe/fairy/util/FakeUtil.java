@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.ChangedPackages;
 import android.content.pm.FeatureInfo;
 import android.content.pm.InstrumentationInfo;
 import android.content.pm.PackageInfo;
@@ -19,6 +20,8 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.SharedLibraryInfo;
+import android.content.pm.VersionedPackage;
 import android.content.res.*;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -99,6 +102,11 @@ public class FakeUtil {
                             packageInfo.signatures = pm.getPackageInfo(getPackageName(), flags).signatures;
                         }
                         return packageInfo;
+                    }
+
+                    //Android-O
+                    public PackageInfo getPackageInfo(VersionedPackage versionedPackage, int i) throws NameNotFoundException {
+                        return null;
                     }
 
                     @Override
@@ -213,7 +221,7 @@ public class FakeUtil {
 
                     @Override
                     public int checkPermission(String permName, String pkgName) {
-                        return 0;
+                        return PackageManager.PERMISSION_GRANTED;
                     }
 
                     @Override
@@ -251,9 +259,49 @@ public class FakeUtil {
                         return null;
                     }
 
+                    //Android-O
+                    public boolean isInstantApp() {
+                        return false;
+                    }
+
+                    //Android-O
+                    public boolean isInstantApp(String s) {
+                        return false;
+                    }
+
+                    //Android-O
+                    public int getInstantAppCookieMaxBytes() {
+                        return 0;
+                    }
+
+                    //Android-O
+                    public byte[] getInstantAppCookie() {
+                        return new byte[0];
+                    }
+
+                    //Android-O
+                    public void clearInstantAppCookie() {
+
+                    }
+
+                    //Android-O
+                    public void updateInstantAppCookie(byte[] bytes) {
+
+                    }
+
                     @Override
                     public String[] getSystemSharedLibraryNames() {
                         return new String[0];
+                    }
+
+                    //Android-O
+                    public List<SharedLibraryInfo> getSharedLibraries(int i) {
+                        return null;
+                    }
+
+                    //Android-O
+                    public ChangedPackages getChangedPackages(int i) {
+                        return null;
                     }
 
                     @Override
@@ -488,7 +536,7 @@ public class FakeUtil {
 
                     @Override
                     public int getComponentEnabledSetting(ComponentName componentName) {
-                        return 0;
+                        return PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
                     }
 
                     @Override
@@ -498,7 +546,7 @@ public class FakeUtil {
 
                     @Override
                     public int getApplicationEnabledSetting(String packageName) {
-                        return 0;
+                        return PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
                     }
 
                     @Override
@@ -506,9 +554,19 @@ public class FakeUtil {
                         return false;
                     }
 
+                    //Android-O
+                    public void setApplicationCategoryHint(String s, int i) {
+
+                    }
+
                     @Override
                     public PackageInstaller getPackageInstaller() {
                         return null;
+                    }
+
+                    //Android-O
+                    public boolean canRequestPackageInstalls() {
+                        return false;
                     }
 
                     //@Override //android-N

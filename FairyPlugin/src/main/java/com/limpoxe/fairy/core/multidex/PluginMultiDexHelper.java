@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.ChangedPackages;
 import android.content.pm.FeatureInfo;
 import android.content.pm.InstrumentationInfo;
 import android.content.pm.PackageInfo;
@@ -15,6 +16,8 @@ import android.content.pm.PermissionInfo;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.SharedLibraryInfo;
+import android.content.pm.VersionedPackage;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.graphics.Rect;
@@ -33,6 +36,11 @@ public class PluginMultiDexHelper {
 
             @Override
             public PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException {
+                return null;
+            }
+
+            //android-O
+            public PackageInfo getPackageInfo(VersionedPackage versionedPackage, int i) throws NameNotFoundException {
                 return null;
             }
 
@@ -131,7 +139,7 @@ public class PluginMultiDexHelper {
 
             @Override
             public int checkPermission(String permName, String pkgName) {
-                return 0;
+                return PERMISSION_DENIED;
             }
 
             @Override
@@ -156,12 +164,12 @@ public class PluginMultiDexHelper {
 
             @Override
             public int checkSignatures(String pkg1, String pkg2) {
-                return 0;
+                return PackageManager.SIGNATURE_MATCH;
             }
 
             @Override
             public int checkSignatures(int uid1, int uid2) {
-                return 0;
+                return PackageManager.SIGNATURE_MATCH;
             }
 
             @Override
@@ -179,9 +187,49 @@ public class PluginMultiDexHelper {
                 return null;
             }
 
+            //android-O
+            public boolean isInstantApp() {
+                return false;
+            }
+
+            //android-O
+            public boolean isInstantApp(String s) {
+                return false;
+            }
+
+            //android-O
+            public int getInstantAppCookieMaxBytes() {
+                return 0;
+            }
+
+            //android-O
+            public byte[] getInstantAppCookie() {
+                return new byte[0];
+            }
+
+            //android-O
+            public void clearInstantAppCookie() {
+
+            }
+
+            //android-O
+            public void updateInstantAppCookie(byte[] bytes) {
+
+            }
+
             @Override
             public String[] getSystemSharedLibraryNames() {
                 return new String[0];
+            }
+
+            //android-O
+            public List<SharedLibraryInfo> getSharedLibraries(int i) {
+                return null;
+            }
+
+            //android-O
+            public ChangedPackages getChangedPackages(int i) {
+                return null;
             }
 
             @Override
@@ -421,7 +469,7 @@ public class PluginMultiDexHelper {
 
             @Override
             public int getComponentEnabledSetting(ComponentName componentName) {
-                return 0;
+                return PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
             }
 
             @Override
@@ -431,7 +479,7 @@ public class PluginMultiDexHelper {
 
             @Override
             public int getApplicationEnabledSetting(String packageName) {
-                return 0;
+                return PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
             }
 
             @Override
@@ -439,9 +487,19 @@ public class PluginMultiDexHelper {
                 return false;
             }
 
+            //android-O
+            public void setApplicationCategoryHint(String s, int i) {
+
+            }
+
             @Override
             public PackageInstaller getPackageInstaller() {
                 return null;
+            }
+
+            //android-O
+            public boolean canRequestPackageInstalls() {
+                return false;
             }
 
             //android-N

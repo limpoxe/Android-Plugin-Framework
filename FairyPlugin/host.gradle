@@ -116,9 +116,9 @@ afterEvaluate {
 
             def processResourcesTask = baseVariant.getProcessResources();
             processResourcesTask.doLast {
-                println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
                 copy {
-                    from processResourcesTask.packageOutputFile
+                    println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
+                    from processResourcesTask.resPackageOutputFolder
                     into("${project.buildDir}/outputs/")
                     rename('resources', project.name + "-resources")
                 }
@@ -155,18 +155,18 @@ afterEvaluate {
                     jarMerger.addJar(jarPath);
                     //jarMerger.addFolder(directoryInput.getFile());
                 }
-                File classes = new File(buildDir, 'intermediates/packaged/' + (flavor.equals("")?"":(flavor + "/")) + buildType + "/classes.jar");
+                File classes = new File(buildDir, 'intermediates/classes-jar/' + (flavor.equals("")?"":(flavor + "/")) + buildType + "/classes.jar");
 
                 println "classes path is " + classes.absolutePath
 
                 if (!classes.exists()) {
                     try {
-                        tasks.getByName("jar" + flavorBuildType +  "Classes").execute()
+                        tasks.getByName("bundleAppClasses" + flavorBuildType).execute()
                     } catch(Exception e) {
-                        println "fail to create jar for task " + javaCompile.name
+                        println "fail to create jar for task " + javaCompile.name + " " + "bundleAppClasses" + flavorBuildType
                     }
                 } else {
-                    println "classes path not exist " + classes.absolutePath
+                    println "classes path already exists： " + classes.absolutePath
                 }
                 if (classes.exists()) {
                     jarMerger.addJar(classes)
