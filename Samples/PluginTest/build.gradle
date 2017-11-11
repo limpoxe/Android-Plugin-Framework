@@ -71,8 +71,6 @@ def getDate() {
 
 configurations {
     baselinePatch
-    baselineAp
-    baselineObfuscate
 }
 
 dependencies {
@@ -85,16 +83,13 @@ dependencies {
     //如果是独立插件，无需任何特殊配置
     /////////////////////////////////////////////////////////////////////
 
+    compileOnly files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
+
     //注意这里写的是debug，所以要debug编译宿主和PluginBase
     compileOnly files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
 
-    compileOnly files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
-
-    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
-
     //支持使用maven坐标配置
-    //例如：baselineAp 'com.limpoxe.test:test-host:8.5.1'
-    baselineAp files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs/apk/debug/PluginMain-universal-debug.apk")
+    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
 
     //Test ButterKnife
     //compile 'com.jakewharton:butterknife:8.5.1'
@@ -112,11 +107,6 @@ afterEvaluate {
             into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
         }
     }
-}
-
-ext {
-    //用于混淆配置
-    //host_obfuscated_jar = '/host_debug_obfuscated.jar'
 }
 
 apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'

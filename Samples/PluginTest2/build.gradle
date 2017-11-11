@@ -47,8 +47,6 @@ def getDate() {
 
 configurations {
     baselinePatch
-    baselineAp
-    baselineObfuscate
 }
 
 dependencies {
@@ -63,9 +61,8 @@ dependencies {
 
     compileOnly files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
 
+    //支持使用maven坐标配置
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
-    baselineAp files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs/apk/debug/PluginMain-universal-debug.apk")
-
 }
 
 afterEvaluate {

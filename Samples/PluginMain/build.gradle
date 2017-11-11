@@ -80,8 +80,8 @@ android {
         abi {
             enable true
             reset()
-            include 'armeabi-v7a', "x86", "x86_64" //select ABIs to build APKs for
-            universalApk true //generate an additional APK that contains all the ABIs
+            include 'armeabi-v7a'//select ABIs to build APKs for
+            //universalApk true //generate an additional APK that contains all the ABIs
         }
     }
 
