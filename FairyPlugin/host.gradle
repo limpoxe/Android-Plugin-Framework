@@ -187,10 +187,10 @@ afterEvaluate {
         def variantName = variant.name
         if (proguardTask) {
             proguardTask.doFirst {
-                println "开始混淆任务" + variantName.capitalize()
+                println "开始混淆任务：" + variantName.capitalize()
             }
             proguardTask.doLast {
-                println "混淆完成" + variantName.capitalize()
+                println "混淆完成：" + variantName.capitalize()
                 boolean isFind = false;
                 proguardTask.outputs.files.files.each { File file->
                     //http://blog.csdn.net/sbsujjbcy/article/details/50839263

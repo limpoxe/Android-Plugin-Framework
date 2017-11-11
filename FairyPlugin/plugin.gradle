@@ -31,7 +31,7 @@ configurations.each {  file ->
     if (file.name.equals("baselineAp")) {
         file.files.each { it ->
             host_ap_path = it.absolutePath;
-            println "additionalParameters -I " + host_ap_path
+            println project.name + "添加宿主apk到aapt：" + host_ap_path
             android.aaptOptions.additionalParameters('-I', host_ap_path)
         }
     }
@@ -43,7 +43,7 @@ configurations.each {  file ->
         file.files.each { it ->
             //只留最后个
             host_patch_path = it.absolutePath;
-            println "发现宿主基线配置：" + host_patch_path
+            println project.name + "发现宿主基线配置指向：" + host_patch_path
         }
     }
 }
@@ -170,7 +170,7 @@ if (file(host_patch_path).exists()) {
         }
     }
 } else {
-    println "宿主基线资源配置不存在，请先编译宿主:\n" + host_patch_path
+    println project.name + "宿主基线配置指向文件不存在，请先编译宿主；若不是编译命令则忽略：" + host_patch_path
 }
 
 afterEvaluate {
