@@ -69,6 +69,12 @@ def getDate() {
     return formattedDate
 }
 
+configurations {
+    baselinePatch
+    baselineAp
+    baselineObfuscate
+}
+
 dependencies {
 
     implementation project(":Samples:plugintest3");
@@ -83,6 +89,12 @@ dependencies {
     compileOnly files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
 
     compileOnly files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
+
+    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
+
+    //支持使用maven坐标配置
+    //例如：baselineAp 'com.limpoxe.test:test-host:8.5.1'
+    baselineAp files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs/apk/debug/PluginMain-universal-debug.apk")
 
     //Test ButterKnife
     //compile 'com.jakewharton:butterknife:8.5.1'
@@ -103,15 +115,8 @@ afterEvaluate {
 }
 
 ext {
-    //这2个常量在下面的apply的脚本中要用到
-    //一个是指定宿主编译出来的output目录，一个是指定宿主编译出来的apk文件
-    host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
-
-    //注意这里写的是debug的apk文件，使用不同的buildType应换成不同的文件名
-    host_ap_path = host_output_dir + '/apk/debug/PluginMain-universal-debug.apk'
-
     //用于混淆配置
-    //host_obfuscated_jar = host_output_dir + '/host_debug_obfuscated.jar'
+    //host_obfuscated_jar = '/host_debug_obfuscated.jar'
 }
 
 apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'

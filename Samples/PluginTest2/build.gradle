@@ -45,6 +45,12 @@ def getDate() {
     return formattedDate
 }
 
+configurations {
+    baselinePatch
+    baselineAp
+    baselineObfuscate
+}
+
 dependencies {
 
     implementation 'com.facebook.rebound:rebound:0.3.5'
@@ -57,8 +63,10 @@ dependencies {
 
     compileOnly files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-debug.jar')
 
-}
+    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
+    baselineAp files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs/apk/debug/PluginMain-universal-debug.apk")
 
+}
 
 afterEvaluate {
     tasks.getByName("packageDebug").doLast {
@@ -69,12 +77,6 @@ afterEvaluate {
             into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
         }
     }
-}
-
-ext {
-    //这2个常量在下面的apply的脚本中要用到
-    host_output_dir = project(':Samples:PluginMain').getBuildDir().absolutePath + "/outputs"
-    host_ap_path = host_output_dir+ '/apk/debug/PluginMain-universal-debug.apk'
 }
 
 apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
