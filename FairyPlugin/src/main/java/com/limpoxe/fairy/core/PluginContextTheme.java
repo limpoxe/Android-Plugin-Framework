@@ -24,6 +24,7 @@ import com.limpoxe.fairy.core.android.HackResources;
 import com.limpoxe.fairy.core.compat.CompatForSharedPreferencesImpl;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.multidex.PluginMultiDexHelper;
+import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.io.File;
@@ -196,7 +197,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 				//这里修正packageManager中hook时设置的插件packageName
 				mApplicationInfo.packageName = getPackageName();
 			} catch (PackageManager.NameNotFoundException e) {
-				e.printStackTrace();
+				LogUtil.printException("PluginContextTheme.getApplicationInfo", e);
 			}
 		}
 		return mApplicationInfo;

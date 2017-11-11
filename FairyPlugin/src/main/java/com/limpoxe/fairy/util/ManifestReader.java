@@ -32,13 +32,13 @@ public class ManifestReader {
             ZipEntry entry = file.getEntry(DEFAULT_XML);
             rs = getManifestXMLFromAPK(file, entry);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.printException("ManifestReader.getManifestXMLFromAPK", e);
         } finally {
             if (file != null) {
                 try {
                     file.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("ManifestReader.getManifestXMLFromAPK", e);
                 }
             }
         }
@@ -94,7 +94,7 @@ public class ManifestReader {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.printException("ManifestReader.getManifestXMLFromAPK", e);
         } finally {
             parser.close();
         }

@@ -52,7 +52,7 @@ public class ProcessUtil {
                 return pinfo==null?"":pinfo.processName;
             }
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.printException("ProcessUtil.getPluginProcessName", e);
         }
         return "";
     }

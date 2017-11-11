@@ -2,6 +2,7 @@ package com.limpoxe.fairy.core.compat;
 
 import android.view.View;
 
+import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 
 import java.lang.reflect.Constructor;
@@ -28,7 +29,7 @@ public class CompatForSupportv7ViewInflater {
                         android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
             }
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.printException("CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache", e);
         }
     }
 

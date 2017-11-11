@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 
+import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 
 /**
@@ -143,7 +144,7 @@ public class HackInstrumentation {
                             Class.forName("android.app.IAppTask"), Intent.class, Bundle.class,},
                     new Object[]{who, contextThread, appTask, intent, options});
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.printException("HackInstrumentation.execStartActivityFromAppTask", e);
         }
     }
 

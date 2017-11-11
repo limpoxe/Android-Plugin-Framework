@@ -62,15 +62,15 @@ public class AndroidOsIBinder extends MethodProxy {
 
                     return proxy;
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
                 } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
                 } catch (InstantiationException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
                 }
             }
 

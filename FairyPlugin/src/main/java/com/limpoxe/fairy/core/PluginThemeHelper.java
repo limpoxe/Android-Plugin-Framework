@@ -50,9 +50,9 @@ public class PluginThemeHelper {
 				}
 
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				LogUtil.printException("PluginThemeHelper.getAllPluginThemes", e);
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				LogUtil.printException("PluginThemeHelper.getAllPluginThemes", e);
 			}
 		}
 

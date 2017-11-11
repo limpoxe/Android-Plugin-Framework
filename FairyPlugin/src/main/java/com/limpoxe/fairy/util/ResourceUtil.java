@@ -38,7 +38,7 @@ public class ResourceUtil {
                     return des;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.printException("ResourceUtil.getString", e);
             }
         }
 
@@ -62,7 +62,7 @@ public class ResourceUtil {
                     return pluginContext.getResources().getBoolean(id);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.printException("ResourceUtil.getBoolean", e);
             }
         } else if (value != null) {
             return Boolean.parseBoolean(value);
@@ -92,7 +92,7 @@ public class ResourceUtil {
                 int id = Integer.parseInt(idHex, 16);
                 return id;
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.printException("ResourceUtil.parseResId", e);
             }
         }
         return 0;

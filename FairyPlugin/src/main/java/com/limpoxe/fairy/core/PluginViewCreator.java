@@ -50,7 +50,7 @@ public class PluginViewCreator implements LayoutInflater.Factory {
 					return view;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogUtil.printException("PluginViewCreator.createViewFromTag", e);
 			} finally {
 			}
 

@@ -85,11 +85,11 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                             }
                         }
                     } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
+                        LogUtil.printException("StubActivityMappingProcessor.bindStub", e);
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        LogUtil.printException("StubActivityMappingProcessor.bindStub", e);
                     } catch (NoSuchFieldException e) {
-                        e.printStackTrace();
+                        LogUtil.printException("StubActivityMappingProcessor.bindStub", e);
                     }
                 } else {
                     LogUtil.e("插件尚未运行，无法获取pluginResource对象");

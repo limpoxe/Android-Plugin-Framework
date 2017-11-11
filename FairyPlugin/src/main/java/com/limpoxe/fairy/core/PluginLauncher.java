@@ -179,7 +179,7 @@ public class PluginLauncher implements Serializable {
 			HackActivityThread.installPackageInfo(FairyGlobal.getHostApplication(), pluginDescriptor.getPackageName(), pluginDescriptor,
 					pluginClassLoader, pluginRes, pluginApplication);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LogUtil.printException("PluginLauncher.initApplication", e);
 		}
 
         // 解决插件中webview加载html时<input type=date />控件出错的问题，兼容性待验证

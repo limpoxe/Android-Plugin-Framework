@@ -35,7 +35,7 @@ public class FileUtil {
 		try {
 			return copyFile(new FileInputStream(new File(source)), dest);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			LogUtil.printException("FileUtil.copyFile", e);
 		}
 		return false;
 	}
@@ -69,20 +69,20 @@ public class FileUtil {
 			oputStream.flush();
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogUtil.printException("FileUtil.copyFile", e);
 		} finally {
 			if (oputStream != null) {
 				try {
 					oputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("FileUtil.copyFile", e);
 				}
 			}
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("FileUtil.copyFile", e);
 				}
 			}
 		}
@@ -137,7 +137,7 @@ public class FileUtil {
 				}
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			LogUtil.printException("FileUtil.copySo", e);
 		}
 
 		return true;
@@ -213,27 +213,27 @@ public class FileUtil {
 			}
 			isSuccess = true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogUtil.printException("FileUtil.unZipSo", e);
 		} finally {
 			if (fos != null) {
 				try {
 					fos.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("FileUtil.unZipSo", e);
 				}
 			}
 			if (bis != null) {
 				try {
 					bis.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("FileUtil.unZipSo", e);
 				}
 			}
 			if (zfile != null) {
 				try {
 					zfile.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("FileUtil.unZipSo", e);
 				}
 			}
 		}
@@ -255,13 +255,13 @@ public class FileUtil {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogUtil.printException("FileUtil.readFileFromJar", e);
 		} finally {
 			if (jarFile != null) {
 				try {
 					jarFile.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("FileUtil.readFileFromJar", e);
 				}
 			}
 		}

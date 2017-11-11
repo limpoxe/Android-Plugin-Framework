@@ -174,20 +174,20 @@ public class StubServiceMappingProcessor implements StubMappingProcessor {
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.printException("StubServiceMappingProcessor.save", e);
         } finally {
             if (objectOutputStream != null) {
                 try {
                     objectOutputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("StubServiceMappingProcessor.save", e);
                 }
             }
             if (byteArrayOutputStream != null) {
                 try {
                     byteArrayOutputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtil.printException("StubServiceMappingProcessor.save", e);
                 }
             }
         }
@@ -207,20 +207,20 @@ public class StubServiceMappingProcessor implements StubMappingProcessor {
                 objectInputStream = new ObjectInputStream(byteArrayInputStream);
                 object = (Serializable) objectInputStream.readObject();
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtil.printException("StubServiceMappingProcessor.restore", e);
             } finally {
                 if (objectInputStream != null) {
                     try {
                         objectInputStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LogUtil.printException("StubServiceMappingProcessor.restore", e);
                     }
                 }
                 if (byteArrayInputStream != null) {
                     try {
                         byteArrayInputStream.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LogUtil.printException("StubServiceMappingProcessor.restore", e);
                     }
                 }
             }

@@ -588,8 +588,10 @@ public class FakeUtil {
             base.set(fakeForSdk, c);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
+            LogUtil.printException("FakeUtil.fakeApplication", e);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+            LogUtil.printException("FakeUtil.fakeApplication", e);
         }
 
         return fakeForSdk;

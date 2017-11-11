@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core.compat;
 
+import com.limpoxe.fairy.util.LogUtil;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +22,7 @@ public class CompatForSharedPreferencesImpl {
             try {
                 SharedPreferencesImpl = Class.forName("android.app.SharedPreferencesImpl");
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
                 return null;
             }
         }
@@ -31,7 +33,7 @@ public class CompatForSharedPreferencesImpl {
                 SharedPreferencesImpl_Constructor_2 = SharedPreferencesImpl.getDeclaredConstructor(File.class, int.class);
                 SharedPreferencesImpl_Constructor_2.setAccessible(true);
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
                 has2 = false;
             }
         }
@@ -40,11 +42,11 @@ public class CompatForSharedPreferencesImpl {
             try {
                 return SharedPreferencesImpl_Constructor_2.newInstance(prefsFile, mode);
             } catch (InstantiationException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
             }
         }
 
@@ -54,7 +56,7 @@ public class CompatForSharedPreferencesImpl {
                 SharedPreferencesImpl_Constructor_3 = SharedPreferencesImpl.getDeclaredConstructor(File.class, int.class, String.class);
                 SharedPreferencesImpl_Constructor_3.setAccessible(true);
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
                 has3 = false;
             }
         }
@@ -63,11 +65,11 @@ public class CompatForSharedPreferencesImpl {
             try {
                 return SharedPreferencesImpl_Constructor_3.newInstance(prefsFile, mode, packageName);
             } catch (InstantiationException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
+                LogUtil.printException("CompatForSharedPreferencesImpl.newSharedPreferencesImpl", e);
             }
         }
 

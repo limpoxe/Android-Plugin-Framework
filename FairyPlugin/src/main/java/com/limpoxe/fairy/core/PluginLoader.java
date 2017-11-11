@@ -143,7 +143,7 @@ public class PluginLoader {
             PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_META_DATA);
             hostVersionName = hostPackageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.printException("PluginLoader.removeNotSupportedPluginIfUpgraded", e);
             return;
         }
 
@@ -199,8 +199,8 @@ public class PluginLoader {
 					LogUtil.v("loadPluginClass for clazzId", clazzId, "clazzName", clazzName, "success");
 					return pluginClazz;
 				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
+                    LogUtil.printException("PluginLoader.loadPluginFragmentClassById", e);
+                }
 			}
 		} else {
 			LogUtil.e("未安装插件", clazzId, "fail");

@@ -62,7 +62,7 @@ public class HackActivityThread {
         try {
             return RefInvoker.forName(ClassName);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.printException("HackActivityThread.clazz", e);
         }
         return null;
     }
@@ -163,7 +163,7 @@ public class HackActivityThread {
             //再还原
             Thread.currentThread().setContextClassLoader(classLoader);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.printException("HackActivityThread.installPackageInfo", e);
         }
     }
 
@@ -207,7 +207,7 @@ public class HackActivityThread {
                     new Object[]{info, compatibilityInfo});
             return pluginLoadedApk;
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            LogUtil.printException("HackActivityThread.getPackageInfoNoCheck", e);
         }
         return null;
     }

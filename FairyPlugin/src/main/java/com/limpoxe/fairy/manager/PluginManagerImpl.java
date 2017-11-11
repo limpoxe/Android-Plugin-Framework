@@ -9,6 +9,7 @@ import android.content.pm.Signature;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
@@ -205,8 +206,8 @@ class PluginManagerImpl {
             //解析相对路径，得到真实绝对路径
             srcPluginFile = srcFile.getCanonicalPath();
         } catch (IOException e) {
-            e.printStackTrace();
-            return new InstallResult(PluginManagerHelper.INSTALL_FAIL);
+			LogUtil.printException("PluginManagerImpl.installPlugin", e);
+			return new InstallResult(PluginManagerHelper.INSTALL_FAIL);
         }
 
         // 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
@@ -259,8 +260,8 @@ class PluginManagerImpl {
                 PackageInfo pkgInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_SIGNATURES);
                 mainSignatures = pkgInfo.signatures;
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
+				LogUtil.printException("PluginManagerImpl.installPlugin", e);
+			}
             if (!PackageVerifyer.isSignaturesSame(mainSignatures, pluginSignatures)) {
                 LogUtil.e("插件证书和宿主证书不一致", srcPluginFile);
                 new File(srcPluginFile).delete();
@@ -284,8 +285,8 @@ class PluginManagerImpl {
                     return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
                 }
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
+				LogUtil.printException("PluginManagerImpl.installPlugin", e);
+			}
         }
 
 		// 检查插件是否已经存在,若存在删除旧的
@@ -368,7 +369,7 @@ class PluginManagerImpl {
 				try {
 					cl.loadClass(Object.class.getName());
 				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
+					LogUtil.printException("PluginManagerImpl.installPlugin", e);
 				}
 				LogUtil.d("DEXOPT完毕");
 
@@ -411,20 +412,20 @@ class PluginManagerImpl {
 			getSharedPreference().edit().putString(key, list).commit();
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogUtil.printException("PluginManagerImpl.savePlugins", e);
 		} finally {
 			if (objectOutputStream != null) {
 				try {
 					objectOutputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("PluginManagerImpl.savePlugins", e);
 				}
 			}
 			if (byteArrayOutputStream != null) {
 				try {
 					byteArrayOutputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LogUtil.printException("PluginManagerImpl.savePlugins", e);
 				}
 			}
 		}
@@ -443,20 +444,20 @@ class PluginManagerImpl {
 				objectInputStream = new ObjectInputStream(byteArrayInputStream);
 				object = (Serializable) objectInputStream.readObject();
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogUtil.printException("PluginManagerImpl.readPlugins", e);
 			} finally {
 				if (objectInputStream != null) {
 					try {
 						objectInputStream.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						LogUtil.printException("PluginManagerImpl.readPlugins", e);
 					}
 				}
 				if (byteArrayInputStream != null) {
 					try {
 						byteArrayInputStream.close();
 					} catch (IOException e) {
-						e.printStackTrace();
+						LogUtil.printException("PluginManagerImpl.readPlugins", e);
 					}
 				}
 			}

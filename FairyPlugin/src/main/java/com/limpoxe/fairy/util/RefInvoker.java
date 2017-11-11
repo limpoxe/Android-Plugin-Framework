@@ -39,17 +39,15 @@ public class RefInvoker {
 			}
 			return constructor.newInstance(paramValues);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 			LogUtil.printException("ClassNotFoundException", e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
 			LogUtil.printException("NoSuchMethodException", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			LogUtil.printException("IllegalAccessException", e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			LogUtil.printException("InstantiationException", e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			LogUtil.printException("InvocationTargetException", e);
 		}
 		return null;
 	}
@@ -61,7 +59,7 @@ public class RefInvoker {
 			Class clazz = forName(className);
 			return invokeMethod(target, clazz, methodName, paramTypes, paramValues);
 		}catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LogUtil.printException("ClassNotFoundException", e);
 		}
 		return null;
 	}
@@ -75,15 +73,15 @@ public class RefInvoker {
 			}
 			return method.invoke(target, paramValues);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			LogUtil.printException("SecurityException", e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			LogUtil.printException("IllegalArgumentException", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			LogUtil.printException("IllegalAccessException", e);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			LogUtil.printException("NoSuchMethodException", e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			LogUtil.printException("InvocationTargetException", e);
 		}
 		return null;
 	}
@@ -94,7 +92,7 @@ public class RefInvoker {
 			Class clazz = forName(className);
 			return getField(target, clazz, fieldName);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LogUtil.printException("ClassNotFoundException", e);
 		}
 		return null;
 	}
@@ -108,7 +106,7 @@ public class RefInvoker {
 			}
 			return field.get(target);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.getField", e);
 		} catch (NoSuchFieldException e) {
 			// try supper for Miui, Miui has a class named MiuiPhoneWindow
 			try {
@@ -116,13 +114,13 @@ public class RefInvoker {
 				field.setAccessible(true);
 				return field.get(target);
 			} catch (Exception superE) {
-				e.printStackTrace();
-				superE.printStackTrace();
+				LogUtil.printException("RefInvoker.getField", e);
+				LogUtil.printException("RefInvoker.getField", superE);
 			}
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.getField", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.getField", e);
 		}
 		return null;
 
@@ -134,7 +132,7 @@ public class RefInvoker {
 			Class clazz = forName(className);
 			setField(target, clazz, fieldName, fieldValue);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.setField", e);
 		}
 	}
 
@@ -146,7 +144,7 @@ public class RefInvoker {
 			}
 			field.set(target, fieldValue);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.setField", e);
 		} catch (NoSuchFieldException e) {
 			// try supper for Miui, Miui has a class named MiuiPhoneWindow
 			try {
@@ -156,13 +154,13 @@ public class RefInvoker {
 				}
 				field.set(target, fieldValue);
 			} catch (Exception superE) {
-				e.printStackTrace();
+				LogUtil.printException("RefInvoker.setField", e);
 				//superE.printStackTrace();
 			}
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.setField", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.setField", e);
 		}
 	}
 
@@ -170,7 +168,7 @@ public class RefInvoker {
 		try {
 			return object.getClass().getDeclaredMethod(methodName, clazzes);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			LogUtil.printException("RefInvoker.findMethod", e);
 		}
 		return null;
 	}
@@ -180,7 +178,7 @@ public class RefInvoker {
 			try {
 				return object.getClass().getDeclaredMethod(methodName, (Class[])null);
 			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
+				LogUtil.printException("RefInvoker.findMethod", e);
 			}
 			return null;
 		} else {
@@ -236,8 +234,8 @@ public class RefInvoker {
             Class clazz = Class.forName(className);
             return dumpAllInfo(clazz);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+			LogUtil.printException("RefInvoker.dumpAllInfo", e);
+		}
         return null;
     }
 
