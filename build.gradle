@@ -2,10 +2,10 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        //高于2.1.3版本的插件需要jdk1.8
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.0.0'
 
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
@@ -20,5 +20,6 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        google()
     }
 }
