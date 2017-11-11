@@ -28,7 +28,7 @@ android {
         versionCode 1
         versionName "1.1.2"
         ndk {
-            abiFilters "armeabi-v7a", "x86", "x86_64"
+            abiFilters "armeabi-v7a"
         }
     }
 
