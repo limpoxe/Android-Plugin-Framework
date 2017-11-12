@@ -110,5 +110,6 @@ ext {
     //混淆配置
     //fairyMinifyEnabled = true
 }
-apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
-//apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+
+//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
