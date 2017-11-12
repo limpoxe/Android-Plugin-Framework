@@ -156,7 +156,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
     private void testVersion2() {
         try {
             PackageManager pm = getPackageManager();
-            PackageInfo pi = pm.getPackageInfo(FairyGlobal.getApplication().getPackageName(), 0);
+            PackageInfo pi = pm.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), 0);
             LogUtil.v("host", pi.versionName, pi.versionCode);
         } catch (Exception e) {
             Log.e("VersionInfo", "Exception", e);
@@ -635,19 +635,19 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         Activity fakeActivity = new Activity() {
             @Override
             public Context getApplicationContext() {
-                return FairyGlobal.getApplication().getApplicationContext();
+                return FairyGlobal.getHostApplication().getApplicationContext();
             }
 
             @Override
             public String getPackageName() {
-                return FairyGlobal.getApplication().getPackageName();
+                return FairyGlobal.getHostApplication().getPackageName();
             }
 
             public String getLocalClassName() {
                 return className;
             }
         };
-        new HackActivity(fakeActivity).setApplication(FairyGlobal.getApplication());
+        new HackActivity(fakeActivity).setApplication(FairyGlobal.getHostApplication());
         return fakeActivity;
     }
 

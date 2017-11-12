@@ -23,11 +23,6 @@ public class FairyGlobal {
         return sApplication;
     }
 
-    @Deprecated
-    public static Application getApplication() {
-        return getHostApplication();
-    }
-
     /*package*/ static void setApplication(Application application) {
         sApplication = application;
     }
