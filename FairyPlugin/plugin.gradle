@@ -28,7 +28,7 @@ import java.util.zip.*
 ext {
     host_patch_path = "BaselinePatch FileNotFound, Check Your Dependencies!!";
     host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch';
-    isNeedProgurad = false;
+    fairyMinifyEnabled = false;
 }
 
 //第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
@@ -40,7 +40,7 @@ configurations.each {  file ->
             android.aaptOptions.additionalParameters('-I', host_patch_path)
 
             String hostClasses = host_output_dir + "/host_classes.jar"
-            if (!isNeedProgurad) {
+            if (!fairyMinifyEnabled) {
                 configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClasses)))
             } else {
                 configurations.implementation.dependencies.add(project.dependencies.create(files(hostClasses)))
