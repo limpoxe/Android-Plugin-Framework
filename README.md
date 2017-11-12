@@ -155,16 +155,18 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 此配置```与其原始含义无关```。插件框架识别一个插件是否为独立插件，是根据插件的manifest文件中的android:sharedUserId配置来判断，
 将android:sharedUserId设置为宿主的packageName，则表示为非独立插件，不设置或者设置为其他值，则表示为独立插件。
                  
-3、在build.gradle中添加如下2个配置
+3、在build.gradle中添加如下3个配置
 ```
-    dependencies {
-        //这个配置的意思是使是插件运行时依赖宿主的class或者依赖宿主依赖的class, 这些jar不会被打包到插件中
-        //***这是demo中的示例，请根据自己的实际情况修改***
-        provided files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/outputs/PluginMain-Debug.jar')
+    configurations {
+        baselinePatch
     }
-```
-       
-```
+
+    dependencies {
+        //***这是demo中的示例，请根据自己的实际情况修改，作用是指向插件依赖的宿主基线包***
+        //支持文件、maven坐标等写法
+        baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
+    }
+
     apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
  ```       
   
@@ -190,6 +192,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         
         2、必须先编译宿主，再编译非独立插件。（这也是使用菜单栏编译会失败的原因之一）
            原因很简单，既然是非独立插件，肯定是需要引用宿主的类和资源的。所以编译非独立插件时会用到编译宿主时的输出物
+           clean之后首次assembleDebug会失败，也是这个原因，重新编译一次即可
    
         所以如果使用其他编译方法，请务必仔细阅读build.gradle，了解编译过程和依赖关系后可以自行调整编译脚本，否则可能会失败。
 
@@ -361,9 +364,14 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
     
     若需要混淆非独立插件，步骤如下：
              
-         1、在宿主中开启混淆编译，outputs目录下会生成一个混淆后的jar：host_[buildType]_obfuscated.jar，以及mapping目录下会生成一个mapping文件
-         2、在非独立插件工程中开启混淆，同时将provided宿主jar的配置修改为compile宿主jar
-         3、在非独立插件工程的build.gradle下增加proguardRule相关配置，在rule文件中使用添加：-applymapping mapping文件路径。 此mappiing文件为第1步中编译宿主生成的文件
+         1、在宿主中开启混淆编译
+         2、在插件中开启混淆编译
+         3、在插件中增加配置
+            ext {
+                fairyMinifyEnabled = true
+            }
+         4、在非独立插件工程的build.gradle下增加proguardRule相关配置，在rule文件中使用添加：-applymapping mapping文件路径,指向宿主生成的mapping文件
+            rule文件中必须配置配置禁止压缩：-dontshrink
 
          执行这4个步骤之后，编译出来的非独立插件即为混淆后的插件
          
@@ -383,7 +391,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          以Demo为例，启用PluginTest插件的Debug版本的混淆，方法如下：
             1、修改PluginMain工程的build.gradle中的buildTypes.debug.minifyEnabled为true
             2、修改PluginTest工程的build.gradle中的buildTypes.debug.minifyEnabled为true
-            3、修改PluginTest工程的build.gradle中的provided files(project(':Samples:PluginMain')... 为compile files(project(':Samples:PluginMain')...
+            3、放开PluginTest工程的build.gradle中的注//／fairyMinifyEnabled = true
             4、检查PluginTest工程的proguard-rules.pro文件中的-applymapping配置路径是否准确
                确保插件和宿主的混淆规则中都配置了禁止压缩：-dontshrink
             5、在settings.gradle中注释掉PluginTest2； clean && assembleDebug
