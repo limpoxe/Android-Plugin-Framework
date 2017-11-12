@@ -5,6 +5,8 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
 #### 最新版本: 0.0.59-snapshot
+              此版本需要com.android.tools.build:gradle:3.0.0和gradle-4.1
+              若gradle插件低于此版本请将框架和脚本都切为0.0.58-snapshot
 
 #### 项目结构
 
