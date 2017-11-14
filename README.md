@@ -68,6 +68,8 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 2、 在宿主工程的build.gradle文件下添加如下3个配置
 ```
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"        
+
     android {
         defaultConfig {
             //这个配置不可省略
@@ -93,7 +95,6 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         //pluginProcess = null
         //pluginProcess = ":xxx"
     }
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"        
 ```
 
 3、 在宿主工程中新建一个类继承自Application类, 并配置到AndroidManifest.xml中并重写这个类的下面2个方法
