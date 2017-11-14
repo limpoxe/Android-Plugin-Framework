@@ -88,7 +88,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 ```
 
 ```
-    ext {
+    fairy {
         //可选配置，用于指定插件进程名。默认插件进程为单独的进程，进程名为":plugin"
         //若设置为空串或者null即是使用宿主进程作为插件进程
         //pluginProcess = ""
@@ -142,6 +142,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
    Intent launchIntent = getPackageManager().getLaunchIntentForPackage( 插件packageName );			
    startActivity(launchIntent);
 ```
+   宿主编译完成后，会在outputs/distrubites目录下生成一个名为host.bar的基线包，作为编译插件的基线。
    以上所有内容及更多详情可以参考Demo
 	
 #### 插件侧  
