@@ -244,6 +244,12 @@ afterEvaluate {
         if (proguardTask) {
             proguardTask.doFirst {
                 println "开始混淆任务 " + variantName.capitalize()
+                def baselineMappingFile = host_patch_extract_dir + "/mapping/" + variantName + "/mapping.txt";
+                println "应用基线mapping文件： " + baselineMappingFile
+                if (!file(baselineMappingFile).exists()) {
+                    throw "baselineMappingFile is Not Found : " + baselineMappingFile
+                }
+                getTransform().applyMapping(file(baselineMappingFile));
             }
             proguardTask.doLast {
 
