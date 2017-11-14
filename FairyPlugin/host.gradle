@@ -496,7 +496,6 @@ public class ThemeProcessor extends DefaultHandler {
 
 }
 
-
 public class JarMerger {
     private final byte[] buffer = new byte[8192];
     private final File jarFile;

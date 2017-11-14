@@ -29,10 +29,6 @@ configurations {
     baselinePatch
 }
 
-ext {
-    fairyMinifyEnabled = false;
-}
-
 //基线包路径
 def host_patch_path = ""
 //基线包解压路径
@@ -42,28 +38,6 @@ def host_patch_fileName = "host.bar"
 
 //第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
 android.aaptOptions.additionalParameters('-I', host_patch_extract_dir + "/" + host_patch_fileName)
-
-preBuild.doFirst{
-    configurations.each {  file ->
-        if (file.name.equals("baselinePatch")) {
-            file.files.each { itt ->
-
-                //记录基线配置路径
-                println project.name + "发现宿主基线配置指向位置：" + host_patch_path
-                host_patch_path = itt.absolutePath;
-
-                //添加基线jar包依赖
-                String hostClasses = host_patch_extract_dir + "/host_classes.jar"
-                println project.name + "添加宿主基线依赖：" + hostClasses
-                if (!fairyMinifyEnabled) {
-                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClasses)))
-                } else {
-                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClasses)))
-                }
-            }
-        }
-    }
-}
 
 HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
 
@@ -198,15 +172,39 @@ tasks.whenTaskAdded { task ->
 
 afterEvaluate {
 
-    File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
-    def hostVersionName = null;
-    if (propFile.exists()) {
-        def Properties props = new Properties()
-        props.load(new FileInputStream(propFile))
-        hostVersionName = props.getProperty("host.versionName")
+    configurations.each { config ->
+        if (config.name.equals("baselinePatch")) {
+            config.files.each { patch ->
+
+                host_patch_path = patch.absolutePath;
+                println project.name + "发现宿主基线配置指向位置：" + host_patch_path
+
+                def fairyMinifyEnabled = false;
+                gradle.startParameter.taskNames.each { startTaskName ->
+                    if (startTaskName.startsWith("assemble")) {
+                        if (startTaskName.contains("Debug")) {
+                            fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
+                        } else if (startTaskName.contains("Release")) {
+                            fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
+                        }
+                    }
+                }
+
+                String hostClasses = host_patch_extract_dir + "/host_classes.jar"
+                println project.name + "添加宿主基线jar依赖：" + hostClasses + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
+                //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
+                if (!fairyMinifyEnabled) {
+                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClasses)))
+                } else {
+                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClasses)))
+                }
+            }
+        }
     }
 
     for (variant in android.applicationVariants) {
+
+        //println variant.buildType.minifyEnabled
 
         for (baseVariant in variant.outputs) {
 
@@ -220,9 +218,16 @@ afterEvaluate {
                 }
             }
 
-            if (hostVersionName != null) {
-                baseVariant.processManifest.doLast {
-                    println "插入宿主版本号标识 requiredHostVersionName"
+            baseVariant.processManifest.doLast {
+                File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
+                def hostVersionName = null;
+                if (propFile.exists()) {
+                    def Properties props = new Properties()
+                    props.load(new FileInputStream(propFile))
+                    hostVersionName = props.getProperty("host.versionName")
+                }
+                if (hostVersionName != null) {
+                    println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
                     String manifestPath = "$manifestOutputDirectory/AndroidManifest.xml"
                     File manifestFile = new File(manifestPath)
                     def originManifestContent = manifestFile.getText('UTF-8')
