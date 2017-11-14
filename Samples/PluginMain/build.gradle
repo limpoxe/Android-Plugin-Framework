@@ -117,7 +117,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }
 
-ext {
+fairy {
     //可选配置，用于指定插件进程名。
     //不设置即使用默认的独立进程(:plugin)
     //设置为空串或者null即是和宿主同进程
