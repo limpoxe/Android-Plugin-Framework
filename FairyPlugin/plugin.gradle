@@ -228,8 +228,8 @@ afterEvaluate {
                 }
                 if (hostVersionName != null) {
                     println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
-                    String manifestPath = "$manifestOutputDirectory/AndroidManifest.xml"
-                    File manifestFile = new File(manifestPath)
+                    File manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
+                    println "插件Manifest：" + manifestFile.absolutePath
                     def originManifestContent = manifestFile.getText('UTF-8')
                     def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest requiredHostVersionName=\"" + hostVersionName + "\" ");
                     manifestFile.write(modifyedManifestContent, 'UTF-8')

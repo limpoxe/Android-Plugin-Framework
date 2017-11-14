@@ -25,10 +25,6 @@ import java.util.zip.ZipInputStream
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-//getProperties()会从ext {} 配置下取值
-def hasExtPluginProcessName = getProperties().containsKey("pluginProcess")
-def pluginProcessName = getProperties().get("pluginProcess")
-
 //第1件事
 android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
 
@@ -72,19 +68,20 @@ afterEvaluate {
         for (baseVariant in variant.outputs) {
 
             def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
-            def tastName = baseVariant.processResources.name
 
             baseVariant.processManifest.doLast {
 
+                println "$manifestOutputDirectory"
                 File manifestFile = new File(manifestFilePath)
 
-                println '正在检查Manifest中的插件配置是否正确' + manifestFilePath
+                println '正在检查Manifest中的插件配置是否正确' + manifestFile.absolutePath
 
                 def originManifestContent = manifestFile.getText('UTF-8')
                 if (originManifestContent.contains("{applicationId}")) {
                     throw new Exception("宿主build.gradle未配置android.defaultConfig.applicationId")
                 }
 
+                //生成prop文件
                 def pattern = Pattern.compile("versionName\\s*=\\s*\"(.+?)\"");
                 def matcher = pattern.matcher(originManifestContent);
                 if (matcher.find()) {
@@ -104,15 +101,16 @@ afterEvaluate {
 
                 //指定插件进程名，设置为空串或者null即是和宿主同进程
                 //不设置即使用默认进程(:plugin)
-                if (hasExtPluginProcessName) {
-                    println '正在修改插件进程配置'
+                //getProperties()会从ext {} 配置下取值
+                def pluginProcessName = project.getProperties().getOrDefault("pluginProcess", "not_set")
+                if (!"not_set".equals(pluginProcessName)) {
                     def customPluginProcessName = "";
                     if (pluginProcessName != null) {
                         customPluginProcessName = "android:process=\"" + pluginProcessName + "\""
                     }
+                    println '正在设置插件进程配置：' + customPluginProcessName
                     def modifyedManifestContent = originManifestContent.replaceAll("android:process=\":plugin\"", customPluginProcessName)
                     manifestFile.write(modifyedManifestContent, 'UTF-8')
-                    baseVariant.processResources.manifestFile = manifestFile
                 }
             }
 
