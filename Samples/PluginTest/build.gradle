@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
 
 android {
     compileSdkVersion 27
@@ -69,9 +71,6 @@ def getDate() {
     return formattedDate
 }
 
-configurations {
-    baselinePatch
-}
 
 dependencies {
 
@@ -88,7 +87,7 @@ dependencies {
     //支持使用maven坐标配置
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
 
-    //Test ButterKnife
+    //Just For Test ButterKnife
     //compile 'com.jakewharton:butterknife:8.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 
@@ -111,5 +110,3 @@ ext {
     //fairyMinifyEnabled = true
 }
 
-//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
-apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"

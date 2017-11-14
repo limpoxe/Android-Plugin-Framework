@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
+//apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
 
 android {
     compileSdkVersion 27
@@ -45,19 +47,9 @@ def getDate() {
     return formattedDate
 }
 
-configurations {
-    baselinePatch
-}
-
 dependencies {
 
     implementation 'com.facebook.rebound:rebound:0.3.5'
-
-    //////////////////////////////////////////////////////////////////////
-    //下面这一堆provided的配置，是因为这些包在编译宿主的时候，已经被打包到宿主的apk中。
-    //所以这里打包非独立插件的时候，要通过provided配置防止这些包被打入非独立插件。
-    //如果是独立插件，无需任何特殊配置
-    /////////////////////////////////////////////////////////////////////
 
     //支持使用maven坐标配置
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
@@ -73,6 +65,3 @@ afterEvaluate {
         }
     }
 }
-
-//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
-apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
