@@ -6,7 +6,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 #### 最新版本: 0.0.59-snapshot
               此版本需要com.android.tools.build:gradle:3.0.0和gradle-4.1
-              若gradle插件低于此版本请将框架和脚本都切为0.0.58-snapshot
+              若gradle插件低于此版本请将框架版本和脚本版本都切为0.0.58-snapshot
 
 #### 项目结构
 
@@ -157,11 +157,9 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 此配置```与其原始含义无关```。插件框架识别一个插件是否为独立插件，是根据插件的manifest文件中的android:sharedUserId配置来判断，
 将android:sharedUserId设置为宿主的packageName，则表示为非独立插件，不设置或者设置为其他值，则表示为独立插件。
                  
-3、在build.gradle中添加如下3个配置
+3、在build.gradle中添加如下2个配置
 ```
-    configurations {
-        baselinePatch
-    }
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
 
     dependencies {
         //***这是demo中的示例，请根据自己的实际情况修改，作用是指向插件依赖的宿主基线包***
@@ -169,7 +167,6 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
     }
 
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
  ```       
   
   完成以上3步后即可编译出非独立插件，以上所有内容及更多详情可以参考Demo

@@ -25,25 +25,41 @@ import java.util.zip.*
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+configurations {
+    baselinePatch
+}
+
 ext {
-    host_patch_path = "BaselinePatch FileNotFound, Check Your Dependencies!!";
-    host_output_dir = project.buildDir.absolutePath + '/outputs/baselinePatch';
     fairyMinifyEnabled = false;
 }
 
-//第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
-configurations.each {  file ->
-    if (file.name.equals("baselinePatch")) {
-        file.files.each { it ->
-            host_patch_path = it.absolutePath;
-            println project.name + "发现宿主基线配置指向：" + host_patch_path
-            android.aaptOptions.additionalParameters('-I', host_patch_path)
+//基线包路径
+def host_patch_path = ""
+//基线包解压路径
+def host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch'
+//基线包文件名
+def host_patch_fileName = "host.bar"
 
-            String hostClasses = host_output_dir + "/host_classes.jar"
-            if (!fairyMinifyEnabled) {
-                configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClasses)))
-            } else {
-                configurations.implementation.dependencies.add(project.dependencies.create(files(hostClasses)))
+//第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
+android.aaptOptions.additionalParameters('-I', host_patch_extract_dir + "/" + host_patch_fileName)
+
+preBuild.doFirst{
+    configurations.each {  file ->
+        if (file.name.equals("baselinePatch")) {
+            file.files.each { itt ->
+
+                //记录基线配置路径
+                println project.name + "发现宿主基线配置指向位置：" + host_patch_path
+                host_patch_path = itt.absolutePath;
+
+                //添加基线jar包依赖
+                String hostClasses = host_patch_extract_dir + "/host_classes.jar"
+                println project.name + "添加宿主基线依赖：" + hostClasses
+                if (!fairyMinifyEnabled) {
+                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClasses)))
+                } else {
+                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClasses)))
+                }
             }
         }
     }
@@ -58,14 +74,28 @@ tasks.whenTaskAdded { task ->
         task.doLast {
 
             if (!file(host_patch_path).exists()) {
-                def outputDir = file(host_output_dir)
+                def outputDir = file(host_patch_extract_dir)
                 outputDir.deleteDir();
                 println project.name + "宿主基线配置指向文件不存在，请先编译宿主；若不是编译命令则忽略：" + host_patch_path
                 return
             }
 
+            copy {
+                println "正在解压宿主基线patch文件..."
+                def zipFile = file(host_patch_path);//host.bar
+                def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
+                outputDir.deleteDir();
+                from zipTree(zipFile)
+                from(zipFile) {
+                    rename {
+                        host_patch_fileName
+                    }
+                }
+                into outputDir
+            }
+
             //第二件事
-            applyThemePatch(task.name);
+            applyThemePatch(task.name, host_patch_extract_dir);
 
             //第三件事<一>
             String buildType = task.name.replace("merge", "").replace("Resources", "").toLowerCase();
@@ -168,7 +198,7 @@ tasks.whenTaskAdded { task ->
 
 afterEvaluate {
 
-    File propFile = file(host_output_dir + "/HostInfo.prop");
+    File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
     def hostVersionName = null;
     if (propFile.exists()) {
         def Properties props = new Properties()
@@ -183,10 +213,10 @@ afterEvaluate {
             baseVariant.processResources.doFirst {
                 println "开始处理插件工程资源.."
                 if (!new File(host_patch_path).exists()) {
-                    throw new FileNotFoundException("宿主基线ap文件不存在, 请先编译宿主，并检查baselinePatch依赖配置是否正确: \n", host_patch_path)
+                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，在编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_path)
                 }
-                if (!file(host_output_dir).exists()) {
-                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译宿主，并检查baselinePatch依赖配置是否正确: \n", host_output_dir)
+                if (!file(host_patch_extract_dir).exists()) {
+                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，在编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_extract_dir)
                 }
             }
 
@@ -215,12 +245,12 @@ afterEvaluate {
 
                 println "混淆完成 " + variantName.capitalize()
 
-                def host_obfuscated_jar = host_output_dir + "/host_" + variantName.capitalize() + "_obfuscated.jar"
+                def host_obfuscated_jar = host_patch_extract_dir + "/host_" + variantName.capitalize() + "_obfuscated.jar"
                 if (!new File(host_obfuscated_jar).exists()) {
-                    project.logger.error "基线混淆包不存在 " + host_obfuscated_jar
-                    throw new Exception("基线混淆包不存在 " + host_obfuscated_jar)
+                    project.logger.error "宿主基线混淆包不存在 " + host_obfuscated_jar
+                    throw new Exception("宿主基线混淆包不存在 " + host_obfuscated_jar + "， 请检查宿主编译产物中是否包含此文件")
                 }
-                println "依赖的宿主混淆jar路径为：" + host_obfuscated_jar
+                println "依赖的宿主基线混淆包jar路径为：" + host_obfuscated_jar
 
                 boolean isFind = false;
                 proguardTask.outputs.files.files.each { File file->
@@ -234,7 +264,7 @@ afterEvaluate {
                         isFind = true;
                         //保留一个备份
                         println "导出混淆后的插件jar包 "
-                        println "From " + file.absolutePath + "/0.jar"
+                        println "From " + file.absolutePath + "/0.jar" //此文件是proguard任务的固定输出目录，最新版文件名即是0.jar, 旧版叫main.jar
                         println "To " + "${project.buildDir}/outputs/" + "plugin_" + variantName + "_obfuscated.jar"
                         copy {
                             from file.absolutePath + "/0.jar"
@@ -470,19 +500,10 @@ public class ZipUtil {
     }
 }
 
-def applyThemePatch(taskName) {
-
-    copy {
-        println "正在解压宿主基线patch文件..."
-        def zipFile = file(host_patch_path);
-        def outputDir = file(host_output_dir)
-        outputDir.deleteDir();
-        from zipTree(zipFile)
-        into outputDir
-    }
+def applyThemePatch(taskName, hostPatchExtractDir) {
 
     def buildType = taskName.replace("merge", "").replace("Resources", "").toLowerCase();
-    def fromDir = host_output_dir + "/theme_patch/" + buildType;
+    def fromDir = hostPatchExtractDir + "/theme_patch/" + buildType;
     def resourceDir = project.buildDir.absolutePath + "/intermediates/res/merged/" + buildType;
 
     FileTree allxmlFiles = fileTree(dir: fromDir)
