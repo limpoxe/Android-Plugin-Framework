@@ -104,9 +104,3 @@ afterEvaluate {
         }
     }
 }
-
-ext {
-    //混淆配置
-    //fairyMinifyEnabled = true
-}
-
