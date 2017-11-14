@@ -367,8 +367,10 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
              
          1、在宿主中开启混淆编译
          2、在插件中开启混淆编译
-         3、在非独立插件工程的build.gradle下增加proguardRule相关配置，在rule文件中使用添加：-applymapping mapping文件路径,指向宿主生成的mapping文件
-            rule文件中必须配置配置禁止压缩：-dontshrink
+         3、在非独立插件工程的build.gradle下增加proguardRule相关配置，rule文件中必须配置配置禁止压缩：-dontshrink
+            因为若宿主中的某些类或者方法，没有在宿主中使用过，则宿主在混淆的时候可能会删除了这些类和方法
+            此时如果插件使用了这个被删减的方法，会出错，这种情况只能在编译宿主是禁用代码压缩
+            
          执行这3个步骤之后，编译出来的非独立插件即为混淆后的插件
          
          若混淆后出现运行时异常，请检查临时文件是否存在不该存在的类或者少了需要的类。
@@ -379,22 +381,18 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          插件最终的混淆后jar包，即是通过这两个目录diff后从plugin中剔除了所有在host中存在的文件后压缩而成。
          
          插件混淆后的jar包和diff后的jar包，在插件outputs目录下都有备份。
-             
-         这里需要注意的是插件开启混淆以后，需要在插件的proguard里面增加对插件Fragment的keep，否则如果此fragment没有在插件自身
-         使用，仅作为嵌入宿主使用，则progurad可能误以为这个类在插件中没有被使用过而被精简掉
          
          ---------------------------------------------------
          以Demo为例，启用PluginTest插件的Debug版本的混淆，方法如下：
             1、修改PluginMain工程的build.gradle中的buildTypes.debug.minifyEnabled为true
             2、修改PluginTest工程的build.gradle中的buildTypes.debug.minifyEnabled为true
-            3、检查PluginTest工程的proguard-rules.pro文件中的-applymapping配置路径是否准确
-               确保插件和宿主的混淆规则中都配置了禁止压缩：-dontshrink
-            4、在settings.gradle中注释掉PluginTest2； clean && assembleDebug
+            3、检查宿主和插件的proguard-rules.pro文件，确保插件和宿主的混淆规则中都配置了禁止压缩：-dontshrink
+            4、在settings.gradle中注释掉PluginTest2； 
+            5、clean && assembleDebug
 
-            说明：若宿主中的某些类或者方法，没有在宿主中使用过，则宿主在混淆的时候可能会删除了这些类和方法
-                 此时如果插件使用了这个被删减的方法，会出错，这种情况只能在编译宿主是禁用代码压缩（配置-dontshrink）
-
-
+            这里需要注意的是插件开启混淆以后，需要在插件的proguard里面增加对插件Fragment的keep，否则如果此fragment没有在插件自身
+            使用，仅作为嵌入宿主使用，则progurad可能误以为这个类在插件中没有被使用过而被精简掉
+         
 13. 如何使外部应用或者系统可以直接通过插件组件的Intent打开插件
 
     由于插件并没有正常安装到系统中，插件组件的Intent不能被系统识别，因此外部应用或者系统需要直接唤起插件组件时，需要将插件Intent在宿主的Manifest中        
