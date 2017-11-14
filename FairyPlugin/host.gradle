@@ -25,6 +25,19 @@ import java.util.zip.ZipInputStream
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+class FaiyExt {
+    private String pluginProcess = ":plugin"
+
+    public String getPluginProcess() {
+        return pluginProcess
+    }
+
+    public void setPluginProcess(String process) {
+        this.pluginProcess = process
+    }
+}
+extensions.create('fairy', FaiyExt)
+
 //第1件事
 android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
 
@@ -101,9 +114,8 @@ afterEvaluate {
 
                 //指定插件进程名，设置为空串或者null即是和宿主同进程
                 //不设置即使用默认进程(:plugin)
-                //getProperties()会从ext {} 配置下取值
-                def pluginProcessName = project.getProperties().getOrDefault("pluginProcess", "not_set")
-                if (!"not_set".equals(pluginProcessName)) {
+                def pluginProcessName = fairy.pluginProcess
+                if (!":plugin".equals(pluginProcessName)) {
                     def customPluginProcessName = "";
                     if (pluginProcessName != null) {
                         customPluginProcessName = "android:process=\"" + pluginProcessName + "\""
