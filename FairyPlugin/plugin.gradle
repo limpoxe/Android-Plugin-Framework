@@ -47,11 +47,10 @@ tasks.whenTaskAdded { task ->
         task.outputs.upToDateWhen { false }
         task.doLast {
 
+            println "开始merge插件工程资源.."
             if (!file(host_patch_path).exists()) {
-                def outputDir = file(host_patch_extract_dir)
-                outputDir.deleteDir();
-                println project.name + "宿主基线配置指向文件不存在，请先编译宿主；若不是编译命令则忽略：" + host_patch_path
-                return
+                file(host_patch_extract_dir).deleteDir();
+                throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，再编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_path)
             }
 
             copy {
@@ -211,10 +210,10 @@ afterEvaluate {
             baseVariant.processResources.doFirst {
                 println "开始处理插件工程资源.."
                 if (!new File(host_patch_path).exists()) {
-                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，在编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_path)
+                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，再编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_path)
                 }
                 if (!file(host_patch_extract_dir).exists()) {
-                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，在编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_extract_dir)
+                    throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，再编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_extract_dir)
                 }
             }
 
