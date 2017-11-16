@@ -134,6 +134,7 @@ public class ResourceUtil {
 
     public static Bundle getApplicationMetaData(String apkPath) {
         //暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
+        LogUtil.d("暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管, 需要时再加", apkPath);
         PackageInfo info = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
         if (info != null && info.applicationInfo != null) {
             return info.applicationInfo.metaData;

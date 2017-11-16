@@ -164,17 +164,17 @@ public class RefInvoker {
 		}
 	}
 
-	public static Method findMethod(Object object, String methodName, Class[] clazzes) {
+	public static Method findMethod(Object object, String methodName, Class[] paramClasses) {
 		try {
-			return object.getClass().getDeclaredMethod(methodName, clazzes);
+			return object.getClass().getDeclaredMethod(methodName, paramClasses);
 		} catch (NoSuchMethodException e) {
 			LogUtil.printException("RefInvoker.findMethod", e);
 		}
 		return null;
 	}
 
-	public static Method findMethod(Object object, String methodName, Object[] args) {
-		if (args == null) {
+	public static Method findMethod(Object object, String methodName, Object[] params) {
+		if (params == null) {
 			try {
 				return object.getClass().getDeclaredMethod(methodName, (Class[])null);
 			} catch (NoSuchMethodException e) {
@@ -188,10 +188,10 @@ public class RefInvoker {
 			for(Method m: methods) {
 				if (m.getName().equals(methodName)) {
 					Class<?>[] types = m.getParameterTypes();
-					if (types.length == args.length) {
+					if (types.length == params.length) {
 						isFound = true;
-						for(int i = 0; i < args.length; i++) {
-							if (!(types[i] == args[i].getClass() || (types[i].isPrimitive() && primitiveToWrapper(types[i]) == args[i].getClass()))) {
+						for(int i = 0; i < params.length; i++) {
+							if (!(types[i] == params[i].getClass() || (types[i].isPrimitive() && primitiveToWrapper(types[i]) == params[i].getClass()))) {
 								isFound = false;
 								break;
 							}

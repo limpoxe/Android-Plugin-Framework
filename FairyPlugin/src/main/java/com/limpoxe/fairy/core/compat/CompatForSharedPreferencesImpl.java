@@ -27,7 +27,6 @@ public class CompatForSharedPreferencesImpl {
             }
         }
 
-
         if (has2 && SharedPreferencesImpl_Constructor_2 == null) {
             try {
                 SharedPreferencesImpl_Constructor_2 = SharedPreferencesImpl.getDeclaredConstructor(File.class, int.class);
