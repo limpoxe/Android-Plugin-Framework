@@ -6,7 +6,9 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 #### 最新版本: 0.0.59-snapshot
               此版本需要com.android.tools.build:gradle:3.0.0和gradle-4.1
-              若gradle插件低于此版本请将框架版本和脚本版本都切为0.0.58-snapshot
+              若gradle插件低于此版本请将框架版本和脚本版本都切为0.0.58-snapshot：
+              宿主：apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.58-snapshot/FairyPlugin/host.gradle"
+              插件：apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.58-snapshot/FairyPlugin/plugin.gradle"
 
 #### 项目结构
 
