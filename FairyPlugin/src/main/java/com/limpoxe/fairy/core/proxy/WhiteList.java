@@ -27,7 +27,7 @@ public class WhiteList {
         add("IMountService",                             "android.os.storage.IMountService$Stub$Proxy");//命令规则非默认
         add("android.content.IBulkCursor",               "android.database.BulkCursorProxy");//命令规则非默认
 
-        //其他:
+        //其他, 都属于使用默认命名规则:
         //android.view.accessibility.IAccessibilityInteractionConnectionCallback
         //android.view.accessibility.IAccessibilityManager
         //android.view.IAssetAtlas
