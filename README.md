@@ -169,6 +169,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
     dependencies {
         //***这是demo中的示例，请根据自己的实际情况修改，作用是指向插件依赖的宿主基线包***
         //支持文件、maven坐标等写法
+        //baselinePatch 'xxx:xxx:xxx@bar'
         baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
     }
 
