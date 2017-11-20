@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
-//apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
 
 android {
     compileSdkVersion 27
