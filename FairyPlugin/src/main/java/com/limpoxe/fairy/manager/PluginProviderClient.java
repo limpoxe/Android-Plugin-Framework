@@ -184,6 +184,28 @@ public class PluginProviderClient {
         return null;
     }
 
+    public static boolean isRunning(String pluginId) {
+        //这里如果约定stub组件的名字以特定词开头可以省去provider调用，减少跨进程，提高效率
+        Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
+                PluginManagerProvider.ACTION_IS_PLUGIN_RUNNING,
+                pluginId, null);
+        if (bundle != null) {
+            return bundle.getBoolean(PluginManagerProvider.IS_PLUGIN_RUNNING_RESULT);
+        }
+        return false;
+    }
+
+    public static boolean wakeup(String pluginid) {
+        //这里如果约定stub组件的名字以特定词开头可以省去provider调用，减少跨进程，提高效率
+        Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
+                PluginManagerProvider.ACTION_WAKEUP_PLUGIN,
+                pluginid, null);
+        if (bundle != null) {
+            return bundle.getBoolean(PluginManagerProvider.WAKEUP_PLUGIN_RESULT);
+        }
+        return false;
+    }
+
     public static Cursor query(Uri url, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();

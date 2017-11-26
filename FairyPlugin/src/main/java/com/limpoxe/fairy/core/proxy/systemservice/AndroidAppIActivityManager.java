@@ -10,6 +10,7 @@ import android.os.IBinder;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
+import com.limpoxe.fairy.core.PluginLauncher;
 import com.limpoxe.fairy.core.PluginShadowService;
 import com.limpoxe.fairy.core.android.HackActivityManager;
 import com.limpoxe.fairy.core.android.HackActivityManagerNative;
@@ -193,8 +194,16 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             Iterator<PluginProviderInfo> iterator = map.values().iterator();
                             while(iterator.hasNext()) {
                                 PluginProviderInfo pluginProviderInfo = iterator.next();
+                                //在插件中找到了匹配的contentprovider
                                 if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
-                                    //在插件中找到了匹配的contentprovider
+                                    //先检查插件是否已经初始化
+                                    boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
+                                    if (!isrunning) {
+                                        isrunning = PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+                                    }
+                                    if (!isrunning) {
+                                        return invokeResult;
+                                    }
                                     try {
                                         //
                                         Class CPH = null;

@@ -9,8 +9,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 
+import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
+import com.limpoxe.fairy.core.PluginLauncher;
 import com.limpoxe.fairy.manager.mapping.StubExact;
 import com.limpoxe.fairy.manager.mapping.PluginStubBinding;
 import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
@@ -73,6 +75,12 @@ public class PluginManagerProvider extends ContentProvider {
 
     public static final String ACTION_IS_STUB = "is_stub";
     public static final String IS_STUB_RESULT = "is_stub_result";
+
+    public static final String ACTION_IS_PLUGIN_RUNNING = "is_plugin_running";
+    public static final String IS_PLUGIN_RUNNING_RESULT = "is_plugin_running_result";
+
+    public static final String ACTION_WAKEUP_PLUGIN = "wakeup_plugin";
+    public static final String WAKEUP_PLUGIN_RESULT = "wakeup_plugin_result";
 
     public static final String ACTION_DUMP_SERVICE_INFO = "dump_service_info";
     public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
@@ -259,6 +267,16 @@ public class PluginManagerProvider extends ContentProvider {
 
         } else if (ACTION_DUMP_SERVICE_INFO.equals(method)) {
             bundle.putString(DUMP_SERVICE_INFO_RESULT, "TODO: not implement yet");
+
+            return bundle;
+        } else if (ACTION_IS_PLUGIN_RUNNING.equals(method)) {
+            bundle.putBoolean(IS_PLUGIN_RUNNING_RESULT, PluginLauncher.instance().isRunning(arg));
+
+            return bundle;
+        } else if (ACTION_WAKEUP_PLUGIN.equals(method)) {
+            LoadedPlugin loadedPlugin = PluginLauncher.instance().startPlugin(arg);
+            bundle.putBoolean(WAKEUP_PLUGIN_RESULT, loadedPlugin!=null);
+
             return bundle;
         }
 

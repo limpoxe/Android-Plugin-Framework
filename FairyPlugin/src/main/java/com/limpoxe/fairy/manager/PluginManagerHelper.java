@@ -1,6 +1,9 @@
 package com.limpoxe.fairy.manager;
 
+import android.os.Bundle;
+
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.compat.CompatForContentProvider;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
@@ -42,6 +45,11 @@ public class PluginManagerHelper {
         return pluginDescriptor;
     }
 
+    /**
+     * 尽量减少调用此方法，特别是在插件比较多时，调用此方法会在进程间传递大量数据，
+     * 一则影响性能，二则数据量可能会超出binder的数据传输上线而导致binder崩溃
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static ArrayList<PluginDescriptor> getPlugins() {
         return PluginProviderClient.queryAll();
@@ -92,6 +100,14 @@ public class PluginManagerHelper {
             return pluginDescriptor.getVersion().equals(pluginVersion);
         }
         return false;
+    }
+
+    public static boolean isRunning(String pluginId) {
+        return PluginProviderClient.isRunning(pluginId);
+    }
+
+    public static boolean wakeup(String pluginid) {
+        return PluginProviderClient.wakeup(pluginid);
     }
 
     public static synchronized int remove(String pluginId) {
