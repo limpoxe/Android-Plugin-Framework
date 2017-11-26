@@ -1,11 +1,13 @@
 package com.limpoxe.fairy.manager;
 
+import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
@@ -96,36 +98,56 @@ public class PluginManagerProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        //doNothing
-        return null;
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().query(targetUrl, projection, selection, selectionArgs, sortOrder);
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    @Override
+    public Cursor query(Uri uri, String[] projection, Bundle queryArgs, CancellationSignal cancellationSignal) {
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().query(targetUrl, projection, queryArgs, cancellationSignal);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, CancellationSignal cancellationSignal) {
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().query(targetUrl, projection, selection, selectionArgs, sortOrder, cancellationSignal);
     }
 
     @Override
     public String getType(Uri uri) {
-        //doNothing
-        return null;
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().getType(targetUrl);
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        //doNothing
-        return null;
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().insert(targetUrl, values);
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        //doNothing
-        return 0;
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().delete(targetUrl, selection, selectionArgs);
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        //doNothing
-        return 0;
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().update(targetUrl, values, selection, selectionArgs);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
+
+        if (extras != null && extras.getParcelable("target_call") != null) {
+            Uri targetUrl = extras.getParcelable("target_call");
+            return getContext().getContentResolver().call(targetUrl, method, arg, extras);
+        }
 
         if (Build.VERSION.SDK_INT >= 19) {
             LogUtil.v("callingPackage = ", getCallingPackage());

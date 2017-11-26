@@ -48,6 +48,7 @@ public class HackActivityThread {
         this.instance = instance;
     }
 
+    //这个方法必须在主线程调用，因为它是从ThreadLocal中取出来的，在其他线程中取出来一定是null
     public static synchronized HackActivityThread get() {
         if (hackActivityThread == null) {
             Object instance = currentActivityThread();
