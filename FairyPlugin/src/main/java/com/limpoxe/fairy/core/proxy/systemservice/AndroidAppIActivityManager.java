@@ -15,6 +15,7 @@ import com.limpoxe.fairy.core.PluginShadowService;
 import com.limpoxe.fairy.core.android.HackActivityManager;
 import com.limpoxe.fairy.core.android.HackActivityManagerNative;
 import com.limpoxe.fairy.core.android.HackActivityThread;
+import com.limpoxe.fairy.core.android.HackContentProviderHolder;
 import com.limpoxe.fairy.core.android.HackSingleton;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
@@ -204,36 +205,19 @@ public class AndroidAppIActivityManager extends MethodProxy {
                                     if (!isrunning) {
                                         return invokeResult;
                                     }
-                                    try {
-                                        //
-                                        Class CPH = null;
-                                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
-                                            CPH = Class.forName("android.app.IActivityManager$ContentProviderHolder");
-                                        } else {
-                                            //8.0变成了top class
-                                            CPH = Class.forName("android.app.ContentProviderHolder");
-                                        }
-                                        Constructor CPHConstructor = CPH.getConstructor(ProviderInfo.class);
-                                        ProviderInfo providerInfo = new ProviderInfo();
-                                        providerInfo.applicationInfo = FairyGlobal.getHostApplication().getApplicationInfo();
-                                        providerInfo.authority = auth;
-                                        providerInfo.name = ProviderClientProxy.class.getName();
-                                        providerInfo.packageName = FairyGlobal.getHostApplication().getPackageName();
-                                        Object holder = CPHConstructor.newInstance(providerInfo);
-                                        return holder;
-                                    } catch (ClassNotFoundException e) {
-                                        e.printStackTrace();
-                                    } catch (NoSuchMethodException e) {
-                                        e.printStackTrace();
-                                    } catch (IllegalAccessException e) {
-                                        e.printStackTrace();
-                                    } catch (InvocationTargetException e) {
-                                        e.printStackTrace();
-                                    } catch (InstantiationException e) {
-                                        e.printStackTrace();
-                                    }
 
-                                    return invokeResult;
+                                    ProviderInfo providerInfo = new ProviderInfo();
+                                    providerInfo.applicationInfo = FairyGlobal.getHostApplication().getApplicationInfo();
+                                    providerInfo.authority = auth;
+                                    providerInfo.name = ProviderClientProxy.class.getName();
+                                    providerInfo.packageName = FairyGlobal.getHostApplication().getPackageName();
+                                    Object holder = HackContentProviderHolder.newInstance(providerInfo);
+
+                                    if (holder != null) {
+                                        return holder;
+                                    } else {
+                                        return invokeResult;
+                                    }
                                 }
                             }
                         }
