@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core.proxy;
+package com.limpoxe.fairy.core.bridge;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
