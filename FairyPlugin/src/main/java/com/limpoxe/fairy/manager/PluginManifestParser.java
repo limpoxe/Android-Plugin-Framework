@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core;
+package com.limpoxe.fairy.manager;
 
 import android.app.Application;
 import android.content.pm.ActivityInfo;
@@ -8,6 +8,7 @@ import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginIntentFilter;
 import com.limpoxe.fairy.content.PluginProviderInfo;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ManifestReader;
 

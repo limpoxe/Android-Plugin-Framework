@@ -14,7 +14,6 @@ import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginCreator;
 import com.limpoxe.fairy.core.PluginLauncher;
-import com.limpoxe.fairy.core.PluginManifestParser;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.util.FileUtil;
 import com.limpoxe.fairy.util.LogUtil;
