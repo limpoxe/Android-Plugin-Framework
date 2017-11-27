@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 //apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/host.gradle'
-apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.59-snapshot/FairyPlugin/host.gradle"
 
 configurations.all {
     resolutionStrategy {
