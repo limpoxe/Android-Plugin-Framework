@@ -31,15 +31,6 @@ public class PluginCallbackImpl implements PluginStatusChangeListener {
         FairyGlobal.getHostApplication().sendBroadcast(intent);
     }
 
-    @Override
-    public void onRemoveAll(boolean success) {
-        Intent intent = new Intent(ACTION_PLUGIN_CHANGED);
-        intent.setPackage(FairyGlobal.getHostApplication().getPackageName());
-        intent.putExtra(EXTRA_TYPE, TYPE_REMOVE_ALL);
-        intent.putExtra(EXTRA_RESULT_CODE, success?PluginManagerHelper.SUCCESS:PluginManagerHelper.INSTALL_FAIL);
-        FairyGlobal.getHostApplication().sendBroadcast(intent);
-    }
-
     //暂未使用，有需要再加
     @Override
     public void onStart(String packageName) {

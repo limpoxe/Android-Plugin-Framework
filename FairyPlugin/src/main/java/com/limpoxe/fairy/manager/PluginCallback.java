@@ -16,7 +16,6 @@ public interface PluginCallback {
 
     public static final String TYPE_INSTALL = "install";
     public static final String TYPE_REMOVE = "remove";
-    public static final String TYPE_REMOVE_ALL = "remove_all";
     public static final String TYPE_START = "start";
     public static final String TYPE_STOP = "stop";
 
