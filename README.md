@@ -71,7 +71,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 2、 在宿主工程的build.gradle文件下添加如下3个配置
 ```
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"        
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.59-snapshot/FairyPlugin/host.gradle"        
 
     android {
         defaultConfig {
@@ -164,7 +164,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
                  
 3、在build.gradle中添加如下2个配置
 ```
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.59-snapshot/FairyPlugin/plugin.gradle"
 
     dependencies {
         //***这是demo中的示例，请根据自己的实际情况修改，作用是指向插件依赖的宿主基线包***
