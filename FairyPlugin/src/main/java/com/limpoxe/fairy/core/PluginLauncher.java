@@ -162,7 +162,7 @@ public class PluginLauncher implements Serializable {
 		return plugin;
 	}
 
-	public void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
+	private void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
 
 		LogUtil.i("开始初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName());
 

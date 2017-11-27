@@ -86,7 +86,7 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
 
     private PluginManagerService managerService;
-    private PluginCallback changeListener;
+    private PluginStatusChangeListener changeListener;
 
 
     public static Uri buildUri() {

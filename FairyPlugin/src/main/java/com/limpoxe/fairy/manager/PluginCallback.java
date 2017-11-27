@@ -1,5 +1,9 @@
 package com.limpoxe.fairy.manager;
 
+/**
+ *use PluginStatusChangeListener instead
+ */
+@Deprecated
 public interface PluginCallback {
 
 	public static final String ACTION_PLUGIN_CHANGED = "com.limpoxe.fairy.action_plugin_changed";

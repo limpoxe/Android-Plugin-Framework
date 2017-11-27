@@ -8,8 +8,9 @@ import java.util.HashMap;
 
 /**
  * Created by cailiming on 16/3/11.
- *
+ * use PluginManager instead
  */
+@Deprecated
 public class PluginManagerHelper {
 
     public static final int SUCCESS = 0;

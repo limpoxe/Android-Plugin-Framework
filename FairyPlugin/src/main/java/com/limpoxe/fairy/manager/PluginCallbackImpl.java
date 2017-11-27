@@ -7,7 +7,7 @@ import com.limpoxe.fairy.core.FairyGlobal;
 /**
  * Created by cailiming on 2015/9/13.
  */
-public class PluginCallbackImpl implements PluginCallback {
+public class PluginCallbackImpl implements PluginStatusChangeListener {
 
     @Override
     public void onInstall(int result, String packageName, String version,  String src) {
