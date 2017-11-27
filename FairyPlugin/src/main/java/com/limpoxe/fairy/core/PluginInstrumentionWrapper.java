@@ -25,7 +25,7 @@ import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryPro
 import com.limpoxe.fairy.core.viewfactory.PluginViewFactory;
 import com.limpoxe.fairy.manager.PluginActivityMonitor;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
-import com.limpoxe.fairy.manager.PluginProviderClient;
+import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -111,7 +111,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		if (ProcessUtil.isPluginProcess()) {
 			// 将PluginStubActivity替换成插件中的activity
-			if (PluginProviderClient.isStub(className)) {
+			if (PluginManagerProviderClient.isStub(className)) {
 
 				String action = intent.getAction();
 
@@ -153,7 +153,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					} else {
 						throw new ClassNotFoundException("pluginClassName : " + pluginClassName, new Throwable());
 					}
-				} else if (PluginProviderClient.isExact(className, PluginDescriptor.ACTIVITY)) {
+				} else if (PluginManagerProviderClient.isExact(className, PluginDescriptor.ACTIVITY)) {
 
 					//这个逻辑是为了支持外部app唤起配置了stub_exact的插件Activity
 					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
@@ -246,8 +246,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					", currentClassName : " + className +
 					", currentIntent : " + intent.toString() +
 					", process : " + ProcessUtil.isPluginProcess() +
-					", isStubActivity : " + PluginProviderClient.isStub(orginalClassName) +
-					", isExact : " + PluginProviderClient.isExact(orginalClassName, PluginDescriptor.ACTIVITY), e);
+					", isStubActivity : " + PluginManagerProviderClient.isStub(orginalClassName) +
+					", isExact : " + PluginManagerProviderClient.isExact(orginalClassName, PluginDescriptor.ACTIVITY), e);
 		}
 	}
 

@@ -85,22 +85,22 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String ACTION_DUMP_SERVICE_INFO = "dump_service_info";
     public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
 
-    private PluginManagerImpl manager;
+    private PluginManagerService managerService;
     private PluginCallback changeListener;
 
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
-            CONTENT_URI = Uri.parse("content://"+ FairyGlobal.getHostApplication().getPackageName() + ".manager" + "/call");
+            CONTENT_URI = Uri.parse("content://"+ FairyGlobal.getHostApplication().getPackageName() + ".managerService" + "/call");
         }
         return CONTENT_URI;
     }
 
     @Override
     public boolean onCreate() {
-        manager = new PluginManagerImpl();
+        managerService = new PluginManagerService();
         changeListener = new PluginCallbackImpl();
-        manager.loadInstalledPlugins();
+        managerService.loadInstalledPlugins();
         return false;
     }
 
@@ -171,7 +171,7 @@ public class PluginManagerProvider extends ContentProvider {
 
         if (ACTION_INSTALL.equals(method)) {
 
-            InstallResult result = manager.installPlugin(arg);
+            InstallResult result = managerService.installPlugin(arg);
             bundle.putInt(INSTALL_RESULT, result.getResult());
 
             changeListener.onInstall(result.getResult(), result.getPackageName(), result.getVersion(), arg);
@@ -180,7 +180,7 @@ public class PluginManagerProvider extends ContentProvider {
 
         } else if (ACTION_REMOVE.equals(method)) {
 
-            int code = manager.remove(arg);
+            int code = managerService.remove(arg);
             bundle.putInt(REMOVE_RESULT, code);
 
             changeListener.onRemove(arg, code);
@@ -189,7 +189,7 @@ public class PluginManagerProvider extends ContentProvider {
 
         } else if (ACTION_REMOVE_ALL.equals(method)) {
 
-            boolean success = manager.removeAll();
+            boolean success = managerService.removeAll();
             bundle.putBoolean(REMOVE_ALL_RESULT, success);
 
             changeListener.onRemoveAll(success);
@@ -198,28 +198,28 @@ public class PluginManagerProvider extends ContentProvider {
 
         } else if (ACTION_QUERY_BY_ID.equals(method)) {
 
-            PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByPluginId(arg);
+            PluginDescriptor pluginDescriptor = managerService.getPluginDescriptorByPluginId(arg);
             bundle.putSerializable(QUERY_BY_ID_RESULT, pluginDescriptor);
 
             return bundle;
 
         } else if (ACTION_QUERY_BY_CLASS_NAME.equals(method)) {
 
-            PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByClassName(arg);
+            PluginDescriptor pluginDescriptor = managerService.getPluginDescriptorByClassName(arg);
             bundle.putSerializable(QUERY_BY_CLASS_NAME_RESULT, pluginDescriptor);
 
             return bundle;
 
         } else if (ACTION_QUERY_BY_FRAGMENT_ID.equals(method)) {
 
-            PluginDescriptor pluginDescriptor = manager.getPluginDescriptorByFragmenetId(arg);
+            PluginDescriptor pluginDescriptor = managerService.getPluginDescriptorByFragmenetId(arg);
             bundle.putSerializable(QUERY_BY_FRAGMENT_ID_RESULT, pluginDescriptor);
 
             return bundle;
 
         } else if (ACTION_QUERY_ALL.equals(method)) {
 
-            Collection<PluginDescriptor> pluginDescriptorList = manager.getPlugins();
+            Collection<PluginDescriptor> pluginDescriptorList = managerService.getPlugins();
             ArrayList<PluginDescriptor> result =  new ArrayList<PluginDescriptor>(pluginDescriptorList.size());
             result.addAll(pluginDescriptorList);
             bundle.putSerializable(QUERY_ALL_RESULT, result);

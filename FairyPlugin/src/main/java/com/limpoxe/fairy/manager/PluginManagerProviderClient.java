@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * Created by cailiming on 17/1/25.
  *
  */
-public class PluginProviderClient {
+public class PluginManagerProviderClient {
 
     @SuppressWarnings("unchecked")
     public static ArrayList<PluginDescriptor> queryAll() {

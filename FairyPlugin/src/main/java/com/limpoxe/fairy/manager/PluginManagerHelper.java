@@ -1,9 +1,6 @@
 package com.limpoxe.fairy.manager;
 
-import android.os.Bundle;
-
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.compat.CompatForContentProvider;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
@@ -38,7 +35,7 @@ public class PluginManagerHelper {
         PluginDescriptor pluginDescriptor = localCache.get(clazzName);
 
         if (pluginDescriptor == null) {
-            pluginDescriptor = PluginProviderClient.queryByClass(clazzName);
+            pluginDescriptor = PluginManagerProviderClient.queryByClass(clazzName);
             localCache.put(clazzName, pluginDescriptor);
         }
 
@@ -52,7 +49,7 @@ public class PluginManagerHelper {
      */
     @SuppressWarnings("unchecked")
     public static ArrayList<PluginDescriptor> getPlugins() {
-        return PluginProviderClient.queryAll();
+        return PluginManagerProviderClient.queryAll();
     }
 
     public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
@@ -70,7 +67,7 @@ public class PluginManagerHelper {
         PluginDescriptor pluginDescriptor = localCache.get(pluginId);
 
         if (pluginDescriptor == null) {
-            pluginDescriptor = PluginProviderClient.queryById(pluginId);
+            pluginDescriptor = PluginManagerProviderClient.queryById(pluginId);
             localCache.put(pluginId, pluginDescriptor);
         } else {
             LogUtil.v("取本端缓存", pluginDescriptor.getInstalledPath());
@@ -80,21 +77,21 @@ public class PluginManagerHelper {
     }
 
     public static PluginDescriptor getPluginDescriptorByFragmentId(String clazzId) {
-        return PluginProviderClient.queryByFragment(clazzId);
+        return PluginManagerProviderClient.queryByFragment(clazzId);
     }
 
     public static int installPlugin(String srcFile) {
         clearLocalCache();
-        return PluginProviderClient.install(srcFile);
+        return PluginManagerProviderClient.install(srcFile);
     }
 
     public static boolean isInstalled(String pluginId) {
-        PluginDescriptor pluginDescriptor = PluginProviderClient.queryById(pluginId);
+        PluginDescriptor pluginDescriptor = PluginManagerProviderClient.queryById(pluginId);
         return pluginDescriptor != null;
     }
 
     public static boolean isInstalled(String pluginId, String pluginVersion) {
-        PluginDescriptor pluginDescriptor = PluginProviderClient.queryById(pluginId);
+        PluginDescriptor pluginDescriptor = PluginManagerProviderClient.queryById(pluginId);
         if (pluginDescriptor != null) {
             LogUtil.v("isInstalled", pluginId, pluginDescriptor.getVersion(), pluginVersion);
             return pluginDescriptor.getVersion().equals(pluginVersion);
@@ -103,16 +100,16 @@ public class PluginManagerHelper {
     }
 
     public static boolean isRunning(String pluginId) {
-        return PluginProviderClient.isRunning(pluginId);
+        return PluginManagerProviderClient.isRunning(pluginId);
     }
 
     public static boolean wakeup(String pluginid) {
-        return PluginProviderClient.wakeup(pluginid);
+        return PluginManagerProviderClient.wakeup(pluginid);
     }
 
     public static synchronized int remove(String pluginId) {
         clearLocalCache();
-        return PluginProviderClient.remove(pluginId);
+        return PluginManagerProviderClient.remove(pluginId);
     }
 
     /**
@@ -120,7 +117,7 @@ public class PluginManagerHelper {
      */
     public static synchronized void removeAll() {
         clearLocalCache();
-        PluginProviderClient.removeAll();
+        PluginManagerProviderClient.removeAll();
     }
 
     public static void clearLocalCache() {

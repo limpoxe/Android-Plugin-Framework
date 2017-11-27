@@ -37,7 +37,7 @@ import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginNotInitError;
 import com.limpoxe.fairy.core.loading.WaitForLoadingPluginActivity;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
-import com.limpoxe.fairy.manager.PluginProviderClient;
+import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 import com.limpoxe.fairy.util.ResourceUtil;
@@ -121,7 +121,7 @@ public class PluginInjector {
 		if (ProcessUtil.isPluginProcess()) {
 			// 如果是打开插件中的activity,
 			Intent intent = activity.getIntent();
-			isStubActivity = PluginProviderClient.isStub(intent.getComponent().getClassName());
+			isStubActivity = PluginManagerProviderClient.isStub(intent.getComponent().getClassName());
 
 			// 或者是打开的用来显示插件组件的宿主activity
 			container = AnnotationProcessor.getPluginContainer(activity.getClass());
@@ -347,7 +347,7 @@ public class PluginInjector {
 				PluginCreator.createNewPluginComponentContext(plugin.pluginContext,
 						service.getBaseContext(), pd.getApplicationTheme()));
 		hackService.setApplication(plugin.pluginApplication);
-		hackService.setClassName(PluginProviderClient.bindStubService(service.getClass().getName()));
+		hackService.setClassName(PluginManagerProviderClient.bindStubService(service.getClass().getName()));
 
 	}
 

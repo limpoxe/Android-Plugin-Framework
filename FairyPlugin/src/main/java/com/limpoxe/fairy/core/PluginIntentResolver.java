@@ -12,7 +12,7 @@ import com.limpoxe.fairy.content.PluginReceiverIntent;
 import com.limpoxe.fairy.core.android.HackCreateServiceData;
 import com.limpoxe.fairy.core.android.HackReceiverData;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
-import com.limpoxe.fairy.manager.PluginProviderClient;
+import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -35,7 +35,7 @@ public class PluginIntentResolver {
             if (classNameList.size() > 1) {
                 LogUtil.w("只取第一个，忽略了多Service匹配到同一个Intent的情况");
             }
-            String stubServiceName = PluginProviderClient.bindStubService(classNameList.get(0));
+            String stubServiceName = PluginManagerProviderClient.bindStubService(classNameList.get(0));
 			if (stubServiceName != null) {
 				intent.setComponent(new ComponentName(FairyGlobal.getHostApplication().getPackageName(), stubServiceName));
 			}
@@ -59,7 +59,7 @@ public class PluginIntentResolver {
                         //此时不用关心原intent是不是精确匹配的intent，到了这一步时，是将目标替换为stub还是exact已经无所谓了，
                         // resolveReceiverForClassLoader都可以拿到真实classname
                         //只需给出默认的stubReceiver即可，因此这里的参数使用null
-                        PluginProviderClient.bindStubReceiver(null)));
+                        PluginManagerProviderClient.bindStubReceiver(null)));
 				//hackReceiverForClassLoader检测到这个标记后会进行替换
 				newIntent.setAction(className + CLASS_SEPARATOR + (intent.getAction() == null ? "" : intent.getAction()));
 				result.add(newIntent);
@@ -88,10 +88,10 @@ public class PluginIntentResolver {
             //className要么是真组件，要么是stub，要么是exact的组件
             String className = intent.getComponent().getClassName();
             //当是stub或者exact时，需要处理className，供classloader使用
-            if (PluginProviderClient.isStub(className)) {
+            if (PluginManagerProviderClient.isStub(className)) {
                 String realReceiverClassName = null;
                 String[] targetClassName = null;
-                if (PluginProviderClient.isExact(className, PluginDescriptor.BROADCAST)) {
+                if (PluginManagerProviderClient.isExact(className, PluginDescriptor.BROADCAST)) {
                     realReceiverClassName = className;
                 } else {
                     String action = intent.getAction();
@@ -156,7 +156,7 @@ public class PluginIntentResolver {
 			PluginInjector.hackHostClassLoaderIfNeeded();
 
 			//通过映射查找
-			String targetClassName = PluginProviderClient.getBindedPluginServiceName(info.name);
+			String targetClassName = PluginManagerProviderClient.getBindedPluginServiceName(info.name);
 			//TODO 或许可以通过这个方式来处理service
 			//info.applicationInfo = XXX
 
@@ -164,8 +164,8 @@ public class PluginIntentResolver {
 
 			if (targetClassName != null) {
 				info.name =  CLASS_PREFIX_SERVICE + targetClassName;
-			} else if (PluginProviderClient.isStub(info.name)) {
-				String dumpString = PluginProviderClient.dumpServiceInfo();
+			} else if (PluginManagerProviderClient.isStub(info.name)) {
+				String dumpString = PluginManagerProviderClient.dumpServiceInfo();
 				LogUtil.w("没有找到映射关系, 可能映射表出了异常", info.name, dumpString);
                 LogUtil.w("返回容错标记， 交给HostClassLoader处理");
                 info.name = CLASS_PREFIX_SERVICE_NOT_FOUND;
@@ -190,7 +190,7 @@ public class PluginIntentResolver {
 
 			PluginActivityInfo pluginActivityInfo = pluginDescriptor.getActivityInfos().get(className);
 
-			String stubActivityName = PluginProviderClient.bindStubActivity(className,
+			String stubActivityName = PluginManagerProviderClient.bindStubActivity(className,
 					Integer.parseInt(pluginActivityInfo.getLaunchMode()),
 					pluginDescriptor.getPackageName(),
 					pluginActivityInfo.getTheme(),
