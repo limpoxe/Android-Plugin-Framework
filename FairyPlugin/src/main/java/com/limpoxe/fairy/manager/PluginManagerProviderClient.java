@@ -12,7 +12,6 @@ import android.os.CancellationSignal;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.compat.CompatForContentProvider;
-import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
 
@@ -86,9 +85,13 @@ public class PluginManagerProviderClient {
         return PluginManagerHelper.REMOVE_FAIL;
     }
 
-    public static synchronized void removeAll() {
-        CompatForContentProvider.call(PluginManagerProvider.buildUri(),
+    public static synchronized boolean removeAll() {
+        Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
+        if (bundle != null) {
+            return bundle.getBoolean(PluginManagerProvider.REMOVE_ALL_RESULT);
+        }
+        return false;
     }
 
     public static String bindStubReceiver(String className) {

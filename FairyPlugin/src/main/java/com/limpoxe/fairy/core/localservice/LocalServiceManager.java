@@ -1,12 +1,12 @@
 package com.limpoxe.fairy.core.localservice;
 
-import com.limpoxe.fairy.core.FairyGlobal;
-import com.limpoxe.support.servicemanager.ServiceManager;
-import com.limpoxe.support.servicemanager.local.ServicePool;
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginLauncher;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.support.servicemanager.ServiceManager;
+import com.limpoxe.support.servicemanager.local.ServicePool;
 
 import java.util.HashMap;
 import java.util.Iterator;

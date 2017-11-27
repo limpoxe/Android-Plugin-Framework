@@ -6,7 +6,6 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 
-
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;

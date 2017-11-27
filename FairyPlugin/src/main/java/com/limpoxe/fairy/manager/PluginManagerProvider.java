@@ -13,8 +13,8 @@ import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginLauncher;
-import com.limpoxe.fairy.manager.mapping.StubExact;
 import com.limpoxe.fairy.manager.mapping.PluginStubBinding;
+import com.limpoxe.fairy.manager.mapping.StubExact;
 import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
 
@@ -191,8 +191,6 @@ public class PluginManagerProvider extends ContentProvider {
 
             boolean success = managerService.removeAll();
             bundle.putBoolean(REMOVE_ALL_RESULT, success);
-
-            changeListener.onRemoveAll(success);
 
             return bundle;
 

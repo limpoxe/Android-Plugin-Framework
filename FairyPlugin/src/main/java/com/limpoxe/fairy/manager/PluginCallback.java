@@ -22,7 +22,6 @@ public interface PluginCallback {
 
     void onInstall(int result, String packageName, String version, String src);
 	void onRemove(String packageName, int code);
-	void onRemoveAll(boolean success);
 
 	void onStart(String packageName);
 	void onStop(String packageName);
