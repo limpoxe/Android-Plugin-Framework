@@ -10,7 +10,7 @@ import android.os.IBinder;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
-import com.limpoxe.fairy.core.PluginShadowService;
+import com.limpoxe.fairy.core.bridge.PluginShadowService;
 import com.limpoxe.fairy.core.android.HackActivityManager;
 import com.limpoxe.fairy.core.android.HackActivityManagerNative;
 import com.limpoxe.fairy.core.android.HackActivityThread;

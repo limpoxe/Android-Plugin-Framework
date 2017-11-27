@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import com.limpoxe.fairy.core.bridge.PluginShadowService;
 import com.limpoxe.fairy.util.LogUtil;
 
 import dalvik.system.DexClassLoader;

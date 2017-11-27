@@ -1,4 +1,4 @@
-package com.limpoxe.fairy.core;
+package com.limpoxe.fairy.core.bridge;
 
 import android.app.Application;
 import android.app.Service;
@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.limpoxe.fairy.core.PluginInjector;
+import com.limpoxe.fairy.core.PluginIntentResolver;
+import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.android.HackContextImpl;
 import com.limpoxe.fairy.core.android.HackService;
 import com.limpoxe.fairy.util.LogUtil;

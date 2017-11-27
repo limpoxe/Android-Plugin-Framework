@@ -337,7 +337,7 @@ public class PluginInjector {
 		}
 	}
 
-	/*package*/static void replacePluginServiceContext(String servieName, Service service) {
+	public static void replacePluginServiceContext(String servieName, Service service) {
 		PluginDescriptor pd = PluginManagerHelper.getPluginDescriptorByClassName(servieName);
 
 		LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pd.getPackageName());
