@@ -14,6 +14,7 @@ public class FairyGlobal {
     private static int sLoadingResId;
     private static long sMinLoadingTime = 400;
     private static boolean sIsNeedVerifyPluginSign = true;
+    private static boolean sSupportRemoteViews = true;
     private static ArrayList<StubMappingProcessor> mappingProcessors = new ArrayList<StubMappingProcessor>();
 
     public static Application getHostApplication() {
@@ -107,6 +108,14 @@ public class FairyGlobal {
 
     public static ArrayList<StubMappingProcessor> getStubMappingProcessors() {
         return mappingProcessors;
+    }
+
+    public static boolean isSupportRemoteViews() {
+        return sSupportRemoteViews;
+    }
+
+    public static void setSupportRemoteViews(boolean support){
+        sSupportRemoteViews = support;
     }
 
 }

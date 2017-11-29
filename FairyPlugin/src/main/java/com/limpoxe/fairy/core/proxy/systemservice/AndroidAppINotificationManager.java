@@ -47,13 +47,18 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
+            //修正包名
             args[0] = FairyGlobal.getHostApplication().getPackageName();
-            for(Object obj: args) {
-                if (obj instanceof Notification) {
-                    resolveRemoteViews((Notification)obj);
-                    break;
+
+            if (FairyGlobal.isSupportRemoteViews()) {
+                for(Object obj: args) {
+                    if (obj instanceof Notification) {
+                        resolveRemoteViews((Notification)obj);
+                        break;
+                    }
                 }
             }
+
             return super.beforeInvoke(target, method, args);
         }
     }
@@ -62,13 +67,18 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
+            //修正包名
             args[0] = FairyGlobal.getHostApplication().getPackageName();
-            for(Object obj: args) {
-                if (obj instanceof Notification) {
-                    resolveRemoteViews((Notification)obj);
-                    break;
+
+            if (FairyGlobal.isSupportRemoteViews()) {
+                for(Object obj: args) {
+                    if (obj instanceof Notification) {
+                        resolveRemoteViews((Notification)obj);
+                        break;
+                    }
                 }
             }
+
             return super.beforeInvoke(target, method, args);
         }
     }
@@ -77,13 +87,18 @@ public class AndroidAppINotificationManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.v("beforeInvoke", method.getName());
+            //修正包名
             args[0] = FairyGlobal.getHostApplication().getPackageName();
-            for(Object obj: args) {
-                if (obj instanceof Notification) {
-                    resolveRemoteViews((Notification)obj);
-                    break;
+
+            if (FairyGlobal.isSupportRemoteViews()) {
+                for(Object obj: args) {
+                    if (obj instanceof Notification) {
+                        resolveRemoteViews((Notification)obj);
+                        break;
+                    }
                 }
             }
+
             return super.beforeInvoke(target, method, args);
         }
     }
