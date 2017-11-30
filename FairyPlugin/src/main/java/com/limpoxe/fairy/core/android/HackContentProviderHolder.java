@@ -21,7 +21,7 @@ public class HackContentProviderHolder {
 
     public static Object newInstance(ProviderInfo info) {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
-            return RefInvoker.newInstance(ClassName8, new Class[]{ProviderInfo.class}, new Object[]{info});
+            return RefInvoker.newInstance(ClassName, new Class[]{ProviderInfo.class}, new Object[]{info});
         } else {
             return RefInvoker.newInstance(ClassName8, new Class[]{ProviderInfo.class}, new Object[]{info});
         }
