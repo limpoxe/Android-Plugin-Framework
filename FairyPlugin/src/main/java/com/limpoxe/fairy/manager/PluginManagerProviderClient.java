@@ -12,6 +12,7 @@ import android.os.CancellationSignal;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.compat.CompatForContentProvider;
+import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
 
@@ -212,51 +213,85 @@ public class PluginManagerProviderClient {
     public static Cursor query(Uri url, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.query(newUri, projection, selection, selectionArgs, sortOrder);
+        try {
+            return resolver.query(newUri, projection, selection, selectionArgs, sortOrder);
+        } catch (Exception e) {
+            LogUtil.printException("query " + url, e);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static Cursor query(Uri url, String[] projection, String selection, String[] selectionArgs, String sortOrder, CancellationSignal cancellationSignal) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.query(newUri, projection, selection, selectionArgs, sortOrder, cancellationSignal);
+        try {
+            return resolver.query(newUri, projection, selection, selectionArgs, sortOrder, cancellationSignal);
+        } catch (Exception e) {
+            LogUtil.printException("query " + url, e);
+        }
+        return null;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
     public static Cursor query(Uri url, String[] projection, Bundle queryArgs, CancellationSignal cancellationSignal) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.query(newUri, projection, queryArgs, cancellationSignal);
+        try {
+            return resolver.query(newUri, projection, queryArgs, cancellationSignal);
+        } catch (Exception e) {
+            LogUtil.printException("query " + url, e);
+        }
+        return null;
     }
 
     public static String getType(Uri url) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.getType(newUri);
+        try {
+            return resolver.getType(newUri);
+        } catch (Exception e) {
+            LogUtil.printException("getType " + url, e);
+        }
+        return null;
     }
 
     public static Uri insert(Uri url, ContentValues contentValues) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.insert(newUri, contentValues);
+        try {
+            return resolver.insert(newUri, contentValues);
+        } catch (Exception e) {
+            LogUtil.printException("insert " + url, e);
+        }
+        return null;
     }
 
     public static int delete(Uri url, String where, String[] selectionArgs) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.delete(newUri, where, selectionArgs);
+        try {
+            return resolver.delete(newUri, where, selectionArgs);
+        } catch (Exception e) {
+            LogUtil.printException("delete " + url, e);
+        }
+        return -1;
     }
 
     public static int update(Uri url, ContentValues values, String where, String[] selectionArgs) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.update(newUri, values, where, selectionArgs);
+        try {
+            return resolver.update(newUri, values, where, selectionArgs);
+        } catch (Exception e) {
+            LogUtil.printException("delete " + url, e);
+        }
+        return -1;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static Bundle call(String method, String arg, Bundle extras) {
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        return resolver.call(PluginManagerProvider.buildUri(), method, arg, extras);
+        return CompatForContentProvider.call(PluginManagerProvider.buildUri(), method, arg, extras);
     }
 
     private static Uri buildNewUri(Uri url) {
