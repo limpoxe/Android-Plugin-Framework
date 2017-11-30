@@ -91,7 +91,7 @@ public class PluginManagerProvider extends ContentProvider {
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
-            CONTENT_URI = Uri.parse("content://"+ FairyGlobal.getHostApplication().getPackageName() + ".managerService" + "/call");
+            CONTENT_URI = Uri.parse("content://"+ FairyGlobal.getHostApplication().getPackageName() + ".manager" + "/call");
         }
         return CONTENT_URI;
     }
@@ -152,20 +152,20 @@ public class PluginManagerProvider extends ContentProvider {
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
 
-        if (extras != null && extras.getParcelable("target_call") != null) {
-            Uri targetUrl = extras.getParcelable("target_call");
-            return getContext().getContentResolver().call(targetUrl, method, arg, extras);
-        }
-
         if (Build.VERSION.SDK_INT >= 19) {
             LogUtil.v("callingPackage = ", getCallingPackage());
         }
 
-        LogUtil.d("跨进程调用统计"
-                + "Thead id", Thread.currentThread().getId()
-                + "name", Thread.currentThread().getName()
-                + "method", method
-                + "arg", arg);
+        LogUtil.d("跨进程调用统计",
+                "Thead id", Thread.currentThread().getId(),
+                "name", Thread.currentThread().getName(),
+                "method", method,
+                "arg", arg);
+
+        if (extras != null && extras.getParcelable("target_call") != null) {
+            Uri targetUrl = extras.getParcelable("target_call");
+            return getContext().getContentResolver().call(targetUrl, method, arg, extras);
+        }
 
         Bundle bundle = new Bundle();
 
