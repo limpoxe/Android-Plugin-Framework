@@ -62,6 +62,7 @@ public class HackInstrumentation {
                         intents, options, userId });
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public Instrumentation.ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
                                                             Fragment target, Intent intent, int requestCode, Bundle options) {
 
@@ -109,6 +110,7 @@ public class HackInstrumentation {
                         new Object[]{who, contextThread, token, target, intents});
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public Instrumentation.ActivityResult execStartActivity(
             Context who, IBinder contextThread, IBinder token, Fragment target,
             Intent intent, int requestCode) {
