@@ -1,5 +1,6 @@
 package com.example.plugintest.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -47,7 +48,7 @@ import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.android.HackActivity;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
-import com.umeng.analytics.MobclickAgent;
+//import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -243,7 +244,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
             }
             if (isGranted) {
                 TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-                List<CellInfo> list =  telephonyManager.getAllCellInfo();
+                @SuppressLint("MissingPermission") List<CellInfo> list =  telephonyManager.getAllCellInfo();
                 if (list != null) {
                     LogUtil.v(list);
                 }
@@ -320,7 +321,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickHellowrld(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_4");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_4");
 
         if (PluginManagerHelper.isInstalled("com.example.pluginhelloworld")) {
             Intent intent = getPackageManager().getLaunchIntentForPackage("com.example.pluginhelloworld");
@@ -344,19 +345,19 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginNormalFragment(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_5");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_5");
 
         startFragmentInHostActivity(this, "some_id_for_fragment1");
 	}
 
 	public void onClickPluginSpecFragment(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_6");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_6");
 
         startFragmentInHostActivity(this, "some_id_for_fragment2");
 	}
 
 	public void onClickPluginForDialogActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_7");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_7");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -367,7 +368,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginForOppoAndVivoActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_8");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_8");
 
         //利用Action打开
 		Intent intent = new Intent("test.ijk");
@@ -389,7 +390,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginFragmentTestActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_9");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_9");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -400,7 +401,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginSingleTaskActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_10");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_10");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -413,7 +414,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginTestActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_11");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_11");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -425,7 +426,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginTestOpenPluginActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_12");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_12");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -436,7 +437,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginTestTabActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_13");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_13");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -447,7 +448,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginWebViewActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_14");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_14");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -458,7 +459,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickTransparentActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_15");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_15");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -469,7 +470,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickDesignActivity(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_16");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_16");
 
         Intent intent = new Intent(this, DesignActivity.class);
 		startActivity(intent);
@@ -482,7 +483,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginTestReceiver(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_17");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_17");
 
         //利用Action打开
 		Intent intent = new Intent("test.rst2");//两个Receive都配置了这个aciton，这里可以同时唤起两个Receiver
@@ -491,7 +492,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginTestReceiver2(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_18");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_18");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -501,7 +502,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginTestService(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_19");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_19");
 
         //利用className打开
 		Intent intent = new Intent();
@@ -512,7 +513,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	public void onClickPluginTestService2(View v) {
-        MobclickAgent.onEvent(fakeThisForUmengSdk, "test_20");
+        //MobclickAgent.onEvent(fakeThisForUmengSdk, "test_20");
 
         //利用Action打开
 		Intent intent = new Intent("test.lmn2");
@@ -530,14 +531,14 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	@Override
 	protected void onResume() {
 		super.onResume();
-        MobclickAgent.onResume(fakeThisForUmengSdk);
+        //MobclickAgent.onResume(fakeThisForUmengSdk);
 
 		testDataApi();
 	}
 
     public void onPause() {
         super.onPause();
-        MobclickAgent.onPause(fakeThisForUmengSdk);
+        //MobclickAgent.onPause(fakeThisForUmengSdk);
     }
 
 	public static void show(View rootView) {
