@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 //apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/host.gradle'
-apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.60-snapshot/FairyPlugin/host.gradle"
+apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.61-snapshot/FairyPlugin/host.gradle"
 
 configurations.all {
     resolutionStrategy {
@@ -100,7 +100,7 @@ android {
 }
 
 dependencies {
-    implementation('com.limpoxe.fairy:FairyPlugin:0.0.60-snapshot@aar')//通过后缀@aar来中断依赖传递
+    implementation('com.limpoxe.fairy:FairyPlugin:0.0.61-snapshot@aar')//通过后缀@aar来中断依赖传递
     //implementation project(':FairyPlugin')
     //optional
     //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
