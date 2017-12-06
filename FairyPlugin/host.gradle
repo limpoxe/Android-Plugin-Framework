@@ -17,7 +17,7 @@ import java.util.zip.ZipInputStream
 //在宿主脚本中apply此脚本, 此脚本一共做了6件事
 //1、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情, 下面第4步需要此文件
 //2、编译宿主资源时插入public.xml，用来控制宿主资源id分组
-//
+//3、指定插件进程名称，导出.ap_文件
 //4、编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包
 //5、编译完成后导出宿主的jar，包括宿主的src和其依赖的所有class, 编译非独立插件时需要此包
 //6、编译完成后导出宿主混淆后的jar，包括宿主的src和其依赖的所有class, 编译非独立插件时若插件需要混淆则需要此包
@@ -43,10 +43,21 @@ android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "
 
 afterEvaluate {
 
+    if (android.defaultConfig.applicationId == null) {
+        throw new Exception("宿主build.gradle未配置android.defaultConfig.applicationId")
+    }
+
     for (variant in android.applicationVariants) {
+
+        def varName = variant.name;
+        def buildTypeName = variant.buildType.name
+        def falvorName = variant.flavorName
+        def varDirName =  variant.dirName
+
+        println 'Check Env : ' + buildTypeName +  " " + falvorName + " " + falvorName + " " + varDirName
+
         def scope = variant.getVariantData().getScope()
-        String mergeTaskName = scope.getMergeResourcesTask().name
-        def mergeTask = tasks.getByName(mergeTaskName)
+        def mergeTask = tasks.getByName(scope.getMergeResourcesTask().name)
         //第2件事
         mergeTask.doLast {
             String destPath = mergeTask.outputDir.absolutePath + '/values/';
@@ -73,9 +84,6 @@ afterEvaluate {
                 httpConn.disconnect()
             }
         }
-
-        //def buildTypeName =  variant.buildType.name
-        def varDirName =  variant.dirName
 
         //第3件事
         for (baseVariant in variant.outputs) {
@@ -106,10 +114,11 @@ afterEvaluate {
                         hostInfo.delete()
                     }
                     println '正在生成文件' + hostInfo.absolutePath
-                    hostInfo.write("#Manifest CREATED AT " + new Date().format("yyyy-MM-dd HH:mm::ss"))
+                    hostInfo.write("#Host Manifest CREATED AT " + new Date().format("yyyy-MM-dd HH:mm::ss"))
                     hostInfo.append("\nhost.versoinCode=" + android.defaultConfig.versionCode)
                     //versionName可能有后缀，所以以Manifest中为准
                     hostInfo.append("\nhost.versionName=" + versionName)
+                    hostInfo.append("\nhost.applicationId=" + android.defaultConfig.applicationId)
                 }
 
                 //指定插件进程名，设置为空串或者null即是和宿主同进程
@@ -126,7 +135,7 @@ afterEvaluate {
                 }
             }
 
-            //实际上最新版sdk和gralde可以直接指定apk了
+            //实际上最新版sdk和gradle可以直接指定apk了, 不需要.ap_文件
             def processResourcesTask = baseVariant.getProcessResources();
             def processResFullName = baseVariant.apkData.fullName
             processResourcesTask.doLast {
@@ -141,13 +150,9 @@ afterEvaluate {
 
         //第5件事
         def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
-        def String buildType = variant.buildType.name
-
         javaCompile.doLast {
 
-            def flavorBuildType = javaCompile.name.replace("compile", "").replace("JavaWithJavac", "");
-            def flavor = flavorBuildType.toLowerCase().replace(buildType, "")
-            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildType + ", " + flavorBuildType + ", " + flavor
+            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildTypeName + ", falvorName is " + falvorName +  ", varName is " + varName
 
             File jarFile = new File(project.buildDir, "outputs/host_classes.jar")
             if (jarFile.exists()) {
@@ -169,15 +174,15 @@ afterEvaluate {
                     jarMerger.addJar(jarPath);
                     //jarMerger.addFolder(directoryInput.getFile());
                 }
-                File classes = new File(buildDir, 'intermediates/classes-jar/' + (flavor.equals("")?"":(flavor + "/")) + buildType + "/classes.jar");
+                File classes = new File(buildDir, 'intermediates/classes-jar/' + (falvorName.equals("")?"":(falvorName + "/")) + buildTypeName + "/classes.jar");
 
                 println "classes path is " + classes.absolutePath
 
                 if (!classes.exists()) {
                     try {
-                        tasks.getByName("bundleAppClasses" + flavorBuildType).execute()
+                        tasks.getByName("bundleAppClasses" + varName.capitalize()).execute()
                     } catch(Exception e) {
-                        println "fail to create jar for task " + javaCompile.name + " " + "bundleAppClasses" + flavorBuildType
+                        println "fail to create jar for task " + javaCompile.name + " " + "bundleAppClasses" + varName.capitalize()
                     }
                 } else {
                     println "classes path already exists： " + classes.absolutePath
@@ -194,15 +199,15 @@ afterEvaluate {
             println "Merge Jar Finished, Jar is at " + jarFile.absolutePath
         }
 
+        //第6件事
         //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
         def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
-        def variantName = variant.name
         if (proguardTask) {
             proguardTask.doFirst {
-                println "开始混淆任务：" + variantName.capitalize()
+                println "开始混淆任务：" + varName.capitalize()
             }
             proguardTask.doLast {
-                println "混淆完成：" + variantName.capitalize()
+                println "混淆完成：" + varName.capitalize()
                 boolean isFind = false;
                 proguardTask.outputs.files.files.each { File file->
                     //http://blog.csdn.net/sbsujjbcy/article/details/50839263
@@ -210,16 +215,16 @@ afterEvaluate {
                     //最新版本路径已发生变化；2017-11-12
                     project.logger.error "file outputs=>${file.absolutePath}"
                     String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                    println String.valueOf(file.absolutePath.contains(keyword)) + ", " + String.valueOf(file.absolutePath.endsWith(buildType))
-                    if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildType)) {
+                    println String.valueOf(file.absolutePath.contains(keyword)) + ", " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
+                    if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName)) {
 
                         isFind = true;
-                        println "导出混淆后的宿主jar包" + "${project.buildDir}/outputs/" + "host_" + variantName + "_obfuscated" + ".jar"
+                        println "导出混淆后的宿主jar包" + "${project.buildDir}/outputs/" + "host_" + varName + "_obfuscated" + ".jar"
 
                         copy {
                             from file.absolutePath + "/0.jar"
                             into("${project.buildDir}/outputs/")
-                            rename('0', "host_" + variantName + "_obfuscated")
+                            rename('0', "host_" + varName + "_obfuscated")
                         }
                     }
                 }
@@ -229,24 +234,17 @@ afterEvaluate {
             }
         }
 
-    }
+        //第4件事
+        tasks.findByName("generate${varName.capitalize()}Sources").doFirst {
 
-    tasks.each { task ->
-        if (task.name.startsWith("generate") && task.name.endsWith("Sources") && !task.name.contains("AndroidTest")) {
-            task.doFirst {
-                def buildFavType = task.name.replace("generate", "").replace("Sources", "")
-                println '编译宿主ap完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包 buildFavType = ' + buildFavType
+            println '编译宿主ap完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包 falvorName = ' + falvorName + ", buildTypeName = " + buildTypeName
 
-                //脚本不熟，将就用吧。。。
-                if (buildFavType.endsWith("Debug")) {
-                    createThemePatch(buildFavType.replace("Debug", "").toLowerCase(), "debug");
-                } else if (buildFavType.endsWith("Release")) {
-                    createThemePatch(buildFavType.replace("Release", "").toLowerCase(), "release");
-                }
-            }
-        } else if (task.name.startsWith("assemble")) {
-            task.finalizedBy makeHostBaseLine
+            createThemePatch(falvorName, buildTypeName);
+
         }
+
+        //导出宿主最终的基线包
+        tasks.findByName("assemble${varName.capitalize()}").finalizedBy makeHostBaseLine
     }
 
     if (gradle.startParameter.taskNames.find {
