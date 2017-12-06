@@ -64,25 +64,30 @@ public class PluginManifestParser {
 
                             //用这个字段来标记apk是独立apk，还是需要依赖主程序的class和resource
                             //当这个值等于宿主程序packageName时，则认为这个插件是需要依赖宿主的class和resource的
-                            String sharedUserId = parser.getAttributeValue(namespaceAndroid, "sharedUserId");
+                            String hostApplicationId = parser.getAttributeValue(namespaceAndroid, "hostApplicationId");
+                            if (hostApplicationId == null) {
+                                hostApplicationId = parser.getAttributeValue(namespaceAndroid, "sharedUserId");
+                            }
 
                             //这个字段用来标记非独立插件以来的宿主版本号，即此当前插件仅可运行在此版本的宿主中
                             //独立插件忽略此项
                             String requiredHostVersionName = parser.getAttributeValue(null, "requiredHostVersionName");
+                            String requiredHostVersionCode = parser.getAttributeValue(null, "requiredHostVersionCode");
 
                             desciptor.setPackageName(packageName);
-                            desciptor.setVersion(versionName + "_" + versionCode);
+                            desciptor.setVersionName(versionName);
+                            desciptor.setVersionCode(versionCode);
                             desciptor.setPlatformBuildVersionCode(platformBuildVersionCode);
                             desciptor.setPlatformBuildVersionName(platformBuildVersionName);
 
-                            desciptor.setStandalone(sharedUserId == null || !FairyGlobal.getHostApplication().getPackageName().equals(sharedUserId));
+                            desciptor.setStandalone(hostApplicationId == null || !FairyGlobal.getHostApplication().getPackageName().equals(hostApplicationId));
                             if (!desciptor.isStandalone() && !TextUtils.isEmpty(requiredHostVersionName)) {
                                 desciptor.setRequiredHostVersionName(requiredHostVersionName);
                             }
 
                             desciptor.setUseHostPackageName("true".equals(useHostPackageName));
 
-                            LogUtil.v(packageName, versionCode, versionName, sharedUserId);
+                            LogUtil.v(packageName, versionCode, versionName, hostApplicationId, FairyGlobal.getHostApplication().getPackageName());
                         } else if ("uses-sdk".equals(tag))  {
 
                             String minSdkVersion = parser.getAttributeValue(namespaceAndroid, "minSdkVersion");

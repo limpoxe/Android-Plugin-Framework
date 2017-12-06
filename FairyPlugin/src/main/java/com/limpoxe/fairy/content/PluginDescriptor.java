@@ -42,9 +42,10 @@ public class PluginDescriptor implements Serializable {
 
 	private String targetSdkVersion;
 
-	private String version;
+	private String versionCode;
+	private String versionName;
 
-    private String requiredHostVersionName;
+	private String requiredHostVersionName;
 
 	private String description;
 
@@ -156,11 +157,23 @@ public class PluginDescriptor implements Serializable {
 	}
 
 	public String getVersion() {
-		return version;
+		return versionName + "_" + versionCode;
 	}
 
-	public void setVersion(String version) {
-		this.version = version;
+	public String getVersionCode() {
+		return versionCode;
+	}
+
+	public void setVersionCode(String versionCode) {
+		this.versionCode = versionCode;
+	}
+
+	public String getVersionName() {
+		return versionName;
+	}
+
+	public void setVersionName(String versionName) {
+		this.versionName = versionName;
 	}
 
     public void setRequiredHostVersionName(String requiredHostVersionName) {
