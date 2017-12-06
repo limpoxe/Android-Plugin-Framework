@@ -51,13 +51,14 @@ afterEvaluate {
 
         def varName = variant.name;
         def buildTypeName = variant.buildType.name
-        def falvorName = variant.flavorName
+        def flavorName = variant.flavorName
         def varDirName =  variant.dirName
 
-        println 'Check Env : ' + buildTypeName +  " " + falvorName + " " + falvorName + " " + varDirName
+        println 'Check Env : ' + varName +  " " + buildTypeName + " " + flavorName + " " + varDirName
 
         def scope = variant.getVariantData().getScope()
         def mergeTask = tasks.getByName(scope.getMergeResourcesTask().name)
+
         //第2件事
         mergeTask.doLast {
             String destPath = mergeTask.outputDir.absolutePath + '/values/';
@@ -115,10 +116,16 @@ afterEvaluate {
                     }
                     println '正在生成文件' + hostInfo.absolutePath
                     hostInfo.write("#Host Manifest CREATED AT " + new Date().format("yyyy-MM-dd HH:mm::ss"))
-                    hostInfo.append("\nhost.versoinCode=" + android.defaultConfig.versionCode)
+                    hostInfo.append("\nhost.versionCode=" + android.defaultConfig.versionCode)
                     //versionName可能有后缀，所以以Manifest中为准
                     hostInfo.append("\nhost.versionName=" + versionName)
-                    hostInfo.append("\nhost.applicationId=" + android.defaultConfig.applicationId)
+
+                    def packageName = android.defaultConfig.applicationId
+                    if (android.buildTypes[buildTypeName].applicationIdSuffix != null) {
+                        packageName = packageName + android.buildTypes[buildTypeName].applicationIdSuffix;
+                    }
+
+                    hostInfo.append("\nhost.applicationId=" + packageName)
                 }
 
                 //指定插件进程名，设置为空串或者null即是和宿主同进程
@@ -152,7 +159,7 @@ afterEvaluate {
         def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
         javaCompile.doLast {
 
-            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildTypeName + ", falvorName is " + falvorName +  ", varName is " + varName
+            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildTypeName + ", flavorName is " + flavorName +  ", varName is " + varName
 
             File jarFile = new File(project.buildDir, "outputs/host_classes.jar")
             if (jarFile.exists()) {
@@ -174,7 +181,7 @@ afterEvaluate {
                     jarMerger.addJar(jarPath);
                     //jarMerger.addFolder(directoryInput.getFile());
                 }
-                File classes = new File(buildDir, 'intermediates/classes-jar/' + (falvorName.equals("")?"":(falvorName + "/")) + buildTypeName + "/classes.jar");
+                File classes = new File(buildDir, 'intermediates/classes-jar/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/classes.jar");
 
                 println "classes path is " + classes.absolutePath
 
@@ -237,9 +244,9 @@ afterEvaluate {
         //第4件事
         tasks.findByName("generate${varName.capitalize()}Sources").doFirst {
 
-            println '编译宿主ap完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包 falvorName = ' + falvorName + ", buildTypeName = " + buildTypeName
+            println '编译宿主ap完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包 flavorName = ' + flavorName + ", buildTypeName = " + buildTypeName
 
-            createThemePatch(falvorName, buildTypeName);
+            createThemePatch(flavorName, buildTypeName);
 
         }
 
