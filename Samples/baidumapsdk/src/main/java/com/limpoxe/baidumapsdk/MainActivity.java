@@ -14,11 +14,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (true) {//如果appkey是使用宿主的packageName注册的
-            SDKInitializer.initialize(FakeUtil.fakeContext(getApplication()));
-        } else {//如果appkey是使用插件的packageName注册的
-            SDKInitializer.initialize(getApplication());
-        }
+        //appkey是使用插件的packageName注册的
+        //sdk的配置信息也在插件中
+        SDKInitializer.initialize(getApplication());
 
         setContentView(R.layout.activity_main);
 

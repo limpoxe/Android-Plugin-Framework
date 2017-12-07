@@ -8,7 +8,7 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="zcV8rayjavRIRLmepXmzGBVx" />
+            android:value="690NR5h8UN9m7UBFhr4xmMrRK8ceUpGp" />
 
         <activity android:name=".MainActivity">
             <intent-filter>

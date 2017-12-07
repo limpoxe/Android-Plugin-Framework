@@ -14,5 +14,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="show"
-        android:text="show ad" />
+        android:text="show ad(goole的广告，你懂的，请耐心等待)" />
 </LinearLayout>
