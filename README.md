@@ -359,8 +359,6 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
          因此，针对这两种case，需要在初始化插件sdk是，传入fakeContext而不是插件的Context来欺骗sdk，使其能拿到正确信息。
         
          在demo中，微信sdk插件的FakeContext，即是用来解决上面所说的第一种情况。
-         百度地图sdk的FakeContext，即是用来解决上面所说的第二种情况（实际上百度地图SDK可以直接使用插件包去平台上注册，
-         不需要使用宿主注册，demo这里仅仅作为验证演示，特意使用了宿主注册appkey）。
          
          demo中的fakeContext重写了需要的相关方法。
          
