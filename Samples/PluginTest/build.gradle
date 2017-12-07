@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-//apply from: '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
-apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.61-snapshot/FairyPlugin/plugin.gradle"
+//A const defined in the top-level build.gradle file
+apply from: PLUGIN_FAIRY_SCRIPT
 
 android {
     compileSdkVersion 27
@@ -82,7 +82,7 @@ dependencies {
     //如果是独立插件，无需任何特殊配置
     /////////////////////////////////////////////////////////////////////
 
-    compileOnly files(project(':Samples:PluginBase').getBuildDir().absolutePath + '/outputs/apk/PluginBase-debug.jar')
+    compileOnly files(project(':Samples:PluginTestBase').getBuildDir().absolutePath + '/outputs/apk/PluginTestBase-debug.jar')
 
     //支持使用maven坐标配置
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')

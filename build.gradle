@@ -23,3 +23,12 @@ allprojects {
         google()
     }
 }
+
+ext {
+
+    //HOST_FAIRY_SCRIPT = "/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/host.gradle"
+    HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.61-snapshot/FairyPlugin/host.gradle"
+
+    //PLUGIN_FAIRY_SCRIPT = '/Users/cailiming/develop/Android-Plugin-Framework/FairyPlugin/plugin.gradle'
+    PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.61-snapshot/FairyPlugin/plugin.gradle"
+}

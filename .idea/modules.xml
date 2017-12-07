@@ -4,12 +4,12 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android-Plugin-Framework.iml" filepath="$PROJECT_DIR$/Android-Plugin-Framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/FairyPlugin/FairyPlugin.iml" filepath="$PROJECT_DIR$/FairyPlugin/FairyPlugin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Samples/PluginBase/PluginBase.iml" filepath="$PROJECT_DIR$/Samples/PluginBase/PluginBase.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginHelloWorld/PluginHelloWorld.iml" filepath="$PROJECT_DIR$/Samples/PluginHelloWorld/PluginHelloWorld.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginMain/PluginMain.iml" filepath="$PROJECT_DIR$/Samples/PluginMain/PluginMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginShareLib/PluginShareLib.iml" filepath="$PROJECT_DIR$/Samples/PluginShareLib/PluginShareLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginTest/PluginTest.iml" filepath="$PROJECT_DIR$/Samples/PluginTest/PluginTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginTest2/PluginTest2.iml" filepath="$PROJECT_DIR$/Samples/PluginTest2/PluginTest2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Samples/PluginTestBase/PluginBase.iml" filepath="$PROJECT_DIR$/Samples/PluginTestBase/PluginBase.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/Samples.iml" filepath="$PROJECT_DIR$/Samples/Samples.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/admobdemo/admobdemo.iml" filepath="$PROJECT_DIR$/Samples/admobdemo/admobdemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/baidumapsdk/baidumapsdk.iml" filepath="$PROJECT_DIR$/Samples/baidumapsdk/baidumapsdk.iml" />

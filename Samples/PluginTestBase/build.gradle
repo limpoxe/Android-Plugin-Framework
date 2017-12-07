@@ -1,10 +1,13 @@
 apply plugin: 'com.android.application'
+//A const defined in the top-level build.gradle file
+apply from: PLUGIN_FAIRY_SCRIPT
 
 android {
     compileSdkVersion 27
     buildToolsVersion "27.0.1"
 
     defaultConfig {
+        applicationId "com.example.plugintestbase"
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1
@@ -18,6 +21,11 @@ android {
         htmlReport false
         xmlReport false
     }
+}
+
+dependencies {
+    //支持使用maven坐标配置
+    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
 }
 
 tasks.whenTaskAdded { task ->
