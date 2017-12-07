@@ -96,7 +96,7 @@ afterEvaluate {
             println "开始merge插件工程资源.."
             if (!file(host_patch_path).exists()) {
                 file(host_patch_extract_dir).deleteDir();
-                throw new FileNotFoundException("宿主基线patch文件不存在, 请先编译完宿主，再编译插件，并检查插件baselinePatch依赖配置是否正确: \n", host_patch_path)
+                throw new FileNotFoundException("宿主基线patch文件不存在! 请宿主编译完成后，再编译插件，并检查插件编译脚本的baselinePatch依赖配置是否正确: \n", host_patch_path)
             }
 
             copy {
