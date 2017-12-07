@@ -149,23 +149,25 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
    以上所有内容及更多详情可以参考Demo
 	
 #### 插件侧  
-独立插件：新建一个工程, 作为插件工程，无需任何其他配置，编译出来即可当插件apk安装到宿主中。
+独立插件：
+
+    新建一个工程, 作为插件工程，无需任何其他配置，编译出来即可当插件apk安装到宿主中。
 
 非独立插件：
 
 1、新建一个工程, 作为插件工程。
-
-2、在插件AndroidManifest.xml中manifest节点中增加如下配置:
-```       
-    <manifest android:sharedUserId="这里填写宿主工程包名"/>
-```       
-此配置```与其原始含义无关```。插件框架识别一个插件是否为独立插件，是根据插件的manifest文件中的android:sharedUserId配置来判断，
-将android:sharedUserId设置为宿主的packageName，则表示为非独立插件，不设置或者设置为其他值，则表示为独立插件。
-                 
-3、在build.gradle中添加如下2个配置
+            
+2、在build.gradle中添加如下2个配置
 ```
     apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.61-snapshot/FairyPlugin/plugin.gradle"
 
+    android {
+        defaultConfig {
+            //这个配置不可省略
+            applicationId 插件app包名        
+        }
+    }
+    
     dependencies {
         //***这是demo中的示例，请根据自己的实际情况修改，作用是指向插件依赖的宿主基线包***
         //支持文件、maven坐标等写法
@@ -175,7 +177,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
  ```       
   
-  完成以上3步后即可编译出非独立插件，以上所有内容及更多详情可以参考Demo
+  完成以上2步后即可编译出非独立插件，以上所有内容及更多详情可以参考Demo
   
 #### Demo编译方法
     
@@ -219,7 +221,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         并在插件A的build.gradle文件中使用provided添加对插件B的jar的依赖。
         
        此处uses-library与其原始含义无关，仅作一个配置项取巧使用。
-       限制：被插件依赖的插件只可以包含class和Manifest和assets等文件，不可以携带资源文件。可参考demo中的pluginBase工程
+       限制：被插件依赖的插件只可以包含class和Manifest和assets等文件，不可以携带资源文件。可参考demo中的pluginTestBase工程
         
 2. 如何使独立插件依赖其他插件
    
