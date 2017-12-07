@@ -59,12 +59,12 @@ public class PluginManifestParser {
                             String useHostPackageName = parser.getAttributeValue(null, "useHostPackageName");
                             String versionCode = parser.getAttributeValue(namespaceAndroid, "versionCode");
                             String versionName = parser.getAttributeValue(namespaceAndroid, "versionName");
-                            String platformBuildVersionCode = parser.getAttributeValue(namespaceAndroid, "platformBuildVersionCode");
-                            String platformBuildVersionName = parser.getAttributeValue(namespaceAndroid, "platformBuildVersionName");
+                            String platformBuildVersionCode = parser.getAttributeValue(null, "platformBuildVersionCode");
+                            String platformBuildVersionName = parser.getAttributeValue(null, "platformBuildVersionName");
 
                             //用这个字段来标记apk是独立apk，还是需要依赖主程序的class和resource
                             //当这个值等于宿主程序packageName时，则认为这个插件是需要依赖宿主的class和resource的
-                            String hostApplicationId = parser.getAttributeValue(namespaceAndroid, "hostApplicationId");
+                            String hostApplicationId = parser.getAttributeValue(null, "hostApplicationId");
                             if (hostApplicationId == null) {
                                 hostApplicationId = parser.getAttributeValue(namespaceAndroid, "sharedUserId");
                             }
