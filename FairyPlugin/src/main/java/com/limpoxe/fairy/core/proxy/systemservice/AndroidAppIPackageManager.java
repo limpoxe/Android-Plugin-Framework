@@ -12,25 +12,32 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.text.TextUtils;
 
+import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginIntentResolver;
+import com.limpoxe.fairy.core.PluginLauncher;
+import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplicationPackageManager;
 import com.limpoxe.fairy.core.android.HackParceledListSlice;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
+import com.limpoxe.fairy.manager.PluginManager;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginManagerProvider;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.ProcessUtil;
 import com.limpoxe.fairy.util.ResourceUtil;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -51,6 +58,9 @@ public class AndroidAppIPackageManager extends MethodProxy {
         sMethods.put("resolveIntent", new resolveIntent());
         sMethods.put("resolveService", new resolveService());
         sMethods.put("getComponentEnabledSetting", new getComponentEnabledSetting());
+        sMethods.put("resolveContentProvider", new resolveContentProvider());
+        sMethods.put("getXml", new getXml());
+
     }
 
     public static void installProxy(PackageManager manager) {
@@ -347,6 +357,60 @@ public class AndroidAppIPackageManager extends MethodProxy {
         }
     }
 
+    public static class resolveContentProvider extends MethodDelegate {
+        @Override
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            LogUtil.d("authorities", args[0]);
+            ArrayList<PluginDescriptor> plugins = PluginManager.getPlugins();
+            PluginProviderInfo info = null;
+            PluginDescriptor pluginDescriptor = null;
+            if (plugins != null) {
+                for(PluginDescriptor descriptor:plugins) {
+                    HashMap<String, PluginProviderInfo> pluginProviderInfoMap = descriptor.getProviderInfos();
+                    Iterator<HashMap.Entry<String, PluginProviderInfo>> iterator = pluginProviderInfoMap.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        HashMap.Entry<String, PluginProviderInfo> entry = iterator.next();
+                        if (args[0].equals(entry.getValue().getAuthority())) {
+                            info = entry.getValue();
+                            pluginDescriptor = descriptor;
+                            break;
+                        }
+                    }
+                    if (info != null) {
+                        break;
+                    }
+                }
+            }
+            if (info != null) {
+                ProviderInfo providerInfo = new ProviderInfo();
+                providerInfo.name = info.getName();
+                providerInfo.packageName = getPackageName(pluginDescriptor);
+                providerInfo.icon = pluginDescriptor.getApplicationIcon();
+                providerInfo.metaData = pluginDescriptor.getMetaData();
+                providerInfo.enabled = true;
+                providerInfo.exported = info.isExported();
+                providerInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
+                providerInfo.authority = info.getAuthority();
+                return providerInfo;
+            }
+            return null;
+        }
+    }
+
+    public static class getXml extends MethodDelegate {
+        @Override
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            if (ProcessUtil.isPluginProcess()) {
+                String packageName = (String)args[0];
+                LoadedPlugin loadedPlugin = PluginLauncher.instance().startPlugin(packageName);
+                if (loadedPlugin != null) {
+                    return loadedPlugin.pluginResource.getXml((int)args[1]);
+                }
+            }
+            return null;
+        }
+    }
+
     private static ApplicationInfo getApplicationInfo(PluginDescriptor pluginDescriptor) {
         ApplicationInfo info = new ApplicationInfo();
         info.packageName = getPackageName(pluginDescriptor);
@@ -384,6 +448,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         activityInfo.enabled = true;
         activityInfo.exported = false;
         activityInfo.applicationInfo = getApplicationInfo(pluginDescriptor);
+        //参数太多了，需要时再
         activityInfo.taskAffinity = null;//需要时再加上
         //activityInfo.targetActivity = //需要时再加上
         //activityInfo.softInputMode = //需要时再加上

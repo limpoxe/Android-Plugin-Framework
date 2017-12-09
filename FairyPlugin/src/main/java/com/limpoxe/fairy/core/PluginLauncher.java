@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dalvik.system.DexClassLoader;
@@ -134,6 +135,9 @@ public class PluginLauncher implements Serializable {
 					pluginClassLoader);
 
 			loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
+
+			//inflate data in meta-data
+			pluginDescriptor.inflateMetaData(pluginDescriptor, pluginRes);
 
 			if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
 				LogUtil.i("当前执行插件初始化的线程是主线程，开始初始化插件Application");

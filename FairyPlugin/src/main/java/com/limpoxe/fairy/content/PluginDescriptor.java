@@ -2,8 +2,10 @@ package com.limpoxe.fairy.content;
 
 import android.app.Application;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ResourceUtil;
 
@@ -66,7 +68,12 @@ public class PluginDescriptor implements Serializable {
 	/**
 	 * 定义在插件Manifest中的meta-data标签
 	 */
+
 	private transient Bundle metaData;
+
+	private HashMap<String, String> metaDataString = new HashMap<String, String>();
+	private HashMap<String, Integer> metaDataResource = new HashMap<String, Integer>();
+	private HashMap<String, String> metaDataTobeInflate = new HashMap<String, String>();
 
 	private HashMap<String, PluginProviderInfo> providerInfos = new HashMap<String, PluginProviderInfo>();
 
@@ -216,17 +223,111 @@ public class PluginDescriptor implements Serializable {
 		this.applicationTheme = theme;
 	}
 
-	public Bundle getMetaData() {
+	public static void inflateMetaData(PluginDescriptor descriptor, Resources pluginRes) {
+		Bundle metaData = descriptor.getMetaData();
+
+
 		if (metaData == null) {
-			if (installedPath != null) {
-				metaData = ResourceUtil.getApplicationMetaData(installedPath);
-				if (metaData == null) {
-					metaData = new Bundle();
+			LogUtil.i("开始填充插件MetaData");
+
+			metaData = new Bundle();
+			descriptor.setMetaData(metaData);
+
+			Iterator<Map.Entry<String, String>> strItr = descriptor.getMetaDataString().entrySet().iterator();
+			while(strItr.hasNext()) {
+				Map.Entry<String, String> entry = strItr.next();
+				LogUtil.d(entry.getKey(), entry.getValue());
+				metaData.putString(entry.getKey(), entry.getValue());
+			}
+
+			Iterator<Map.Entry<String, Integer>> resItr = descriptor.getMetaDataResource().entrySet().iterator();
+			while(resItr.hasNext()) {
+				Map.Entry<String, Integer> entry = resItr.next();
+				LogUtil.d(entry.getKey(), entry.getValue());
+				metaData.putInt(entry.getKey(), entry.getValue());
+			}
+
+			HashMap<String, String> resIdData = descriptor.getMetaDataTobeInflate();
+			if (resIdData != null) {
+				Iterator<Map.Entry<String, String>> itr = resIdData.entrySet().iterator();
+				while(itr.hasNext()){
+					Map.Entry<String, String> entry = itr.next();
+					String resId = entry.getValue();
+					String key = entry.getKey();
+
+					String packageName = null;
+					int id = 0;
+					if (resId.contains(":")) {
+						String[] names = resId.split(":");
+						packageName = names[0].replace("@", "");
+						id = Integer.parseInt(names[1], 16);
+					} else {
+						packageName = descriptor.getPackageName();
+						id = Integer.parseInt(resId.replace("@", ""), 16);
+					}
+
+					Resources resources = null;
+					if (packageName.equals(descriptor.getPackageName())) {
+						resources = pluginRes;
+					} else if (packageName.equals(FairyGlobal.getHostApplication().getPackageName())) {
+						resources = FairyGlobal.getHostApplication().getResources();
+					} else if (packageName.equals("android")) {
+						resources = Resources.getSystem();
+					} else {
+						//??
+					}
+
+					if (resources != null && id != 0) {
+						String type = resources.getResourceTypeName(id);
+						LogUtil.d("inflateMetaData", "type", type, id, key);
+						if ("string".equals(type)) {
+							metaData.putString(key, resources.getString(id));
+						} else if ("integer".equals(type)) {
+							metaData.getInt(key, resources.getInteger(id));
+						} else if ("boolean".equals(type)) {
+							metaData.putBoolean(key, resources.getBoolean(id));
+						} else {
+							//int array??
+						}
+					}
 				}
 			}
+			LogUtil.i("填充插件MetaData 完成");
 		}
+	}
+
+	public Bundle getMetaData() {
 		return metaData;
 	}
+
+	public void setMetaData(Bundle metaData) {
+		this.metaData = metaData;
+	}
+
+	public HashMap<String, String> getMetaDataString() {
+		return metaDataString;
+	}
+
+	public void setMetaDataString(HashMap<String, String> metaDataString) {
+		this.metaDataString = metaDataString;
+	}
+
+	public HashMap<String, Integer> getMetaDataResource() {
+		return metaDataResource;
+	}
+
+	public void setMetaDataResource(HashMap<String, Integer> metaDataResource) {
+		this.metaDataResource = metaDataResource;
+	}
+
+	public HashMap<String, String> getMetaDataTobeInflate() {
+		return metaDataTobeInflate;
+	}
+
+	public void setMetaDataTobeInflate(HashMap<String, String> metaDataTobeInflate) {
+		this.metaDataTobeInflate = metaDataTobeInflate;
+	}
+
 
 	public HashMap<String, String> getFragments() {
 		return fragments;

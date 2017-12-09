@@ -84,6 +84,7 @@ public class PluginInjector {
 			p.applicationInfo.packageName = pluginContext.getPackageName();
 			p.exported = pluginProviderInfo.isExported();
 			p.packageName = context.getApplicationInfo().packageName;
+			p.grantUriPermissions = pluginProviderInfo.isGrantUriPermissions();
 			providers.add(p);
 		}
 

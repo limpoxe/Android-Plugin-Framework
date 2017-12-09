@@ -81,11 +81,10 @@ public class ResourceUtil {
 
     public static int parseResId(String value) {
         String idHex = null;
-        if (value != null && value.startsWith("@") && value.length() == 9) {
+        if (value != null && value.contains(":")) {
+            idHex = value.split(":")[1];
+        } else if (value != null && value.startsWith("@") && value.length() == 9) {
             idHex = value.replace("@", "");
-
-        } else if (value != null && value.startsWith("@android:") && value.length() == 17) {
-            idHex = value.replace("@android:", "");
         }
         if (idHex != null) {
             try {

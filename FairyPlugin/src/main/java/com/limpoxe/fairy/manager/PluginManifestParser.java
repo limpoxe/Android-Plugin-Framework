@@ -2,6 +2,7 @@ package com.limpoxe.fairy.manager;
 
 import android.app.Application;
 import android.content.pm.ActivityInfo;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.limpoxe.fairy.content.PluginActivityInfo;
@@ -11,6 +12,7 @@ import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ManifestReader;
+import com.limpoxe.fairy.util.ResourceUtil;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -100,27 +102,20 @@ public class PluginManifestParser {
 
                         	String name = parser.getAttributeValue(namespaceAndroid, "name");
                         	String value = parser.getAttributeValue(namespaceAndroid, "value");
+                            String resource = parser.getAttributeValue(namespaceAndroid, "resource");
 
                             if (name != null) {
 
-//                                HashMap<String, String> metaData = desciptor.getMetaData();
-//                                if (metaData == null) {
-//                                    metaData = new HashMap<String, String>();
-//                                    desciptor.setMetaData(metaData);
-//                                }
-//                                if (value != null && value.startsWith("@") && value.length() == 9) {
-//                                    String idHex = value.replace("@", "");
-//                                    try {
-//                                        int id = Integer.parseInt(idHex, 16);
-//                                        value = Integer.toString(id);
-//                                    } catch (Exception e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                                metaData.put(name, value);
+                                if (value != null && value.startsWith("@")) {
+                                    //等插件初始化的时候再处理这类meta信息
+                                    desciptor.getMetaDataTobeInflate().put(name, value);
+                                } else if (value != null) {
+                                    desciptor.getMetaDataString().put(name, value);
+                                } else if (resource != null && resource.startsWith("@")) {
+                                    desciptor.getMetaDataResource().put(name, ResourceUtil.parseResId(resource));
+                                }
 
-                                LogUtil.v("meta-data", name, value);
-
+                                LogUtil.v("meta-data", name, value, resource);
                             }
 
                         } else if ("exported-fragment".equals(tag)) {
@@ -266,6 +261,7 @@ public class PluginManifestParser {
                             name = getName(name, packageName);
                             String author = parser.getAttributeValue(namespaceAndroid, "authorities");
                             String exported = parser.getAttributeValue(namespaceAndroid, "exported");
+                            String grantUriPermissions = parser.getAttributeValue(namespaceAndroid, "grantUriPermissions");
                             HashMap<String, PluginProviderInfo> providers = desciptor.getProviderInfos();
                             if (providers == null) {
                                 providers = new HashMap<String, PluginProviderInfo>();
@@ -274,10 +270,12 @@ public class PluginManifestParser {
 
                             PluginProviderInfo info = new PluginProviderInfo();
                             info.setName(name);
-                            info.setExported(Boolean.getBoolean(exported));
+                            info.setExported("true".equals(exported));
                             info.setAuthority(author);
-
+                            info.setGrantUriPermissions("true".equals(grantUriPermissions));
                             providers.put(name, info);
+
+                            LogUtil.d(name, info.isGrantUriPermissions(), grantUriPermissions, author, exported);
                         }
                         break;
                     }
