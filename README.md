@@ -64,7 +64,8 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
        如果是使用的Chrome Webview，则不支持。因为它packageId是以0x7f开头，会和插件冲突。
        这是采用Public.xml进行资源分组的缺陷。
 - 可能不支持对插件或者宿主进行加壳加固处理，未尝试
-    
+- 不支持FileProvider
+
 # HOW TO USE
 #### 宿主侧
 1、 新建一个工程，作为宿主工程
