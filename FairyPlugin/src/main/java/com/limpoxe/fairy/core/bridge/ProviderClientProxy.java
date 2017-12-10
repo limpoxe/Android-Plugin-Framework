@@ -15,6 +15,8 @@ import com.limpoxe.fairy.util.LogUtil;
  */
 public class ProviderClientProxy extends ContentProvider {
 
+    public static final String CALL_PROXY_KEY = "target_call";
+
     public ProviderClientProxy() {
        LogUtil.d("create provider proxy instance");
     }
@@ -69,8 +71,8 @@ public class ProviderClientProxy extends ContentProvider {
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
         //约定：原始url被吞掉了，所以调用这个函数的时候需要同时将原始url放入extras
-        LogUtil.d("target_call");
-        if (extras != null && extras.getParcelable("target_call") != null) {
+        LogUtil.d(CALL_PROXY_KEY);
+        if (extras != null && extras.getParcelable(CALL_PROXY_KEY) != null) {
             return PluginManagerProviderClient.call(method, arg, extras);
         }
         return null;

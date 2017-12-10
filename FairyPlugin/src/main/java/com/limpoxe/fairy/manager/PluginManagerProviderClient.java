@@ -210,6 +210,7 @@ public class PluginManagerProviderClient {
         return false;
     }
 
+    /********Provider Begin********/
     public static Cursor query(Uri url, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Uri newUri = buildNewUri(url);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
@@ -291,10 +292,19 @@ public class PluginManagerProviderClient {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static Bundle call(String method, String arg, Bundle extras) {
+        //约定：原始url被吞掉了，所以调用这个函数的时候需要同时将原始url放入extras
         return CompatForContentProvider.call(PluginManagerProvider.buildUri(), method, arg, extras);
     }
 
     private static Uri buildNewUri(Uri url) {
         return PluginManagerProvider.buildUri().buildUpon().appendQueryParameter("targetUrl", url.toString()).build();
+    }
+    /********Provider End********/
+
+    public static void rebootPluginProcess() {
+        //杀掉插件进程
+        CompatForContentProvider.call(PluginManagerProvider.buildUri(), PluginManagerProvider.ACTION_REBOOT_PLUGIN_PROCESS, null, null);
+        //唤起插件进程
+        CompatForContentProvider.call(PluginManagerProvider.buildUri(), null, null, null);
     }
 }

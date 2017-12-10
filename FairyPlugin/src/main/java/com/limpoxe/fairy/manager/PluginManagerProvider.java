@@ -8,6 +8,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Process;
+import android.util.Log;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -17,9 +21,12 @@ import com.limpoxe.fairy.manager.mapping.PluginStubBinding;
 import com.limpoxe.fairy.manager.mapping.StubExact;
 import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.CALL_PROXY_KEY;
 
 /**
  * Created by cailiming on 16/3/11.
@@ -85,9 +92,12 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String ACTION_DUMP_SERVICE_INFO = "dump_service_info";
     public static final String DUMP_SERVICE_INFO_RESULT = "dump_service_info_result";
 
+    public static final String ACTION_REBOOT_PLUGIN_PROCESS = "reboot_plugin_process";
+
+
     private PluginManagerService managerService;
     private PluginStatusChangeListener changeListener;
-
+    private Handler mainHandler;
 
     public static Uri buildUri() {
         if (CONTENT_URI == null) {
@@ -98,10 +108,15 @@ public class PluginManagerProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+
+        Log.d("PluginManagerProvider", "onCreate, Thread id " + Thread.currentThread().getId() + " name " + Thread.currentThread().getName());
+
+        mainHandler = new Handler(Looper.getMainLooper());
         managerService = new PluginManagerService();
         changeListener = new PluginCallbackImpl();
         managerService.loadInstalledPlugins();
-        return false;
+
+        return true;
     }
 
     @Override
@@ -157,15 +172,26 @@ public class PluginManagerProvider extends ContentProvider {
         }
 
         LogUtil.d("跨进程调用统计",
-                "Thead id", Thread.currentThread().getId(),
+                "Thread id", Thread.currentThread().getId(),
                 "name", Thread.currentThread().getName(),
                 "method", method,
                 "arg", arg);
 
-        if (extras != null && extras.getParcelable("target_call") != null) {
-            Uri targetUrl = extras.getParcelable("target_call");
+        if (extras != null && extras.getParcelable(CALL_PROXY_KEY) != null) {
+            Uri targetUrl = extras.getParcelable(CALL_PROXY_KEY);
             return getContext().getContentResolver().call(targetUrl, method, arg, extras);
         }
+
+        return dispathToManager(method, arg, extras);
+    }
+
+    /**
+     * 在跨进程的调用的情况下，provider的方法在binder的线程中被调用，
+     * 这个方法可能存在多线程问题
+     * 但是直接在dispathToManager这个方法上加同步可能存在死锁风险
+     * 因此在managerService等具体的非查询方法上都加了同步处理
+     */
+    private Bundle dispathToManager(String method, String arg, Bundle extras) {
 
         Bundle bundle = new Bundle();
 
@@ -276,8 +302,19 @@ public class PluginManagerProvider extends ContentProvider {
             bundle.putBoolean(WAKEUP_PLUGIN_RESULT, loadedPlugin!=null);
 
             return bundle;
+        } else if (ACTION_REBOOT_PLUGIN_PROCESS.equals(method)) {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    //杀进程不能在binder线程执行，否则会导致调用方和被调用方都被杀掉
+                    Process.killProcess(Process.myPid());
+                    System.exit(10);
+                }
+            });
+            return null;
         }
 
         return null;
     }
+
 }

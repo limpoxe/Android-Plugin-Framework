@@ -125,4 +125,11 @@ public class PluginManagerHelper {
         localCache.clear();
     }
 
+    /**
+     * 强行重启插件进程，杀掉所有运行中的插件
+     */
+    public static void rebootPluginProcess() {
+        PluginManagerProviderClient.rebootPluginProcess();
+    }
+
 }
