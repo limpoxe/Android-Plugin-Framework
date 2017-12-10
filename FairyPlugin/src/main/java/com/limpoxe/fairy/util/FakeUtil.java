@@ -97,7 +97,7 @@ public class FakeUtil {
                     @Override
                     public PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException {
                         PackageInfo packageInfo = pm.getPackageInfo(packageName, flags);
-                        if ((flags & PackageManager.GET_SIGNATURES) != 0 ) {
+                        if ((flags & PackageManager.GET_SIGNATURES) != 0) {
                             //返回宿主签名
                             packageInfo.signatures = pm.getPackageInfo(getPackageName(), flags).signatures;
                         }
@@ -118,7 +118,7 @@ public class FakeUtil {
                                 context = ((ContextWrapper) context).getBaseContext();
                             }
                             //返回宿主meta
-                            applicationInfo.metaData = context.getApplicationInfo().metaData;
+                            applicationInfo.metaData = pm.getApplicationInfo(getPackageName(), flags).metaData;
                         }
                         return applicationInfo;
                     }
