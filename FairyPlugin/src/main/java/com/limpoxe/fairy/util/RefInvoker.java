@@ -79,7 +79,8 @@ public class RefInvoker {
 		} catch (IllegalAccessException e) {
 			LogUtil.printException("IllegalAccessException", e);
 		} catch (NoSuchMethodException e) {
-			LogUtil.printException("NoSuchMethodException", e);
+			//这个日志...
+			LogUtil.e("NoSuchMethodException", methodName);
 		} catch (InvocationTargetException e) {
 			LogUtil.printException("InvocationTargetException", e);
 		}
