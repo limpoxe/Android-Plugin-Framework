@@ -81,11 +81,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             if (!packageName.equals(FairyGlobal.getHostApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
-                    PackageInfo packageInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[1]);
-                    if (packageInfo.applicationInfo != null) {
-                        packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
-                        packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
-                    }
+                    PackageInfo packageInfo = pluginDescriptor.getPackageInfo((int) args[1]);
                     return packageInfo;
                 }
             }
@@ -105,18 +101,16 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     List<PackageInfo> resultList = (List<PackageInfo>) new HackParceledListSlice(invokeResult).getList();
                     if (resultList != null) {
                         for(PluginDescriptor pluginDescriptor:plugins) {
-                            PackageInfo packageInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), (int) args[0]);
-                            if (packageInfo != null && packageInfo.applicationInfo != null) {
-                                packageInfo.applicationInfo.sourceDir = pluginDescriptor.getInstalledPath();
-                                packageInfo.applicationInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
-                            } else {
-                                //for trace
+                            PackageInfo packageInfo = pluginDescriptor.getPackageInfo((int) args[0]);
+                            if (packageInfo == null || packageInfo.applicationInfo == null) {
+                                //Begin Just For Debug Trace
                                 if (!TextUtils.isEmpty(pluginDescriptor.getInstalledPath())) {
                                     File file = new File(pluginDescriptor.getInstalledPath());
                                     LogUtil.e("getPackageArchiveInfo fail", file.exists(), file.canRead(), file.canWrite());
                                 } else {
                                     LogUtil.e("getPackageArchiveInfo fail, path is empth");
                                 }
+                                //End
                             }
                             resultList.add(packageInfo);
                         }

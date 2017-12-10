@@ -98,16 +98,12 @@ public class ResourceUtil {
     }
 
     public static String getLabel(PluginDescriptor pluginDescriptor) {
-        PackageManager pm = FairyGlobal.getHostApplication().getPackageManager();
-        PackageInfo info = pm.getPackageArchiveInfo(pluginDescriptor.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+        PackageInfo info = pluginDescriptor.getPackageInfo(PackageManager.GET_ACTIVITIES);
         if (info != null) {
-            ApplicationInfo appInfo = info.applicationInfo;
-            appInfo.sourceDir = pluginDescriptor.getInstalledPath();
-            appInfo.publicSourceDir = pluginDescriptor.getInstalledPath();
             String label = null;
             try {
-                if (pluginDescriptor.isStandalone() || !isMainResId(appInfo.labelRes)){
-                    label = pm.getApplicationLabel(appInfo).toString();
+                if (pluginDescriptor.isStandalone() || !isMainResId(info.applicationInfo.labelRes)){
+                    label = FairyGlobal.getHostApplication().getPackageManager().getApplicationLabel(info.applicationInfo).toString();
                 }
             } catch (Resources.NotFoundException e) {
             }
@@ -131,40 +127,23 @@ public class ResourceUtil {
         return pluginDescriptor.getDescription();
     }
 
-    public static Bundle getApplicationMetaData(String apkPath) {
-        //暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管
-        LogUtil.d("暂时只查询Applicatoin节点下的meta信息，其他组件节点下的meta先不管, 需要时再加", apkPath);
-        PackageInfo info = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_META_DATA);
-        if (info != null && info.applicationInfo != null) {
-            return info.applicationInfo.metaData;
-        }
-        return null;
-    }
-
-    public static Drawable getLogo(PluginDescriptor pd) {
+    public static Drawable getLogo(PluginDescriptor pluginDescriptor) {
         if (Build.VERSION.SDK_INT >= 9) {
-            PackageManager pm = FairyGlobal.getHostApplication().getPackageManager();
-            PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+            PackageInfo info = pluginDescriptor.getPackageInfo(PackageManager.GET_ACTIVITIES);
             if (info != null) {
-                ApplicationInfo appInfo = info.applicationInfo;
-                appInfo.sourceDir = pd.getInstalledPath();
-                appInfo.publicSourceDir = pd.getInstalledPath();
-                Drawable logo = pm.getApplicationLogo(appInfo);
+                Drawable logo = FairyGlobal.getHostApplication().getPackageManager().getApplicationLogo(info.applicationInfo);
                 return logo;
             }
         }
         return null;
     }
 
-    public static Drawable getIcon(PluginDescriptor pd) {
+    public static Drawable getIcon(PluginDescriptor pluginDescriptor) {
         if (Build.VERSION.SDK_INT >= 9) {
             PackageManager pm = FairyGlobal.getHostApplication().getPackageManager();
-            PackageInfo info = pm.getPackageArchiveInfo(pd.getInstalledPath(), PackageManager.GET_ACTIVITIES);
+            PackageInfo info = pluginDescriptor.getPackageInfo(PackageManager.GET_ACTIVITIES);
             if (info != null) {
-                ApplicationInfo appInfo = info.applicationInfo;
-                appInfo.sourceDir = pd.getInstalledPath();
-                appInfo.publicSourceDir = pd.getInstalledPath();
-                Drawable logo = pm.getApplicationIcon(appInfo);
+                Drawable logo = pm.getApplicationIcon(info.applicationInfo);
                 return logo;
             }
         }

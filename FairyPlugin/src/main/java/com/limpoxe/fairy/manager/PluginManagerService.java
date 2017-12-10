@@ -340,13 +340,14 @@ class PluginManagerService {
 			//}
 
             //万事具备 添加到已安装插件列表
-            PackageInfo packageInfo = packageManager.getPackageArchiveInfo(destApkPath, PackageManager.GET_GIDS);
+			pluginDescriptor.setInstalledPath(destApkPath);
+            PackageInfo packageInfo = pluginDescriptor.getPackageInfo(PackageManager.GET_GIDS);
             if (packageInfo != null) {
                 pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
                 pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
                 pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
             }
-            pluginDescriptor.setInstalledPath(destApkPath);
+
 			boolean isInstallSuccess = addOrReplace(pluginDescriptor);
 
 			//删掉临时文件

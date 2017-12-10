@@ -2,6 +2,7 @@ package com.limpoxe.fairy.content;
 
 import android.app.Application;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.os.Bundle;
 
@@ -120,6 +121,8 @@ public class PluginDescriptor implements Serializable {
 	private String[] dependencies;
 
 	private ArrayList<String> muliDexList;
+
+	private transient HashMap<Integer, PackageInfo> packageInfoHashMap;
 
 	//=============getter and setter======================
 
@@ -573,5 +576,22 @@ public class PluginDescriptor implements Serializable {
 			return targetClassNameList;
 		}
 		return null;
+	}
+
+	public PackageInfo getPackageInfo(Integer flags) {
+		if (packageInfoHashMap == null) {
+			packageInfoHashMap = new HashMap<>();
+		}
+		PackageInfo packageInfo = packageInfoHashMap.get(flags);
+		if (packageInfo == null) {
+			packageInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(getInstalledPath(), flags);
+			if (packageInfo != null && packageInfo.applicationInfo != null) {
+				packageInfo.applicationInfo.sourceDir = getInstalledPath();
+				packageInfo.applicationInfo.publicSourceDir = getInstalledPath();
+			}
+			packageInfoHashMap.put(flags, packageInfo);
+		}
+
+		return packageInfo;
 	}
 }
