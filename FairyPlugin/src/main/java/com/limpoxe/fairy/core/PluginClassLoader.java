@@ -133,7 +133,7 @@ public class PluginClassLoader extends DexClassLoader {
 							break;
 						}
 					} else {
-						LogUtil.e("PluginClassLoader", "未找到插件", dependencePluginId, className);
+						LogUtil.e("PluginClassLoader", "未找到通过<uses-library/>标签依赖的插件", dependencePluginId, className);
 					}
 				}
 			}

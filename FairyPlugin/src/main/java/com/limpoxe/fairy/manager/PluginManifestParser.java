@@ -159,11 +159,14 @@ public class PluginManifestParser {
                         } else if ("uses-library".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
-
-                            if (dependencies == null) {
-                                dependencies = new ArrayList<String>();
+                            if (name.startsWith("com.google") || name.startsWith("com.sec.android") || name.startsWith("com.here.android")) {
+                                LogUtil.d("uses-library ignore", name);
+                            } else {
+                                if (dependencies == null) {
+                                    dependencies = new ArrayList<String>();
+                                }
+                                dependencies.add(name);
                             }
-                            dependencies.add(name);
 
                         } else if ("application".equals(tag)) {
                         	
