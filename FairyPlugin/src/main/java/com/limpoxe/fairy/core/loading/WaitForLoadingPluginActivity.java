@@ -32,7 +32,8 @@ public class WaitForLoadingPluginActivity extends Activity {
         //FragmentManager尝试自动恢复插件Fragment时出现ClassNotFound异常，
         //这里直接将savedInstanceState置空，忽略之
         if (savedInstanceState != null) {
-            savedInstanceState.clear();
+            //不能调clear，会触发Bundle.unparcel，可能会导致classNotFound错误
+            //savedInstanceState.clear();
             savedInstanceState = null;
         }
         super.onCreate(savedInstanceState);
