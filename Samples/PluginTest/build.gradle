@@ -82,9 +82,10 @@ dependencies {
     //如果是独立插件，无需任何特殊配置
     /////////////////////////////////////////////////////////////////////
 
-    compileOnly files(project(':Samples:PluginTestBase').getBuildDir().absolutePath + '/outputs/apk/PluginTestBase-debug.jar')
+    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/apk/PluginTesBase-debug.jar')
 
     //支持使用maven坐标配置
+    //baselinePatch 'xxx:xxx:xxx@xx'
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
 
     //Just For Test ButterKnife

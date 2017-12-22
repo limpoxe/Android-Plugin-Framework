@@ -7,9 +7,9 @@
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginHelloWorld/PluginHelloWorld.iml" filepath="$PROJECT_DIR$/Samples/PluginHelloWorld/PluginHelloWorld.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginMain/PluginMain.iml" filepath="$PROJECT_DIR$/Samples/PluginMain/PluginMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginShareLib/PluginShareLib.iml" filepath="$PROJECT_DIR$/Samples/PluginShareLib/PluginShareLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Samples/PluginTesBase/PluginTestBase.iml" filepath="$PROJECT_DIR$/Samples/PluginTesBase/PluginTestBase.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginTest/PluginTest.iml" filepath="$PROJECT_DIR$/Samples/PluginTest/PluginTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/PluginTest2/PluginTest2.iml" filepath="$PROJECT_DIR$/Samples/PluginTest2/PluginTest2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Samples/PluginTestBase/PluginTestBase.iml" filepath="$PROJECT_DIR$/Samples/PluginTestBase/PluginTestBase.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/Samples.iml" filepath="$PROJECT_DIR$/Samples/Samples.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/admobdemo/admobdemo.iml" filepath="$PROJECT_DIR$/Samples/admobdemo/admobdemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/Samples/baidumapsdk/baidumapsdk.iml" filepath="$PROJECT_DIR$/Samples/baidumapsdk/baidumapsdk.iml" />

@@ -27,8 +27,8 @@ android {
         applicationId "com.example.pluginmain"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.1.2"
+        versionCode 6
+        versionName "1.2.0"
         ndk {
             abiFilters "armeabi-v7a"
         }
@@ -89,8 +89,8 @@ android {
 }
 
 dependencies {
-    implementation('com.limpoxe.fairy:FairyPlugin:0.0.62-snapshot@aar')//通过后缀@aar来中断依赖传递
-    //implementation project(':FairyPlugin')
+    //implementation('com.limpoxe.fairy:FairyPlugin:0.0.62-snapshot@aar')//通过后缀@aar来中断依赖传递
+    implementation project(':FairyPlugin')
     //optional
     //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
 
@@ -98,7 +98,7 @@ dependencies {
 
     implementation 'com.android.support:design:27.0.0'
 
-    //implementation 'com.tencent.bugly:crashreport:2.1.5'
+    implementation 'com.tencent.bugly:crashreport:2.1.5'
     //implementation 'com.umeng.analytics:analytics:latest.integration'
 
     //Test ButterKnife
