@@ -2,6 +2,7 @@ package com.limpoxe.fairy.manager;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,19 +29,8 @@ public class PluginManagerHelper {
     public static final int PLUGIN_NOT_EXIST = 21;
     public static final int REMOVE_FAIL = 27;
 
-    //加个客户端进程的缓存，减少跨进程调用
-    private static final HashMap<String, PluginDescriptor> localCache = new HashMap<String, PluginDescriptor>();
-
     public static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
-
-        PluginDescriptor pluginDescriptor = localCache.get(clazzName);
-
-        if (pluginDescriptor == null) {
-            pluginDescriptor = PluginManagerProviderClient.queryByClass(clazzName);
-            localCache.put(clazzName, pluginDescriptor);
-        }
-
-        return pluginDescriptor;
+        return PluginManagerProviderClient.queryByClass(clazzName);
     }
 
     /**
@@ -65,16 +55,7 @@ public class PluginManagerHelper {
             return null;
         }
 
-        PluginDescriptor pluginDescriptor = localCache.get(pluginId);
-
-        if (pluginDescriptor == null) {
-            pluginDescriptor = PluginManagerProviderClient.queryById(pluginId);
-            localCache.put(pluginId, pluginDescriptor);
-        } else {
-            LogUtil.v("取本端缓存", pluginDescriptor.getInstalledPath());
-        }
-
-        return pluginDescriptor;
+        return PluginManagerProviderClient.queryById(pluginId);
     }
 
     public static PluginDescriptor getPluginDescriptorByFragmentId(String clazzId) {
@@ -82,7 +63,6 @@ public class PluginManagerHelper {
     }
 
     public static int installPlugin(String srcFile) {
-        clearLocalCache();
         return PluginManagerProviderClient.install(srcFile);
     }
 
@@ -109,7 +89,6 @@ public class PluginManagerHelper {
     }
 
     public static synchronized int remove(String pluginId) {
-        clearLocalCache();
         return PluginManagerProviderClient.remove(pluginId);
     }
 
@@ -117,19 +96,16 @@ public class PluginManagerHelper {
      * 清除列表并不能清除已经加载到内存当中的class,因为class一旦加载后后无法卸载
      */
     public static synchronized void removeAll() {
-        clearLocalCache();
         PluginManagerProviderClient.removeAll();
-    }
-
-    public static void clearLocalCache() {
-        localCache.clear();
     }
 
     /**
      * 强行重启插件进程，杀掉所有运行中的插件
      */
     public static void rebootPluginProcess() {
-        PluginManagerProviderClient.rebootPluginProcess();
+        if (!ProcessUtil.isPluginProcess()) {//只在非插件进程调用才能做到重启，自己杀自己无法重启
+            PluginManagerProviderClient.rebootPluginProcess();
+        }
     }
 
 }
