@@ -404,7 +404,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
     由于插件并没有正常安装到系统中，插件组件的Intent不能被系统识别，因此外部应用或者系统需要直接唤起插件组件时，需要将插件Intent在宿主的Manifest中        
     也预置一份，并在IntentFilter增加STUB_EXACT配置，如：
-
+        //添加Receeiver桥接
         <receiver android:name="com.example.plugintest.receiver.BootCompletedReceiver"
               android:process=":plugin">
             <intent-filter>
@@ -419,6 +419,32 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+        
+        //添加Activity桥接
+        <activity
+            android:name="com.example.pluginmain.wxapi.WXEntryActivity"
+            android:process=":plugin"
+            android:exported="true">
+            <!--下面是额外添加的配置项，作用是使得框架将此组件配置识别为插件组件 -->
+            <intent-filter>
+                <action
+                    android:name="${applicationId}.STUB_EXACT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        //添加Provider桥接
+        //Provider桥接的写法稍有不同
+        //1、将从插件Manifest复制过来的provider配置中的name都改为固定值：com.limpoxe.fairy.core.bridge.ProviderClientProxy
+        //2、不需要添加STUB_EXACT的intent-filter
+        //例如，将插件中定义的一个provider的authorities添加到宿主，使其支持外部应用直接访问：
+        <provider
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientProxy"
+            android:authorities="a.b.c.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+        </provider>
         
        可以参考demo        
 
