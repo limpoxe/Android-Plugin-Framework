@@ -159,6 +159,13 @@
             android:value="27.0.0" />
         <!--Demo config for plugin AdMob end -->
 
+        <provider
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientProxy"
+            android:authorities="a.b.c.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+        </provider>
+
     </application>
 
 </manifest>
