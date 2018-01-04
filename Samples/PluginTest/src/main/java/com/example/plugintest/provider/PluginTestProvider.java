@@ -15,7 +15,7 @@ import android.text.TextUtils;
 
 import com.example.plugintest.provider.PluginDbTables.PluginFirstTable;
 
-public class PluginContentProvider extends ContentProvider {
+public class PluginTestProvider extends ContentProvider {
 
 	private static final String DATABASE_NAME = "plugin_test.db";
 	private static final int DATABASE_VERSION = 2;

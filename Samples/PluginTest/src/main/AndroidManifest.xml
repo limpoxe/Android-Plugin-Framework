@@ -205,7 +205,7 @@
         <provider
             android:exported="true"
             android:authorities="com.example.plugintest.provider"
-            android:name="com.example.plugintest.provider.PluginContentProvider"/>
+            android:name="com.example.plugintest.provider.PluginTestProvider"/>
 
         <service android:name="com.example.plugintest.service.TestAccessibilitySerivce"
             android:permission='android.permission.BIND_ACCESSIBILITY_SERVICE'>
@@ -215,6 +215,16 @@
         </service>
 
         <activity android:name="com.example.plugintest.activity.DesignActivity" android:theme="@style/Theme.DesignDemo"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="a.b.c.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepath" />
+        </provider>
 
     </application>
 

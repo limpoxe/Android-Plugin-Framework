@@ -1,0 +1,4 @@
+<paths>
+    <!-- name是为这条path定义一个别称，和文件的物理路径没关系 -->
+    <external-path path="Pictures/" name="camera_photos" />
+</paths>

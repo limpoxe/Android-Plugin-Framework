@@ -158,6 +158,14 @@
             android:layout_margin="10dp"
             android:id="@+id/onClickPluginTestService2"
             android:text="打开PluginTestService2" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:id="@+id/onTestFileProvider"
+            android:text="测试FileProvider,注意修改图片地址" />
     </LinearLayout>
 
 </ScrollView>

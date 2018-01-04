@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
@@ -57,6 +58,8 @@ import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
+
+import static com.tencent.bugly.crashreport.inner.InnerAPI.context;
 
 //import com.example.plugintest.databinding.PluginLauncherBinding;
 
@@ -135,6 +138,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		findViewById( R.id.onClickPluginTestReceiver2).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestService).setOnClickListener(this);
 		findViewById( R.id.onClickPluginTestService2).setOnClickListener(this);
+		findViewById( R.id.onTestFileProvider).setOnClickListener(this);
 
         testQueryIntentActivities();
         testAlarm();
@@ -317,7 +321,33 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 			case R.id.onClickPluginTestService2:
 				onClickPluginTestService2(v);
 				break;
+			case R.id.onTestFileProvider:
+				testFileProvider();
+				break;
 		}
+	}
+
+	private void testFileProvider() {
+		Intent intent = new Intent("com.android.camera.action.CROP");
+
+		//注意修改为自己设备上真实存在的地址
+		File file = new File("/storage/emulated/0/Pictures/Screenshots/1.png");
+
+		if(!file.exists()) {
+			Toast.makeText(getApplicationContext(), "图片不存在：" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		Uri photoURI = FileProvider.getUriForFile(context, "a.b.c.fileprovider", file);
+
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		intent.setDataAndType(photoURI, "image/*");
+
+		intent.putExtra("crop", "true");
+		intent.putExtra("outputX", 80);
+		intent.putExtra("outputY", 80);
+		intent.putExtra("return-data", false);
+		startActivityForResult(intent, 111);
 	}
 
 	public void onClickHellowrld(View v) {
@@ -621,7 +651,10 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-//        LogUtil.d("onActivityResult", requestCode, resultCode);
+        LogUtil.d("onActivityResult", requestCode, resultCode);
+
+        Toast.makeText(getApplicationContext(), "onActivityResult", Toast.LENGTH_LONG).show();
+
 //        if (data != null) {
 //            LogUtil.d("onActivityResult data", data.getStringExtra("ret"));
 //        }
