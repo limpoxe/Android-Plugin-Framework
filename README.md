@@ -4,7 +4,7 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
-#### 最新版本: 0.0.62-snapshot
+#### 最新版本: 0.0.63-snapshot
               此版本需要com.android.tools.build:gradle:3.0.0和gradle-4.1
               若gradle插件低于此版本请将框架版本和脚本版本都切为0.0.58-snapshot：
               宿主：apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.58-snapshot/FairyPlugin/host.gradle"
@@ -72,7 +72,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 2、 在宿主工程的build.gradle文件下添加如下3个配置
 ```
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.62-snapshot/FairyPlugin/host.gradle"        
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.63-snapshot/FairyPlugin/host.gradle"        
 
     android {
         defaultConfig {
@@ -85,7 +85,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 ```
     dependencies {
         //请务必使用@aar结尾，以中断依赖传递
-        implementation('com.limpoxe.fairy:FairyPlugin:0.0.62-snapshot@aar')
+        implementation('com.limpoxe.fairy:FairyPlugin:0.0.63-snapshot@aar')
         //可选，用于支持插件全局函数式服务，不使用全局函数式服务不需要添加此依赖
         //implementation('com.limpoxe.support:android-servicemanager:1.0.5@aar')
     }
@@ -160,7 +160,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
             
 2、在build.gradle中添加如下2个配置
 ```
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.62-snapshot/FairyPlugin/plugin.gradle"
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.63-snapshot/FairyPlugin/plugin.gradle"
 
     android {
         defaultConfig {
