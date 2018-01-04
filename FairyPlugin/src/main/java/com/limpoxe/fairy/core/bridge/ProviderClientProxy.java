@@ -6,9 +6,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
 
 import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
+
+import java.io.FileNotFoundException;
 
 /**
  * Created by cailiming on 2017/11/27.
@@ -78,4 +81,9 @@ public class ProviderClientProxy extends ContentProvider {
         return null;
     }
 
+    @Override
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        LogUtil.d("openFile", uri);
+        return PluginManagerProviderClient.openFile(uri, mode);
+    }
 }

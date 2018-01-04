@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
@@ -298,6 +299,17 @@ public class PluginManagerProviderClient {
 
     private static Uri buildNewUri(Uri url) {
         return PluginManagerProvider.buildUri().buildUpon().appendQueryParameter("targetUrl", url.toString()).build();
+    }
+
+    public static ParcelFileDescriptor openFile(Uri uri, String mode) {
+        Uri newUri = buildNewUri(uri);
+        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
+        try {
+            return resolver.openFileDescriptor(newUri, mode);
+        } catch (Exception e) {
+            LogUtil.printException("openFile " + uri, e);
+        }
+        return null;
     }
     /********Provider End********/
 

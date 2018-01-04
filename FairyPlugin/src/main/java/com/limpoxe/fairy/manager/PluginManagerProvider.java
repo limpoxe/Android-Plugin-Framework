@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -161,6 +163,12 @@ public class PluginManagerProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
         return getContext().getContentResolver().update(targetUrl, values, selection, selectionArgs);
+    }
+
+    @Override
+    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        return getContext().getContentResolver().openFileDescriptor(targetUrl, mode);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
