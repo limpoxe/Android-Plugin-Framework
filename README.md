@@ -49,12 +49,13 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 - 支持DataBinding（仅限独立插件）
 - 支持插件WebView加载插件本地HTML文件
 - 支持插件Fragment/View内嵌宿主Activity中
+- 支持FileProvider
 
 #### LIMIT
 - 不支持插件Activity转场动画使用插件中的动画资源
 - 不支持插件Manifest中申请权限，所有权限必须预埋到宿主Manifest中
 - 不支持第三方app试图唤起插件中的组件时直接使用插件组件的Intent。
-  第三方app要唤起插件中的静态组件必须由宿主程序进行桥接，即此组件需同时预埋到宿主和插件的Manifest中
+  第三方app要唤起插件中的静态组件，例如Activity/service/Provider，必须由宿主程序进行桥接，即此组件需同时预埋到宿主和插件的Manifest中
 - 不支持android.app.NativeActivity
 - 不支持当一个插件依赖另一个插件时，被插件依赖的包含资源
 - 不支持插件中的webview弹出```原生Chrome组件```
@@ -64,7 +65,6 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
        如果是使用的Chrome Webview，则不支持。因为它packageId是以0x7f开头，会和插件冲突。
        这是采用Public.xml进行资源分组的缺陷。
 - 可能不支持对插件或者宿主进行加壳加固处理，未尝试
-- 不支持FileProvider
 
 # HOW TO USE
 #### 宿主侧
