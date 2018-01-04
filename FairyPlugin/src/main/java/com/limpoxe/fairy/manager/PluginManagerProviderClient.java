@@ -17,6 +17,8 @@ import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
 
+import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.TARGET_URL;
+
 /**
  * Created by cailiming on 17/1/25.
  *
@@ -298,7 +300,7 @@ public class PluginManagerProviderClient {
     }
 
     private static Uri buildNewUri(Uri url) {
-        return PluginManagerProvider.buildUri().buildUpon().appendQueryParameter("targetUrl", url.toString()).build();
+        return PluginManagerProvider.buildUri().buildUpon().appendQueryParameter(TARGET_URL, url.toString()).build();
     }
 
     public static ParcelFileDescriptor openFile(Uri uri, String mode) {

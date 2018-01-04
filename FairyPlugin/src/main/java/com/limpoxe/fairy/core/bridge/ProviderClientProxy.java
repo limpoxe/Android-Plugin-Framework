@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 public class ProviderClientProxy extends ContentProvider {
 
     public static final String CALL_PROXY_KEY = "target_call";
+    public static final String TARGET_URL = "targetUrl";
 
     public ProviderClientProxy() {
        LogUtil.d("create provider proxy instance");

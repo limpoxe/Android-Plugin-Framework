@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.CALL_PROXY_KEY;
+import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.TARGET_URL;
 
 /**
  * Created by cailiming on 16/3/11.
@@ -123,51 +124,51 @@ public class PluginManagerProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().query(targetUrl, projection, selection, selectionArgs, sortOrder);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     public Cursor query(Uri uri, String[] projection, Bundle queryArgs, CancellationSignal cancellationSignal) {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().query(targetUrl, projection, queryArgs, cancellationSignal);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, CancellationSignal cancellationSignal) {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().query(targetUrl, projection, selection, selectionArgs, sortOrder, cancellationSignal);
     }
 
     @Override
     public String getType(Uri uri) {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().getType(targetUrl);
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().insert(targetUrl, values);
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().delete(targetUrl, selection, selectionArgs);
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().update(targetUrl, values, selection, selectionArgs);
     }
 
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        Uri targetUrl = Uri.parse(uri.getQueryParameter("targetUrl"));
+        Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
         return getContext().getContentResolver().openFileDescriptor(targetUrl, mode);
     }
 
