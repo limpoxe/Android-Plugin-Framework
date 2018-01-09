@@ -295,14 +295,14 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         若想获得所在宿主的Activity对象，需要使用((PluginContextTheme)View.getContext()).getOuter()获取，
         或者通过View.getParent.getContext()来获取， getParent的目的是拿到宿主控件。
                                     
-7. 如何在插件使用宿主中定义的主题
+###7. 如何在插件使用宿主中定义的主题
 
         插件中可以直接使用宿主中定义的主题。
         例如，宿主中定义了一个主题为AppHostTheme，那么插件的Manifest文件中可直接使用android:theme="@style/AppHostTheme"来使用宿主主题
         如果插件要扩展宿主主题，也可以直接使用。例如，在插件的style.xml中定义一个主题PluginTheme：<style name="PluginTheme" parent="AppHostTheme" />
         以上写法，IDE中可能会标红，但是不影响编译和运行。
             
-8. 如何在插件使用宿主中定义的其他资源
+###8. 如何在插件使用宿主中定义的其他资源
 
    分为在代码中和在资源文件中两种。代码中直接通过R即可使用。资源中，插件中可以直接使用宿主中定义的资源，但是写法和直接使用插件自己的资源略有不同,
    通常应写为：
