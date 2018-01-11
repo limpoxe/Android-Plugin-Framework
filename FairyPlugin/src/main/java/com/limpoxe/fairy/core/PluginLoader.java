@@ -187,24 +187,11 @@ public class PluginLoader {
 	public static Class loadPluginFragmentClassById(String clazzId) {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByFragmentId(clazzId);
 		if (pluginDescriptor != null) {
-			//插件可能尚未初始化，确保使用前已经初始化
-			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
-
-			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
-
-			String clazzName = pluginDescriptor.getPluginClassNameById(clazzId);
-			if (clazzName != null) {
-				try {
-					Class pluginClazz = ((ClassLoader) pluginClassLoader).loadClass(clazzName);
-					LogUtil.v("loadPluginClass for clazzId", clazzId, "clazzName", clazzName, "success");
-					return pluginClazz;
-				} catch (ClassNotFoundException e) {
-                    LogUtil.printException("PluginLoader.loadPluginFragmentClassById", e);
-                }
-			}
+            String clazzName = pluginDescriptor.getPluginClassNameById(clazzId);
+            return loadPluginClassByName(pluginDescriptor, clazzName);
 		} else {
-			LogUtil.e("未安装插件", clazzId, "fail");
-		}
+            LogUtil.e("PluginDescriptor Not Found for classId ", clazzId);
+        }
 		return null;
 
 	}
@@ -217,25 +204,14 @@ public class PluginLoader {
 
 	public static Class loadPluginClassByName(PluginDescriptor pluginDescriptor, String clazzName) {
 
-		if (pluginDescriptor != null) {
+		if (pluginDescriptor != null && clazzName != null) {
 			//插件可能尚未初始化，确保使用前已经初始化
 			LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
-
-			DexClassLoader pluginClassLoader = plugin.pluginClassLoader;
-
-			try {
-				Class pluginClazz = ((ClassLoader) pluginClassLoader).loadClass(clazzName);
-				LogUtil.v("loadPluginClass Success for clazzName ", clazzName);
-				return pluginClazz;
-			} catch (ClassNotFoundException e) {
-				LogUtil.printException("ClassNotFound " + clazzName, e);
-			} catch (java.lang.IllegalAccessError illegalAccessError) {
-				illegalAccessError.printStackTrace();
-				throw new IllegalAccessError("出现这个异常最大的可能是插件dex和" +
-						"宿主dex包含了相同的class导致冲突, " +
-						"请检查插件的编译脚本，确保排除了所有公共依赖库的jar");
-			}
-
+			if (plugin != null) {
+                return plugin.loadClassByName(clazzName);
+            } else {
+                LogUtil.e("Plugin is not running", clazzName);
+            }
 		} else {
 			LogUtil.e("loadPluginClass Fail for clazzName ", clazzName, pluginDescriptor==null?"pluginDescriptor = null":"pluginDescriptor not null");
 		}
@@ -257,7 +233,12 @@ public class PluginLoader {
 		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(clazz.getName());
 
 		if (pluginDescriptor != null) {
-			pluginContext = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName()).pluginContext;;
+            LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
+            if (plugin != null) {
+                pluginContext = plugin.pluginContext;;
+            } else {
+                LogUtil.e("Plugin is not running", clazz.getName());
+            }
 		} else {
 			LogUtil.e("PluginDescriptor Not Found for ", clazz.getName());
 		}
