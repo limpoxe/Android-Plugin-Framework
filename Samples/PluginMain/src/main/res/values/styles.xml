@@ -18,4 +18,12 @@
         </attr>
     </declare-styleable>
 
+    <style name="ShareThemeXXX" parent="ShareBaseTheme">
+        <item name="android:buttonStyle">@style/ShareButtonStyle</item>
+        <item name="testbg2">@mipmap/cust_ic_launcher</item>
+        <item name="android:windowAnimationStyle">@style/ActivityAnimationInHost</item>
+    </style>
+
+    <attr name="testbg2" format="reference"/>
+
 </resources>
