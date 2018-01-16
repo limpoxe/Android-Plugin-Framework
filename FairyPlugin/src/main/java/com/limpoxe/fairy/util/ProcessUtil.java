@@ -27,6 +27,11 @@ public class ProcessUtil {
         return isPluginProcess;
     }
 
+    /**
+     * 这个方法能正确判断当前插件是否为插件进程，是因为在hook插件的进程的判断方法前（getRunningProcess），已经判断并
+     * 缓存了当前进程是否为插件进程的结果
+     * @return
+     */
     public static boolean isPluginProcess() {
         return isPluginProcess(FairyGlobal.getHostApplication());
     }

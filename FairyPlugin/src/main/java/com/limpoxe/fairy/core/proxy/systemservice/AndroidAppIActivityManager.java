@@ -89,7 +89,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
             //但是这会导致插件框架也无法判断当前的进程了，因此框架中判断插件进程的方法一定要在安装ActivityManager代理之前执行并记住状态
             //同时要保证主进程能正确判断进程。
             //这里不会导致无限递归，因为ProcessUtil.isPluginProcess方法内部有缓存，再安装ActivityManager代理之前已经执行并缓存了
-            if (ProcessUtil.isPluginProcess()) {
+            if (ProcessUtil.isPluginProcess() && FairyGlobal.isFakePluginProcessName()) {
                 List<ActivityManager.RunningAppProcessInfo> result = (List<ActivityManager.RunningAppProcessInfo>)invokeResult;
                 for (ActivityManager.RunningAppProcessInfo appProcess : result) {
                     if (appProcess != null && appProcess.pid == android.os.Process.myPid()) {

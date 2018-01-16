@@ -16,6 +16,7 @@ public class FairyGlobal {
     private static boolean sIsNeedVerifyPluginSign = true;
     private static boolean sSupportRemoteViews = true;
     private static ArrayList<StubMappingProcessor> mappingProcessors = new ArrayList<StubMappingProcessor>();
+    private static boolean sFakePluginProcessName = true;
 
     public static Application getHostApplication() {
         if (!isInited()) {
@@ -82,6 +83,10 @@ public class FairyGlobal {
         return sMinLoadingTime;
     }
 
+    /**
+     * 是否需要验证"插件和宿主的签名相同"
+     * @param needVerify
+     */
     public static void setNeedVerifyPlugin(boolean needVerify) {
         sIsNeedVerifyPluginSign = needVerify;
     }
@@ -110,12 +115,28 @@ public class FairyGlobal {
         return mappingProcessors;
     }
 
+    /**
+     * 是否需要支持插件中发送notification是使用remoteviews并携带插件资源
+     * @return
+     */
     public static boolean isSupportRemoteViews() {
         return sSupportRemoteViews;
     }
 
     public static void setSupportRemoteViews(boolean support){
         sSupportRemoteViews = support;
+    }
+
+    public static boolean isFakePluginProcessName() {
+        return sFakePluginProcessName;
+    }
+
+    /**
+     * 是否需要伪造插件进程名称，使得在插件中通过getRunningProcesses来判断当前进程时，返回的是宿主主进程而不是插件进程
+     * @param fake
+     */
+    public static void setFakePluginProcessName(boolean fake) {
+        sFakePluginProcessName = fake;
     }
 
 }
