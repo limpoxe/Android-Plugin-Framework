@@ -101,6 +101,8 @@ dependencies {
     implementation 'com.tencent.bugly:crashreport:2.1.5'
     //implementation 'com.umeng.analytics:analytics:latest.integration'
 
+    implementation 'org.greenrobot:eventbus:3.0.0'
+
     //Test ButterKnife
     implementation 'com.jakewharton:butterknife:8.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'

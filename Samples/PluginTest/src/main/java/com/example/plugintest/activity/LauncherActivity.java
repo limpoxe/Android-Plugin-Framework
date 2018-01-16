@@ -37,6 +37,7 @@ import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import com.example.pluginmain.MessageEvent;
 import com.example.pluginsharelib.BaseActivity;
 import com.example.pluginsharelib.IHostAidlInterface;
 import com.example.pluginsharelib.SharePOJO;
@@ -50,6 +51,10 @@ import com.limpoxe.fairy.core.android.HackActivity;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 //import com.umeng.analytics.MobclickAgent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -98,6 +103,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		EventBus.getDefault().register(this);
         //测试databinding
 		//PluginLauncherBinding bing =  DataBindingUtil.setContentView(this, R.layout.plugin_launcher);
 		//DataBindingTestVO dataBindingTestVO = new DataBindingTestVO("DataBind:打开PluginHellWorld");
@@ -550,6 +556,10 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		intent.putExtra("testParam", "testParam");
 		startService(intent);
 		//stopService(intent);
+
+        //注意Eventbus不能跨进程，要在宿主和插件之间测试EventBus需要使宿主插件在同一个进程
+        EventBus.getDefault().post(new MessageEvent("onClickPluginTestService2_click"));
+
 	}
 
 	@Override
@@ -692,5 +702,16 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
             unbindService(connection);
         }
         unregisterReceiver(broadcastReceiver);
+        EventBus.getDefault().unregister(this);
     }
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEvent(MessageEvent event) {
+		LogUtil.d("插件响应了事件onEvent");
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onXXXEvent(MessageEvent event) {
+		LogUtil.d("宿主响应了事件 onXXXEvent");
+	}
 }
