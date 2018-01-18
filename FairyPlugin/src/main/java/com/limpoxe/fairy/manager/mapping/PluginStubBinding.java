@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 /**
  * 插件组件动态绑定到宿主的虚拟stub组件
+ *
+ * 本类只能在插件进程使用
  */
 public class PluginStubBinding {
 

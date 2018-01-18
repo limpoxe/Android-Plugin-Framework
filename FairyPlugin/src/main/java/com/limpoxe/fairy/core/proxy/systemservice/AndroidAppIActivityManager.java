@@ -2,6 +2,7 @@ package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.app.ActivityManager;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
@@ -10,6 +11,9 @@ import android.os.IBinder;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
+import com.limpoxe.fairy.core.PluginLauncher;
+import com.limpoxe.fairy.core.PluginLoader;
+import com.limpoxe.fairy.core.android.HackComponentName;
 import com.limpoxe.fairy.core.bridge.PluginShadowService;
 import com.limpoxe.fairy.core.android.HackActivityManager;
 import com.limpoxe.fairy.core.android.HackActivityManagerNative;
@@ -21,6 +25,8 @@ import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.mapping.PluginStubBinding;
+import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.PendingIntentHelper;
 import com.limpoxe.fairy.util.ProcessUtil;
@@ -44,7 +50,9 @@ public class AndroidAppIActivityManager extends MethodProxy {
         sMethods.put("overridePendingTransition", new overridePendingTransition());
         sMethods.put("serviceDoneExecuting", new serviceDoneExecuting());
         sMethods.put("getContentProvider", new getContentProvider());
-
+        sMethods.put("getTasks", new getTasks());
+        sMethods.put("getAppTasks", new getAppTasks());
+        sMethods.put("getServices", new getServices());
         //暂不需要
         //sMethods.put("broadcastIntent", new broadcastIntent());
         //sMethods.put("startService", new startService());
@@ -224,4 +232,50 @@ public class AndroidAppIActivityManager extends MethodProxy {
             return invokeResult;
         }
     }
+
+    public static class getTasks extends MethodDelegate {
+        public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+            if (ProcessUtil.isPluginProcess()) {
+                List<ActivityManager.RunningTaskInfo> list = (List<ActivityManager.RunningTaskInfo>)invokeResult;
+                if (list != null && list.size() > 0) {
+                    for(ActivityManager.RunningTaskInfo taskInfo : list) {
+                        fixStubName(taskInfo.baseActivity);
+                        fixStubName(taskInfo.topActivity);
+                    }
+                }
+            }
+            return invokeResult;
+        }
+
+        private void fixStubName(ComponentName componentName) {
+            if (PluginStubBinding.isStub(componentName.getClassName())) {
+                //通过stub查询其绑定的插件组件名称，如果是Activity，只支持非Standard模式的
+                //因为standard模式是1对多的关系，1个stub对应多个插件Activity，通过stub查绑定关系是是查不出来的，这种情况需要通过lifecycle来记录
+                //其他模式的可以通过这种方法查出来
+                String realClassName = PluginStubBinding.getBindedPluginClassName(componentName.getClassName(), StubMappingProcessor.TYPE_ACTIVITY);
+                if (realClassName != null) {
+                    new HackComponentName(componentName).setClassName(realClassName);
+                }
+            }
+        }
+    }
+
+    public static class getAppTasks extends MethodDelegate {
+        public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+            if (ProcessUtil.isPluginProcess()) {
+                LogUtil.d("getAppTasks", invokeResult);
+            }
+            return invokeResult;
+        }
+    }
+
+    public static class getServices extends MethodDelegate {
+        public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+            if (ProcessUtil.isPluginProcess()) {
+                LogUtil.d("getServices", invokeResult);
+            }
+            return invokeResult;
+        }
+    }
+
 }

@@ -180,7 +180,47 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
 
     @Override
     public String getBindedPluginClassName(String stubClassName) {
-        //not need
+
+        //桥接的，不需要反查
+        if(StubExact.isExact(stubClassName, PluginDescriptor.UNKOWN)) {
+            return stubClassName;
+        }
+
+        if (stubClassName.equals(standardActivity)
+                || stubClassName.equals(standardLandspaceActivity)
+                || stubClassName.equals(standardActivityTranslucent)) {
+            //1对多的，没法反查
+            return stubClassName;
+        }
+
+        String target = searchMapping(singleTaskActivityMapping, stubClassName);
+        if (target == null) {
+            target = searchMapping(singleTopActivityMapping, stubClassName);
+        }
+        if (target == null) {
+            target = searchMapping(singleInstanceActivityMapping, stubClassName);
+        }
+        if (target == null) {
+            target = stubClassName;
+        }
+        return target;
+    }
+
+    private String searchMapping(HashMap<String, String> bindingMapping, String stubClassName) {
+        if (bindingMapping != null) {
+            Iterator<Map.Entry<String, String>> itr = bindingMapping.entrySet().iterator();
+            while (itr.hasNext()) {
+                Map.Entry<String, String> entry = itr.next();
+                String stubName = entry.getKey();
+                if (stubName.equals(stubClassName)) {
+                    if (entry.getValue() != null) {
+                        return entry.getValue();
+                    } else {
+                        return stubClassName;
+                    }
+                }
+            }
+        }
         return null;
     }
 
