@@ -94,8 +94,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeResult, Object invokeResult) {
             LogUtil.v("afterInvoke", method.getName());
-
-            if (Build.VERSION.SDK_INT >= 18) {//android4.3
+            //Mi A1 Android O 的invokeResult可能是null
+            if (invokeResult != null && Build.VERSION.SDK_INT >= 18) {//android4.3
                 ArrayList<PluginDescriptor> plugins = PluginManagerHelper.getPlugins();
                 if (plugins != null) {
                     List<PackageInfo> resultList = (List<PackageInfo>) new HackParceledListSlice(invokeResult).getList();

@@ -248,6 +248,9 @@ public class AndroidAppIActivityManager extends MethodProxy {
         }
 
         private void fixStubName(ComponentName componentName) {
+            if(componentName == null) {
+                return;
+            }
             if (PluginStubBinding.isStub(componentName.getClassName())) {
                 //通过stub查询其绑定的插件组件名称，如果是Activity，只支持非Standard模式的
                 //因为standard模式是1对多的关系，1个stub对应多个插件Activity，通过stub查绑定关系是是查不出来的，这种情况需要通过lifecycle来记录
