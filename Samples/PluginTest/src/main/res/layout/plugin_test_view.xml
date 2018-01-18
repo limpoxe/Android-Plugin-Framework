@@ -13,5 +13,5 @@
         android:id="@+id/btnPlugin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="这是插件中的Button，测试控件级插件" />
+        android:text="@string/hello_world4" />
 </LinearLayout>
