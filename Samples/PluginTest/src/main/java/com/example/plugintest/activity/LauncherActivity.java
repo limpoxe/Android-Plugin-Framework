@@ -2,6 +2,7 @@ package com.example.plugintest.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -27,6 +28,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -560,6 +562,18 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         //注意Eventbus不能跨进程，要在宿主和插件之间测试EventBus需要使宿主插件在同一个进程
         EventBus.getDefault().post(new MessageEvent("onClickPluginTestService2_click"));
 
+		String topActivity = topActivity(this);
+		LogUtil.d("topActivity", topActivity);
+	}
+
+	private static String topActivity(Context context) {
+		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(1);
+		if (list != null && list.size() > 0) {
+			ComponentName cpn = list.get(0).topActivity;
+			return cpn.getClassName();
+		}
+		return null;
 	}
 
 	@Override
