@@ -343,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
 
         //MobclickAgent.onResume(this);
 
-        testProvider();
+        //testProvider();
 	}
 
 	private void testProvider() {
