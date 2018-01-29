@@ -202,20 +202,25 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
            原因很简单，既然是非独立插件，肯定是需要引用宿主的类和资源的。所以编译非独立插件时会用到编译宿主时的输出物
 
         3、由于宿主和插件在同一个工程中，点击assembleDebug时编译顺序不可控，会导致每次clean后，首次assembleDebug会失败，此时重新编译即可
-   
-        所以如果使用其他编译方法，请务必仔细阅读build.gradle，了解编译过程和依赖关系后可以自行调整编译脚本，否则可能会失败。
+           可能需要执行3次assembleDebug，
+               第一次是编译宿主，产生bar文件，
+               第二次是依赖bar编译插件，产生插件文件
+               第三次是重新编译宿主，将插件文件内置到宿主assets中
+            所以如果使用其他编译方法，请务必仔细阅读build.gradle，了解编译过程和依赖关系后可以自行调整编译脚本，否则可能会失败。
 
-	3、Demo中使用了arm平台的so，若在x86平台上测试Demo可能会有so异常，请自行适配so。
+	    4、Demo中使用了arm平台的so，若在x86平台上测试Demo可能会有so异常，请自行适配so。
 	
    待插件编译完成后，即可通过宿主在运行时下载插件apk或者将插件apk复制到sdcard调用PluginManagerHelper.installPlugin("插件apk绝对路径")进行插件安装。
 
-   通常插件会内置一个版本到宿主中随宿主一起发布，则需要将插件配置到宿主的assets目录下，再编译一次宿主。
+   通常插件会内置一个版本到宿主中随宿主一起发布，则需要将插件配置到宿主的assets目录下，再编译一次宿主（即上述3中的第三次编译）。
    配置方法如下：
-       dependencies {
+
+        dependencies {
             //支持坐标依赖
             //innerPlugin 'xxx:xxx:xxx@apk'
             innerPlugin '/xx/xx/xx/xx.apk'
         }
+
 
    增加这个配置以后，宿主在打包时会将这个依赖的插件apk打包到宿主的assets目录中
         
