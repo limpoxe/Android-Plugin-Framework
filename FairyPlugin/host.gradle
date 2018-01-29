@@ -24,6 +24,11 @@ import java.util.zip.ZipInputStream
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
+configurations {
+    innerPlugin
+}
+
+def innerPluginApkList = []
 
 class FaiyExt {
     private String pluginProcess = ":plugin"
@@ -45,6 +50,11 @@ afterEvaluate {
 
     if (android.defaultConfig.applicationId == null) {
         throw new Exception("宿主build.gradle未配置android.defaultConfig.applicationId")
+    }
+
+    configurations.innerPlugin.files.each { file ->
+        //收集插件文件地址
+        innerPluginApkList << file.absolutePath
     }
 
     for (variant in android.applicationVariants) {
@@ -83,6 +93,17 @@ afterEvaluate {
                 }
                 ouput.close()
                 httpConn.disconnect()
+            }
+        }
+
+        def mergeAssetsTask = tasks.getByName(scope.getMergeAssetsTask().name)
+        mergeAssetsTask.setOnlyIf { true }
+        mergeAssetsTask.outputs.upToDateWhen { false }
+        mergeAssetsTask.doFirst {
+            copy {
+                println '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + mergeAssetsTask.outputDir
+                from files(innerPluginApkList)
+                into(mergeAssetsTask.outputDir)
             }
         }
 
