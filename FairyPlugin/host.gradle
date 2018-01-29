@@ -99,7 +99,7 @@ afterEvaluate {
         def mergeAssetsTask = tasks.getByName(scope.getMergeAssetsTask().name)
         mergeAssetsTask.setOnlyIf { true }
         mergeAssetsTask.outputs.upToDateWhen { false }
-        mergeAssetsTask.doFirst {
+        mergeAssetsTask.doLast {
             copy {
                 println '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + mergeAssetsTask.outputDir
                 from files(innerPluginApkList)
