@@ -207,10 +207,17 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 	3、Demo中使用了arm平台的so，若在x86平台上测试Demo可能会有so异常，请自行适配so。
 	
-   待插件编译完成后，插件的编译脚本会自动将插件demo的apk复制到PlugiMain/assets目录下（复制脚本参看插件工程的build.gradle）,然后重新
-   打包安装PluginMain。
-   或者也可将插件apk复制到sdcard，然后在宿主程序中调用PluginManagerHelper.installPlugin("插件apk绝对路径")进行安装。
+   待插件编译完成后，即可通过宿主在运行时下载插件apk或者将插件apk复制到sdcard调用PluginManagerHelper.installPlugin("插件apk绝对路径")进行插件安装。
 
+   通常插件会内置一个版本到宿主中随宿主一起发布，则需要将插件配置到宿主的assets目录下，再编译一次宿主。
+   配置方法如下：
+       dependencies {
+            //支持坐标依赖
+            //innerPlugin 'xxx:xxx:xxx@apk'
+            innerPlugin '/xx/xx/xx/xx.apk'
+        }
+
+   增加这个配置以后，宿主在打包时会将这个依赖的插件apk打包到宿主的assets目录中
         
 # 其他指南
 1. 如何使非独立插件依赖其他插件
