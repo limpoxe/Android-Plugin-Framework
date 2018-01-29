@@ -94,6 +94,22 @@ dependencies {
     //optional
     //compile('com.limpoxe.support:android-servicemanager:1.0.5@aar')
 
+    //配置内置插件，宿主编译时会将这些插件打包到自己到assets目录下面
+    //注意编译顺序：
+    //1、先编译宿主，产出2个文件：宿主bar文件，宿主apk
+    //2、再编译插件，编译插件时依赖宿主的bar文件
+    //3、再重新编译宿主，依赖第二步编译出来的插件，目的是将插件内置到宿主中，
+    //   如果宿主发布时不需要内置插件，不需要第3步。
+    //支持坐标依赖
+    //innerPlugin 'xxx:xxx:xxx@apk'
+    innerPlugin files(project(':Samples:PluginTest').getBuildDir().absolutePath + '/outputs/apk/debug/PluginTest-debug.apk')
+    innerPlugin files(project(':Samples:admobdemo').getBuildDir().absolutePath + '/outputs/apk/debug/admobdemo-debug.apk')
+    innerPlugin files(project(':Samples:baidumapsdk').getBuildDir().absolutePath + '/outputs/apk/debug/baidumapsdk-debug.apk')
+    innerPlugin files(project(':Samples:PluginHelloWorld').getBuildDir().absolutePath + '/outputs/apk/debug/PluginHelloWorld-debug.apk')
+    innerPlugin files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/apk/debug/PluginTesBase-debug.apk')
+    innerPlugin files(project(':Samples:PluginTest2').getBuildDir().absolutePath + '/outputs/apk/debug/PluginTest2-debug.apk')
+    innerPlugin files(project(':Samples:wxsdklibrary').getBuildDir().absolutePath + '/outputs/apk/debug/wxsdklibrary-debug.apk')
+
     implementation project(':Samples:PluginShareLib')
 
     implementation 'com.android.support:design:27.0.0'

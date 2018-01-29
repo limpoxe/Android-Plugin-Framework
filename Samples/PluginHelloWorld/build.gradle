@@ -6,7 +6,7 @@ repositories {
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.1"
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         applicationId "com.example.pluginhelloworld"
@@ -30,13 +30,13 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.0'
 }
 
-afterEvaluate {
-    tasks.getByName("packageDebug").doLast {
-        copy {
-            println "复制插件" + apkPathList.get(0).absolutePath + "到宿主assets目录"
-            from apkPathList.get(0).getParent()
-            include project.name + '-debug.apk'
-            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
-        }
-    }
-}
+//afterEvaluate {
+//    tasks.getByName("packageDebug").doLast {
+//        copy {
+//            println "复制插件" + apkPathList.get(0).absolutePath + "到宿主assets目录"
+//            from apkPathList.get(0).getParent()
+//            include project.name + '-debug.apk'
+//            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+//        }
+//    }
+//}
