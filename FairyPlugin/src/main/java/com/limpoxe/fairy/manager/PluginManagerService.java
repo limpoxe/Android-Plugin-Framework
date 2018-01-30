@@ -339,6 +339,7 @@ class PluginManagerService {
 
             //万事具备 添加到已安装插件列表
 			pluginDescriptor.setInstalledPath(destApkPath);
+			pluginDescriptor.setInstallationTime(System.currentTimeMillis());
             PackageInfo packageInfo = pluginDescriptor.getPackageInfo(PackageManager.GET_GIDS);
             if (packageInfo != null) {
                 pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);

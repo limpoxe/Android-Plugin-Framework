@@ -118,6 +118,8 @@ public class PluginDescriptor implements Serializable {
 
 	private String installedPath;
 
+	private long installationTime;
+
 	private String[] dependencies;
 
 	private ArrayList<String> muliDexList;
@@ -452,7 +454,15 @@ public class PluginDescriptor implements Serializable {
         this.useHostPackageName = useHostPackageName;
     }
 
-    /**
+	public long getInstallationTime() {
+		return installationTime;
+	}
+
+	public void setInstallationTime(long installationTime) {
+		this.installationTime = installationTime;
+	}
+
+	/**
 	 * 需要根据id查询的只有fragment
 	 * @param clazzId
 	 * @return
