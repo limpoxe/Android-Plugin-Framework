@@ -140,6 +140,8 @@ afterEvaluate {
                     hostInfo.append("\nhost.versionCode=" + android.defaultConfig.versionCode)
                     //versionName可能有后缀，所以以Manifest中为准
                     hostInfo.append("\nhost.versionName=" + versionName)
+                    hostInfo.append("\nhost.buildType=" + buildTypeName)
+                    hostInfo.append("\nhost.flavorName=" + flavorName)
 
                     def packageName = android.defaultConfig.applicationId
                     if (android.buildTypes[buildTypeName].applicationIdSuffix != null) {
