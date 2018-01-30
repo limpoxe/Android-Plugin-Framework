@@ -73,7 +73,7 @@ public class PluginManagerProviderClient {
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_INSTALL, srcFile, null);
 
-        int result = 7;//install-Fail
+        int result = PluginManagerHelper.INSTALL_FAIL;//install-Fail
         if (bundle != null) {
             result = bundle.getInt(PluginManagerProvider.INSTALL_RESULT);
         }
