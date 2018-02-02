@@ -32,6 +32,6 @@ ext {
     //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.63-snapshot/FairyPlugin/host.gradle"
 
     //PLUGIN_FAIRY_SCRIPT = '../../FairyPlugin/plugin.gradle'
-    //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
-    PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.63-snapshot/FairyPlugin/plugin.gradle"
+    PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+    //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.63-snapshot/FairyPlugin/plugin.gradle"
 }
