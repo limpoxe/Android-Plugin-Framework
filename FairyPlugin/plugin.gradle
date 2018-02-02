@@ -276,7 +276,7 @@ afterEvaluate {
                     println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
                     println "插件Manifest文件中插入非独立插件标识 requiredHostApplicationId=" + hostApplicationId
                     def manifestFile
-                    if (properties.get("androidGradlePluginVersion").startsWith("2")) {
+                    if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
                         manifestFile = new File(properties.get("manifestOutputFile").absolutePath)
                     } else {
                         manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")

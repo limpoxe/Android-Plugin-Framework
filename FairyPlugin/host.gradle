@@ -28,6 +28,8 @@ configurations {
     innerPlugin
 }
 
+def AndroidGradlePluginVersion = getPlugins().findPlugin("com.android.application").androidBuilder.createdBy
+
 def innerPluginApkList = []
 
 class FaiyExt {
@@ -115,7 +117,7 @@ afterEvaluate {
 
             innerPluginApkList.each { innerAPK ->
                 if (!file(innerAPK).exists()) {
-                    project.logger.error "引用的插件apk文件不存在，可能插件apk还未编译完成，或者宿主innerPlugin配置的路径错误：", innerAPK
+                    project.logger.info "引用的插件apk文件不存在，可能插件apk还未编译完成，或者宿主innerPlugin配置的路径错误：", innerAPK
                 }
             }
 
@@ -195,7 +197,7 @@ afterEvaluate {
 
                     //println com.android.builder.Version.ANDROID_GRADLE_PLUGIN_VERSION
                     //Android Gradle Plugin Version 3.x
-                    if (!processResourcesTask.androidGradlePluginVersion.startsWith("2")) {
+                    if (!AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
                         println processResourcesTask.resPackageOutputFolder
                         from processResourcesTask.resPackageOutputFolder
                         into("${project.buildDir}/outputs/")
@@ -257,12 +259,14 @@ afterEvaluate {
                 def buildClassesTaskName;
                 def classesPath;
 
-                if (tasks.getByName(buildClassesTaskName1)) {
+                if (tasks.findByName(buildClassesTaskName1)) {
                     buildClassesTaskName = buildClassesTaskName1;
                     classesPath = classesPath1;
-                } else if (tasks.getByName(buildClassesTaskName2)) {
+                } else if (tasks.findByName(buildClassesTaskName2)) {
                     buildClassesTaskName = buildClassesTaskName2;
                     classesPath = classesPath2;
+                } else {
+                    throw new IllegalAccessError("未找到打包宿主classes的task，请检查android gradle 插件版本")
                 }
 
                 File classes = new File(buildDir, classesPath);
@@ -282,8 +286,6 @@ afterEvaluate {
                 if (classes.exists()) {
                     jarMerger.addJar(classes)
                 }
-            } catch (Exception e) {
-                e.printStackTrace()
             } finally {
                 jarMerger.close()
             }
