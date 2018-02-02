@@ -42,6 +42,9 @@ def host_patch_fileName = "host.bar"
 def AndroidGradlePluginVersion = getPlugins().findPlugin("com.android.application").androidBuilder.createdBy
 def fairyMinifyEnabled = false
 
+android{
+}
+
 dependencies {
 
     if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
@@ -73,7 +76,7 @@ afterEvaluate {
                 host_patch_path = patch.absolutePath;
                 println project.name + "发现宿主基线配置指向位置：" + host_patch_path
 
-                if (AndroidGradlePluginVersion.startsWith("Android Gradle 3")) {
+                if (!AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
 
                     //读取混淆开关配置
                     gradle.startParameter.taskNames.each { startTaskName ->
@@ -273,10 +276,10 @@ afterEvaluate {
                     println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
                     println "插件Manifest文件中插入非独立插件标识 requiredHostApplicationId=" + hostApplicationId
                     def manifestFile
-                    if (properties.get("androidGradlePluginVersion").startsWith("3")) {
-                        manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
-                    } else {
+                    if (properties.get("androidGradlePluginVersion").startsWith("2")) {
                         manifestFile = new File(properties.get("manifestOutputFile").absolutePath)
+                    } else {
+                        manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
                     }
                     println "插件Manifest：" + manifestFile.absolutePath
                     def originManifestContent = manifestFile.getText('UTF-8')

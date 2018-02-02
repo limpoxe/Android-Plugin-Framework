@@ -195,7 +195,7 @@ afterEvaluate {
 
                     //println com.android.builder.Version.ANDROID_GRADLE_PLUGIN_VERSION
                     //Android Gradle Plugin Version 3.x
-                    if (processResourcesTask.androidGradlePluginVersion.startsWith("3")) {
+                    if (!processResourcesTask.androidGradlePluginVersion.startsWith("2")) {
                         println processResourcesTask.resPackageOutputFolder
                         from processResourcesTask.resPackageOutputFolder
                         into("${project.buildDir}/outputs/")
