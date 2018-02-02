@@ -167,13 +167,18 @@ afterEvaluate {
 
             //实际上最新版sdk和gradle可以直接指定apk了, 不需要.ap_文件
             def processResourcesTask = baseVariant.getProcessResources();
-            def processResFullName = baseVariant.apkData.fullName
+            //def processResFullName = baseVariant.apkData.fullName
             processResourcesTask.doLast {
                 copy {
                     println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
                     from processResourcesTask.resPackageOutputFolder
                     into("${project.buildDir}/outputs/")
-                    rename("-${processResFullName}", "")
+                    rename(new Transformer<String, String>() {
+                        @Override
+                        String transform(String s) {
+                            return "resources.ap_"
+                        }
+                    })
                 }
             }
         }
