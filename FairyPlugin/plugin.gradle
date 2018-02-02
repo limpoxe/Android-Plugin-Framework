@@ -253,7 +253,12 @@ afterEvaluate {
                 if (hostVersionName != null && hostApplicationId != null && hostVersionCode != null) {
                     println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
                     println "插件Manifest文件中插入非独立插件标识 requiredHostApplicationId=" + hostApplicationId
-                    File manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
+                    def manifestFile
+                    if (properties.get("androidGradlePluginVersion").startsWith("3")) {
+                        manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
+                    } else {
+                        manifestFile = new File(properties.get("manifestOutputFile").absolutePath)
+                    }
                     println "插件Manifest：" + manifestFile.absolutePath
                     def originManifestContent = manifestFile.getText('UTF-8')
                     def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest requiredHostVersionName=\""
