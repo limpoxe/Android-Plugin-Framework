@@ -126,7 +126,9 @@ afterEvaluate {
 
             baseVariant.processManifest.doLast {
 
-                println "$manifestOutputDirectory"
+                //android gradle3.+的属性
+                //println "$manifestOutputDirectory"
+
                 File manifestFile = new File(manifestFilePath)
 
                 println '正在检查Manifest中的插件配置是否正确' + manifestFile.absolutePath
@@ -183,14 +185,31 @@ afterEvaluate {
             processResourcesTask.doLast {
                 copy {
                     println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
-                    from processResourcesTask.resPackageOutputFolder
-                    into("${project.buildDir}/outputs/")
-                    rename(new Transformer<String, String>() {
-                        @Override
-                        String transform(String s) {
-                            return "resources.ap_"
-                        }
-                    })
+
+                    //println com.android.builder.Version.ANDROID_GRADLE_PLUGIN_VERSION
+                    //Android Gradle Plugin Version 3.x
+                    if (processResourcesTask.androidGradlePluginVersion.startsWith("3")) {
+                        println processResourcesTask.resPackageOutputFolder
+                        from processResourcesTask.resPackageOutputFolder
+                        into("${project.buildDir}/outputs/")
+                        rename(new Transformer<String, String>() {
+                            @Override
+                            String transform(String s) {
+                                return "resources.ap_"
+                            }
+                        })
+                    } else {
+                        //Android Gradle Plugin Version 2.x
+                        println processResourcesTask.packageOutputFile
+                        from processResourcesTask.packageOutputFile
+                        into("${project.buildDir}/outputs/")
+                        rename(new Transformer<String, String>() {
+                            @Override
+                            String transform(String s) {
+                                return "resources.ap_"
+                            }
+                        })
+                    }
                 }
             }
         }
@@ -221,15 +240,34 @@ afterEvaluate {
                     jarMerger.addJar(jarPath);
                     //jarMerger.addFolder(directoryInput.getFile());
                 }
-                File classes = new File(buildDir, 'intermediates/classes-jar/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/classes.jar");
+
+                String buildClassesTaskName1 = "jar" + varName.capitalize() +  "Classes";
+                String classesPath1 = 'intermediates/packaged/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/classes.jar";
+
+                String buildClassesTaskName2 = "bundleAppClasses" + varName.capitalize();
+                String classesPath2 = 'intermediates/classes-jar/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/classes.jar"
+
+                def buildClassesTaskName;
+                def classesPath;
+
+                if (tasks.getByName(buildClassesTaskName1)) {
+                    buildClassesTaskName = buildClassesTaskName1;
+                    classesPath = classesPath1;
+                } else if (tasks.getByName(buildClassesTaskName2)) {
+                    buildClassesTaskName = buildClassesTaskName2;
+                    classesPath = classesPath2;
+                }
+
+                File classes = new File(buildDir, classesPath);
 
                 println "classes path is " + classes.absolutePath
+                println "buildClassesTaskName is " + buildClassesTaskName
 
                 if (!classes.exists()) {
                     try {
-                        tasks.getByName("bundleAppClasses" + varName.capitalize()).execute()
+                        tasks.getByName(buildClassesTaskName).execute()
                     } catch(Exception e) {
-                        println "fail to create jar for task " + javaCompile.name + " " + "bundleAppClasses" + varName.capitalize()
+                        println "fail to create jar for task " + javaCompile.name + " " + buildClassesTaskName
                     }
                 } else {
                     println "classes path already exists： " + classes.absolutePath
