@@ -115,7 +115,7 @@ afterEvaluate {
 
             innerPluginApkList.each { innerAPK ->
                 if (!file(innerAPK).exists()) {
-                    throw new FileNotFoundException("文件不存在，请检查innerPlugin配置的路径是否正确：" + innerAPK)
+                    project.logger.error "引用的插件apk文件不存在，可能插件apk还未编译完成，或者宿主innerPlugin配置的路径错误：", innerAPK
                 }
             }
 

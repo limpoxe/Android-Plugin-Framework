@@ -25,19 +25,8 @@ import java.util.zip.*
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-def AndroidGradlePluginVersion = getPlugins().findPlugin("com.android.application").androidBuilder.createdBy
-
 configurations {
     baselinePatch
-
-    if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
-        compileOnly {
-            extendsFrom provided
-        }
-        implementation {
-            extendsFrom compile
-        }
-    }
 }
 
 //基线包路径
@@ -48,6 +37,22 @@ def hostClassesJar = host_patch_extract_dir + "/host_classes.jar"
 
 //基线包文件名
 def host_patch_fileName = "host.bar"
+
+
+def AndroidGradlePluginVersion = getPlugins().findPlugin("com.android.application").androidBuilder.createdBy
+def fairyMinifyEnabled = false
+
+dependencies {
+
+    if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
+        if (!fairyMinifyEnabled) {
+            provided files(hostClassesJar)
+        } else {
+            compile files(hostClassesJar)
+        }
+    }
+
+}
 
 //第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
 android.aaptOptions.additionalParameters('-I', host_patch_extract_dir + "/" + host_patch_fileName)
@@ -68,24 +73,26 @@ afterEvaluate {
                 host_patch_path = patch.absolutePath;
                 println project.name + "发现宿主基线配置指向位置：" + host_patch_path
 
-                //读取混淆开关配置
-                def fairyMinifyEnabled = false;
-                gradle.startParameter.taskNames.each { startTaskName ->
-                    if (startTaskName.startsWith("assemble")) {
-                        if (startTaskName.contains("Debug")) {
-                            fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
-                        } else if (startTaskName.contains("Release")) {
-                            fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
+                if (AndroidGradlePluginVersion.startsWith("Android Gradle 3")) {
+
+                    //读取混淆开关配置
+                    gradle.startParameter.taskNames.each { startTaskName ->
+                        if (startTaskName.startsWith("assemble")) {
+                            if (startTaskName.contains("Debug")) {
+                                fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
+                            } else if (startTaskName.contains("Release")) {
+                                fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
+                            }
                         }
                     }
-                }
 
-                //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
-                println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
-                if (!fairyMinifyEnabled) {
-                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
-                } else {
-                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
+                    //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
+                    println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
+                    if (!fairyMinifyEnabled) {
+                        configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
+                    } else {
+                        configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
+                    }
                 }
             }
         }
