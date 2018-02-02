@@ -112,6 +112,13 @@ afterEvaluate {
         mergeAssetsTask.setOnlyIf { true }
         mergeAssetsTask.outputs.upToDateWhen { false }
         mergeAssetsTask.doLast {
+
+            innerPluginApkList.each { innerAPK ->
+                if (!file(innerAPK).exists()) {
+                    throw new FileNotFoundException("文件不存在，请检查innerPlugin配置的路径是否正确：" + innerAPK)
+                }
+            }
+
             copy {
                 println '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + mergeAssetsTask.outputDir
                 from files(innerPluginApkList)

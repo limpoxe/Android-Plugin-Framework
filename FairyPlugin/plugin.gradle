@@ -25,14 +25,27 @@ import java.util.zip.*
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+def AndroidGradlePluginVersion = getPlugins().findPlugin("com.android.application").androidBuilder.createdBy
+
 configurations {
     baselinePatch
+
+    if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
+        compileOnly {
+            extendsFrom provided
+        }
+        implementation {
+            extendsFrom compile
+        }
+    }
 }
 
 //基线包路径
 def host_patch_path = ""
 //基线包解压路径
 def host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch'
+def hostClassesJar = host_patch_extract_dir + "/host_classes.jar"
+
 //基线包文件名
 def host_patch_fileName = "host.bar"
 
@@ -68,12 +81,11 @@ afterEvaluate {
                 }
 
                 //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
-                String hostClasses = host_patch_extract_dir + "/host_classes.jar"
-                println project.name + "添加宿主基线jar依赖：" + hostClasses + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
+                println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
                 if (!fairyMinifyEnabled) {
-                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClasses)))
+                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
                 } else {
-                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClasses)))
+                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
                 }
             }
         }
