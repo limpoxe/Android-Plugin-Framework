@@ -113,8 +113,13 @@ afterEvaluate {
                 into outputDir
             }
 
+            File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
+            def Properties props = new Properties()
+            props.load(new FileInputStream(propFile))
+            def hostBuildType = props.getProperty("host.buildType")
+
             //第二件事
-            applyThemePatch(buildTypeName, host_patch_extract_dir);
+            applyThemePatch(hostBuildType, buildTypeName, host_patch_extract_dir);
 
             //第三件事<一>
             File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildTypeName + "/values/values.xml");
@@ -151,6 +156,8 @@ afterEvaluate {
                     }
                 }
                 )
+            } else {
+                println "没有需要处理的DeclareStyle资源"
             }
         }
 
@@ -227,13 +234,19 @@ afterEvaluate {
                 def hostVersionName = null
                 def hostVersionCode = null
                 def hostApplicationId = null
+                def hostBuildType = null
+                def hostFlavorName = null
                 if (propFile.exists()) {
                     def Properties props = new Properties()
                     props.load(new FileInputStream(propFile))
                     hostVersionName = props.getProperty("host.versionName")
                     hostVersionCode = props.getProperty("host.versionCode")
+                    hostBuildType = props.getProperty("host.buildType")
+                    hostFlavorName = props.getProperty("host.flavorName")
                     hostApplicationId = props.getProperty("host.applicationId")
-                    println "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId
+
+                    println "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName
+
                 } else {
                     throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
                 }
@@ -525,16 +538,24 @@ public class ZipUtil {
     }
 }
 
-def applyThemePatch(buildTypeName, hostPatchExtractDir) {
+def applyThemePatch(hostBuildType, buildTypeName, hostPatchExtractDir) {
 
-    def fromDir = hostPatchExtractDir + "/theme_patch/" + buildTypeName;
+    def fromDir = hostPatchExtractDir + "/theme_patch/" + hostBuildType;
     def resourceDir = project.buildDir.absolutePath + "/intermediates/res/merged/" + buildTypeName;
+
+    if (!file(fromDir).exists()) {
+        throw new FileNotFoundException("Dir Not Found: " + fromDir);
+    }
+
+    if (!file(resourceDir).exists()) {
+        throw new FileNotFoundException("Dir Not Found: " + resourceDir);
+    }
 
     FileTree allxmlFiles = fileTree(dir: fromDir)
     allxmlFiles.include '*.xml'
 
     if (allxmlFiles.size() == 0) {
-        println "theme_patch目录未生成，请先编译宿主！！"
+        println fromDir + " 目录未生成，请先编译宿主！！"
         throw new FileNotFoundException("theme_patch目录未生成，请先编译宿主！！\n请检查这个目录：\n" + fromDir);
     }
 
@@ -547,7 +568,7 @@ def applyThemePatch(buildTypeName, hostPatchExtractDir) {
             dest = resourceDir +  '/' + itemFile.name.replace('patch_', '').replace('.xml', '')  + "/"
         }
 
-        println "apply from " + itemFile + " to " + dest
+        println "apply theme_patch from " + itemFile + " to " + dest
         copy {
             from(fromDir) {
                 include itemFile.name
