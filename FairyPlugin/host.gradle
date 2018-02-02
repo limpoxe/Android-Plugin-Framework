@@ -72,8 +72,14 @@ afterEvaluate {
         //第2件事
         mergeTask.doLast {
             String destPath = mergeTask.outputDir.absolutePath + '/values/';
+            //如果是通过本地路径引入的此脚本
             if (buildscript.sourceFile != null) {
                 println '编译宿主资源时插入' + buildscript.sourceFile.getParentFile().absolutePath + '/public.xml 到' + destPath + ', 用来控制宿主资源id分组'
+
+                if(!file(buildscript.sourceFile.getParentFile(), 'public.xml').exists()) {
+                    throw new FileNotFoundException("public.xml 文件未找到，请检查路径：" + (buildscript.sourceFile.getParentFile().absolutePath + '/public.xml'))
+                }
+
                 copy {
                     from(buildscript.sourceFile.getParentFile()) {
                         include 'public.xml'
