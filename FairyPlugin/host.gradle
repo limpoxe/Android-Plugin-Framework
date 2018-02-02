@@ -310,7 +310,7 @@ afterEvaluate {
                         } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
                             sourceHostObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
                         }
-                        def hostObfuscatedJar = "host_" + varName + "_obfuscated.jar"
+                        def hostObfuscatedJar = "host_obfuscated.jar"
                         println "导出混淆后的宿主jar " + sourceHostObfuscatedJar + " 包到 " + "${project.buildDir}/outputs/" + hostObfuscatedJar
 
                         copy {

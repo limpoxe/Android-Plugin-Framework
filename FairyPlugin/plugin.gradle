@@ -288,7 +288,7 @@ afterEvaluate {
 
                 println "混淆完成 " + varName.capitalize()
 
-                def host_obfuscated_jar = host_patch_extract_dir + "/host_" + varName + "_obfuscated.jar"
+                def host_obfuscated_jar = host_patch_extract_dir + "/host_obfuscated.jar"
                 if (!new File(host_obfuscated_jar).exists()) {
                     project.logger.error "宿主基线混淆包不存在 " + host_obfuscated_jar
                     throw new Exception("宿主基线混淆包不存在 " + host_obfuscated_jar + "， 请检查宿主编译产物中是否包含此文件")
@@ -305,17 +305,29 @@ afterEvaluate {
                     println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildTypeName + " " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
                     if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName)) {
                         isFind = true;
+                        def pluginObfuscatedJar = "plugin_obfuscated.jar"
+                        def sourcePluginObfuscatedJar
+                        if (new File(file.absolutePath + "/0.jar").exists()) {
+                            sourcePluginObfuscatedJar = file.absolutePath + "/0.jar"
+                        } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
+                            sourcePluginObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
+                        }
                         //保留一个备份
                         println "导出混淆后的插件jar包 "
-                        println "From " + file.absolutePath + "/0.jar" //此文件是proguard任务的固定输出目录，最新版文件名即是0.jar, 旧版叫main.jar
-                        println "To " + "${project.buildDir}/outputs/" + "plugin_" + varName + "_obfuscated.jar"
+                        println "From " + sourcePluginObfuscatedJar //此文件是proguard任务的固定输出目录，最新版文件名即是0.jar, 旧版叫main.jar
+                        println "To " + "${project.buildDir}/outputs/" + pluginObfuscatedJar
                         copy {
-                            from file.absolutePath + "/0.jar"
+                            from sourcePluginObfuscatedJar
                             into("${project.buildDir}/outputs/")
-                            rename('0', "plugin_" + varName + "_obfuscated")
+                            rename(new Transformer<String, String>() {
+                                @Override
+                                String transform(String s) {
+                                    return pluginObfuscatedJar
+                                }
+                            })
                         }
 
-                        diffJar(file.absolutePath + "/0.jar", host_obfuscated_jar, "plugin_" + varName + "_obfuscated");
+                        diffJar(sourcePluginObfuscatedJar, host_obfuscated_jar);
                     }
                 }
                 if (!isFind) {
@@ -327,7 +339,7 @@ afterEvaluate {
     }
 }
 
-def diffJar(String plugin, String host, String name) {
+def diffJar(String plugin, String host) {
 
 
     println "通过基线混淆包和插件混淆包做diff清理重复的class"
@@ -350,10 +362,15 @@ def diffJar(String plugin, String host, String name) {
     copy {
         println "备份diff后重新生成的插件的源包到插件out目录"
         println "From " + plugin
-        println "To " + "${project.buildDir}/outputs/" + name + "_after_diff.jar"
+        println "To " + "${project.buildDir}/outputs/plugin_obfuscated_after_diff.jar"
         from plugin
         into("${project.buildDir}/outputs/")
-        rename("0", name + "_after_diff")
+        rename(new Transformer<String, String>() {
+            @Override
+            String transform(String s) {
+                return "plugin_obfuscated_after_diff.jar"
+            }
+        })
     }
 }
 
