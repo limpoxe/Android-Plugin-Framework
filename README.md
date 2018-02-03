@@ -444,15 +444,20 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         
         //添加Provider桥接
         //Provider桥接的写法稍有不同
-        //1、将从插件Manifest复制过来的provider配置中的name都改为固定值：com.limpoxe.fairy.core.bridge.ProviderClientProxy
+        //1、将从插件Manifest复制过来的provider配置中的name都改为：com.limpoxe.fairy.core.bridge.ProviderClientProxy的子类
         //2、不需要添加STUB_EXACT的intent-filter
         //例如，将插件中定义的一个provider的authorities添加到宿主，使其支持外部应用直接访问：
         <provider
-            android:name="com.limpoxe.fairy.core.bridge.ProviderClientProxy"
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientProxy$Stub0"
             android:authorities="a.b.c.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
         </provider>
+        
+        有多个时不能重复，可使用
+            com.limpoxe.fairy.core.bridge.ProviderClientProxy$Stub0
+            com.limpoxe.fairy.core.bridge.ProviderClientProxy$Stub1
+        等等。
         
        可以参考demo        
 
