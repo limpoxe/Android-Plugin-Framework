@@ -25,6 +25,7 @@ import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.manager.PluginManagerProvider;
 import com.limpoxe.fairy.manager.mapping.PluginStubBinding;
 import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
@@ -193,6 +194,10 @@ public class AndroidAppIActivityManager extends MethodProxy {
             if (!ProcessUtil.isPluginProcess()) {
                 if (invokeResult == null) {
                     String auth = (String)args[1];
+                    LogUtil.d("auth", auth);
+                    if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
+                        return invokeResult;
+                    }
                     ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
                     for(PluginDescriptor pluginDescriptor : list) {
                         HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();

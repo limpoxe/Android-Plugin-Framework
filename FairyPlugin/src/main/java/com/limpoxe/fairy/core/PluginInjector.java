@@ -142,7 +142,7 @@ public class PluginInjector {
 
 				pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(activity.getClass().getName());
 				if(pluginDescriptor == null) {
-                    throw new PluginNotFoundError("未找到插件：" + activity.getClass().getName() + ", 插件未安装或已损坏");
+                    throw new PluginNotFoundError("未找到插件：" + activity.getClass().getName() + ", 插件未安装、或正在安装、或已损坏");
                 }
 
 				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
@@ -167,7 +167,7 @@ public class PluginInjector {
 					// 因此直接将这个Activity的Context也替换成插件的Context
 					pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
 					if(pluginDescriptor == null) {
-						throw new PluginNotFoundError("未找到插件：" + pluginId + ", 插件未安装或已损坏");
+						throw new PluginNotFoundError("未找到插件：" + pluginId + ", 插件未安装、或正在安装、或已损坏");
 					}
 
 					//插件可能尚未初始化，确保使用前已经初始化

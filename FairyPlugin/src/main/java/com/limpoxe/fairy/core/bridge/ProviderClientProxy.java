@@ -2,6 +2,8 @@ package com.limpoxe.fairy.core.bridge;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ public class ProviderClientProxy extends ContentProvider {
 
     @Override
     public boolean onCreate() {
+        LogUtil.d("onCreate called");
         return false;
     }
 
@@ -87,4 +90,22 @@ public class ProviderClientProxy extends ContentProvider {
         LogUtil.d("openFile", uri);
         return PluginManagerProviderClient.openFile(uri, mode);
     }
+
+    @Override
+    public void attachInfo(Context context, ProviderInfo info) {
+        LogUtil.d("attachInfo", info.authority, info.name);
+        super.attachInfo(context, info);
+    }
+
+    public static class Stub0 extends ProviderClientProxy {}
+    public static class Stub1 extends ProviderClientProxy {}
+    public static class Stub2 extends ProviderClientProxy {}
+    public static class Stub3 extends ProviderClientProxy {}
+    public static class Stub4 extends ProviderClientProxy {}
+    public static class Stub5 extends ProviderClientProxy {}
+    public static class Stub6 extends ProviderClientProxy {}
+    public static class Stub7 extends ProviderClientProxy {}
+    public static class Stub8 extends ProviderClientProxy {}
+    public static class Stub9 extends ProviderClientProxy {}
+
 }
