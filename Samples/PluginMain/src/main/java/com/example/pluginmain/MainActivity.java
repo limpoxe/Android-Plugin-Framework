@@ -213,6 +213,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //MobclickAgent.onEvent(MainActivity.this, "test_3");
                 startActivity(new Intent(MainActivity.this, TestCaseListActivity.class));
+
+                testProvider();
             }
         });
 	}
@@ -342,13 +344,12 @@ public class MainActivity extends AppCompatActivity {
 		//FileUtil.printAll(new File(getApplicationInfo().dataDir));
 
         //MobclickAgent.onResume(this);
-
-        //testProvider();
 	}
 
+    /**
+     * 测试在宿主中调用插件的conentProvider
+     */
 	private void testProvider() {
-
-        //测试在宿主中调用插件的conentProvider,
         //因为目标在插件中，所以要先判断插件是否已经安装
         boolean isInstalled = PluginManager.isInstalled("com.example.plugintest");
         boolean isRunning = PluginManager.isRunning("com.example.plugintest");
