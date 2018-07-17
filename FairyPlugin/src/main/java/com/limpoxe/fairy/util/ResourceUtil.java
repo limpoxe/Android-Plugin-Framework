@@ -88,7 +88,7 @@ public class ResourceUtil {
         }
         if (idHex != null) {
             try {
-                int id = Integer.parseInt(idHex, 16);
+                int id = (int)Long.parseLong(idHex, 16);
                 return id;
             } catch (Exception e) {
                 LogUtil.printException("ResourceUtil.parseResId", e);
