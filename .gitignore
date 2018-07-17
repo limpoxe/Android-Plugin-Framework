@@ -11,3 +11,4 @@ build
 /captures
 .settings
 build-cache
+build-cache.lock
