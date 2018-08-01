@@ -81,8 +81,9 @@ public class PluginCreator {
 						absolutePluginApkPath, dependencies);
 				AssetManager assetMgr = AssetManager.class.newInstance();
 				HackAssetManager hackAssetManager = new HackAssetManager(assetMgr);
-				hackAssetManager.addAssetPaths(assetPaths);
-
+				for(String path : assetPaths) {
+					hackAssetManager.addAssetPath(path);
+				}
 				// Kitkat needs this method call, Lollipop doesn't. However, it doesn't seem to cause any harm
 				// in L, so we do it unconditionally.
 				hackAssetManager.ensureStringBlocks();

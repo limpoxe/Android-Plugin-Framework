@@ -52,7 +52,7 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
         PluginActivityInfo info = pluginDescriptor.getActivityInfos().get(pluginActivityClassName);
 
         HashMap<String, String> bindingMapping = null;
-        int launchMode = Integer.parseInt(info.getLaunchMode());
+        int launchMode = (int)Long.parseLong(info.getLaunchMode());
 
         if (launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
 
@@ -96,7 +96,7 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                 }
             }
 
-            if (info.getScreenOrientation() != null && Integer.parseInt(info.getScreenOrientation()) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            if (info.getScreenOrientation() != null && (int)Long.parseLong(info.getScreenOrientation()) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
                 return standardLandspaceActivity;
             }
 

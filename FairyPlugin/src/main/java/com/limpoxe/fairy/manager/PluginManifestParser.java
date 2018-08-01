@@ -225,7 +225,7 @@ public class PluginManifestParser {
                             pluginActivityInfo.setWindowSoftInputMode(windowSoftInputMode);
                             pluginActivityInfo.setUiOptions(uiOptions);
                             if (configChanges != null) {
-                                pluginActivityInfo.setConfigChanges(Integer.parseInt(configChanges.replace("0x", ""), 16));
+                                pluginActivityInfo.setConfigChanges((int)Long.parseLong(configChanges.replace("0x", ""), 16));
                             }
                             pluginActivityInfo.setUseHostPackageName("true".equals(useHostPackageName));
 

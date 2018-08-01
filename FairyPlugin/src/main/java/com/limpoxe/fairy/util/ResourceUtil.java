@@ -31,7 +31,7 @@ public class ResourceUtil {
 
         if (idHex != null) {
             try {
-                int id = Integer.parseInt(idHex, 16);
+                int id = (int)Long.parseLong(idHex, 16);
                 //此时context可能还没有初始化
                 if (pluginContext != null) {
                     String des = pluginContext.getString(id);
@@ -56,7 +56,7 @@ public class ResourceUtil {
 
         if (idHex != null) {
             try {
-                int id = Integer.parseInt(idHex, 16);
+                int id = (int)Long.parseLong(idHex, 16);
                 //此时context可能还没有初始化
                 if (pluginContext != null) {
                     return pluginContext.getResources().getBoolean(id);

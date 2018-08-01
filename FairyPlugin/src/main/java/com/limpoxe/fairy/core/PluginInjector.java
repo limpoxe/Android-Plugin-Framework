@@ -269,15 +269,15 @@ public class PluginInjector {
 			activity.getWindow().getAttributes().packageName = FairyGlobal.getHostApplication().getPackageName();
 
 			if (null != pluginActivityInfo.getWindowSoftInputMode()) {
-				activity.getWindow().setSoftInputMode(Integer.parseInt(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
+				activity.getWindow().setSoftInputMode((int)Long.parseLong(pluginActivityInfo.getWindowSoftInputMode().replace("0x", ""), 16));
 			}
 			if (Build.VERSION.SDK_INT >= 14) {
 				if (null != pluginActivityInfo.getUiOptions()) {
-					activity.getWindow().setUiOptions(Integer.parseInt(pluginActivityInfo.getUiOptions().replace("0x", ""), 16));
+					activity.getWindow().setUiOptions((int)Long.parseLong(pluginActivityInfo.getUiOptions().replace("0x", ""), 16));
 				}
 			}
 			if (null != pluginActivityInfo.getScreenOrientation()) {
-				int orientation = Integer.parseInt(pluginActivityInfo.getScreenOrientation());
+				int orientation = (int)Long.parseLong(pluginActivityInfo.getScreenOrientation());
 				//noinspection ResourceType
 				if (orientation != activityInfo.screenOrientation && !activity.isChild()) {
 					//noinspection ResourceType
