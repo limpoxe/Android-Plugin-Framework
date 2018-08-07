@@ -32,6 +32,7 @@ import com.limpoxe.fairy.core.android.HackService;
 import com.limpoxe.fairy.core.android.HackWindow;
 import com.limpoxe.fairy.core.annotation.AnnotationProcessor;
 import com.limpoxe.fairy.core.annotation.PluginContainer;
+import com.limpoxe.fairy.core.compat.CompatForAppComponentFactoryApi28;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7_23_2;
 import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginNotInitError;
@@ -423,6 +424,31 @@ public class PluginInjector {
 						originalLoader);
 				hackLoadedApk.setClassLoader(newLoader);
 			}
+		} else {
+			LogUtil.e("What!!Why?");
+		}
+	}
+
+	public static void injectAppComponentFactory() {
+		if (Build.VERSION.SDK_INT < 28) {
+			return;
+		}
+		LogUtil.v("hackHostClassLoaderIfNeeded");
+
+		HackApplication hackApplication = new HackApplication(FairyGlobal.getHostApplication());
+		Object mLoadedApk = hackApplication.getLoadedApk();
+		if (mLoadedApk == null) {
+			//重试一次
+			mLoadedApk = hackApplication.getLoadedApk();
+		}
+		if(mLoadedApk == null) {
+			//换个方式再试一次
+			mLoadedApk = HackActivityThread.getLoadedApk();
+		}
+		if (mLoadedApk != null) {
+			HackLoadedApk hackLoadedApk = new HackLoadedApk(mLoadedApk);
+			//Android-P提供了组件钩子，用来拓展组件初始化流程
+			hackLoadedApk.setAppComponentFactory(new CompatForAppComponentFactoryApi28(hackLoadedApk.getAppComponentFactory()));
 		} else {
 			LogUtil.e("What!!Why?");
 		}

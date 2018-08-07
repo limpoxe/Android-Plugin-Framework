@@ -86,6 +86,7 @@ public class PluginLoader {
         PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
         PluginInjector.injectInstrumentation();
         PluginInjector.injectBaseContext(FairyGlobal.getHostApplication());
+        PluginInjector.injectAppComponentFactory();
 
         if (isPluginProcess) {
             if (Build.VERSION.SDK_INT >= 14) {

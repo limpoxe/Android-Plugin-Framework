@@ -1068,22 +1068,22 @@ public class PluginIntentFilter implements Serializable {
         return dataMatch;
     }
 
-    public void readFromXml(String tagName, XmlPullParser parser) throws XmlPullParserException,
+    public void readFromXml(String tagName, String nameSpace, XmlPullParser parser) throws XmlPullParserException,
             IOException {
     	
             if (tagName.equals(ACTION_STR)) {
-                String name = parser.getAttributeValue(null, NAME_STR);
+                String name = parser.getAttributeValue(nameSpace, NAME_STR);
                 if (name != null) {
                     addAction(name);
                 }
             } else if (tagName.equals(CAT_STR)) {
-                String name = parser.getAttributeValue(null, NAME_STR);
+                String name = parser.getAttributeValue(nameSpace, NAME_STR);
                 if (name != null) {
                     addCategory(name);
                 }
             } else if (tagName.equals("data")) {
             	
-            	String name = parser.getAttributeValue(null, TYPE_STR);
+            	String name = parser.getAttributeValue(nameSpace, TYPE_STR);
                 if (name != null) {
                     try {
                         addDataType(name);
@@ -1091,7 +1091,7 @@ public class PluginIntentFilter implements Serializable {
                     }
                 }
                 
-                name = parser.getAttributeValue(null, SCHEME_STR);
+                name = parser.getAttributeValue(nameSpace, SCHEME_STR);
                 if (name != null) {
                     addDataScheme(name);
                 }
@@ -1106,19 +1106,19 @@ public class PluginIntentFilter implements Serializable {
 //                }
             
                 //AUTH_STR
-                String host = parser.getAttributeValue(null, HOST_STR);
-                String port = parser.getAttributeValue(null, PORT_STR);
+                String host = parser.getAttributeValue(nameSpace, HOST_STR);
+                String port = parser.getAttributeValue(nameSpace, PORT_STR);
                 if (host != null) {
                     addDataAuthority(host, port);
                 }
             
                 //PATH_STR
-                String path = parser.getAttributeValue(null, LITERAL_STR);
+                String path = parser.getAttributeValue(nameSpace, LITERAL_STR);
                 if (path != null) {
                     addDataPath(path, PluginPatternMatcher.PATTERN_LITERAL);
-                } else if ((path=parser.getAttributeValue(null, PREFIX_STR)) != null) {
+                } else if ((path=parser.getAttributeValue(nameSpace, PREFIX_STR)) != null) {
                     addDataPath(path, PluginPatternMatcher.PATTERN_PREFIX);
-                } else if ((path=parser.getAttributeValue(null, SGLOB_STR)) != null) {
+                } else if ((path=parser.getAttributeValue(nameSpace, SGLOB_STR)) != null) {
                     addDataPath(path, PluginPatternMatcher.PATTERN_SIMPLE_GLOB);
                 } 
             } else {
