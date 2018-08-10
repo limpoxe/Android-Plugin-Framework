@@ -453,7 +453,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             activityInfo.launchMode = Integer.valueOf(detail.getLaunchMode());
             activityInfo.theme = ResourceUtil.parseResId(detail.getTheme());
             if (detail.getUiOptions() != null) {
-                activityInfo.uiOptions = Integer.parseInt(detail.getUiOptions().replace("0x", ""), 16);
+                activityInfo.uiOptions = (int)Long.parseLong(detail.getUiOptions().replace("0x", ""), 16);
             }
             activityInfo.configChanges = detail.getConfigChanges();
         }

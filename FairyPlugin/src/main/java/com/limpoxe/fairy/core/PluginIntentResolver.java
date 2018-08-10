@@ -122,6 +122,7 @@ public class PluginIntentResolver {
 
                     // HostClassLoader检测到这个特殊标记后会进行替换，得到真实的className
                     intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER + realReceiverClassName));
+                    hackReceiverData.getInfo().name = intent.getComponent().getClassName();
 
                     //v0.0.58以后4.x的系统上需要setIntent，否则反序列化对象可能出现classloader问题
                     //if (Build.VERSION.SDK_INT >= 21) {
@@ -192,7 +193,7 @@ public class PluginIntentResolver {
 			PluginActivityInfo pluginActivityInfo = pluginDescriptor.getActivityInfos().get(className);
 
 			String stubActivityName = PluginManagerProviderClient.bindStubActivity(className,
-					Integer.parseInt(pluginActivityInfo.getLaunchMode()),
+                    (int)Long.parseLong(pluginActivityInfo.getLaunchMode()),
 					pluginDescriptor.getPackageName(),
 					pluginActivityInfo.getTheme(),
                     pluginActivityInfo.getScreenOrientation());
@@ -200,7 +201,7 @@ public class PluginIntentResolver {
             if (stubActivityName == null) {
                 LogUtil.e("绑定StubAtivity失败",
                         className,
-                        Integer.parseInt(pluginActivityInfo.getLaunchMode()),
+                        (int)Long.parseLong(pluginActivityInfo.getLaunchMode()),
                         pluginDescriptor.getPackageName(),
                         pluginActivityInfo.getTheme(),
                         pluginActivityInfo.getScreenOrientation());

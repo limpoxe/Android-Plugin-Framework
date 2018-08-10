@@ -31,7 +31,7 @@ public class ResourceUtil {
 
         if (idHex != null) {
             try {
-                int id = Integer.parseInt(idHex, 16);
+                int id = (int)Long.parseLong(idHex, 16);
                 //此时context可能还没有初始化
                 if (pluginContext != null) {
                     String des = pluginContext.getString(id);
@@ -56,7 +56,7 @@ public class ResourceUtil {
 
         if (idHex != null) {
             try {
-                int id = Integer.parseInt(idHex, 16);
+                int id = (int)Long.parseLong(idHex, 16);
                 //此时context可能还没有初始化
                 if (pluginContext != null) {
                     return pluginContext.getResources().getBoolean(id);
@@ -88,7 +88,7 @@ public class ResourceUtil {
         }
         if (idHex != null) {
             try {
-                int id = Integer.parseInt(idHex, 16);
+                int id = (int)Long.parseLong(idHex, 16);
                 return id;
             } catch (Exception e) {
                 LogUtil.printException("ResourceUtil.parseResId", e);
@@ -190,5 +190,26 @@ public class ResourceUtil {
 
         throw new RuntimeException("Failed to rewrite resource references for " + packageName,
                 cause);
+    }
+
+    public static String covent2Hex(String resId) {
+        if (resId == null) {
+            return null;
+        }
+        if (resId.startsWith("@")) {
+            if (resId.contains(":")) {
+                String[] idStr = resId.split(":");
+                //size一定等于2，不等于2的情况我也管不着啦
+                idStr[1] = Long.toHexString(Long.parseLong(idStr[1]) & 0xFFFFFFFFL);
+                return idStr[0] + ":" + idStr[1];
+            } else {
+                String[] idStr = resId.split("@");
+                //size一定等于2，不等于2的情况我也管不着啦
+                idStr[1] = Long.toHexString(Long.parseLong(idStr[1]) & 0xFFFFFFFFL);
+                return "@" + idStr[1];
+            }
+        } else {
+            return resId;
+        }
     }
 }

@@ -265,10 +265,10 @@ public class PluginDescriptor implements Serializable {
 					if (resId.contains(":")) {
 						String[] names = resId.split(":");
 						packageName = names[0].replace("@", "");
-						id = Integer.parseInt(names[1], 16);
+						id = (int)Long.parseLong(names[1], 16);
 					} else {
 						packageName = descriptor.getPackageName();
-						id = Integer.parseInt(resId.replace("@", ""), 16);
+						id = (int)Long.parseLong(resId.replace("@", ""), 16);
 					}
 
 					Resources resources = null;
