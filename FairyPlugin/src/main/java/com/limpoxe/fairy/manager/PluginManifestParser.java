@@ -110,7 +110,7 @@ public class PluginManifestParser {
 
                                 if (value != null && value.startsWith("@")) {
                                     //等插件初始化的时候再处理这类meta信息
-                                    desciptor.getMetaDataTobeInflate().put(name, value);
+                                    desciptor.getMetaDataTobeInflate().put(name, ResourceUtil.covent2Hex(value));
                                 } else if (value != null) {
                                     desciptor.getMetaDataString().put(name, ResourceUtil.covent2Hex(value));
                                 } else if (resource != null && resource.startsWith("@")) {

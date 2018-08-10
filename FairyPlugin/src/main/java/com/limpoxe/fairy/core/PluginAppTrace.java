@@ -228,7 +228,7 @@ public class PluginAppTrace implements Handler.Callback {
 		public static final int DUMP_SERVICE            = 123;
 		public static final int LOW_MEMORY              = 124;
 		public static final int ACTIVITY_CONFIGURATION_CHANGED = 125;
-		public static final int RELAUNCH_ACTIVITY       = 126;
+
 		public static final int PROFILER_CONTROL        = 127;
 		public static final int CREATE_BACKUP_AGENT     = 128;
 		public static final int DESTROY_BACKUP_AGENT    = 129;
@@ -257,106 +257,55 @@ public class PluginAppTrace implements Handler.Callback {
 		public static final int LOCAL_VOICE_INTERACTION_STARTED = 154;
 		public static final int ATTACH_AGENT = 155;
 		public static final int APPLICATION_INFO_CHANGED = 156;
-		public static final int ACTIVITY_MOVED_TO_DISPLAY = 157;
+        public static final int ACTIVITY_MOVED_TO_DISPLAY = 157;
+		public static final int RUN_ISOLATED_ENTRY_POINT = 158;
+		public static final int EXECUTE_TRANSACTION = 159;
+		public static final int RELAUNCH_ACTIVITY = 160;
+
 
 		public static String codeToString(int code) {
 			switch (code) {
-			case LAUNCH_ACTIVITY:
-				return "LAUNCH_ACTIVITY";
-			case PAUSE_ACTIVITY:
-				return "PAUSE_ACTIVITY";
-			case PAUSE_ACTIVITY_FINISHING:
-				return "PAUSE_ACTIVITY_FINISHING";
-			case STOP_ACTIVITY_SHOW:
-				return "STOP_ACTIVITY_SHOW";
-			case STOP_ACTIVITY_HIDE:
-				return "STOP_ACTIVITY_HIDE";
-			case SHOW_WINDOW:
-				return "SHOW_WINDOW";
-			case HIDE_WINDOW:
-				return "HIDE_WINDOW";
-			case RESUME_ACTIVITY:
-				return "RESUME_ACTIVITY";
-			case SEND_RESULT:
-				return "SEND_RESULT";
-			case DESTROY_ACTIVITY:
-				return "DESTROY_ACTIVITY";
-			case BIND_APPLICATION:
-				return "BIND_APPLICATION";
-			case EXIT_APPLICATION:
-				return "EXIT_APPLICATION";
-			case NEW_INTENT:
-				return "NEW_INTENT";
-			case RECEIVER:
-				return "RECEIVER";
-			case CREATE_SERVICE:
-				return "CREATE_SERVICE";
-			case SERVICE_ARGS:
-				return "SERVICE_ARGS";
-			case STOP_SERVICE:
-				return "STOP_SERVICE";
-			case CONFIGURATION_CHANGED:
-				return "CONFIGURATION_CHANGED";
-			case CLEAN_UP_CONTEXT:
-				return "CLEAN_UP_CONTEXT";
-			case GC_WHEN_IDLE:
-				return "GC_WHEN_IDLE";
-			case BIND_SERVICE:
-				return "BIND_SERVICE";
-			case UNBIND_SERVICE:
-				return "UNBIND_SERVICE";
-			case DUMP_SERVICE:
-				return "DUMP_SERVICE";
-			case LOW_MEMORY:
-				return "LOW_MEMORY";
-			case ACTIVITY_CONFIGURATION_CHANGED:
-				return "ACTIVITY_CONFIGURATION_CHANGED";
-			case RELAUNCH_ACTIVITY:
-				return "RELAUNCH_ACTIVITY";
-			case PROFILER_CONTROL:
-				return "PROFILER_CONTROL";
-			case CREATE_BACKUP_AGENT:
-				return "CREATE_BACKUP_AGENT";
-			case DESTROY_BACKUP_AGENT:
-				return "DESTROY_BACKUP_AGENT";
-			case SUICIDE:
-				return "SUICIDE";
-			case REMOVE_PROVIDER:
-				return "REMOVE_PROVIDER";
-			case ENABLE_JIT:
-				return "ENABLE_JIT";
-			case DISPATCH_PACKAGE_BROADCAST:
-				return "DISPATCH_PACKAGE_BROADCAST";
-			case SCHEDULE_CRASH:
-				return "SCHEDULE_CRASH";
-			case DUMP_HEAP:
-				return "DUMP_HEAP";
-			case DUMP_ACTIVITY:
-				return "DUMP_ACTIVITY";
-			case SLEEPING:
-				return "SLEEPING";
-			case SET_CORE_SETTINGS:
-				return "SET_CORE_SETTINGS";
-			case UPDATE_PACKAGE_COMPATIBILITY_INFO:
-				return "UPDATE_PACKAGE_COMPATIBILITY_INFO";
-			case TRIM_MEMORY:
-				return "TRIM_MEMORY";
-			case DUMP_PROVIDER:
-				return "DUMP_PROVIDER";
-			case UNSTABLE_PROVIDER_DIED:
-				return "UNSTABLE_PROVIDER_DIED";
-			case REQUEST_ASSIST_CONTEXT_EXTRAS:
-				return "REQUEST_ASSIST_CONTEXT_EXTRAS";
-			case TRANSLUCENT_CONVERSION_COMPLETE:
-				return "TRANSLUCENT_CONVERSION_COMPLETE";
-			case INSTALL_PROVIDER:
-				return "INSTALL_PROVIDER";
-			case ON_NEW_ACTIVITY_OPTIONS:
-				return "ON_NEW_ACTIVITY_OPTIONS";
-			case ENTER_ANIMATION_COMPLETE:
-				return "ENTER_ANIMATION_COMPLETE";
+				case BIND_APPLICATION: return "BIND_APPLICATION";
+				case EXIT_APPLICATION: return "EXIT_APPLICATION";
+				case RECEIVER: return "RECEIVER";
+				case CREATE_SERVICE: return "CREATE_SERVICE";
+				case SERVICE_ARGS: return "SERVICE_ARGS";
+				case STOP_SERVICE: return "STOP_SERVICE";
+				case CONFIGURATION_CHANGED: return "CONFIGURATION_CHANGED";
+				case CLEAN_UP_CONTEXT: return "CLEAN_UP_CONTEXT";
+				case GC_WHEN_IDLE: return "GC_WHEN_IDLE";
+				case BIND_SERVICE: return "BIND_SERVICE";
+				case UNBIND_SERVICE: return "UNBIND_SERVICE";
+				case DUMP_SERVICE: return "DUMP_SERVICE";
+				case LOW_MEMORY: return "LOW_MEMORY";
+				case PROFILER_CONTROL: return "PROFILER_CONTROL";
+				case CREATE_BACKUP_AGENT: return "CREATE_BACKUP_AGENT";
+				case DESTROY_BACKUP_AGENT: return "DESTROY_BACKUP_AGENT";
+				case SUICIDE: return "SUICIDE";
+				case REMOVE_PROVIDER: return "REMOVE_PROVIDER";
+				case ENABLE_JIT: return "ENABLE_JIT";
+				case DISPATCH_PACKAGE_BROADCAST: return "DISPATCH_PACKAGE_BROADCAST";
+				case SCHEDULE_CRASH: return "SCHEDULE_CRASH";
+				case DUMP_HEAP: return "DUMP_HEAP";
+				case DUMP_ACTIVITY: return "DUMP_ACTIVITY";
+				case SLEEPING: return "SLEEPING";
+				case SET_CORE_SETTINGS: return "SET_CORE_SETTINGS";
+				case UPDATE_PACKAGE_COMPATIBILITY_INFO: return "UPDATE_PACKAGE_COMPATIBILITY_INFO";
+				case DUMP_PROVIDER: return "DUMP_PROVIDER";
+				case UNSTABLE_PROVIDER_DIED: return "UNSTABLE_PROVIDER_DIED";
+				case REQUEST_ASSIST_CONTEXT_EXTRAS: return "REQUEST_ASSIST_CONTEXT_EXTRAS";
+				case TRANSLUCENT_CONVERSION_COMPLETE: return "TRANSLUCENT_CONVERSION_COMPLETE";
+				case INSTALL_PROVIDER: return "INSTALL_PROVIDER";
+				case ON_NEW_ACTIVITY_OPTIONS: return "ON_NEW_ACTIVITY_OPTIONS";
+				case ENTER_ANIMATION_COMPLETE: return "ENTER_ANIMATION_COMPLETE";
+				case LOCAL_VOICE_INTERACTION_STARTED: return "LOCAL_VOICE_INTERACTION_STARTED";
+				case ATTACH_AGENT: return "ATTACH_AGENT";
+				case APPLICATION_INFO_CHANGED: return "APPLICATION_INFO_CHANGED";
+				case RUN_ISOLATED_ENTRY_POINT: return "RUN_ISOLATED_ENTRY_POINT";
+				case EXECUTE_TRANSACTION: return "EXECUTE_TRANSACTION";
+				case RELAUNCH_ACTIVITY: return "RELAUNCH_ACTIVITY";
 			}
-			return "(unknown: " + code +")";
+            return "(unknown: " + code +")";
 		}
 	}
 

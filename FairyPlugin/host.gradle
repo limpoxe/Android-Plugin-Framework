@@ -580,6 +580,10 @@ public class ThemeProcessor extends DefaultHandler {
                     //    text = text.replace("?attr", "?*" + packageName +":attr");
                 } else if (text.startsWith("@mipmap")) {
                     text = text.replace("@mipmap", "@*" + packageName +":mipmap");
+                } else if (text.startsWith("@style")) {
+                    if (node.name.equals("android:windowAnimationStyle")) {
+                        text = text.replace("@style", "@*" + packageName +":style");
+                    }
                 }
 
                 outXmlStream.write(text);

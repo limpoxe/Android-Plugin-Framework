@@ -6,15 +6,13 @@ import android.content.res.Resources;
 
 import com.limpoxe.fairy.util.LogUtil;
 
-import dalvik.system.DexClassLoader;
-
 /**
  * Created by cailiming on 16/3/9.
  *
  */
 public class LoadedPlugin {
 
-    public final DexClassLoader pluginClassLoader;
+    public final ClassLoader pluginClassLoader;
     public final Context pluginContext;
     public final Resources pluginResource;
 
@@ -26,7 +24,7 @@ public class LoadedPlugin {
     public LoadedPlugin(String packageName,
                         String pluginSourceDir,
                         Context pluginContext,
-                        DexClassLoader pluginClassLoader) {
+                        ClassLoader pluginClassLoader) {
         this.pluginPackageName = packageName;
         this.pluginSourceDir = pluginSourceDir;
         this.pluginContext = pluginContext;

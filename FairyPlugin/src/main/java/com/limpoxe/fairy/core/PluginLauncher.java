@@ -40,10 +40,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import dalvik.system.DexClassLoader;
 
 /**
  * <Pre>
@@ -108,7 +106,7 @@ public class PluginLauncher implements Serializable {
 			long t1 = System.currentTimeMillis();
 			LogUtil.i("初始化插件资源耗时:" + (t1 - startAt));
 
-			DexClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
+			ClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
 							pluginDescriptor.getInstalledPath(),
 							pluginDescriptor.isStandalone(),
 							pluginDescriptor.getDependencies(),
@@ -166,7 +164,7 @@ public class PluginLauncher implements Serializable {
 		return plugin;
 	}
 
-	private void initApplication(Context pluginContext, DexClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
+	private void initApplication(Context pluginContext, ClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
 
 		LogUtil.i("开始初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName());
 
@@ -192,7 +190,7 @@ public class PluginLauncher implements Serializable {
 		LogUtil.w("初始化插件" + pluginDescriptor.getPackageName() + "完成");
 	}
 
-	private Application callPluginApplicationOnCreate(Context pluginContext, DexClassLoader classLoader, PluginDescriptor pluginDescriptor) {
+	private Application callPluginApplicationOnCreate(Context pluginContext, ClassLoader classLoader, PluginDescriptor pluginDescriptor) {
 
 		Application pluginApplication = null;
 

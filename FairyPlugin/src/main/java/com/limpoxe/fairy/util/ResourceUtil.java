@@ -201,15 +201,27 @@ public class ResourceUtil {
                 String[] idStr = resId.split(":");
                 //size一定等于2，不等于2的情况我也管不着啦
                 idStr[1] = Long.toHexString(Long.parseLong(idStr[1]) & 0xFFFFFFFFL);
-                return idStr[0] + ":" + idStr[1];
+                return idStr[0] + ":" + lengthAlign(idStr[1]);
             } else {
                 String[] idStr = resId.split("@");
                 //size一定等于2，不等于2的情况我也管不着啦
                 idStr[1] = Long.toHexString(Long.parseLong(idStr[1]) & 0xFFFFFFFFL);
-                return "@" + idStr[1];
+                return "@" + lengthAlign(idStr[1]);
             }
         } else {
             return resId;
         }
+    }
+
+    private static String lengthAlign(String idStr) {
+        if (idStr.length() < 8) {//PPTTNNNN
+            int pad = 8 - idStr.length();
+            String fill = "";
+            for(int i = 0; i < pad; i++) {
+                fill = fill + "0";
+            }
+            idStr = fill + idStr;
+        }
+        return idStr;
     }
 }

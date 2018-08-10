@@ -14,8 +14,6 @@ import com.limpoxe.fairy.util.LogUtil;
 import java.io.File;
 import java.util.List;
 
-import dalvik.system.DexClassLoader;
-
 public class PluginCreator {
 
 	private PluginCreator() {
@@ -28,7 +26,7 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static DexClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
+	public static ClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
 														 String[] dependences, List<String> pluginApkMultDexPath) {
 
 		String apkParentDir = new File(absolutePluginApkPath).getParent();
@@ -208,7 +206,7 @@ public class PluginCreator {
 	 * @return
 	 */
 	public static Context createPluginContext(PluginDescriptor pluginDescriptor, Context base, Resources pluginRes,
-												  DexClassLoader pluginClassLoader) {
+												  ClassLoader pluginClassLoader) {
 		return new PluginContextTheme(pluginDescriptor, base, pluginRes, pluginClassLoader);
 	}
 
@@ -247,7 +245,7 @@ public class PluginCreator {
         if (pluginContext != null) {
             newContext = (PluginContextTheme)PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
                     base, pluginContext.getResources(),
-                    (DexClassLoader) pluginContext.getClassLoader());
+                    (ClassLoader) pluginContext.getClassLoader());
 
             newContext.setPluginApplication((Application) ((PluginContextTheme) pluginContext).getApplicationContext());
 
