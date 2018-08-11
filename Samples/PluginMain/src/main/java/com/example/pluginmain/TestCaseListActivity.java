@@ -1,12 +1,14 @@
 package com.example.pluginmain;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -131,15 +133,22 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void testNotification() {
+        NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder;
-        mBuilder = new NotificationCompat.Builder(this);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("111", "CN111", NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(channel);
+            mBuilder = new NotificationCompat.Builder(this, "111");
+        } else {
+            mBuilder = new NotificationCompat.Builder(this);
+        }
+
         mBuilder.setSmallIcon(R.drawable.ic_launcher);
         mBuilder.setContentTitle("插件框架Title").setContentText("插件框架Content")
                 .setTicker("插件框架Ticker");
         Notification mNotification = mBuilder.build();
         mNotification.flags = Notification.FLAG_ONGOING_EVENT;
         //mBuilder.setContentIntent()
-        NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         LogUtil.e("NotificationManager.notify");
         mNotificationManager.notify(456, mNotification);
     }

@@ -11,6 +11,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.example.plugintest.provider.PluginDbTables.PluginFirstTable;
@@ -143,7 +144,9 @@ public class PluginTestProvider extends ContentProvider {
 		long rowId = db.insert(TABLE_NAME, nullColumnHack, values);
 		if (rowId > 0) {
 			Uri returnUri = ContentUris.withAppendedId(uri, rowId);
-			getContext().getContentResolver().notifyChange(returnUri, null);
+			if (Build.VERSION.SDK_INT < 28) {
+				getContext().getContentResolver().notifyChange(returnUri, null);
+			}
 			return returnUri;
 		}
 		throw new SQLException("Failed to insert row into " + uri);

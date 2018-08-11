@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -17,12 +18,14 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
@@ -62,6 +65,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import butterknife.BindView;
@@ -223,15 +227,23 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void testNotification() {
-        NotificationCompat.Builder mBuilder;
-        mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setSmallIcon(com.example.pluginmain.R.drawable.ic_launcher);
-        mBuilder.setContentTitle("PluginTest Title").setContentText("PluginTest Content")
+		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
+		NotificationCompat.Builder builder = null;
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationChannel channel = new NotificationChannel("111", "CN111", NotificationManager.IMPORTANCE_HIGH);
+			mNotificationManager.createNotificationChannel(channel);
+			builder = new NotificationCompat.Builder(this, "111");
+		} else {
+			builder = new NotificationCompat.Builder(this);
+		}
+
+		builder.setSmallIcon(com.example.pluginmain.R.drawable.ic_launcher);
+		builder.setContentTitle("PluginTest Title").setContentText("PluginTest Content")
                 .setTicker("PluginTest Ticker");
-        Notification mNotification = mBuilder.build();
+        Notification mNotification = builder.build();
         mNotification.flags = Notification.FLAG_ONGOING_EVENT;
         //mBuilder.setContentIntent()
-        NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         LogUtil.e("NotificationManager.notify");
         mNotificationManager.notify(123, mNotification);
     }
@@ -355,6 +367,9 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		intent.putExtra("outputX", 80);
 		intent.putExtra("outputY", 80);
 		intent.putExtra("return-data", false);
+		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File("/storage/emulated/0/Pictures/Screenshots/", System.currentTimeMillis() + "_crop.png")));
+
 		startActivityForResult(intent, 111);
 	}
 
@@ -674,8 +689,28 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+		// return-data = true; bitmap = data.getExtras().getParcelable("data")
+		// return-data = false; String path = data.getData().getPath();
 
         LogUtil.d("onActivityResult", requestCode, resultCode);
+
+        if (resultCode == RESULT_OK && requestCode == 111) {
+        	try {
+        		Uri uri = null;
+        		File cropFile = null;
+        		if (Build.VERSION.SDK_INT == 28) {//9.0
+        			uri = data.getData();
+				} else if (Build.VERSION.SDK_INT == 26) {//8.0
+        			uri = Uri.parse(data.getAction());
+				}
+				if (uri != null) {
+        			cropFile = new File(new URI(uri.toString()));
+        			LogUtil.d("cropFile", cropFile.getAbsolutePath() + " " + cropFile.exists());
+				}
+			} catch (Exception e) {
+        		e.printStackTrace();
+			}
+		}
 
         Toast.makeText(getApplicationContext(), "onActivityResult", Toast.LENGTH_LONG).show();
 

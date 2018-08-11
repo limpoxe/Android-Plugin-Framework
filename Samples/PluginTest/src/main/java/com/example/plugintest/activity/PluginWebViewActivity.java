@@ -2,6 +2,7 @@ package com.example.plugintest.activity;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -13,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -173,7 +175,14 @@ public class PluginWebViewActivity extends AppCompatActivity implements OnClickL
 	private void testNotification() {
 
 		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		Notification.Builder builder = new Notification.Builder(this);
+		NotificationCompat.Builder builder = null;
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationChannel channel = new NotificationChannel("111", "CN111", NotificationManager.IMPORTANCE_HIGH);
+			notificationManager.createNotificationChannel(channel);
+			builder = new NotificationCompat.Builder(this, "111");
+		} else {
+			builder = new NotificationCompat.Builder(this);
+		}
 
 		Intent intent =  new Intent();
 
