@@ -39,9 +39,11 @@ public class ProcessUtil {
     private static String getCurProcessName(Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> list = activityManager.getRunningAppProcesses();
-        for (ActivityManager.RunningAppProcessInfo appProcess : list) {
-            if (appProcess != null && appProcess.pid == android.os.Process.myPid()) {
-                return appProcess.processName;
+        if (list != null) {
+            for (ActivityManager.RunningAppProcessInfo appProcess : list) {
+                if (appProcess != null && appProcess.pid == android.os.Process.myPid()) {
+                    return appProcess.processName;
+                }
             }
         }
         return "";
