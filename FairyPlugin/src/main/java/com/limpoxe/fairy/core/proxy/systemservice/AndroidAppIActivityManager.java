@@ -11,15 +11,13 @@ import android.os.IBinder;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
-import com.limpoxe.fairy.core.PluginLauncher;
-import com.limpoxe.fairy.core.PluginLoader;
-import com.limpoxe.fairy.core.android.HackComponentName;
-import com.limpoxe.fairy.core.bridge.PluginShadowService;
 import com.limpoxe.fairy.core.android.HackActivityManager;
 import com.limpoxe.fairy.core.android.HackActivityManagerNative;
 import com.limpoxe.fairy.core.android.HackActivityThread;
+import com.limpoxe.fairy.core.android.HackComponentName;
 import com.limpoxe.fairy.core.android.HackContentProviderHolder;
 import com.limpoxe.fairy.core.android.HackSingleton;
+import com.limpoxe.fairy.core.bridge.PluginShadowService;
 import com.limpoxe.fairy.core.bridge.ProviderClientProxy;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
@@ -170,10 +168,11 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             Map<IBinder, Service> services = HackActivityThread.get().getServices();
                             Service service = services.get(obj);
                             if (service instanceof PluginShadowService) {
-                                if (((PluginShadowService) service).realService != null) {
-                                    services.put((IBinder) obj, ((PluginShadowService) service).realService);
+                                PluginShadowService shadowService = (PluginShadowService) service;
+                                if (shadowService.realService != null) {
+                                    services.put((IBinder) obj, shadowService.realService);
                                 } else {
-                                    throw new IllegalStateException("unable to create service");
+                                    LogUtil.e("serviceDoneExecuting", "unable to create real service for this PluginShadowService");
                                 }
                             }
                             break;
@@ -194,7 +193,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
             if (!ProcessUtil.isPluginProcess()) {
                 if (invokeResult == null) {
                     String auth = (String)args[1];
-                    LogUtil.d("auth", auth);
+                    LogUtil.d("getContentProvider", auth);
                     if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
                         return invokeResult;
                     }

@@ -56,9 +56,12 @@ public class PluginShadowService extends Service {
 			Class clazz = PluginLoader.loadPluginClassByName(realName);
 			realService = (Service) clazz.newInstance();
 		} catch (Exception e) {
-			throw new RuntimeException(
-					"Unable to instantiate service " + mClassName
-							+ ", realName " + realName + " : " + e.toString(), e);
+			LogUtil.e("callServiceOnCreate", "Unable to instantiate service " + mClassName
+					+ ", realName " + realName + " : " + e.toString());
+		}
+
+		if(realService == null) {
+			return;
 		}
 
 		try {
@@ -72,9 +75,8 @@ public class PluginShadowService extends Service {
 
 			realService.onCreate();
 		} catch (Exception e) {
-			throw new RuntimeException(
-					"Unable to create service " + mClassName
-							+ ": " + e.toString(), e);
+			LogUtil.e("callServiceOnCreate", "Unable to create service " + mClassName
+					+ ": " + e.toString());
 		}
 	}
 
