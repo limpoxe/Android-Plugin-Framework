@@ -8,7 +8,6 @@ import android.os.Bundle;
 
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.ResourceUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,8 +24,6 @@ import java.util.Map;
  */
 public class PluginDescriptor implements Serializable {
 
-	private static final long serialVersionUID = -7545734825911798344L;
-
 	public static final int UNKOWN = 0;
 	public static final int BROADCAST = 1;
 	public static final int ACTIVITY = 2;
@@ -34,6 +31,8 @@ public class PluginDescriptor implements Serializable {
 	public static final int PROVIDER = 6;
 	public static final int FRAGMENT = 8;
 	public static final int FUNCTION = 9;
+
+	private static final long serialVersionUID = -6578560966433824829L;
 
 	private String packageName;
 
