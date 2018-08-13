@@ -313,4 +313,8 @@ public class FileUtil {
 		return sb.toString();
 	}
 
+	public static boolean checkPathSafe(String path) {
+		return path != null && !path.contains("..") && !path.contains(" ");
+	}
+
 }

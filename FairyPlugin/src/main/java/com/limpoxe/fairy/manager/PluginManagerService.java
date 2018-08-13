@@ -189,7 +189,7 @@ class PluginManagerService {
 	synchronized InstallResult installPlugin(String srcPluginFile) {
 		LogUtil.w("开始安装插件", srcPluginFile);
 		long startAt = System.currentTimeMillis();
-		if (TextUtils.isEmpty(srcPluginFile)) {
+		if (!FileUtil.checkPathSafe(srcPluginFile) || TextUtils.isEmpty(srcPluginFile)) {
 			return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 		}
 
@@ -209,11 +209,12 @@ class PluginManagerService {
         // 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
 		if (!srcPluginFile.startsWith(FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath())) {
 			String tempFilePath = FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath()
-					+ File.separator + System.currentTimeMillis() + "_" + srcFile.getName() + ".apk";
+					+ File.separator + System.currentTimeMillis() + "_" + srcFile.getName();
 			if (FileUtil.copyFile(srcPluginFile, tempFilePath)) {
 				srcPluginFile = tempFilePath;
 			} else {
 				LogUtil.e("复制插件文件失败", srcPluginFile, tempFilePath);
+				new File(tempFilePath).delete();
 				return new InstallResult(PluginManagerHelper.COPY_FILE_FAIL);
 			}
 		}
