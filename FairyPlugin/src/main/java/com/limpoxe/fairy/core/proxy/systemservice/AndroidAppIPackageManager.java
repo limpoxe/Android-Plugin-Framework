@@ -19,7 +19,6 @@ import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginIntentResolver;
 import com.limpoxe.fairy.core.PluginLauncher;
-import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackApplicationPackageManager;
 import com.limpoxe.fairy.core.android.HackParceledListSlice;
@@ -420,8 +419,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
         info.taskAffinity = null;//需要时再加上
         info.theme = pluginDescriptor.getApplicationTheme();
         info.flags = info.flags | ApplicationInfo.FLAG_HAS_CODE;
-        //需要时再添加
-        //info.nativeLibraryDir = new File(pluginDescriptor.getInstalledPath()).getParentFile().getAbsolutePath() + "/lib";
+        info.nativeLibraryDir = new File(pluginDescriptor.getInstalledPath()).getParentFile().getAbsolutePath() + "/lib";
         String targetSdkVersion = pluginDescriptor.getTargetSdkVersion();
         if (!TextUtils.isEmpty(targetSdkVersion)) {
             info.targetSdkVersion = Integer.valueOf(targetSdkVersion);
