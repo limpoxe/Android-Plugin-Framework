@@ -18,6 +18,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -47,11 +51,55 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
         findViewById(R.id.sendbroadcast).setOnClickListener(this);
         findViewById(R.id.notification).setOnClickListener(this);
         findViewById(R.id.startActivity).setOnClickListener(this);
+        findViewById(R.id.loadWeb).setOnClickListener(this);
+
+        WebView wb = ((WebView)findViewById(R.id.webview));
+        setUpWebViewSetting(wb);
+        setClient(wb);
+
+        wb.loadUrl("file:///android_asset/host_localweb_test.html");
 
         if (!PluginManagerHelper.isInstalled("com.example.plugintest")) {
             Toast.makeText(this, "插件未安装:com.example.plugintest", Toast.LENGTH_SHORT).show();
             finish();
         }
+    }
+
+    private void setUpWebViewSetting(WebView web) {
+        WebSettings webSettings = web.getSettings();
+
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);// 根据cache-control决定是否从网络上取数据
+        webSettings.setSupportZoom(true);
+        webSettings.setBuiltInZoomControls(true);// 显示放大缩小
+        webSettings.setJavaScriptEnabled(true);
+        // webSettings.setPluginsEnabled(true);
+        webSettings.setPluginState(WebSettings.PluginState.ON);
+        webSettings.setUserAgentString(webSettings.getUserAgentString());
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setAppCachePath(getCacheDir().getPath());
+        webSettings.setUseWideViewPort(true);// 影响默认满屏和双击缩放
+        webSettings.setLoadWithOverviewMode(true);// 影响默认满屏和手势缩放
+
+    }
+
+    private void setClient(WebView web) {
+
+        web.setWebChromeClient(new WebChromeClient() {
+        });
+
+        // 如果要自动唤起自定义的scheme，不能设置WebViewClient，
+        // 否则，需要在shouldOverrideUrlLoading中自行处理自定义scheme
+        // webView.setWebViewClient();
+        web.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+
+        });
     }
 
     @Override
@@ -105,6 +153,8 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
             testNotification();
         } else if (viewId == R.id.startActivity) {
             testStartActivity1();
+        } else if (viewId == R.id.loadWeb) {
+            testLoadWeb();
         }
 
     }
@@ -157,6 +207,10 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
         //也可以直接构造Intent，指定打开插件中的某个Activity
         Intent intent = new Intent("test.abc");
         startActivity(intent);
+    }
+
+    private void testLoadWeb() {
+        ((WebView)findViewById(R.id.webview)).loadUrl("http://www.baidu.com/");
     }
 
     @Override
