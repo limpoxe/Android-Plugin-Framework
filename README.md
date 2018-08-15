@@ -474,6 +474,77 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
    
     框架内置的stub模版有限，特别是对Activity来说，配置组合起来会比较多，若插件stub模版不满足要求时，可以通过添加自定义的stub映射处理器来进行stub映射
     使用 FairyGlobal.registStubMappingProcessor() 来添加自定义的stub映射处理器
+    
+    先在宿主的manifest添加stub：
+    ```Xml
+            <activity
+            android:name="${applicationId}.stub.XXX" //名字随便写
+            android:exported="true"
+            android:process=":plugin"
+		      
+	    //添加一些需要的配置	      
+            android:process=":plugin"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation"
+		      
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    ```
+    
+    定义一个映射器（实现部分仅供参考，方便理解接口含义）
+    ```Java
+    
+	public class TestCoustProcessor implements StubMappingProcessor {
+
+	    private android.util.Pair<String, String> pair;
+
+	    @Override
+	    public int getType() {
+		return TYPE_ACTIVITY;
+	    }
+
+	    @Override
+	    public String bindStub(PluginDescriptor pluginDescriptor, String pluginComponentClassName) {
+		if (pluginComponentClassName.equals("x.y.z.in.pulgin.ABC")) {//填写要绑定的插件中的组件名称
+		    String stub = "xx.xx.xx.in.host.XXX"; //填写在宿主manifest增加的stub
+		    pair = new Pair<>(stub, pluginComponentClassName);
+		    return pair.first;
+		}
+		return null;
+	    }
+
+	    @Override
+	    public void unBindStub(String stubClassName, String pluginStubClass) {
+		if (pair != null && pair.first.equals(stubClassName) && pair.second.equals(pluginStubClass)) {
+		    pair = null;
+		}
+	    }
+
+	    @Override
+	    public boolean isStub(String stubClassName) {
+		String stub = "xx.xx.xx.in.host.XXX"; //填写在宿主manifest增加的stub
+		return stubClassName.equals(stub);
+	    }
+
+	    @Override
+	    public String getBindedPluginClassName(String stubClassName) {
+		if (pair != null && pair.first.equals(stubClassName)) {
+		    return pair.second;
+		}
+		return null;
+	    }
+	}
+
+    ```
+    
+    在调用框架初始化函数之前，注册这个映射器
+    ```
+    FairyGlobal.registStubMappingProcessor(new TestCoustProcessor());
+    ```
 
 # 注意事项
 
