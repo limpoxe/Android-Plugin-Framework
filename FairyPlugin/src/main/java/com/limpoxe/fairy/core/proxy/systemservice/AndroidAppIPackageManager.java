@@ -354,6 +354,13 @@ public class AndroidAppIPackageManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             LogUtil.d("authorities", args[0]);
+            if (!FairyGlobal.isInited()) {
+                //框架尚未初始化的时候，此方法调用，一定是在ActivityThread.handleBindApplication方法中
+                //则此时是正在初始化宿主manifest文件中配置的组件，此时不能执行"优先返回插件的providerInfo"的逻辑
+                //否则会出现插件provider在宿主app启动时被意外初始化，这不是框架想要的结果
+                //框架更希望在插件被启动时去初始化插件的provider对象
+                return null;
+            }
             ArrayList<PluginDescriptor> plugins = PluginManager.getPlugins();
             PluginProviderInfo info = null;
             PluginDescriptor pluginDescriptor = null;
@@ -364,6 +371,8 @@ public class AndroidAppIPackageManager extends MethodProxy {
                     while (iterator.hasNext()) {
                         HashMap.Entry<String, PluginProviderInfo> entry = iterator.next();
                         if (args[0].equals(entry.getValue().getAuthority())) {
+                            //如果插件中有重复的配置，先到先得
+                            LogUtil.d("如果插件中有重复的配置，先到先得 authorities ", args[0]);
                             info = entry.getValue();
                             pluginDescriptor = descriptor;
                             break;

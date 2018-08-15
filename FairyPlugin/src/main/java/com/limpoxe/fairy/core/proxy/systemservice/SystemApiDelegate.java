@@ -36,6 +36,13 @@ public class SystemApiDelegate extends MethodDelegate {
             fixPackageName(method.getName(), args);
         }
 
+        //8.0开始
+        if("android.content.IContentService".equals(descriptor) && "notifyChange".equals(method.getName())) {
+            //TODO FIXME
+            //i need do somthing here.
+            LogUtil.e(args[0]);
+        }
+
         return null;
     }
 

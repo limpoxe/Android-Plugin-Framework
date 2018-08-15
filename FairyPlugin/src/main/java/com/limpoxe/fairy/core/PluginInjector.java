@@ -76,6 +76,7 @@ public class PluginInjector {
 	}
 
 	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
+		LogUtil.d("安装插件中的contentProvider");
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 			ProviderInfo p = new ProviderInfo();

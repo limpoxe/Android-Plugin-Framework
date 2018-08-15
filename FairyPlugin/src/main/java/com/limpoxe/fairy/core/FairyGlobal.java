@@ -19,7 +19,7 @@ public class FairyGlobal {
     private static boolean sFakePluginProcessName = true;
 
     public static Application getHostApplication() {
-        if (!isInited()) {
+        if (sApplication == null) {
             throw new IllegalStateException("not inited yet");
         }
         return sApplication;
@@ -33,7 +33,7 @@ public class FairyGlobal {
         sIsInited = isInited;
     }
 
-    /*package*/ static boolean isInited() {
+    public static boolean isInited() {
         return sIsInited;
     }
 

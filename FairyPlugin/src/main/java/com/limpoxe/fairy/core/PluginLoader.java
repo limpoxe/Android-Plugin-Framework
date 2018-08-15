@@ -32,8 +32,6 @@ import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
 
-import dalvik.system.DexClassLoader;
-
 public class PluginLoader {
 
 	private PluginLoader() {
@@ -52,7 +50,6 @@ public class PluginLoader {
         LogUtil.v("插件框架初始化中...");
         long t1 = System.currentTimeMillis();
 
-        FairyGlobal.setIsInited(true);
         FairyGlobal.setApplication(app);
         FairyGlobal.registStubMappingProcessor(new StubActivityMappingProcessor());
         FairyGlobal.registStubMappingProcessor(new StubServiceMappingProcessor());
@@ -128,6 +125,8 @@ public class PluginLoader {
         }
 
         removeNotSupportedPluginIfUpgraded();
+
+        FairyGlobal.setIsInited(true);
 
         long t2 = System.currentTimeMillis();
         LogUtil.w("插件框架初始化完成", "耗时：" + (t2-t1));
