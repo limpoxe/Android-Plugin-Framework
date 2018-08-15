@@ -335,6 +335,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 				break;
 			case R.id.onClickPluginTestService:
 				onClickPluginTestService(v);
+				startActivity(new Intent(this, CustomMappingActivity.class));
 				break;
 			case R.id.onClickPluginTestService2:
 				onClickPluginTestService2(v);

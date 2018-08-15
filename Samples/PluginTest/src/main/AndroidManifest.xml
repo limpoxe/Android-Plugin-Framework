@@ -216,6 +216,10 @@
 
         <activity android:name="com.example.plugintest.activity.DesignActivity" android:theme="@style/Theme.DesignDemo"/>
 
+        <activity android:name="com.example.plugintest.activity.CustomMappingActivity"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation"/>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="a.b.c.fileprovider"

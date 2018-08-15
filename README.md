@@ -488,10 +488,6 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
             android:configChanges="orientation"
 		      
             android:theme="@android:style/Theme">
-            <intent-filter>
-                <action android:name="${applicationId}.STUB_DEFAULT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
     ```
     

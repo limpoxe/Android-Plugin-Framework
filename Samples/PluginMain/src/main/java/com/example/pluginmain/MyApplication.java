@@ -21,5 +21,8 @@ public class MyApplication extends PluginApplication {
         FairyGlobal.setLogEnable(true);
         FairyGlobal.setLocalHtmlenable(true);
         FairyGlobal.setLoadingResId(R.layout.loading);
+
+        //Just for test custom Mapping Processor
+        FairyGlobal.registStubMappingProcessor(new TestCoustProcessor());
 	}
 }
