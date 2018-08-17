@@ -1,16 +1,23 @@
 package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.content.ComponentName;
+import android.net.Uri;
+import android.os.Build;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.android.HackComponentName;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
+import com.limpoxe.fairy.manager.PluginManager;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * 所有被hook的系统服务的所有api方法调用, 都会先进入这里
@@ -36,11 +43,27 @@ public class SystemApiDelegate extends MethodDelegate {
             fixPackageName(method.getName(), args);
         }
 
-        //8.0开始
-        if("android.content.IContentService".equals(descriptor) && "notifyChange".equals(method.getName())) {
-            //TODO FIXME
-            //i need do somthing here.
-            LogUtil.e(args[0]);
+        if("android.content.IContentService".equals(descriptor)) {
+            if ("notifyChange".equals(method.getName())) {
+                if (Build.VERSION.SDK_INT >= 26) {
+                    //TODO FIXME TODO 应该还有更好做法，以后再研究，此方法notifyChange本身用的不多
+                    //8.0及以上，如果notifyChange的对象是插件中定义的Authority时，直接屏蔽此方法。
+                    ArrayList<PluginDescriptor> plugins = PluginManager.getPlugins();
+                    if (plugins != null) {
+                        for(PluginDescriptor descriptor:plugins) {
+                            HashMap<String, PluginProviderInfo> pluginProviderInfoMap = descriptor.getProviderInfos();
+                            Iterator<HashMap.Entry<String, PluginProviderInfo>> iterator = pluginProviderInfoMap.entrySet().iterator();
+                            while (iterator.hasNext()) {
+                                HashMap.Entry<String, PluginProviderInfo> entry = iterator.next();
+                                 if (((Uri)args[0]).getAuthority().equals(entry.getValue().getAuthority())) {
+                                    LogUtil.e("uri", ((Uri)args[0]).toString(), "8.0及以上，notifyChange的对象Uri，直接屏蔽此方法");
+                                    return new Object();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return null;
