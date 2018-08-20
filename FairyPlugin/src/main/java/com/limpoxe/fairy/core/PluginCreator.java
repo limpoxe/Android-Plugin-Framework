@@ -37,6 +37,8 @@ public class PluginCreator {
 		File libDir = new File(apkParentDir, "lib");
 		libDir.mkdirs();
 
+		LogUtil.v(absolutePluginApkPath, optDir.getAbsolutePath(), libDir.getAbsolutePath());
+
 		if (!isStandalone) {//非独立插件
 			return new PluginClassLoader("", new RealPluginClassLoader(
 					absolutePluginApkPath,
