@@ -418,11 +418,10 @@ public class PluginInjector {
 			HackLoadedApk hackLoadedApk = new HackLoadedApk(mLoadedApk);
 			ClassLoader originalLoader = hackLoadedApk.getClassLoader();
 			if (!(originalLoader instanceof HostClassLoader)) {
-				HostClassLoader newLoader = new HostClassLoader("",
-						FairyGlobal.getHostApplication()
-						.getCacheDir().getAbsolutePath(),
+				HostClassLoader newLoader = new HostClassLoader("", new RealHostClassLoader("",
 						FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath(),
-						originalLoader);
+						FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath(),
+						originalLoader));
 				hackLoadedApk.setClassLoader(newLoader);
 			}
 		} else {

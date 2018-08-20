@@ -38,27 +38,27 @@ public class PluginCreator {
 		libDir.mkdirs();
 
 		if (!isStandalone) {//非独立插件
-			return new PluginClassLoader(
+			return new PluginClassLoader("", new RealPluginClassLoader(
 					absolutePluginApkPath,
 					optDir.getAbsolutePath(),
 					libDir.getAbsolutePath(),
 					PluginLoader.class.getClassLoader(),//宿主classloader
 					dependences,//插件依赖的插件
-					null);
+					null));
 		} else {//独立插件
-			return new PluginClassLoader(
+			return new PluginClassLoader("", new RealPluginClassLoader(
 					absolutePluginApkPath,
 					optDir.getAbsolutePath(),
 					libDir.getAbsolutePath(),
 					/*
-			         * In theory this should be the "system" class loader; in practice we
-			         * don't use that and can happily (and more efficiently) use the
-			         * bootstrap class loader.
-			         */
+					 * In theory this should be the "system" class loader; in practice we
+					 * don't use that and can happily (and more efficiently) use the
+					 * bootstrap class loader.
+					 */
 					ClassLoader.getSystemClassLoader().getParent(),//系统classloader
-                    dependences,//通常情况独立插件无子依赖, 此处参数size一般是0，但实际也可以依赖其他基础独立插件包，
-                                // 也即独立插件之间也可以建立依赖关系，前提和非独立插件一样，被依赖的插件不可以包含资源
-					pluginApkMultDexPath);
+					dependences,//通常情况独立插件无子依赖, 此处参数size一般是0，但实际也可以依赖其他基础独立插件包，
+					// 也即独立插件之间也可以建立依赖关系，前提和非独立插件一样，被依赖的插件不可以包含资源
+					pluginApkMultDexPath));
 		}
 
 	}

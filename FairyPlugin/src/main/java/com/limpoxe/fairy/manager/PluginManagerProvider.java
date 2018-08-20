@@ -22,7 +22,6 @@ import com.limpoxe.fairy.manager.mapping.PluginStubBinding;
 import com.limpoxe.fairy.manager.mapping.StubExact;
 import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -169,6 +168,7 @@ public class PluginManagerProvider extends ContentProvider {
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         Uri targetUrl = Uri.parse(uri.getQueryParameter(TARGET_URL));
+        LogUtil.d("openFile", "uri", uri.toString(), "targetUrl", targetUrl);
         return getContext().getContentResolver().openFileDescriptor(targetUrl, mode);
     }
 

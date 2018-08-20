@@ -176,8 +176,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					} else {
 						//精确匹配却找不着目标，有多种可能，其中一个可能是收到外部发来的组件Intent时，插件还没安装
                         //因此这里强行返回容错的class
-                        className = HostClassLoader.TolerantActivity.class.getName();
-                        cl = HostClassLoader.TolerantActivity.class.getClassLoader();
+                        className = RealHostClassLoader.TolerantActivity.class.getName();
+                        cl = RealHostClassLoader.TolerantActivity.class.getClassLoader();
                         //添加一个标记符
                         intent.addCategory(RELAUNCH_FLAG + className);
                     }
@@ -210,8 +210,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
                                     found = true;
                                 } else {
                                     //这里也需要处理STUB_EXACT匹配但插件尚未安装的情况
-                                    if (className.equals(HostClassLoader.TolerantActivity.class.getName())) {
-                                        cl = HostClassLoader.TolerantActivity.class.getClassLoader();
+                                    if (className.equals(RealHostClassLoader.TolerantActivity.class.getName())) {
+                                        cl = RealHostClassLoader.TolerantActivity.class.getClassLoader();
                                         found = true;
                                     }
                                 }
