@@ -1,5 +1,6 @@
 package com.example.plugintest.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -379,6 +380,19 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	}
 
 	private void takePicture(final int requestCode) {
+
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			int permissionState = checkSelfPermission(Manifest.permission.CAMERA);
+			if (permissionState != PackageManager.PERMISSION_GRANTED) {
+				if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+					requestPermissions(new String[]{Manifest.permission.CAMERA}, 10086);
+				} else {
+					Toast.makeText(LauncherActivity.this, "6.+系统, 请在设置中授权摄像头权限", Toast.LENGTH_SHORT).show();
+				}
+				return;
+			}
+		}
+
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
@@ -395,7 +409,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
 
-		startActivityForResult(intent, 222);
+		startActivityForResult(intent, requestCode);
 	}
 
 
