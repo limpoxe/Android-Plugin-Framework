@@ -36,6 +36,8 @@ public class HackActivityThread {
     private static final String Field_mBoundApplication = "mBoundApplication";
     private static final String Field_sPackageManager = "sPackageManager";
 
+    private static final String Field_mHiddenApiWarningShown = "mHiddenApiWarningShown";
+
     private static final String Field_SERVICE_DONE_EXECUTING_ANON = "SERVICE_DONE_EXECUTING_ANON";
     private static final String Field_SERVICE_DONE_EXECUTING_START = "SERVICE_DONE_EXECUTING_START";
     private static final String Field_SERVICE_DONE_EXECUTING_STOP = "SERVICE_DONE_EXECUTING_STOP";
@@ -227,6 +229,14 @@ public class HackActivityThread {
             ret = 0;//default is 0
         }
         return ret;
+    }
+
+    public Object isHiddenApiWarningShown() {
+        return RefInvoker.getField(instance, ClassName, Field_mHiddenApiWarningShown);
+    }
+
+    public void setHiddenApiWarningShown(boolean hiddenApiWarningShown) {
+        RefInvoker.setField(instance, ClassName, Field_mHiddenApiWarningShown, hiddenApiWarningShown);
     }
 
 }

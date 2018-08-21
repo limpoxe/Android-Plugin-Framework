@@ -14,6 +14,7 @@ import android.os.Handler;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackLayoutInflater;
 import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7ViewInflater;
@@ -80,6 +81,9 @@ public class PluginLoader {
             });
         }
 
+        if (Build.VERSION.SDK_INT >= 28) {
+            HackActivityThread.get().setHiddenApiWarningShown(true);
+        }
         PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
         PluginInjector.injectInstrumentation();
         PluginInjector.injectBaseContext(FairyGlobal.getHostApplication());
