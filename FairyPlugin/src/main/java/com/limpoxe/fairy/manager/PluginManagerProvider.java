@@ -108,6 +108,10 @@ public class PluginManagerProvider extends ContentProvider {
         return CONTENT_URI;
     }
 
+    public PluginManagerProvider() {
+        Log.d("PluginManagerProvider", "create PluginManagerProvider instance");
+    }
+
     @Override
     public boolean onCreate() {
 

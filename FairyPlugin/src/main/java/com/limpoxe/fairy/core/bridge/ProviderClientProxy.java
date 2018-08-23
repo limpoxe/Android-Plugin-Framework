@@ -9,9 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.FileNotFoundException;
 
@@ -23,13 +25,16 @@ public class ProviderClientProxy extends ContentProvider {
     public static final String CALL_PROXY_KEY = "target_call";
     public static final String TARGET_URL = "targetUrl";
 
+    private String mAuthority = null;
+
     public ProviderClientProxy() {
-       LogUtil.d("create provider proxy instance");
+       Log.d("ProviderClientProxy", "create provider proxy instance");
     }
 
     @Override
     public boolean onCreate() {
-        LogUtil.d("onCreate called");
+        mAuthority = (String)RefInvoker.getField(this, this.getClass(), "mAuthority");
+        Log.d("ProviderClientProxy", "onCreate called " + mAuthority);
         return false;
     }
 
@@ -96,16 +101,5 @@ public class ProviderClientProxy extends ContentProvider {
         LogUtil.d("attachInfo", info.authority, info.name);
         super.attachInfo(context, info);
     }
-
-    public static class Stub0 extends ProviderClientProxy {}
-    public static class Stub1 extends ProviderClientProxy {}
-    public static class Stub2 extends ProviderClientProxy {}
-    public static class Stub3 extends ProviderClientProxy {}
-    public static class Stub4 extends ProviderClientProxy {}
-    public static class Stub5 extends ProviderClientProxy {}
-    public static class Stub6 extends ProviderClientProxy {}
-    public static class Stub7 extends ProviderClientProxy {}
-    public static class Stub8 extends ProviderClientProxy {}
-    public static class Stub9 extends ProviderClientProxy {}
 
 }

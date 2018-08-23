@@ -307,6 +307,7 @@ public class PluginManagerProviderClient {
         Uri newUri = buildNewUri(uri);
         ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
         try {
+            LogUtil.d("openFile", uri, newUri);
             return resolver.openFileDescriptor(newUri, mode);
         } catch (Exception e) {
             LogUtil.printException("openFile " + uri, e);
