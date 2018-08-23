@@ -34,6 +34,7 @@ import com.example.plugintest.R;
 import com.example.plugintest.provider.PluginDbTables;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;
+import com.limpoxe.fairy.manager.PluginManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -70,12 +71,16 @@ public class PluginWebViewActivity extends AppCompatActivity implements OnClickL
 		setUpWebViewSetting();
 		setClient();
 
-		ILoginService login = (ILoginService) getSystemService("login_service");
-		if (login != null) {
-			LoginVO vo = login.login("admin", "123456");
-			Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(this, "ILoginService == null", Toast.LENGTH_SHORT).show();
+		if (PluginManager.isInstalled("com.example.plugintestbase")) {
+			//java.lang.NoClassDefFoundError:
+			//ILoginService这个类是由另外一个插件PluginBase提供，发生NoClassDefFoundError说明另外一个插件未安装或者是在安装此插件之后安装的
+			ILoginService login = (ILoginService) getSystemService("login_service");
+			if (login != null) {
+				LoginVO vo = login.login("admin", "123456");
+				Toast.makeText(this, vo.getUsername() + ":" + vo.getPassword(), Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, "ILoginService == null", Toast.LENGTH_SHORT).show();
+			}
 		}
 
 		try {
