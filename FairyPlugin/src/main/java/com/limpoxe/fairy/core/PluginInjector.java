@@ -12,6 +12,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Process;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Window;
@@ -77,8 +78,27 @@ public class PluginInjector {
 
 	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
 		LogUtil.d("安装插件中的contentProvider");
+		List<ProviderInfo> hostProviders = context.getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
+        boolean isAlreadyAddByHost = false;
+
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
+
+		    isAlreadyAddByHost = false;
+
+			if (hostProviders != null) {
+				for(ProviderInfo hostProvider : hostProviders) {
+					if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
+						LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
+						isAlreadyAddByHost = true;
+						break;
+					}
+				}
+			}
+			if (isAlreadyAddByHost) {
+				continue;
+			}
+
 			ProviderInfo p = new ProviderInfo();
 			p.name = pluginProviderInfo.getName();
 			p.authority = pluginProviderInfo.getAuthority();

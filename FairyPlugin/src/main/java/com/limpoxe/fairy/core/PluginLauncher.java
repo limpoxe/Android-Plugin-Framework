@@ -81,7 +81,7 @@ public class PluginLauncher implements Serializable {
 		if (pluginDescriptor != null) {
 			return startPlugin(pluginDescriptor);
 		} else {
-			LogUtil.e("插件未找到");
+			LogUtil.e("插件未找到", packageName);
 		}
 		return null;
 	}

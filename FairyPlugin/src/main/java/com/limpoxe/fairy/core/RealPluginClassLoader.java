@@ -133,7 +133,9 @@ public class RealPluginClassLoader extends DexClassLoader {
 							break;
 						}
 					} else {
-						LogUtil.e("PluginClassLoader", "未找到通过<uses-library/>标签依赖的插件", dependencePluginId, className);
+						LogUtil.e("PluginClassLoader", "未找到当前插件所必需的、通过在此插件manifest中使用<uses-library/>标签配置的依赖插件", dependencePluginId, className);
+						LogUtil.e("PluginClassLoader", "极有可能在运行此插件时GG，这里应该直接抛个异常");
+						//throw new IllegalStateException("未找到当前插件所必需基础插件" + dependencePluginId);
 					}
 				}
 			}

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Process;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
@@ -197,6 +198,9 @@ public class AndroidAppIActivityManager extends MethodProxy {
                     if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
                         return invokeResult;
                     }
+
+                    List<ProviderInfo> hostProviders = FairyGlobal.getHostApplication().getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
+                    boolean isAlreadyAddByHost = false;
                     ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
                     for(PluginDescriptor pluginDescriptor : list) {
                         HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
@@ -204,6 +208,22 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             Iterator<PluginProviderInfo> iterator = map.values().iterator();
                             while(iterator.hasNext()) {
                                 PluginProviderInfo pluginProviderInfo = iterator.next();
+
+                                isAlreadyAddByHost = false;
+
+                                if (hostProviders != null) {
+                                    for(ProviderInfo hostProvider : hostProviders) {
+                                        if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
+                                            LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
+                                            isAlreadyAddByHost = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (isAlreadyAddByHost) {
+                                    continue;
+                                }
+
                                 //在插件中找到了匹配的contentprovider
                                 if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
                                     //先检查插件是否已经初始化
