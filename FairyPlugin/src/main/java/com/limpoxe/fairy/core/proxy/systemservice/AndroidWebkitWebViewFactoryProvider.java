@@ -9,6 +9,7 @@ import com.limpoxe.fairy.core.android.HackWebViewFactory;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
+import com.limpoxe.fairy.util.FakeUtil;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 
@@ -116,6 +117,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
     }
 
     private static void fixWebViewAsset(Context context) {
+        context = FakeUtil.fakeContext(context);
         try {
             ClassLoader cl = null;
             if (sContextUtils == null) {
@@ -150,7 +152,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                                 method.setAccessible(true);
                             }
                             try {
-                                method.invoke(null, new Object[]{context.getApplicationContext()});
+                                method.invoke(null, new Object[]{context});
                                 LogUtil.d("触发了切换WebView Context");
                             } catch (IllegalAccessException e) {
                             } catch (IllegalArgumentException e) {
@@ -166,14 +168,14 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                         }
                         if (sContextUtils != null) {
                             RefInvoker.setField(null, sContextUtils, "sApplicationContext", null);
-                            RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
+                            RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context});
                             LogUtil.d("触发了切换WebView Context");
                         }
                     }
                 }
             } else {
                 RefInvoker.setField(null, sContextUtils, "sApplicationContext", null);
-                RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context.getApplicationContext()});
+                RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContext", new Class[]{Context.class}, new Object[]{context});
                 // 不同的Chrome版本, 初始化的方法不同
                 // for Chrome version 52.0.2743.98
                 RefInvoker.invokeMethod(null, sContextUtils, "initApplicationContextForNative", (Class[])null, (Object[])null);
