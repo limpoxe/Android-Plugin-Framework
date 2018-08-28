@@ -180,6 +180,13 @@
                 android:resource="@xml/filepath" />
         </provider>
 
+        <!-- 名字随便写，只要和自定义的stubMapping匹配上就可-->
+        <activity
+            android:name="com.example.pluginmain.WebActivity"
+            android:exported="true"
+            android:process=":plugin">
+        </activity>
+
     </application>
 
 </manifest>
