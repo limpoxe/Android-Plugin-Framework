@@ -5,7 +5,7 @@ import android.content.Context;
 
 import com.limpoxe.fairy.util.ProcessUtil;
 
-public class PluginApplication extends Application {
+public class DemoApplication extends Application {
 
 	@Override
 	protected void attachBaseContext(Context base) {
