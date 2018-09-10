@@ -1,12 +1,12 @@
 package com.example.pluginmain;
 
 import com.limpoxe.fairy.core.FairyGlobal;
-import com.limpoxe.fairy.core.PluginApplication;
+import com.limpoxe.fairy.core.DemoApplication;
 import com.tencent.bugly.crashreport.CrashReport;
 //import com.tencent.bugly.crashreport.CrashReport;
 //import com.umeng.analytics.MobclickAgent;
 
-public class MyApplication extends PluginApplication {
+public class MyApplication extends DemoApplication {
 	@Override
 	public void onCreate() {
 		super.onCreate();
