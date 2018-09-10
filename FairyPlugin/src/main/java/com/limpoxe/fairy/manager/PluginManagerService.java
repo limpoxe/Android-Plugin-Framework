@@ -19,6 +19,7 @@ import com.limpoxe.fairy.util.FileUtil;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.PackageVerifyer;
 import com.limpoxe.fairy.util.ProcessUtil;
+import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -323,9 +325,10 @@ class PluginManagerService {
 			File apkParent = new File(destApkPath).getParentFile();
 			File tempSoDir = new File(apkParent, "temp");
 			Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempSoDir);
-			if (soList != null) {
+			if (soList != null) {//TODO soList插件中所有so的名字列表，如果插件中不同cpu架构下的so个数不相等可能会复制不匹配的so
+				ArrayList<String> abiList = getSupportedAbis();
 				for (String soName : soList) {
-					FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath());
+					FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath(), abiList);
 				}
 				//删掉临时文件
 				FileUtil.deleteAll(tempSoDir);
@@ -388,6 +391,28 @@ class PluginManagerService {
 				return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 		}
+	}
+
+	private static ArrayList<String> getSupportedAbis() {
+
+		ArrayList<String> abiList = new ArrayList<>();
+
+		String defaultAbi = (String) RefInvoker.getField(FairyGlobal.getHostApplication().getApplicationInfo(), ApplicationInfo.class, "primaryCpuAbi");
+		abiList.add(defaultAbi);
+
+		if (Build.VERSION.SDK_INT >= 21) {
+			String[] abis = Build.SUPPORTED_ABIS;
+			if (abis != null) {
+				for (String abi: abis) {
+					abiList.add(abi);
+				}
+			}
+		} else {
+			abiList.add(Build.CPU_ABI);
+			abiList.add(Build.CPU_ABI2);
+			abiList.add("armeabi");
+		}
+		return abiList;
 	}
 
 	private static SharedPreferences getSharedPreference() {

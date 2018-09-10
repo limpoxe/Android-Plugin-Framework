@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -89,58 +90,33 @@ public class FileUtil {
 		return false;
 	}
 
-	public static boolean copySo(File sourceDir, String so, String dest) {
+	public static boolean copySo(File sourceDir, String soName, String dest, ArrayList<String> supportedAbis) {
+		boolean isSuccess = false;
 
 		try {
-
-			boolean isSuccess = false;
-
-			if (Build.VERSION.SDK_INT >= 21) {
-				String[] abis = Build.SUPPORTED_ABIS;
-				if (abis != null) {
-					for (String abi: abis) {
-						LogUtil.d("try supported abi:", abi);
-						String name = "lib" + File.separator + abi + File.separator + so;
-						File sourceFile = new File(sourceDir, name);
-						if (sourceFile.exists()) {
-							isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator +  "lib" + File.separator + so);
-							//api21 64位系统的目录可能有些不同
-							//copyFile(sourceFile.getAbsolutePath(), dest + File.separator +  name);
-							break;
-						}
+			for(String abi : supportedAbis) {
+				if (abi != null) {
+					LogUtil.d("try supported abi:", abi);
+					String name = "lib" + File.separator + abi + File.separator + soName;
+					File sourceFile = new File(sourceDir, name);
+					if (sourceFile.exists()) {
+						isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator +  "lib" + File.separator + soName);
+						break;
 					}
-				}
-			} else {
-				LogUtil.d("supported api:", Build.CPU_ABI, Build.CPU_ABI2);
-
-				String name = "lib" + File.separator + Build.CPU_ABI + File.separator + so;
-				File sourceFile = new File(sourceDir, name);
-
-				if (!sourceFile.exists() && Build.CPU_ABI2 != null) {
-					name = "lib" + File.separator + Build.CPU_ABI2 + File.separator + so;
-					sourceFile = new File(sourceDir, name);
-
-					if (!sourceFile.exists()) {
-						name = "lib" + File.separator + "armeabi" + File.separator + so;
-						sourceFile = new File(sourceDir, name);
-					}
-				}
-				if (sourceFile.exists()) {
-					isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator + "lib" + File.separator + so);
 				}
 			}
 
 			if (!isSuccess) {
-				LogUtil.e("安装 " + so + " 失败: NO_MATCHING_ABIS");
-				if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-					Toast.makeText(FairyGlobal.getHostApplication(), "安装 " + so + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+				LogUtil.e("安装 " + soName + " 失败: NO_MATCHING_ABIS");
+				if (DEBUG && Thread.currentThread() == Looper.getMainLooper().getThread()) {
+					Toast.makeText(FairyGlobal.getHostApplication(), "安装 " + soName + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
 				}
 			}
 		} catch(Exception e) {
 			LogUtil.printException("FileUtil.copySo", e);
 		}
 
-		return true;
+		return isSuccess;
 	}
 
 
