@@ -103,6 +103,15 @@
             android:textSize="16sp"/>
 
         <Button
+            android:id="@+id/startWebActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:padding="15dp"
+            android:text="WebActivity测试"
+            android:textSize="16sp"/>
+
+        <Button
             android:id="@+id/loadWeb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -114,7 +123,7 @@
         <WebView
             android:id="@+id/webview"
             android:layout_width="match_parent"
-            android:layout_height="100dp"></WebView>
+            android:layout_height="300dp"></WebView>
 
     </LinearLayout>
 

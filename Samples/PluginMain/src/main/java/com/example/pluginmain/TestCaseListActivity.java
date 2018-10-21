@@ -51,6 +51,7 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
         findViewById(R.id.sendbroadcast).setOnClickListener(this);
         findViewById(R.id.notification).setOnClickListener(this);
         findViewById(R.id.startActivity).setOnClickListener(this);
+        findViewById(R.id.startWebActivity).setOnClickListener(this);
         findViewById(R.id.loadWeb).setOnClickListener(this);
 
         WebView wb = ((WebView)findViewById(R.id.webview));
@@ -155,6 +156,8 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
             testStartActivity1();
         } else if (viewId == R.id.loadWeb) {
             testLoadWeb();
+        } else if (viewId == R.id.startWebActivity) {
+            testLoadWeb2();
         }
 
     }
@@ -211,6 +214,10 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
 
     private void testLoadWeb() {
         ((WebView)findViewById(R.id.webview)).loadUrl("http://www.baidu.com/");
+    }
+
+    private void testLoadWeb2() {
+        startActivity(new Intent(this, WebActivity.class));
     }
 
     @Override
