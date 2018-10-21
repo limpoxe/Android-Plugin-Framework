@@ -49,6 +49,9 @@ public class PluginManagerProvider extends ContentProvider {
     public static final String ACTION_REMOVE_ALL = "remove_all";
     public static final String REMOVE_ALL_RESULT = "remove_all_result";
 
+    public static final String ACTION_STOP = "stop_plugin";
+    public static final String STOP_RESULT = "stop_plugin_result";
+
     public static final String ACTION_QUERY_BY_ID = "query_by_id";
     public static final String QUERY_BY_ID_RESULT = "query_by_id_result";
 
@@ -313,6 +316,11 @@ public class PluginManagerProvider extends ContentProvider {
         } else if (ACTION_WAKEUP_PLUGIN.equals(method)) {
             LoadedPlugin loadedPlugin = PluginLauncher.instance().startPlugin(arg);
             bundle.putBoolean(WAKEUP_PLUGIN_RESULT, loadedPlugin!=null);
+
+            return bundle;
+        } else if (ACTION_STOP.equals(method)) {
+            PluginLauncher.instance().stopPlugin(arg, null);
+            bundle.putBoolean(STOP_RESULT, true);
 
             return bundle;
         } else if (ACTION_REBOOT_PLUGIN_PROCESS.equals(method)) {

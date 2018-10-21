@@ -202,15 +202,21 @@ public class PluginManagerProviderClient {
         return false;
     }
 
-    public static boolean wakeup(String pluginid) {
+    public static boolean wakeup(String pluginId) {
         //这里如果约定stub组件的名字以特定词开头可以省去provider调用，减少跨进程，提高效率
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_WAKEUP_PLUGIN,
-                pluginid, null);
+                pluginId, null);
         if (bundle != null) {
             return bundle.getBoolean(PluginManagerProvider.WAKEUP_PLUGIN_RESULT);
         }
         return false;
+    }
+
+    public static void stop(String pluginId) {
+        CompatForContentProvider.call(PluginManagerProvider.buildUri(),
+                PluginManagerProvider.ACTION_STOP,
+                pluginId, null);
     }
 
     /********Provider Begin********/

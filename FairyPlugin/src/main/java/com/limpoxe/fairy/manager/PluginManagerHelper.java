@@ -5,7 +5,6 @@ import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by cailiming on 16/3/11.
@@ -90,6 +89,10 @@ public class PluginManagerHelper {
 
     public static synchronized int remove(String pluginId) {
         return PluginManagerProviderClient.remove(pluginId);
+    }
+
+    public static void stop(String pluginId) {
+        PluginManagerProviderClient.stop(pluginId);
     }
 
     /**
