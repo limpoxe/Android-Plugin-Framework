@@ -17,6 +17,7 @@ import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ResourceUtil;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,11 +32,11 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
      * key:stub Activity Name
      * value:plugin Activity Name
      */
-    private static HashMap<String, String> singleTaskActivityMapping = new HashMap<String, String>();
-    private static HashMap<String, String> singleTopActivityMapping = new HashMap<String, String>();
-    private static HashMap<String, String> singleInstanceActivityMapping = new HashMap<String, String>();
-    private static HashMap<String, String> standardActivityMapping = new HashMap<String, String>();
-    private static HashMap<String, String> standardActivityTranslucentMapping = new HashMap<String, String>();
+    private static HashMap<String, List<String>> singleTaskActivityMapping = new HashMap<String, List<String>>();
+    private static HashMap<String, List<String>> singleTopActivityMapping = new HashMap<String, List<String>>();
+    private static HashMap<String, List<String>> singleInstanceActivityMapping = new HashMap<String, List<String>>();
+    private static HashMap<String, List<String>> standardActivityMapping = new HashMap<String, List<String>>();
+    private static HashMap<String, List<String>> standardActivityTranslucentMapping = new HashMap<String, List<String>>();
 
     private static String standardLandspaceActivity = null;
 
@@ -52,7 +53,7 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
 
         PluginActivityInfo info = pluginDescriptor.getActivityInfos().get(pluginActivityClassName);
 
-        HashMap<String, String> bindingMapping = null;
+        HashMap<String, List<String>> bindingMapping = null;
         int launchMode = (int)Long.parseLong(info.getLaunchMode());
 
         if (launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
@@ -122,25 +123,33 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
 
         if (bindingMapping != null) {
 
-            Iterator<Map.Entry<String, String>> itr = bindingMapping.entrySet().iterator();
+            Iterator<Map.Entry<String, List<String>>> itr = bindingMapping.entrySet().iterator();
             String idleStubActivityName = null;
 
             while (itr.hasNext()) {
-                Map.Entry<String, String> entry = itr.next();
-                if (entry.getValue() == null) {
+                Map.Entry<String, List<String>> entry = itr.next();
+                List<String> list = entry.getValue();
+                if (list == null || list.size() == 0) {
                     if (idleStubActivityName == null) {
                         idleStubActivityName = entry.getKey();
                         //这里找到空闲的stubactivity以后，还需继续遍历，用来检查是否pluginActivityClassName已经绑定过了
                     }
-                } else if (pluginActivityClassName.equals(entry.getValue())) {
-                    //已绑定过，直接返回
-                    return entry.getKey();
+                } else {
+                    if (list.get(0).equals(pluginActivityClassName)) {
+                        //已绑定过，直接返回
+                        return entry.getKey();
+                    }
                 }
             }
 
             //没有绑定到StubActivity，而且还有空余的stubActivity，进行绑定
             if (idleStubActivityName != null) {
-                bindingMapping.put(idleStubActivityName, pluginActivityClassName);
+                List<String> list = bindingMapping.get(idleStubActivityName);
+                if (list == null) {
+                    list = new ArrayList<String>();
+                    bindingMapping.put(idleStubActivityName, list);
+                }
+                list.add(pluginActivityClassName);
                 return idleStubActivityName;
             } else {
                 //stub 不够用了
@@ -159,29 +168,34 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
 
         LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
 
-        if (pluginActivityName.equals(singleTaskActivityMapping.get(stubActivityName))) {
-
-            LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
-            singleTaskActivityMapping.put(stubActivityName, null);
-
-        } else if (pluginActivityName.equals(singleInstanceActivityMapping.get(stubActivityName))) {
-
-            LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
-            singleInstanceActivityMapping.put(stubActivityName, null);
-
-        } else if (pluginActivityName.equals(standardActivityMapping.get(stubActivityName))) {
-
-            LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
-            standardActivityMapping.put(stubActivityName, null);
-
-        } else if (pluginActivityName.equals(standardActivityTranslucentMapping.get(stubActivityName))) {
-
-            LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
-            standardActivityTranslucentMapping.put(stubActivityName, null);
-
-        } else {
-            //对于singleTop的launchmode，不做处理。
+        if (reduce(singleTaskActivityMapping.get(stubActivityName), pluginActivityName)) {
+            return;
         }
+
+        if (reduce(singleInstanceActivityMapping.get(stubActivityName), pluginActivityName)) {
+            return;
+        }
+
+        if (reduce(standardActivityMapping.get(stubActivityName), pluginActivityName)) {
+            return;
+        }
+
+        if (reduce(standardActivityTranslucentMapping.get(stubActivityName), pluginActivityName)) {
+            return;
+        }
+
+        if (reduce(singleTopActivityMapping.get(stubActivityName), pluginActivityName)) {
+            return;
+        }
+    }
+
+    private boolean reduce(List<String> pluginActivityList, String pluginActivityName) {
+        if (pluginActivityList != null && pluginActivityList.size() > 0 && pluginActivityList.get(0).equals(pluginActivityName)) {
+            LogUtil.v("unBindLaunchModeStubActivity", pluginActivityName);
+            pluginActivityList.remove(pluginActivityName);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -228,21 +242,24 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
         return target;
     }
 
-    private String searchMapping(HashMap<String, String> bindingMapping, String stubClassName) {
+    private String searchMapping(HashMap<String, List<String>> bindingMapping, String stubClassName) {
         if (bindingMapping != null) {
-            Iterator<Map.Entry<String, String>> itr = bindingMapping.entrySet().iterator();
+            Iterator<Map.Entry<String, List<String>>> itr = bindingMapping.entrySet().iterator();
             while (itr.hasNext()) {
-                Map.Entry<String, String> entry = itr.next();
+                Map.Entry<String, List<String>> entry = itr.next();
                 String stubName = entry.getKey();
                 if (stubName.equals(stubClassName)) {
-                    if (entry.getValue() != null) {
-                        return entry.getValue();
+                    List<String> list = entry.getValue();
+                    if (list != null && list.size() > 0) {
+                        return list.get(0);
                     } else {
-                        return stubClassName;
+                        LogUtil.e("searchMapping fail, stubClassName : " + stubClassName + " not bind anything");
+                        return null;
                     }
                 }
             }
         }
+        LogUtil.e("searchMapping fail, bindingMapping is NULL");
         return null;
     }
 
