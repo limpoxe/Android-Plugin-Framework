@@ -34,9 +34,10 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
     private static HashMap<String, String> singleTaskActivityMapping = new HashMap<String, String>();
     private static HashMap<String, String> singleTopActivityMapping = new HashMap<String, String>();
     private static HashMap<String, String> singleInstanceActivityMapping = new HashMap<String, String>();
-    private static String standardActivity = null;
+    private static HashMap<String, String> standardActivityMapping = new HashMap<String, String>();
+    private static HashMap<String, String> standardActivityTranslucentMapping = new HashMap<String, String>();
+
     private static String standardLandspaceActivity = null;
-    private static String standardActivityTranslucent = null;
 
     private static boolean isPoolInited = false;
 
@@ -55,6 +56,11 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
         int launchMode = (int)Long.parseLong(info.getLaunchMode());
 
         if (launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
+
+            //如果是横屏
+            if (info.getScreenOrientation() != null && Integer.parseInt(info.getScreenOrientation()) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                return standardLandspaceActivity;
+            }
 
             if (info.getTheme() != null) {
                 LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
@@ -81,7 +87,7 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                             theme.applyStyle(styleId, true);
                             TypedArray a = theme.obtainStyledAttributes(null, new int[]{sResId}, 0, 0);
                             if (a.hasValue(0)) {
-                                return standardActivityTranslucent;
+                                bindingMapping = standardActivityTranslucentMapping;
                             }
                         }
                     } catch (ClassNotFoundException e) {
@@ -96,11 +102,9 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                 }
             }
 
-            if (info.getScreenOrientation() != null && (int)Long.parseLong(info.getScreenOrientation()) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                return standardLandspaceActivity;
+            if (bindingMapping == null) {
+                bindingMapping = standardActivityMapping;
             }
-
-            return standardActivity;
 
         } else if (launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) {
 
@@ -138,11 +142,15 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
             if (idleStubActivityName != null) {
                 bindingMapping.put(idleStubActivityName, pluginActivityClassName);
                 return idleStubActivityName;
+            } else {
+                //stub 不够用了
+                LogUtil.e("stub不够用了，需要继续扩展stub占坑");
             }
 
         }
 
-        return standardActivity;
+        //todo 或许需要一个default更保险一点？
+        return "";
     }
 
     @Override
@@ -161,8 +169,18 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
             LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
             singleInstanceActivityMapping.put(stubActivityName, null);
 
+        } else if (pluginActivityName.equals(standardActivityMapping.get(stubActivityName))) {
+
+            LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+            standardActivityMapping.put(stubActivityName, null);
+
+        } else if (pluginActivityName.equals(standardActivityTranslucentMapping.get(stubActivityName))) {
+
+            LogUtil.v("unBindLaunchModeStubActivity", stubActivityName, pluginActivityName);
+            standardActivityTranslucentMapping.put(stubActivityName, null);
+
         } else {
-            //对于standard和singleTop的launchmode，不做处理。
+            //对于singleTop的launchmode，不做处理。
         }
     }
 
@@ -170,9 +188,9 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
     public boolean isStub(String className) {
         initStubPool();
 
-        return className.equals(standardActivity)
+        return standardActivityMapping.containsKey(className)
                 || className.equals(standardLandspaceActivity)
-                || className.equals(standardActivityTranslucent)
+                || standardActivityTranslucentMapping.containsKey(className)
                 || singleTaskActivityMapping.containsKey(className)
                 || singleTopActivityMapping.containsKey(className)
                 || singleInstanceActivityMapping.containsKey(className);
@@ -186,14 +204,18 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
             return stubClassName;
         }
 
-        if (stubClassName.equals(standardActivity)
-                || stubClassName.equals(standardLandspaceActivity)
-                || stubClassName.equals(standardActivityTranslucent)) {
+        if (stubClassName.equals(standardLandspaceActivity)) {
             //1对多的，没法反查
             return stubClassName;
         }
 
-        String target = searchMapping(singleTaskActivityMapping, stubClassName);
+        String target = searchMapping(standardActivityMapping, stubClassName);
+        if (target == null) {
+            target = searchMapping(standardActivityTranslucentMapping, stubClassName);
+        }
+        if (target == null) {
+            target = searchMapping(singleTaskActivityMapping, stubClassName);
+        }
         if (target == null) {
             target = searchMapping(singleTopActivityMapping, stubClassName);
         }
@@ -254,11 +276,17 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                 } else if (resolveInfo.activityInfo.launchMode == ActivityInfo.LAUNCH_MULTIPLE) {
 
                     if (resolveInfo.activityInfo.theme == android.R.style.Theme_Translucent) {
-                        standardActivityTranslucent = resolveInfo.activityInfo.name;
+
+                        standardActivityTranslucentMapping.put(resolveInfo.activityInfo.name, null);
+
                     } else if (resolveInfo.activityInfo.screenOrientation == SCREEN_ORIENTATION_LANDSCAPE) {
+
                         standardLandspaceActivity = resolveInfo.activityInfo.name;
+
                     } else {
-                        standardActivity = resolveInfo.activityInfo.name;
+
+                        standardActivityMapping.put(resolveInfo.activityInfo.name, null);
+
                     }
                 }
 

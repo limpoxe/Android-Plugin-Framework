@@ -131,7 +131,147 @@
             standard 的 launchmode只需全透明和非全透明各注册1个stub即可
         -->
         <activity
-            android:name="${applicationId}.stub.PluginStubActivityStandard0"
+            android:name="${applicationId}.stub.PluginStubActivityST0"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST1"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST2"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST3"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST4"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST5"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST6"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST7"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST8"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST9"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST10"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST11"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST12"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST13"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityST14"
             android:exported="true"
             android:process=":plugin"
             android:theme="@android:style/Theme.Translucent">
@@ -142,7 +282,147 @@
         </activity>
         <!-- 不透 -->
         <activity
-            android:name="${applicationId}.stub.PluginStubActivityStandard1"
+            android:name="${applicationId}.stub.PluginStubActivityS0"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS1"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS2"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS3"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS4"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS5"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS6"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS7"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS8"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS9"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS10"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS11"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS12"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS13"
+            android:exported="true"
+            android:process=":plugin"
+            android:theme="@android:style/Theme">
+            <intent-filter>
+                <action android:name="${applicationId}.STUB_DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="${applicationId}.stub.PluginStubActivityS14"
             android:exported="true"
             android:process=":plugin"
             android:theme="@android:style/Theme">
