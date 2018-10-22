@@ -29,6 +29,7 @@ import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -153,7 +154,21 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						//添加一个标记符
 						intent.addCategory(RELAUNCH_FLAG + className);
 					} else {
-						throw new ClassNotFoundException("pluginClassName : " + pluginClassName, new Throwable());
+
+						//找不到class，加个容错处理
+						className = RealHostClassLoader.TolerantActivity.class.getName();
+						cl = RealHostClassLoader.TolerantActivity.class.getClassLoader();
+						//添加一个标记符
+						intent.addCategory(RELAUNCH_FLAG + className);
+
+						//收集状态
+						LogUtil.e("ClassNotFound: pluginDescriptor=" + pluginDescriptor
+								+ ", pluginClassName=" + pluginClassName +
+								", " + (pluginDescriptor==null?"":(pluginDescriptor.getInstalledPath()
+								+ ", " + pluginDescriptor.getInstallationTime()
+								+ ", " + pluginDescriptor.getVersion()
+								+ ", " + (new File(pluginDescriptor.getInstalledPath()).exists()))));
+
 					}
 				} else if (PluginManagerProviderClient.isExact(className, PluginDescriptor.ACTIVITY)) {
 
@@ -174,12 +189,22 @@ public class PluginInstrumentionWrapper extends Instrumentation {
                         //添加一个标记符
                         intent.addCategory(RELAUNCH_FLAG + className);
 					} else {
+
+						//收集状态
+						LogUtil.e("ClassNotFound: pluginDescriptor=" + pluginDescriptor
+								+ ", pluginClassName=" + className +
+								", " + (pluginDescriptor==null?"":(pluginDescriptor.getInstalledPath()
+								+ ", " + pluginDescriptor.getInstallationTime()
+								+ ", " + pluginDescriptor.getVersion()
+								+ ", " + (new File(pluginDescriptor.getInstalledPath()).exists()))));
+
 						//精确匹配却找不着目标，有多种可能，其中一个可能是收到外部发来的组件Intent时，插件还没安装
                         //因此这里强行返回容错的class
                         className = RealHostClassLoader.TolerantActivity.class.getName();
                         cl = RealHostClassLoader.TolerantActivity.class.getClassLoader();
                         //添加一个标记符
                         intent.addCategory(RELAUNCH_FLAG + className);
+
                     }
 				} else {
 					//进入这个分支可能是因为activity重启了，比如横竖屏切换，由于上面的分支已经把Action还原到原始到Action了

@@ -135,6 +135,9 @@ public class PluginInjector {
 		if (activity instanceof WaitForLoadingPluginActivity) {
 			return;
 		}
+		if (activity instanceof com.limpoxe.fairy.core.RealHostClassLoader.TolerantActivity) {
+			return;
+		}
 
 		LogUtil.v("injectActivityContext");
 
