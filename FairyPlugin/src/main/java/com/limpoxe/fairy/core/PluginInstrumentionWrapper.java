@@ -161,6 +161,11 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 						//添加一个标记符
 						intent.addCategory(RELAUNCH_FLAG + className);
 
+						if (pluginDescriptor != null) {
+							LogUtil.e("error, remove " + pluginDescriptor.getPackageName());
+							PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+						}
+
 						//收集状态
 						LogUtil.e("ClassNotFound: pluginDescriptor=" + pluginDescriptor
 								+ ", pluginClassName=" + pluginClassName +

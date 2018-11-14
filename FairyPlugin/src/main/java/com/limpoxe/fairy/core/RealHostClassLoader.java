@@ -90,6 +90,7 @@ public class RealHostClassLoader extends DexClassLoader {
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             LogUtil.w("容错TolerantService被触发");
+            stopSelf();
             return super.onStartCommand(intent, flags, startId);
         }
     }
@@ -99,6 +100,12 @@ public class RealHostClassLoader extends DexClassLoader {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             LogUtil.w("容错TolerantActivity被触发");
+        }
+
+        @Override
+        protected void onResume() {
+            super.onResume();
+            finish();
         }
     }
 

@@ -207,6 +207,13 @@ public class PluginLauncher implements Serializable {
 			((PluginContextTheme)pluginContext).setCrackPackageManager(false);
 
 		} catch (Exception e) {
+
+			//java.io.IOException: Failed to find magic in xxx.apk
+			if (pluginDescriptor != null) {
+				LogUtil.e("error, remove " + pluginDescriptor.getPackageName());
+				PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+			}
+
             throw new PluginNotFoundError(e);
 		}
 
