@@ -388,6 +388,11 @@ class PluginManagerService {
 					FileUtil.printAll(new File(FairyGlobal.getHostApplication().getApplicationInfo().dataDir));
 				}
 
+				//自启动，安装时就启动
+				if (pluginDescriptor.getAutoStart()) {
+					PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+				}
+
 				return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 		}

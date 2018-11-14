@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
 import android.content.res.XmlResourceParser;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.limpoxe.fairy.content.PluginActivityInfo;
@@ -14,20 +13,14 @@ import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.android.HackAssetManager;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.ManifestReader;
 import com.limpoxe.fairy.util.ResourceUtil;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public class PluginManifestParser {
 
@@ -78,6 +71,8 @@ public class PluginManifestParser {
                             String requiredHostVersionName = parser.getAttributeValue(null, "requiredHostVersionName");
                             String requiredHostVersionCode = parser.getAttributeValue(null, "requiredHostVersionCode");
 
+                            String autoStart = parser.getAttributeValue(null, "autoStart");
+
                             desciptor.setPackageName(packageName);
                             desciptor.setVersionName(versionName);
                             desciptor.setVersionCode(versionCode);
@@ -90,6 +85,7 @@ public class PluginManifestParser {
                             }
 
                             desciptor.setUseHostPackageName("true".equals(useHostPackageName));
+                            desciptor.setAutoStart("true".equals(autoStart));
 
                             LogUtil.v(packageName, versionCode, versionName, hostApplicationId, FairyGlobal.getHostApplication().getPackageName());
                         } else if ("uses-sdk".equals(tag))  {

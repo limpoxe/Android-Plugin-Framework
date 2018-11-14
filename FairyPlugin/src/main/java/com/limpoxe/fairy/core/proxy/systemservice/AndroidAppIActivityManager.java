@@ -216,6 +216,44 @@ public class AndroidAppIActivityManager extends MethodProxy {
      */
     public static class getContentProvider extends MethodDelegate {
 
+        /**
+         * 防止在插件被唤起之前，在插件进程中调用插件的contentprovider，由于插件尚未初始化和安装contentprovider导致的无效url错误
+         * @param target
+         * @param method
+         * @param args
+         * @return
+         */
+        @Override
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            if(ProcessUtil.isPluginProcess()) {
+                String auth = (String)args[1];
+                LogUtil.d("getContentProvider", auth);
+                if (!PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
+                    ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
+                    for(PluginDescriptor pluginDescriptor : list) {
+                        HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
+                        if (map != null) {
+                            Iterator<PluginProviderInfo> iterator = map.values().iterator();
+                            while(iterator.hasNext()) {
+                                PluginProviderInfo pluginProviderInfo = iterator.next();
+                                //在插件中找到了匹配的contentprovider
+                                if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
+                                    //先检查插件是否已经初始化
+                                    boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
+                                    if (!isrunning) {
+                                        LogUtil.d("getContentProvider", "wakeup");
+                                        PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return super.beforeInvoke(target, method, args);
+        }
+
         //ApplicationThread, auth, userId, stable
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {

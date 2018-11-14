@@ -35,6 +35,7 @@ import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.TARGET_URL;
  *
  * 利用ContentProvider实现同步跨进程调用
  *
+ * 注意： ContentProvider 的方法可能不是在主线程中执行的。
  */
 public class PluginManagerProvider extends ContentProvider {
 

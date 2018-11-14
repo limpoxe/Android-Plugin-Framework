@@ -151,23 +151,33 @@ public class PluginLoader {
             return;
         }
 
-        //版本号发生了变化
-        if (!hostVersionName.equals(lastHostVersoinName)) {
-            //遍历检查已安装的非独立插件是否支持当前版本的宿主
-            ArrayList<PluginDescriptor> pluginDescriptorList =  PluginManagerHelper.getPlugins();
-            for(int i = 0; i < pluginDescriptorList.size(); i++) {
-                PluginDescriptor pluginDescriptor = pluginDescriptorList.get(i);
-                if (!pluginDescriptor.isStandalone() && pluginDescriptor.getRequiredHostVersionName() != null) {
-                    //是非独立插件，而且指定了插件运行需要的的宿主版本
-                    //判断宿主版本是否满足要求
-                    if (!pluginDescriptor.getRequiredHostVersionName().equals(hostVersionName)) {
-                        //不满足要求，卸载此插件
-                        LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostVersionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
-                        LogUtil.w("卸载此插件");
-                        PluginManagerHelper.remove(pluginDescriptor.getPackageName());
-                    }
+        boolean isHostVerionChanged = !hostVersionName.equals(lastHostVersoinName);
+
+        ArrayList<PluginDescriptor> pluginDescriptorList =  PluginManagerHelper.getPlugins();
+        for(int i = 0; i < pluginDescriptorList.size(); i++) {
+            PluginDescriptor pluginDescriptor = pluginDescriptorList.get(i);
+
+            boolean isRemoved = false;
+            //版本号发生了变化 检查已安装的非独立插件是否支持当前版本的宿主
+            if (isHostVerionChanged && !pluginDescriptor.isStandalone() && pluginDescriptor.getRequiredHostVersionName() != null) {
+                //判断宿主版本是否满足要求， 不满足要求，卸载此插件
+                if (!pluginDescriptor.getRequiredHostVersionName().equals(hostVersionName)) {
+                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostVersionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
+                    LogUtil.w("卸载此插件");
+                    //边循环边删除没问题，因为是不同的列表对象
+                    PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+                    isRemoved = true;
                 }
             }
+
+            //自启动，宿主启动时自动启动
+            if (!isRemoved && pluginDescriptor.getAutoStart()) {
+                PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+            }
+        }
+
+        //版本号发生了变化, 保存新的版本号
+        if (isHostVerionChanged) {
             prefs.edit().putString(KEY, hostVersionName).apply();
         }
     }

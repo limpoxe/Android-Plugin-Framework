@@ -32,9 +32,9 @@ public class PluginDescriptor implements Serializable {
 	public static final int FRAGMENT = 8;
 	public static final int FUNCTION = 9;
 
-	private static final long serialVersionUID = -6578560966433824829L;
+    private static final long serialVersionUID = 6742761531732381741L;
 
-	private String packageName;
+    private String packageName;
 
 	private String platformBuildVersionCode;
 
@@ -48,6 +48,8 @@ public class PluginDescriptor implements Serializable {
 	private String versionName;
 
 	private String requiredHostVersionName;
+
+	private boolean autoStart;
 
 	private String description;
 
@@ -194,6 +196,14 @@ public class PluginDescriptor implements Serializable {
     public String getRequiredHostVersionName() {
         return requiredHostVersionName;
     }
+
+	public boolean getAutoStart() {
+		return autoStart;
+	}
+
+	public void setAutoStart(boolean autoStart) {
+		this.autoStart = autoStart;
+	}
 
 	public String getDescription() {
 		return description;
