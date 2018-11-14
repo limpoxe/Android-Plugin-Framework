@@ -185,6 +185,35 @@ public class AndroidAppIActivityManager extends MethodProxy {
         }
     }
 
+    /**
+     * 这个的目的是为了实现跨进程调用插件中定义的provider
+     *
+     * 例：在插件A中定义了一个contentprovider
+     *    插件A在被wakeup的时候会通过调用PluginInjector.installContentProvider安装这个contentprovider到插件进程
+     *    接下来在插件进程中的任意一个插件，都是可以直接通过contentreslover直接调用这个插件
+     *
+     *    但是如果想在非插件进程，也能调用这个插件的contentprovider，则需要借助这个getContentProvider类来实现
+     *    过程是：
+     *    想在非插件进程调用插件contentprovider，必定会在此非插件进程触发getContentProvider方法
+     *    进入到下面的逻辑中；
+     *    如果目标contentprovider是插件中的（通过auth判断），则先返回一个fake的contentprovider给调用者
+     *    此时，非插件进程中的调用发起方，获得来一个fake的contentprovider；其实例是：ProviderClientProxy
+     *
+     *    接下来，所有对插件contentprovdier的调用，其实都是在调用这个fake contentprovider：ProviderClientProxy
+     *
+     *    而ProviderClientProxy会将所有调用，都转发给PluginMangerProvider，这个provider是定义在插件进程中的
+     *
+     *    接着由这个插件进程中的PluginMangerProvider，将调用再转发给插件定义的contentreslover
+     *    到这一步为止，其实就是回到了最前面在插件进程中调用插件contentprovider逻辑中去了
+     *
+     *    而在前面提到的"都转发给PluginMangerProvider"，有一种情况是不方便直接转发的，就是call函数
+     *    call函数丢失了url参数，在PluginMangerProvider在转发的时候不知道要转给谁，
+     *    因此额外做了一个约定，是非插件进程的调用发起方，在试图调用插件provider的call方法时，
+     *    需要同时将url添加到参数extras中去，PluginMangerProvider在转发的时候再从extras中取出url参数，就知道要转给谁了
+     *
+     *    这就是ProviderClientProxy.CALL_PROXY_KEY这个参数的由来
+     *
+     */
     public static class getContentProvider extends MethodDelegate {
 
         //ApplicationThread, auth, userId, stable
