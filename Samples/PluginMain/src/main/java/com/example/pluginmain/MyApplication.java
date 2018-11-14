@@ -19,7 +19,7 @@ public class MyApplication extends DemoApplication {
         //MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
 
         FairyGlobal.setLogEnable(true);
-        FairyGlobal.setLocalHtmlenable(true);
+        FairyGlobal.setLocalHtmlenable(false);
         FairyGlobal.setLoadingResId(R.layout.loading);
 
         //Just for test custom Mapping Processor
