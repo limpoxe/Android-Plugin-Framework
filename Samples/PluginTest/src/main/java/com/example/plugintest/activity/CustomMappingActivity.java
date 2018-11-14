@@ -19,7 +19,7 @@ public class CustomMappingActivity extends Activity {
         setContentView(R.layout.plugin_cust_stub_activity);
 
         LogUtil.d("onCreate");
-        text = text + "onCreate ";
+        text = text + "CustomMappingActivity onCreate ";
 
         ((TextView)findViewById(R.id.textview)).setText(text);
     }
