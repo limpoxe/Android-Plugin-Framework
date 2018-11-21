@@ -113,13 +113,13 @@ public class PluginManagerProvider extends ContentProvider {
     }
 
     public PluginManagerProvider() {
-        Log.d("PluginManagerProvider", "create PluginManagerProvider instance");
+        Log.e("PluginManagerProvider", "create instance");
     }
 
     @Override
     public boolean onCreate() {
 
-        Log.d("PluginManagerProvider", "onCreate, Thread id " + Thread.currentThread().getId() + " name " + Thread.currentThread().getName());
+        Log.d("PluginManagerProvider", "onCreate, Thread id " + Thread.currentThread().getId() + " name " + Thread.currentThread().getName() + " pid " + Process.myPid());
 
         mainHandler = new Handler(Looper.getMainLooper());
         managerService = new PluginManagerService();

@@ -243,6 +243,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                                     if (!isrunning) {
                                         LogUtil.d("getContentProvider", "wakeup");
                                         PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+                                        //TODO 这里时许仍然晚了一步 可能是因为wakeup异步执行的原因
                                     }
                                     break;
                                 }

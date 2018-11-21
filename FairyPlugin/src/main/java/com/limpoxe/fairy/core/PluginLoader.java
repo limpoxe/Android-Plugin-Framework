@@ -128,15 +128,13 @@ public class PluginLoader {
             }
         }
 
-        removeNotSupportedPluginIfUpgraded();
-
         FairyGlobal.setIsInited(true);
 
         long t2 = System.currentTimeMillis();
         LogUtil.w("插件框架初始化完成", "耗时：" + (t2-t1));
 	}
 
-    private static void removeNotSupportedPluginIfUpgraded() {
+    public static void removeNotSupportedPluginIfUpgraded() {
         //如果宿主进行了覆盖安装的升级操作，移除已经安装的对宿主版本有要求的非独立插件
         String KEY = "last_host_versionName";
         SharedPreferences prefs = FairyGlobal.getHostApplication().getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
