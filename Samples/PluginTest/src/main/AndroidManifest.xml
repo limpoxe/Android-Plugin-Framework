@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.plugintest"
-    android:versionCode="1"
-    android:versionName="1.0.1">
-
-    <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="22" />
+    package="com.example.plugintest">
 
  	<application 
  	    android:name="com.example.plugintest.PluginTestApplication"
@@ -19,19 +13,6 @@
 
         <!-- 测试插件Meta-Data -->
         <meta-data android:name="abcdef" android:value="654321"/>
-
-        <!-- 通知插件框架哪些fragment是可以嵌入宿主Activity的，如果fragment只是插件内使用，无需对外暴露则无需配置 -->
-        <exported-fragment android:name="some_id_for_fragment1" android:value="com.example.plugintest.fragment.PluginNormalFragment"/>
-        <!-- 通知插件框架哪些fragment是可以嵌入宿主Activity的，如果fragment只是插件内使用，无需对外暴露则无需配置 -->
-        <exported-fragment android:name="some_id_for_fragment2" android:value="com.example.plugintest.fragment.PluginSpecFragment" />
-        <!-- 通知插件框架本插件向外提供的业务服务接口 android:value为实现,android:label为接口 -->
-        <exported-service android:name="login_service"
-            android:value="com.example.plugintest.PluginLoginService"
-            android:label="com.example.plugintestbase.ILoginService"/>
-        <!-- 如果服务需要支持跨进程调用，例如被宿主进程调用，则需要配置android:label为服务所实现的接口className-->
-        <exported-service android:name="share_service"
-            android:value="com.example.plugintest.PluginSharedService"
-            android:label="com.example.pluginsharelib.ShareService" />
 
         <activity android:name=".activity.LauncherActivity"
                   android:theme="@style/PluginTheme5">

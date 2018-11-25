@@ -9,26 +9,11 @@ import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-//在宿主脚本中apply此脚本, 此脚本一共做了6件事
-//1、编译完成后导出所有资源id，即aaptOptions.additionalParameters这个配置干的事情, 下面第4步需要此文件
-//2、编译宿主资源时插入public.xml，用来控制宿主资源id分组
-//3、指定插件进程名称，导出.ap_文件
-//4、编译完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包
-//5、编译完成后导出宿主的jar，包括宿主的src和其依赖的所有class, 编译非独立插件时需要此包
-//6、编译完成后导出宿主混淆后的jar，包括宿主的src和其依赖的所有class, 编译非独立插件时若插件需要混淆则需要此包
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
+
 configurations {
     innerPlugin
 }
-
-def AndroidGradlePluginVersion = getPlugins().findPlugin("com.android.application").androidBuilder.createdBy
 
 def innerPluginApkList = []
 
@@ -45,8 +30,8 @@ class FaiyExt {
 }
 extensions.create('fairy', FaiyExt)
 
-//第1件事
-android.aaptOptions.additionalParameters("-P", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml")
+//这个配置目前没有用到，备用吧
+android.aaptOptions.additionalParameters("--emit-ids", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.properties")
 
 afterEvaluate {
 
@@ -54,8 +39,8 @@ afterEvaluate {
         throw new Exception("宿主build.gradle未配置android.defaultConfig.applicationId")
     }
 
+    //收集需要内置的插件文件地址
     configurations.innerPlugin.files.each { file ->
-        //收集插件文件地址
         innerPluginApkList << file.absolutePath
     }
 
@@ -68,53 +53,53 @@ afterEvaluate {
 
         println 'Check Env : ' + varName +  " " + buildTypeName + " " + flavorName + " " + varDirName
 
-        def scope = variant.getVariantData().getScope()
-        def mergeTask = tasks.getByName(scope.getMergeResourcesTask().name)
+        def mergeTask = variant.getMergeResources()
 
-        //第2件事
         mergeTask.doLast {
-            String destPath = mergeTask.outputDir.absolutePath + '/values/';
-            //如果是通过本地路径引入的此脚本
-            if (buildscript.sourceFile != null) {
 
-                def publicXmlPath = buildscript.sourceFile.getParentFile().absolutePath + '/public.xml'
-                println '编译宿主资源时插入' + publicXmlPath + ' 到 ' + destPath + ', 用来控制宿主资源id分组'
+            println '生成一份主题patch包，编译非独立插件时需要此包'
 
-                if(!file(publicXmlPath).exists()) {
-                    throw new FileNotFoundException("public.xml 文件未找到，请检查路径：" + (buildscript.sourceFile.getParentFile().absolutePath + '/public.xml'))
-                }
+            File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch/" + buildTypeName);
+            patchDir.mkdirs();
 
-                copy {
-                    from(buildscript.sourceFile.getParentFile()) {
-                        include 'public.xml'
-                    }
-                    into(destPath)
-                }
-            } else {
-                String url = buildscript.sourceURI.toString().replaceFirst("[a-zA-Z\\.]*\$", "public.xml")
-                println '编译宿主资源时插入' + url + ' 到' + destPath + ', 用来控制宿主资源id分组'
-                HttpURLConnection httpConn =(HttpURLConnection)(new URL(url).openConnection())
-                InputStream inputStream = httpConn.getInputStream()
-                OutputStream ouput =new FileOutputStream(new File(destPath, "public.xml"))
-                byte[] buffer = new byte[8*1024]
-                int size = -1
-                while((size = inputStream.read(buffer)) != -1) {
-                    ouput.write(buffer, 0, size)
-                }
-                ouput.close()
-                httpConn.disconnect()
+            //宿主资源id分组就靠这个文件了
+            def String publicAttrrsXml= "/res/values/public_attrs.xml" ;
+            def String publicAttrrsXmlFile = patchDir.absolutePath + publicAttrrsXml;
+
+            //导出一份主题包备用，编译非独立插件时需要
+            createThemePatch(flavorName, buildTypeName, patchDir, publicAttrrsXml);
+
+            if(!file(publicAttrrsXmlFile).exists()) {
+                throw new FileNotFoundException("createThemePatch 失败，public_attrs.xml 文件未生成，请检查路径：" + publicAttrrsXmlFile)
             }
 
-            if (!file(destPath + "public.xml").exists()) {
-                throw new FileNotFoundException("文件不存在：" + destPath + "public.xml")
+            String mergeResourcesOutPath = mergeTask.outputDir.absolutePath;
+
+            //需要确保aapt2在环境变量中，否则可能会执行失败
+            //Android Studio环境中的aapt2和命令行中的可能不是同一个版本，
+            //idea使用的版本位于～/.gradle/caches/transforms-1/files-1.1/aapt2-**-osx.jar/**/aapt2-**/aapt2
+            //sdk的版本位于～/Library/Android/sdk/build-tools/28.0.3//aapt2
+            //如果不是同一个版本可能出现Android Resource Link错误、magic number错误
+            //因此还需要保证环境变量中的aapt2和idea中使用的是相同的版本，并不低于28.0.3
+            println "aapt2 compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile"
+            "aapt2 compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile".execute()
+
+            //aapt2执行需要时间，这里等等它，否则下面的文件存在判断可能会快速失败
+            Thread.sleep(100)
+
+            //检查aapt2是否执行成功
+            if(!file(mergeResourcesOutPath + "/values_public_attrs.arsc.flat").exists()) {
+                throw new FileNotFoundException("values_public_attrs.arsc.flat 文件未找到，请检查路径：" + publicXmlPath)
             }
+
         }
 
-        def mergeAssetsTask = tasks.getByName(scope.getMergeAssetsTask().name)
+        def mergeAssetsTask = variant.getMergeAssets()
         mergeAssetsTask.setOnlyIf { true }
         mergeAssetsTask.outputs.upToDateWhen { false }
         mergeAssetsTask.doLast {
 
+            //检查内置插件坐标是否存在，不存在给出提示
             innerPluginApkList.each { innerAPK ->
                 if (!file(innerAPK).exists()) {
                     project.logger.info "引用的插件apk文件不存在，可能插件apk还未编译完成，或者宿主innerPlugin配置的路径错误：", innerAPK
@@ -128,7 +113,6 @@ afterEvaluate {
             }
         }
 
-        //第3件事
         for (baseVariant in variant.outputs) {
 
             def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
@@ -195,35 +179,20 @@ afterEvaluate {
                 copy {
                     println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
 
-                    //println com.android.builder.Version.ANDROID_GRADLE_PLUGIN_VERSION
-                    //Android Gradle Plugin Version 3.x
-                    if (!AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
-                        println processResourcesTask.resPackageOutputFolder
-                        from processResourcesTask.resPackageOutputFolder
-                        into("${project.buildDir}/outputs/")
-                        rename(new Transformer<String, String>() {
-                            @Override
-                            String transform(String s) {
-                                return "resources.ap_"
-                            }
-                        })
-                    } else {
-                        //Android Gradle Plugin Version 2.x
-                        println processResourcesTask.packageOutputFile
-                        from processResourcesTask.packageOutputFile
-                        into("${project.buildDir}/outputs/")
-                        rename(new Transformer<String, String>() {
-                            @Override
-                            String transform(String s) {
-                                return "resources.ap_"
-                            }
-                        })
-                    }
+                    println processResourcesTask.resPackageOutputFolder
+                    from processResourcesTask.resPackageOutputFolder
+                    into("${project.buildDir}/outputs/")
+                    rename(new Transformer<String, String>() {
+                        @Override
+                        String transform(String s) {
+                            return "resources.ap_"
+                        }
+                    })
                 }
             }
         }
 
-        //第5件事
+        //将宿主的所有class，包括宿主的、和它所有依赖的类，合并起来打出一个jar来，供将来的非独立插件使用
         def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
         javaCompile.doLast {
 
@@ -246,33 +215,25 @@ afterEvaluate {
                 });
 
                 javaCompile.classpath.each { jarPath ->
+                    println "adding jar " + jarPath
                     jarMerger.addJar(jarPath);
                     //jarMerger.addFolder(directoryInput.getFile());
                 }
 
-                String buildClassesTaskName1 = "jar" + varName.capitalize() +  "Classes";
-                String classesPath1 = 'intermediates/packaged/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/classes.jar";
-
-                String buildClassesTaskName2 = "bundleAppClasses" + varName.capitalize();
-                String classesPath2 = 'intermediates/classes-jar/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/classes.jar"
+                String buildClassesTaskName3 = "packageAppClasses" + varName.capitalize();
+                String classesPath3 = 'intermediates/app_classes/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/" + buildClassesTaskName3 + "/classes.jar"
 
                 def buildClassesTaskName;
                 def classesPath;
 
-                if (tasks.findByName(buildClassesTaskName1)) {
-                    buildClassesTaskName = buildClassesTaskName1;
-                    classesPath = classesPath1;
-                } else if (tasks.findByName(buildClassesTaskName2)) {
-                    buildClassesTaskName = buildClassesTaskName2;
-                    classesPath = classesPath2;
+                if (tasks.findByName(buildClassesTaskName3)) {
+                    buildClassesTaskName = buildClassesTaskName3;
+                    classesPath = classesPath3;
                 } else {
                     throw new IllegalAccessError("未找到打包宿主classes的task，请检查android gradle 插件版本")
                 }
 
                 File classes = new File(buildDir, classesPath);
-
-                println "classes path is " + classes.absolutePath
-                println "buildClassesTaskName is " + buildClassesTaskName
 
                 if (!classes.exists()) {
                     try {
@@ -284,7 +245,11 @@ afterEvaluate {
                     println "classes path already exists： " + classes.absolutePath
                 }
                 if (classes.exists()) {
+                    println "adding jar " + classes
                     jarMerger.addJar(classes)
+                } else {
+                    println "Not exists : classes path is " + classes.absolutePath
+                    println "Not exists : buildClassesTaskName is " + buildClassesTaskName
                 }
             } finally {
                 jarMerger.close()
@@ -293,7 +258,6 @@ afterEvaluate {
             println "Merge Jar Finished, Jar is at " + jarFile.absolutePath
         }
 
-        //第6件事
         //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
         def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
         if (proguardTask) {
@@ -340,15 +304,6 @@ afterEvaluate {
             }
         }
 
-        //第4件事
-        tasks.findByName("generate${varName.capitalize()}Sources").doFirst {
-
-            println '编译宿主ap完成后根据资源中间文件以及导出的资源id表生成一份主题patch包，编译非独立插件时需要此包 flavorName = ' + flavorName + ", buildTypeName = " + buildTypeName
-
-            createThemePatch(flavorName, buildTypeName);
-
-        }
-
         //导出宿主最终的基线包
         tasks.findByName("assemble${varName.capitalize()}").finalizedBy makeHostBaseLine
     }
@@ -372,46 +327,42 @@ task makeHostBaseLine(type: Zip) {
 }
 
 //导出主题patch
-def createThemePatch(String flavor, String buildType) {
-
-    File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch/" + buildType);
-    patchDir.mkdirs();
-
-    File generatedRes = new File(project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.xml");
-    File dest = new File(patchDir, "patch_theme.xml")
-
-    println "export from " + generatedRes + " to " + dest
-
-    if (!generatedRes.exists()) {
-        throw new FileNotFoundException("File Not Found : " + generatedRes.absolutePath)
-    }
+def createThemePatch(String flavor, String buildType, File patchDir, String publicAttrsXmlFile) {
 
     def packageName = android.defaultConfig.applicationId
     if (android.buildTypes[buildType].applicationIdSuffix != null) {
         packageName = packageName + android.buildTypes[buildType].applicationIdSuffix;
     }
 
-    ThemeProcessor.exportThemeStyle(generatedRes, dest, packageName)
-
-    String mergedResDir = "${project.buildDir}/intermediates/res/merged/" + (flavor.equals("")?"":(flavor + "/")) + buildType + "/";
+    String mergedResDir = "${project.buildDir}/intermediates/incremental/merge" + buildType.capitalize() + "Resources/merged.dir/"
     FileTree allxmlFiles = fileTree(dir: mergedResDir)
-    allxmlFiles.include 'values/values*.xml', 'values-v1*/values-v1*.xml', 'values-v2*/values-v2*.xml', 'values-*-v1*/values-*-v1*.xml', 'values-*-v4/values-*-v4.xml', 'values-land/values-land.xml', 'values-*-v2*/values-*-v2*.xml', 'values-*-v8/values-*-v8.xml'
+    allxmlFiles.include 'values/values*.xml',
+                        'values-v1*/values-v1*.xml',
+                        'values-v2*/values-v2*.xml',
+                        'values-*-v1*/values-*-v1*.xml',
+                        'values-*-v4/values-*-v4.xml',
+                        'values-land/values-land.xml',
+                        'values-*-v2*/values-*-v2*.xml',
+                        'values-*-v8/values-*-v8.xml'
 
     allxmlFiles.each { File itemFile ->
-        dest = new File(patchDir, 'patch_' + itemFile.name)
+        def valuesDir = itemFile.getAbsolutePath().replace(itemFile.getParentFile().getParentFile().absolutePath, "").replace(itemFile.name, "")
+        def destFile = new File(patchDir, 'res' + valuesDir + "patch_" + itemFile.name)
+        destFile.getParentFile().mkdirs()
+        println "export from " + itemFile + " to " + destFile
 
-        println "export from " + itemFile + " to " + dest
-
-        ThemeProcessor.exportThemeStyle(itemFile, dest, packageName)
+        //通过values.xml生成publicAttrsXml
+        ThemeProcessor.exportThemeStyle(itemFile, destFile, packageName,
+                itemFile.name.equals("values.xml")?new File(patchDir, publicAttrsXmlFile):null)
     }
 }
 
 public class ThemeProcessor extends DefaultHandler {
 
-    public static void exportThemeStyle(File srcFile, File destFile, String packageName) {
+    public static void exportThemeStyle(File srcFile, File destFile, String packageName, File attrFile) {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-            saxParser.parse(new FileInputStream(srcFile), new ThemeProcessor(destFile, packageName));
+            saxParser.parse(new FileInputStream(srcFile), new ThemeProcessor(destFile, packageName, attrFile));
         } catch (ParserConfigurationException e) {
             System.out.println(e.getMessage());
         } catch (SAXException e) {
@@ -430,16 +381,19 @@ public class ThemeProcessor extends DefaultHandler {
 
     File destFile;
     String packageName;
+    File attrFile;
     Stack<Node> stack = new Stack<Node>();
     BufferedWriter outXmlStream = null;
+    BufferedWriter outPublicAttrStream = null;
 
     HashSet<String> attrSets = new HashSet<>();
 
     HashSet<String> dupcate = new HashSet<>();
 
-    public ThemeProcessor(File destFile, String packageName) {
+    public ThemeProcessor(File destFile, String packageName, File attrFile) {
         this.destFile = destFile;
         this.packageName = packageName;
+        this.attrFile = attrFile;
     }
 
     public void startDocument() throws SAXException {
@@ -447,6 +401,61 @@ public class ThemeProcessor extends DefaultHandler {
             outXmlStream = new BufferedWriter(new FileWriter(destFile));
             outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+
+
+            if (attrFile != null) {
+                attrFile.getParentFile().mkdirs()
+                outPublicAttrStream = new BufferedWriter(new FileWriter(attrFile));
+                outPublicAttrStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                outPublicAttrStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+                outPublicAttrStream.write("\n<resources>");
+                outPublicAttrStream.write("\n    <public type=\"attr\" name=\"public_static_final_host_attr_\" id=\"0x7f310000\" />\n" +
+                                        "    <public type=\"drawable\" name=\"public_static_final_host_drawable_\" id=\"0x7f320000\" />\n" +
+                                        "    <public type=\"layout\" name=\"public_static_final_host_layout_\"   id=\"0x7f330000\" />\n" +
+                                        "    <public type=\"anim\" name=\"public_static_final_host_anim_\"    id=\"0x7f340000\" />\n" +
+                                        "    <public type=\"xml\" name=\"public_static_final_host_xml_\"      id=\"0x7f350000\" />\n" +
+                                        "    <public type=\"raw\" name=\"public_static_final_host_raw_\"     id=\"0x7f360000\" />\n" +
+                                        "    <public type=\"dimen\" name=\"public_static_final_host_dimen_\"  id=\"0x7f370000\" />\n" +
+                                        "    <public type=\"string\" name=\"public_static_final_host_string_\"  id=\"0x7f380000\" />\n" +
+                                        "    <public type=\"style\" name=\"public_static_final_host_style_\"  id=\"0x7f390000\" />\n" +
+                                        "    <public type=\"color\" name=\"public_static_final_host_color_\"  id=\"0x7f3a0000\" />\n" +
+                                        "    <public type=\"id\" name=\"public_static_final_host_id_\"   id=\"0x7f3b0000\" />\n" +
+                                        "    <public type=\"bool\" name=\"public_static_final_host_bool_\"   id=\"0x7f3c0000\" />\n" +
+                                        "    <public type=\"integer\" name=\"public_static_final_host_int_\" id=\"0x7f3d0000\" />\n" +
+                                        "    <public type=\"array\" name=\"public_static_final_host_array_\" id=\"0x7f3e0000\" />\n" +
+                                        "    <public type=\"menu\" name=\"public_static_final_host_menu_\"  id=\"0x7f3f0000\" />\n" +
+                                        "    <public type=\"mipmap\" name=\"public_static_final_host_mipmap_\" id=\"0x7f400000\" />\n" +
+                                        "    <public type=\"animator\" name=\"public_static_final_host_animator\"  id=\"0x7f410000\" />\n" +
+                                        "    <public type=\"fraction\" name=\"public_static_final_host_fraction\"  id=\"0x7f420000\" />\n" +
+                                        "    <public type=\"font\" name=\"public_static_final_host_font\"    id=\"0x7f430000\" />\n" +
+                                        "    <public type=\"plurals\" name=\"public_static_final_host_plurals\" id=\"0x7f440000\" />\n" +
+                                        "    <public type=\"interpolator\" name=\"public_static_final_host_interpolator\" id=\"0x7f450000\" />\n" +
+                                        "    <public type=\"transition\" name=\"public_static_final_host_transition\" id=\"0x7f460000\" />\n" +
+                                        "\n" +
+                                        "    <item name=\"public_static_final_host_attr_\" type=\"attr\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_anim_\" type=\"anim\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_animator\" type=\"animator\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_array_\" type=\"array\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_bool_\" type=\"bool\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_color_\" type=\"color\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_dimen_\" type=\"dimen\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_drawable_\" type=\"drawable\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_font\" type=\"font\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_fraction\" type=\"fraction\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_int_\" type=\"integer\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_interpolator\" type=\"interpolator\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_layout_\" type=\"layout\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_menu_\" type=\"menu\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_mipmap_\" type=\"mipmap\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_plurals\" type=\"plurals\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_raw_\" type=\"raw\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_string_\" type=\"string\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_style_\" type=\"style\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_transition\" type=\"transition\" ></item>\n" +
+                                        "    <item name=\"public_static_final_host_xml_\" type=\"xml\" ></item>" +
+                                        "\n")
+            }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -486,12 +495,21 @@ public class ThemeProcessor extends DefaultHandler {
                             Node top = stack.peek();
                             if (!dupcate.contains(top.name)) {
                                 outXmlStream.write(tag);
+                                if (qName.equals("attr") && outPublicAttrStream != null) {
+                                    outPublicAttrStream.write(tag.replace("<attr", "<public type=\"attr\" ") + "</public>")
+                                }
                             }
                         } else {
                             outXmlStream.write(tag);
+                            if (qName.equals("attr") && outPublicAttrStream != null) {
+                                outPublicAttrStream.write(tag.replace("<attr", "<public type=\"attr\" ") + "</public>")
+                            }
                         }
                     } else {
                         outXmlStream.write(tag);
+                        if (qName.equals("attr") && outPublicAttrStream != null) {
+                            outPublicAttrStream.write(tag.replace("<attr", "<public type=\"attr\" ") + "</public>")
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -597,6 +615,13 @@ public class ThemeProcessor extends DefaultHandler {
         try {
             outXmlStream.flush();
             outXmlStream.close();
+
+            if (outPublicAttrStream != null) {
+                outPublicAttrStream.write("\n</resources>");
+                outPublicAttrStream.flush();
+                outPublicAttrStream.close();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

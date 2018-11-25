@@ -5,7 +5,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.2.1'
 
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
@@ -27,11 +27,11 @@ allprojects {
 ext {
 
     //定义常量，方便统一切换脚本的版本
-    //HOST_FAIRY_SCRIPT = "../../FairyPlugin/host.gradle"
-    HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
+    HOST_FAIRY_SCRIPT = "../../FairyPlugin/host.gradle"
+    //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
     //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.63-snapshot/FairyPlugin/host.gradle"
 
-    //PLUGIN_FAIRY_SCRIPT = '../../FairyPlugin/plugin.gradle'
-    PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+    PLUGIN_FAIRY_SCRIPT = '../../FairyPlugin/plugin.gradle'
+    //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
     //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.63-snapshot/FairyPlugin/plugin.gradle"
 }

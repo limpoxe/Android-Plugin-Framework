@@ -4,7 +4,7 @@ apply from: PLUGIN_FAIRY_SCRIPT
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.example.plugintestbase"
@@ -33,9 +33,9 @@ tasks.whenTaskAdded { task ->
         if (task.name.equalsIgnoreCase("compile" + buildType.name + "Sources")) {
             task.doLast {
                 println '导出 ' + buildType.name + ' jar包到build/outputs/apk目录'
-                tasks.getByName("bundleAppClasses" + buildType.name.substring(0, 1).toUpperCase()+ buildType.name.replaceFirst("\\w","")).execute()
+                tasks.getByName("packageAppClasses" + buildType.name.capitalize()).execute()
                 project.copy {
-                    from(buildDir.absolutePath + '/intermediates/classes-jar/' + buildType.name) {
+                    from(buildDir.absolutePath + '/intermediates/app_classes/' + buildType.name + "/packageAppClasses" + buildType.name.capitalize()) {
                         include "classes.jar"
                     }
                     into(buildDir.absolutePath + "/outputs/apk")
@@ -45,7 +45,6 @@ tasks.whenTaskAdded { task ->
         }
     }
 }
-
 
 //afterEvaluate {
 //    tasks.getByName("packageDebug").doLast {

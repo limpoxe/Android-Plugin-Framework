@@ -1,7 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.wxsdklibrary"
-    android:versionCode="1"
-    android:versionName="1.0.1">
+    package="com.example.wxsdklibrary">
 
     <application
         android:allowBackup="true"

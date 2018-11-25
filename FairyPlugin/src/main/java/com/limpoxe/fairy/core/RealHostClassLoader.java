@@ -6,7 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Process;
+import android.widget.Toast;
 
 import com.limpoxe.fairy.core.bridge.PluginShadowService;
 import com.limpoxe.fairy.util.LogUtil;
@@ -106,6 +109,24 @@ public class RealHostClassLoader extends DexClassLoader {
         protected void onResume() {
             super.onResume();
             finish();
+
+            Toast.makeText(this, "正在退出...", Toast.LENGTH_LONG).show();
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Process.killProcess(Process.myPid());
+                    System.exit(10);
+                }
+            }, 1000);
+        }
+
+        @Override
+        public void onBackPressed() {
+            super.onBackPressed();
+
+            Process.killProcess(Process.myPid());
+            System.exit(10);
         }
     }
 

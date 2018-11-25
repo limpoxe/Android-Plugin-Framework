@@ -13,18 +13,6 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import java.util.zip.*
 
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-//在插件脚本中apply此脚本, 此脚本一共做了3件事
-//1、编译非独立插件时引入编译宿主时导出的资源包.ap_
-//2、编译非独立插件时引入编译宿主时导出的主题包
-//3、扁平处理declare－style,使非独立插件支持declare－style配置
-//4、修正layout文件中的自定义属性的枚举用法
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-
 configurations {
     baselinePatch
 }
@@ -38,41 +26,27 @@ def hostClassesJar = host_patch_extract_dir + "/host_classes.jar"
 //基线包文件名
 def host_patch_fileName = "host.bar"
 
-
+//这一坨变量是为了支持如果插件工程本身也是分子工程时，可以在子工程中也引入这个插件脚本
 def ApplicationPlugin = getPlugins().findPlugin("com.android.application")
-def LibraryPlugin = getPlugins().findPlugin("com.android.library")
 def isApplicationModule
-def AndroidGradlePluginVersion
 if (ApplicationPlugin != null) {
     isApplicationModule = true;
-    AndroidGradlePluginVersion = ApplicationPlugin.androidBuilder.createdBy
 } else {
     isApplicationModule = false;
-    AndroidGradlePluginVersion = LibraryPlugin.androidBuilder.createdBy
 }
 def fairyMinifyEnabled = false
 
 android{
 }
 
-dependencies {
-
-    if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
-        if (!fairyMinifyEnabled) {
-            provided files(hostClassesJar)
-        } else {
-            compile files(hostClassesJar)
-        }
-    }
-
-}
-
-//第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
+//--package-id 和 -I 参数不能同时生效，太可惜了
+//android.aaptOptions.additionalParameters('--package-id', "0x80")
 android.aaptOptions.additionalParameters('-I', host_patch_extract_dir + "/" + host_patch_fileName)
 
 HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
 
 afterEvaluate {
+
     if (isApplicationModule) {
         if (android.defaultConfig.applicationId == null) {
             throw new Exception("插件build.gradle未配置android.defaultConfig.applicationId")
@@ -87,27 +61,46 @@ afterEvaluate {
                 host_patch_path = patch.absolutePath;
                 println project.name + "发现宿主基线配置指向位置：" + host_patch_path
 
-                if (!AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
+                println "检查宿主基线patch文件：" + host_patch_path
 
-                    //读取混淆开关配置
-                    gradle.startParameter.taskNames.each { startTaskName ->
-                        if (startTaskName.startsWith("assemble")) {
-                            if (startTaskName.contains("Debug")) {
-                                fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
-                            } else if (startTaskName.contains("Release")) {
-                                fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
+                if (!file(host_patch_path).exists()) {
+                    file(host_patch_extract_dir).deleteDir();
+                    println "宿主基线patch文件不存在"
+                } else {
+                    copy {
+                        println "正在解压宿主基线patch文件：" + host_patch_path
+                        def zipFile = file(host_patch_path);//host.bar
+                        def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
+                        outputDir.deleteDir();
+                        from zipTree(zipFile)
+                        from(zipFile) {
+                            rename {
+                                host_patch_fileName
                             }
                         }
-                    }
-
-                    //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
-                    println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
-                    if (!fairyMinifyEnabled) {
-                        configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
-                    } else {
-                        configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
+                        into outputDir
                     }
                 }
+
+                //读取混淆开关配置
+                gradle.startParameter.taskNames.each { startTaskName ->
+                    if (startTaskName.startsWith("assemble")) {
+                        if (startTaskName.contains("Debug")) {
+                            fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
+                        } else if (startTaskName.contains("Release")) {
+                            fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
+                        }
+                    }
+                }
+
+                //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
+                println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
+                if (!fairyMinifyEnabled) {
+                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
+                } else {
+                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
+                }
+
             }
         }
     }
@@ -122,34 +115,6 @@ afterEvaluate {
 
         println 'Check Env : ' + varName +  " " + buildTypeName + " " + flavorName + " " + varDirName
 
-        def generateDebugSourcesTask = tasks.findByName("generate${varName.capitalize()}Resources")
-        if (generateDebugSourcesTask) {
-            generateDebugSourcesTask.setOnlyIf { true }
-            generateDebugSourcesTask.outputs.upToDateWhen { false }
-            generateDebugSourcesTask.doFirst {
-
-                println "检查宿主基线patch文件：" + host_patch_path
-
-                if (!file(host_patch_path).exists()) {
-                    file(host_patch_extract_dir).deleteDir();
-                    throw new FileNotFoundException("宿主基线patch文件不存在! 请宿主编译完成后，再编译插件，并检查插件编译脚本的baselinePatch依赖配置是否正确: \n", host_patch_path)
-                }
-                copy {
-                    println "正在解压宿主基线patch文件：" + host_patch_path
-                    def zipFile = file(host_patch_path);//host.bar
-                    def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
-                    outputDir.deleteDir();
-                    from zipTree(zipFile)
-                    from(zipFile) {
-                        rename {
-                            host_patch_fileName
-                        }
-                    }
-                    into outputDir
-                }
-            }
-        }
-
         def mergeResourceTask = tasks.findByName("merge${varName.capitalize()}Resources");
         mergeResourceTask.setOnlyIf { true }
         mergeResourceTask.outputs.upToDateWhen { false }
@@ -157,141 +122,16 @@ afterEvaluate {
 
             println "开始merge插件工程资源：" + host_patch_path
 
-            if (!file(host_patch_path).exists()) {
-                file(host_patch_extract_dir).deleteDir();
-                throw new FileNotFoundException("宿主基线patch文件不存在! 请宿主编译完成后，再编译插件，并检查插件编译脚本的baselinePatch依赖配置是否正确: \n", host_patch_path)
-            }
-
             File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
             def Properties props = new Properties()
             props.load(new FileInputStream(propFile))
             def hostBuildType = props.getProperty("host.buildType")
-
-            //第二件事
+            //应用宿主的主题包
             applyThemePatch(hostBuildType, buildTypeName, host_patch_extract_dir);
-
-            //第三件事<一>
-            File originVaules = new File(project.buildDir, "intermediates/res/merged/" + buildTypeName + "/values/values.xml");
-            if (originVaules.exists()) {
-
-                File valuesProcessed = new File(project.buildDir, "intermediates/res/merged/" + buildTypeName + "/values/values_processed.xml");
-
-                println "fixDeclareStyle " + originVaules + ", " + valuesProcessed.absolutePath
-
-                StyleProcessor styleProcessor = StyleProcessor.fixDeclareStyle(originVaules, valuesProcessed);
-
-                SortedMap<String, ArrayList<String>> map = styleProcessor.attrList;
-                if (map != null) {
-                    declareStyleMap.put(buildTypeName, map)
-                }
-                originVaules.delete()
-
-                //第四件事，修正layout文件中的自定义属性的枚举用法
-                File resDir = new File(project.buildDir, "intermediates/res/merged/" + buildTypeName);
-                resDir.eachFileRecurse({file ->
-                    if (file.absolutePath.contains("/layout") && file.name.endsWith(".xml")) {
-                        String fileText = file.text;
-                        Iterator<Map.Entry<String, String>> itr = styleProcessor.enumItemList.iterator();
-                        println "try fix enum attr for " + file.absolutePath
-                        while(itr.hasNext()) {
-                            Map.Entry<String, String> entryItem = itr.next();
-                            fileText = fileText.replaceAll(entryItem.key, entryItem.value)
-                        }
-
-                        println "try fix flag attr for " + file.absolutePath
-                        fileText = StyleProcessor.fixAttrFlag(fileText, styleProcessor.attrFlagMap);
-
-                        file.write(fileText);
-                    }
-                }
-                )
-            } else {
-                println "没有需要处理的DeclareStyle资源"
-            }
-        }
-
-        def generateSourcesTask = tasks.findByName("generate${varName.capitalize()}Sources");
-        generateSourcesTask.doLast {
-            //第三件事<二>
-            FileTree rfiles = fileTree(dir: project.buildDir.absolutePath + "/generated/source/r/"+ buildTypeName, include: ['**/R.java'])
-            rfiles.each { File itemFile ->
-
-                File newR = new File(itemFile.getAbsolutePath()+ "_temp");
-                File originR = itemFile;
-
-                println "处理R.java文件，生成decalre-style , \n" + newR.absolutePath + ", \n" + originR.absolutePath
-
-                newR.delete()
-                SortedMap<String, ArrayList<String>> map = declareStyleMap.get(buildTypeName);
-
-                if (originR.exists() && map != null) {
-                    BufferedReader br = new BufferedReader(new FileReader(originR));
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(newR));
-                    String srcLine = null;
-                    boolean hasStyleable = false;
-                    String packageStr = "";
-                    while((srcLine = br.readLine()) != null) {
-                        if (srcLine.equals("public final class R {")) {
-                            bw.writeLine(srcLine);
-
-                            bw.writeLine("  public static final class styleable {");
-                            Iterator<Map.Entry<String, ArrayList<String>>> itr = map.iterator();
-                            while(itr.hasNext()) {
-
-                                Map.Entry<String, ArrayList<String>> item = itr.next();
-                                String key = item.key;
-                                StringBuilder sb = new StringBuilder();
-
-                                println "Generate styleable " + key
-
-                                for(int i = 0; i < item.value.size(); i++) {
-                                    bw.writeLine("      public static int " + key + "_" + item.value.get(i) + "=" + i + ";");
-                                    sb.append(packageStr).append(".R.attr.").append(item.value.get(i)).append(",")
-                                }
-                                if (sb.length() > 0) {
-                                    sb.deleteCharAt(sb.length()-1)
-                                }
-                                bw.writeLine("      public static int[] " + key + " = {" + sb.toString() + "};");
-                            }
-                            bw.writeLine("  }")
-                        } else if (srcLine.contains("public static final class styleable {")) {
-                            hasStyleable = true;
-                        } else if (hasStyleable && srcLine.trim().equals("}")) {
-                            hasStyleable = false;
-                        } else {
-                            if (srcLine.startsWith("package ") && srcLine.endsWith(";")) {
-                                if(isApplicationModule) {
-                                    packageStr = android.defaultConfig.applicationId
-                                } else {
-                                    packageStr = srcLine.replace("package ", "").replace(";", "");
-                                }
-                            }
-                            bw.writeLine(srcLine);
-                        }
-                    }
-                    bw.close()
-                    br.close()
-
-                    originR.delete()
-                    newR.renameTo(originR)
-                } else {
-                    println "Nothing to Fix for " + originR.absolutePath
-                }
-            }
         }
 
         if (isApplicationModule) {
             for (baseVariant in variant.outputs) {
-
-                baseVariant.processResources.doFirst {
-                    println "开始处理插件工程资源.."
-                    if (!new File(host_patch_path).exists()) {
-                        throw new FileNotFoundException("宿主基线patch文件不存在! 请宿主编译完成后，再编译插件，并检查插件编译脚本的baselinePatch依赖配置是否正确: \n", host_patch_path)
-                    }
-                    if (!file(host_patch_extract_dir).exists()) {
-                        throw new FileNotFoundException("宿主基线patch文件不存在! 请宿主编译完成后，再编译插件，并检查插件编译脚本的baselinePatch依赖配置是否正确: \n", host_patch_extract_dir)
-                    }
-                }
 
                 baseVariant.processManifest.doLast {
                     File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
@@ -317,12 +157,7 @@ afterEvaluate {
                     if (hostVersionName != null && hostApplicationId != null && hostVersionCode != null) {
                         println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
                         println "插件Manifest文件中插入非独立插件标识 requiredHostApplicationId=" + hostApplicationId
-                        def manifestFile
-                        if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
-                            manifestFile = new File(properties.get("manifestOutputFile").absolutePath)
-                        } else {
-                            manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
-                        }
+                        def manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
                         println "插件Manifest：" + manifestFile.absolutePath
                         def originManifestContent = manifestFile.getText('UTF-8')
                         def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest requiredHostVersionName=\""
@@ -627,18 +462,18 @@ public class ZipUtil {
 def applyThemePatch(hostBuildType, buildTypeName, hostPatchExtractDir) {
 
     def fromDir = hostPatchExtractDir + "/theme_patch/" + hostBuildType;
-    def resourceDir = project.buildDir.absolutePath + "/intermediates/res/merged/" + buildTypeName;
+    def resourceDir = project.buildDir.absolutePath + "/intermediates/incremental/merge" + buildTypeName.capitalize() + "Resources/merged.dir"
 
     if (!file(fromDir).exists()) {
         throw new FileNotFoundException("Dir Not Found: " + fromDir);
     }
 
     if (!file(resourceDir).exists()) {
-        throw new FileNotFoundException("Dir Not Found: " + resourceDir);
+        file(resourceDir).mkdirs()
     }
 
     FileTree allxmlFiles = fileTree(dir: fromDir)
-    allxmlFiles.include '*.xml'
+    allxmlFiles.include '**/*.xml'
 
     if (allxmlFiles.size() == 0) {
         println fromDir + " 目录未生成，请先编译宿主！！"
@@ -647,20 +482,16 @@ def applyThemePatch(hostBuildType, buildTypeName, hostPatchExtractDir) {
 
     allxmlFiles.each { File itemFile ->
 
-        String dest;
-        if (itemFile.name.equals('patch_theme.xml')) {
-            dest = resourceDir +  '/values/'
-        } else {
-            dest = resourceDir +  '/' + itemFile.name.replace('patch_', '').replace('.xml', '')  + "/"
+        if (!itemFile.getName().equals("public_attrs.xml")) {
+            file(buildDir.getAbsolutePath() + "/intermediates/res/merged/" + buildTypeName).mkdirs()
+
+            println "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile"
+
+            "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile".execute()
+
+            Thread.sleep(100)
         }
 
-        println "apply theme_patch from " + itemFile + " to " + dest
-        copy {
-            from(fromDir) {
-                include itemFile.name
-            }
-            into(dest)
-        }
     }
 }
 
