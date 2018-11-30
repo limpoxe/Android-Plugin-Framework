@@ -98,63 +98,62 @@ public class PluginManifestParser {
 
                         } else if ("meta-data".equals(tag)) {
 
-                        	String name = parser.getAttributeValue(namespaceAndroid, "name");
+                            String type = parser.getAttributeValue(namespaceAndroid, "tag");
+                            String name = parser.getAttributeValue(namespaceAndroid, "name");
                         	String value = parser.getAttributeValue(namespaceAndroid, "value");
                             String resource = parser.getAttributeValue(namespaceAndroid, "resource");
 
-                            if (name != null) {
+                            if ("exported-fragment".equals(type)) {
 
-                                if (value != null && value.startsWith("@")) {
-                                    //等插件初始化的时候再处理这类meta信息
-                                    desciptor.getMetaDataTobeInflate().put(name, ResourceUtil.covent2Hex(value));
-                                } else if (value != null) {
-                                    desciptor.getMetaDataString().put(name, ResourceUtil.covent2Hex(value));
-                                } else if (resource != null && resource.startsWith("@")) {
-                                    desciptor.getMetaDataResource().put(name, ResourceUtil.parseResId(ResourceUtil.covent2Hex(resource)));
+                                value = getName(value, packageName);
+                                if (name != null) {
+
+                                    HashMap<String, String> fragments = desciptor.getFragments();
+                                    if (fragments == null) {
+                                        fragments = new HashMap<String, String>();
+                                        desciptor.setfragments(fragments);
+                                    }
+                                    fragments.put(name, value);
+                                    LogUtil.v(name, value);
+
                                 }
 
-                                LogUtil.v("meta-data", name, value, resource);
-                            }
+                            } else if ("exported-service".equals(type)) {
+                                String label = parser.getAttributeValue(namespaceAndroid, "label");
 
-                        } else if ("exported-fragment".equals(tag)) {
-
-                            String name = parser.getAttributeValue(namespaceAndroid, "name");
-                            String value = parser.getAttributeValue(namespaceAndroid, "value");
-                            value = getName(value, packageName);
-                            if (name != null) {
-
-                                HashMap<String, String> fragments = desciptor.getFragments();
-                                if (fragments == null) {
-                                    fragments = new HashMap<String, String>();
-                                    desciptor.setfragments(fragments);
+                                value = getName(value, packageName);
+                                if (label != null) {
+                                    value = value + "|" + label;
                                 }
-                                fragments.put(name, value);
-                                LogUtil.v(name, value);
+                                if (name != null) {
 
-                            }
+                                    HashMap<String, String> functions = desciptor.getFunctions();
+                                    if (functions == null) {
+                                        functions = new HashMap<String, String>();
+                                        desciptor.setFunctions(functions);
+                                    }
+                                    functions.put(name, value);
+                                    LogUtil.v(name, value);
 
-                        } else if ("exported-service".equals(tag)) {
-
-                            String name = parser.getAttributeValue(namespaceAndroid, "name");
-                            String value = parser.getAttributeValue(namespaceAndroid, "value");
-                            String iface = parser.getAttributeValue(namespaceAndroid, "label");
-                            value = getName(value, packageName);
-                            if (iface != null) {
-                                value = value + "|" + iface;
-                            }
-                            if (name != null) {
-
-                                HashMap<String, String> functions = desciptor.getFunctions();
-                                if (functions == null) {
-                                    functions = new HashMap<String, String>();
-                                    desciptor.setFunctions(functions);
                                 }
-                                functions.put(name, value);
-                                LogUtil.v(name, value);
 
+                            } else {
+                                if (name != null) {
+
+                                    if (value != null && value.startsWith("@")) {
+                                        //等插件初始化的时候再处理这类meta信息
+                                        desciptor.getMetaDataTobeInflate().put(name, ResourceUtil.covent2Hex(value));
+                                    } else if (value != null) {
+                                        desciptor.getMetaDataString().put(name, ResourceUtil.covent2Hex(value));
+                                    } else if (resource != null && resource.startsWith("@")) {
+                                        desciptor.getMetaDataResource().put(name, ResourceUtil.parseResId(ResourceUtil.covent2Hex(resource)));
+                                    }
+
+                                    LogUtil.v("meta-data", name, value, resource);
+                                }
                             }
 
-                        } else if ("uses-library".equals(tag)) {
+                        }  else if ("uses-library".equals(tag)) {
 
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             if (name.startsWith("com.google") || name.startsWith("com.sec.android") || name.startsWith("com.here.android")) {
