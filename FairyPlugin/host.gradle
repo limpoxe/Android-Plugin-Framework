@@ -30,7 +30,6 @@ class FaiyExt {
 }
 extensions.create('fairy', FaiyExt)
 
-//这个配置目前没有用到，备用吧
 android.aaptOptions.additionalParameters("--emit-ids", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.properties")
 
 afterEvaluate {
@@ -92,6 +91,13 @@ afterEvaluate {
                 throw new FileNotFoundException("values_public_attrs.arsc.flat 文件未找到，请检查路径：" + publicXmlPath)
             }
 
+            //生成values_public_attrs这个文件以后，publicAttrrsXmlFile文件已经无用了，
+            //接下来修改内容需要为生成一个public attr
+            String text = file(publicAttrrsXmlFile).text
+                    .replace("public_static_final_host", "public_static_final_plugin")
+                    .replace("0x7f3", "0x7f0")
+                    .replace("0x7f4", "0x7f1")
+            file(publicAttrrsXmlFile).write(text)
         }
 
         def mergeAssetsTask = variant.getMergeAssets()
@@ -304,6 +310,24 @@ afterEvaluate {
             }
         }
 
+        //修改public_attrs的内容，填充attr的id
+        tasks.findByName("generate${varName.capitalize()}Sources").doLast {
+            def f = file(buildDir.absolutePath + "/outputs/theme_patch/" + varName + "/res/values/public_attrs.xml")
+            println "update public attrs ids, file=" + f.absolutePath
+            def String text = f.text
+            if (f.exists()) {
+                file(buildDir.absolutePath + "/outputs/generated_exported_all_resouces.properties").eachLine { el->
+                    if (el.contains(":attr/")) {
+                        String[] attrIdKeyValue = el.split("/")[1].split(" = ");
+                        text = text.replace("name=\"" + attrIdKeyValue[0] +"\">", "name=\"" + attrIdKeyValue[0] +"\" id=\"" + attrIdKeyValue[1] +  "\">")
+                    }
+                }
+                f.write(text)
+            } else {
+                throw new Exception(f.absolutePath + " Not Found!")
+            }
+        }
+
         //导出宿主最终的基线包
         tasks.findByName("assemble${varName.capitalize()}").finalizedBy makeHostBaseLine
     }
@@ -409,7 +433,8 @@ public class ThemeProcessor extends DefaultHandler {
                 outPublicAttrStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                 outPublicAttrStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
                 outPublicAttrStream.write("\n<resources>");
-                outPublicAttrStream.write("\n    <public type=\"attr\" name=\"public_static_final_host_attr_\" id=\"0x7f310000\" />\n" +
+                //唯独attr仍然使用010000开头，是为了和插件中的attr同组
+                outPublicAttrStream.write("\n    <public type=\"attr\" name=\"public_static_final_host_attr_\" id=\"0x7f010000\" />\n" +
                                         "    <public type=\"drawable\" name=\"public_static_final_host_drawable_\" id=\"0x7f320000\" />\n" +
                                         "    <public type=\"layout\" name=\"public_static_final_host_layout_\"   id=\"0x7f330000\" />\n" +
                                         "    <public type=\"anim\" name=\"public_static_final_host_anim_\"    id=\"0x7f340000\" />\n" +
@@ -452,8 +477,10 @@ public class ThemeProcessor extends DefaultHandler {
                                         "    <item name=\"public_static_final_host_string_\" type=\"string\" ></item>\n" +
                                         "    <item name=\"public_static_final_host_style_\" type=\"style\" ></item>\n" +
                                         "    <item name=\"public_static_final_host_transition\" type=\"transition\" ></item>\n" +
-                                        "    <item name=\"public_static_final_host_xml_\" type=\"xml\" ></item>" +
-                                        "\n")
+                                        "    <item name=\"public_static_final_host_xml_\" type=\"xml\" ></item>\n" +
+                                        "\n" +
+                                        "    <!-- 以下attr的配置是为了在编译宿主时将所有attr设置为public，避免产生^attr-private字段-->\n" +
+                                        "    <!-- 在28.0.3以后如果配置了public attr，其他没有配置成public的attr会变成^attr-private字段-->\n")
             }
 
         } catch (FileNotFoundException e) {

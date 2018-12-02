@@ -43,8 +43,6 @@ android{
 //android.aaptOptions.additionalParameters('--package-id', "0x80")
 android.aaptOptions.additionalParameters('-I', host_patch_extract_dir + "/" + host_patch_fileName)
 
-HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
-
 afterEvaluate {
 
     if (isApplicationModule) {
@@ -481,17 +479,14 @@ def applyThemePatch(hostBuildType, buildTypeName, hostPatchExtractDir) {
     }
 
     allxmlFiles.each { File itemFile ->
+        file(buildDir.getAbsolutePath() + "/intermediates/res/merged/" + buildTypeName).mkdirs()
 
-        if (!itemFile.getName().equals("public_attrs.xml")) {
-            file(buildDir.getAbsolutePath() + "/intermediates/res/merged/" + buildTypeName).mkdirs()
+        println "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile"
 
-            println "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile"
+        "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile".execute()
 
-            "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile".execute()
-
-            Thread.sleep(100)
-        }
-
+        //aapt2执行需要时间，这里等等它
+        Thread.sleep(100)
     }
 }
 

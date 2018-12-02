@@ -101,7 +101,6 @@ public class PluginManifestParser {
                             String type = parser.getAttributeValue(namespaceAndroid, "tag");
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                         	String value = parser.getAttributeValue(namespaceAndroid, "value");
-                            String resource = parser.getAttributeValue(namespaceAndroid, "resource");
 
                             if ("exported-fragment".equals(type)) {
 
@@ -139,7 +138,7 @@ public class PluginManifestParser {
 
                             } else {
                                 if (name != null) {
-
+                                    String resource = parser.getAttributeValue(namespaceAndroid, "resource");
                                     if (value != null && value.startsWith("@")) {
                                         //等插件初始化的时候再处理这类meta信息
                                         desciptor.getMetaDataTobeInflate().put(name, ResourceUtil.covent2Hex(value));
