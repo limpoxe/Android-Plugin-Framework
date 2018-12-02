@@ -21,6 +21,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    //不需要和宿主使用相同的密钥库。
+    //这里只是偷懒公用一个，省去再新建密钥的麻烦
+    signingConfigs {
+        debug {
+            storeFile file("../PluginMain/limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+
+        release {
+            storeFile file("../PluginMain/limpoxe.keystore")
+            storePassword "123456"
+            keyAlias "limpoxe"
+            keyPassword "123456"
+        }
+    }
 }
 
 dependencies {
