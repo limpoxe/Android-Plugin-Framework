@@ -4,16 +4,16 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
-#### 最新版本: 'com.github.limpoxe:Android-Plugin-Framework:0.0.67@aar'
+### 最新版本: 'com.github.limpoxe:Android-Plugin-Framework:0.0.67@aar'
                
-#### 此项目主要目标是为了运行非独立插件，而不是任意第三方app。
+### 此项目主要目标是为了运行非独立插件，而不是任意第三方app。
 
 尽管此框架支持独立插件，但目标并不是为了支持任意三方app，不同于平行空间或应用分身之类的产品。
 非独立插件相比任意三方app来说，可以预见到其使用了哪些系统api和特性，而且所有行为都是可以预测的。而任意三方app是不可预测的。
 框架的做法是按需hook，即需要用到哪些系统特性和api，就对哪些特性和api提供支持。这种做法对开发非独立插件和二方独立插件而言完全足够。
 目前已经添加了对常用特性和api的支持，如需使用的api还未支持请联系作者。
 
-#### FEATURE
+### FEATURE
 - 框架透明, 插件开发与普通apk开发无异，无约定约束
 - 支持非独立插件和独立插件(非任意三方)
 - 支持四大组件/Application/Fragment/Accessibility/LaunchMode/so
@@ -27,7 +27,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 - 支持FileProvider
 - 支持2.3-9.0
 
-#### LIMIT
+### LIMIT
 - 不支持插件Activity转场动画使用插件中的动画资源
 - 不支持插件Manifest中申请权限，所有权限必须预埋到宿主Manifest中
 - 不支持第三方app试图唤起插件中的组件时直接使用插件组件的Intent。
@@ -43,7 +43,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 - 可能不支持对插件或者宿主进行加壳加固处理，未尝试
 
 # HOW TO USE
-#### 重要：android.enableAapt2=true，com.android.tools.build:gradle:3.2.1，gradle-4.6
+### 重要：android.enableAapt2=true，com.android.tools.build:gradle:3.2.1，gradle-4.6
 ```
     allprojects {
     		repositories {
@@ -52,7 +52,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
     		}
     }
 ```
-#### 宿主侧
+### 宿主侧
 1、 新建一个工程，作为宿主工程
 
 2、 在宿主工程的build.gradle文件下添加如下3个配置
@@ -135,7 +135,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
    宿主编译完成后，会在outputs/distrubites目录下生成一个名为host.bar的基线包，作为编译插件的基线。
    以上所有内容及更多详情可以参考Demo
 	
-#### 插件侧  
+### 插件侧  
 独立插件：
 
     新建一个工程, 作为插件工程，无需任何其他配置，编译出来即可当插件apk安装到宿主中。
@@ -167,7 +167,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
   
   完成以上2步后即可编译出非独立插件，以上所有内容及更多详情可以参考Demo
   
-#### Demo编译方法
+### Demo编译方法
     
    a）如果是命令行中：
    
@@ -213,11 +213,10 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 ## 其他
 1. [使用指南](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%85%B6%E4%BB%96%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97)
-1. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
-2. [使用Public.xml的坑和填坑](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E7%9A%84%E5%9D%91%E5%92%8C%E5%A1%AB%E5%9D%91).
-3. [更新记录](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95)
+2. [原理简介](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E5%8E%9F%E7%90%86%E7%AE%80%E4%BB%8B)
+3. [使用Public.xml的坑和填坑](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E4%BD%BF%E7%94%A8Public.xml%E7%9A%84%E5%9D%91%E5%92%8C%E5%A1%AB%E5%9D%91).
+4. [更新记录](https://github.com/limpoxe/Android-Plugin-Framework/wiki/%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95)
 
 ## 联系作者：
   Q：15871365851，添加时请注明插件开发
-
   Q群：116993004，重要：添加前请务必仔细阅读此ReadMe！请务必仔细阅读Demo！
