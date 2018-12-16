@@ -4,29 +4,8 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
-#### 最新版本: 0.0.67
-              重要：android.enableAapt2=true
+#### 最新版本: 'com.github.limpoxe:Android-Plugin-Framework:0.0.67@aar'
                
-#### 项目结构
-
-| 文件夹        |     说明     |
-| :----------- | :-----------|
-| FairyPlugin | 插件框架包 |
-| Samples | 示例代码，包含宿主APP、各种Demo插件、各种场景测试 |
-
-#### 名词解释
-
-| 名词         |     说明     |
-| :----------- | :-----------|
-| 宿主 | 正常安装在设备上的apk |
-| 容器 | 宿主中由框架创建的插件运行环境 |
-| 插件 | 被宿主加载运行的apk |
-| 独立插件 | 运行时不依赖宿主的插件，自身可以是完整app，也可以不是一个完整app |
-| 非独立插件 | 运行时依赖宿主（类、资源）的插件，自身不是一个完整app |
-| 插件进程 | 插件运行时所在进程，也即容器所在进程 |
-
-独立插件和非独立插件, 不以是否可以单独安装运行来区分，仅以是否依赖宿主的类和资源来区分。
-
 #### 此项目主要目标是为了运行非独立插件，而不是任意第三方app。
 
 尽管此框架支持独立插件，但目标并不是为了支持任意三方app，不同于平行空间或应用分身之类的产品。
@@ -63,11 +42,21 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 - 可能不支持对插件或者宿主进行加壳加固处理，未尝试
 
 # HOW TO USE
+#### 重要：android.enableAapt2=true，com.android.tools.build:gradle:3.2.1，gradle-4.6
+```
+    allprojects {
+    		repositories {
+    			...
+    			maven { url 'https://jitpack.io' }
+    		}
+    }
+```
 #### 宿主侧
 1、 新建一个工程，作为宿主工程
 
 2、 在宿主工程的build.gradle文件下添加如下3个配置
 ```
+    //脚本版本跟插件框架版本保持同步
     apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.67/FairyPlugin/host.gradle"        
 
     android {
@@ -156,6 +145,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
             
 2、在build.gradle中添加如下2个配置
 ```
+    //脚本版本跟插件框架版本保持同步
     apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.67/FairyPlugin/plugin.gradle"
 
     android {
