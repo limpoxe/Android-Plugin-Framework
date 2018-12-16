@@ -4,8 +4,8 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
-#### 最新版本: 0.0.65-snapshot
-              重要：需要在根目录的gradle.properties文件中配置android.enableAapt2=false
+#### 最新版本: 0.0.67
+              重要：android.enableAapt2=true
                
 #### 项目结构
 
@@ -68,7 +68,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 2、 在宿主工程的build.gradle文件下添加如下3个配置
 ```
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"        
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.67/FairyPlugin/host.gradle"        
 
     android {
         defaultConfig {
@@ -81,7 +81,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 ```
     dependencies {
         //请务必使用@aar结尾，以中断依赖传递
-        implementation('com.limpoxe.fairy:FairyPlugin:0.0.64-snapshot@aar')
+        implementation('com.github.limpoxe:Android-Plugin-Framework:0.0.67@aar')
         //可选，用于支持插件全局函数式服务，不使用全局函数式服务不需要添加此依赖
         //implementation('com.limpoxe.support:android-servicemanager:1.0.5@aar')
     }
@@ -156,7 +156,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
             
 2、在build.gradle中添加如下2个配置
 ```
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.67/FairyPlugin/plugin.gradle"
 
     android {
         defaultConfig {
@@ -240,10 +240,10 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
    首先，需要将此宿主Activity的android:process属性配置为插件进程（插件的代码需在插件进程运行，因此fragment的所在的Activity也需要在插件进程中）
    
-   然后，在此插件的AndroidManifest.xml配置<exported-fragment>节点：
+   然后，在此插件的AndroidManifest.xml配置节点：
    
-       <exported-fragment android:name="这里为此Fragment设置一个唯一标识符Id" android:value="这里为此Fragment类全名"/>
-       此配置的目的是为了框架能够快速查找到目标Fragment的类名，而不必进行遍历。
+           <meta-data android:tag="exported-fragment" android:name="这里为此Fragment设置一个唯一标识符Id" android:value="这里为此Fragment类全名"/>
+       此配置的目的是为了框架能够快速查找到目标Fragment的类名，而不必对所有插件进行遍历。
             
         在宿主Activity中创建此插件Fragment的实例：
         Class clazz = PluginLoader.loadPluginFragmentClassById(这里填写Fragment的唯一标识符Id);
@@ -330,7 +330,10 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 9. 如何在插件中对外提供函数式服务（非Service组件，支持同进程和跨进程）
 
         插件和外界交互，除了可以使用标准api交互之外，还提供了函数式服务
-        插件发布一个函数服务，只需要在AndroidManifest.xml配置<exported-service>节点
+        插件发布一个函数服务，只需要在AndroidManifest.xml配置节点
+        <meta-data android:tag="exported-service" android:name="service名称"
+                       android:value="service的实现类"
+                       android:label="service的接口"/>
         其他插件或者宿主即可调用此服务，具体参考demo
       
         
