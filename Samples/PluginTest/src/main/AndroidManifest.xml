@@ -64,7 +64,7 @@
         
         <activity
             android:name="com.example.plugintest.activity.PluginNotInManifestActivity"
-            android:theme="@style/PluginTheme"
+            android:theme="@style/PluginTheme7"
             android:launchMode="singleTop"
             android:immersive="true"
             android:uiOptions="splitActionBarWhenNarrow"

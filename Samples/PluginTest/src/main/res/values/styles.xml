@@ -27,7 +27,7 @@
     </style>
 
     <style name="MyButton">
-        <item name="android:background">@android:color/white</item>
+        <item name="android:background">#ffff4444</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>
         <item name="android:textColor">@android:color/black</item>
         <item name="android:description">@*com.example.pluginmain:string/share_app_name</item>
@@ -76,6 +76,9 @@
     <style name="PluginTheme6" parent="android:Theme.Holo.Light">
         <item name="android:buttonStyle">@style/MyButton2</item>
         <item name="layoutbg">#ffC000CC</item>
+    </style>
+
+    <style name="PluginTheme7" parent="ShareTheme">
     </style>
 
     <attr name="testbg" format="color|reference"/>
