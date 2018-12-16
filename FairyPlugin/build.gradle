@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.limpoxe'
 
 android {
     compileSdkVersion 28
@@ -31,5 +34,3 @@ dependencies {
     //https://github.com/limpoxe/Android-ServiceManager
     implementation 'com.limpoxe.support:android-servicemanager:1.0.5@aar'
 }
-
-apply from: "./jcenter.gradle"
