@@ -168,14 +168,17 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
   完成以上2步后即可编译出非独立插件，以上所有内容及更多详情可以参考Demo
   
 ### Demo编译方法
-    
+
    a）如果是命令行中：
    
+```
    cd  Android-Plugin-Framework
    
    ./gradlew clean
    
    ./gradlew assembleDebug
+```
+   
 
    b）如果是studio中：
    
@@ -219,4 +222,5 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 ## 联系作者：
   Q：15871365851，添加时请注明插件开发
+  
   Q群：116993004，重要：添加前请务必仔细阅读此ReadMe！请务必仔细阅读Demo！
