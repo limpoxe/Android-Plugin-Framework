@@ -111,21 +111,21 @@ afterEvaluate {
         def flavorName = variant.flavorName
         def varDirName =  variant.dirName
 
-        println 'Check Env : ' + varName +  " " + buildTypeName + " " + flavorName + " " + varDirName
+        println 'Check Env : variant=' + varName +  ", buildTypeName=" + buildTypeName + ", flavorName=" + flavorName + ", varDirName=" + varDirName
 
         def mergeResourceTask = tasks.findByName("merge${varName.capitalize()}Resources");
         mergeResourceTask.setOnlyIf { true }
         mergeResourceTask.outputs.upToDateWhen { false }
         mergeResourceTask.doLast {
 
-            println "开始merge插件工程资源：" + host_patch_path
+            println "开始merge插件工程资源：" + host_patch_path + " 到" + varDirName
 
             File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
             def Properties props = new Properties()
             props.load(new FileInputStream(propFile))
-            def hostBuildType = props.getProperty("host.buildType")
+            def hostVarDirName = props.getProperty("host.varDirName")
             //应用宿主的主题包
-            applyThemePatch(hostBuildType, buildTypeName, host_patch_extract_dir);
+            applyThemePatch(hostVarDirName, varName, varDirName, host_patch_extract_dir);
         }
 
         if (isApplicationModule) {
@@ -138,6 +138,8 @@ afterEvaluate {
                     def hostApplicationId = null
                     def hostBuildType = null
                     def hostFlavorName = null
+                    def hostVarName = null
+                    def hostVarDirName = null
                     if (propFile.exists()) {
                         def Properties props = new Properties()
                         props.load(new FileInputStream(propFile))
@@ -145,9 +147,12 @@ afterEvaluate {
                         hostVersionCode = props.getProperty("host.versionCode")
                         hostBuildType = props.getProperty("host.buildType")
                         hostFlavorName = props.getProperty("host.flavorName")
+                        hostVarName = props.getProperty("host.varName")
+                        hostVarDirName = props.getProperty("host.varDirName")
+
                         hostApplicationId = props.getProperty("host.applicationId")
 
-                        println "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName
+                        projects.logger.log(LogLevel.ERROR, "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName)
 
                     } else {
                         throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
@@ -175,7 +180,7 @@ afterEvaluate {
                 proguardTask.doFirst {
                     println "开始混淆任务 " + varName.capitalize()
                     def baselineMappingFile = host_patch_extract_dir + "/mapping/" + varName + "/mapping.txt";
-                    println "应用基线mapping文件： " + baselineMappingFile
+                    projects.logger.log(LogLevel.ERROR, "应用基线mapping文件： " + baselineMappingFile)
                     if (!file(baselineMappingFile).exists()) {
                         throw "baselineMappingFile is Not Found : " + baselineMappingFile
                     }
@@ -457,10 +462,10 @@ public class ZipUtil {
     }
 }
 
-def applyThemePatch(hostBuildType, buildTypeName, hostPatchExtractDir) {
+def applyThemePatch(hostVarDirName, varName, varDir, hostPatchExtractDir) {
 
-    def fromDir = hostPatchExtractDir + "/theme_patch/" + hostBuildType;
-    def resourceDir = project.buildDir.absolutePath + "/intermediates/incremental/merge" + buildTypeName.capitalize() + "Resources/merged.dir"
+    def fromDir = hostPatchExtractDir + "/theme_patch/" + hostVarDirName;
+    def resourceDir = project.buildDir.absolutePath + "/intermediates/incremental/merge" + varName.capitalize() + "Resources/merged.dir"
 
     if (!file(fromDir).exists()) {
         throw new FileNotFoundException("Dir Not Found: " + fromDir);
@@ -479,14 +484,13 @@ def applyThemePatch(hostBuildType, buildTypeName, hostPatchExtractDir) {
     }
 
     allxmlFiles.each { File itemFile ->
-        file(buildDir.getAbsolutePath() + "/intermediates/res/merged/" + buildTypeName).mkdirs()
+        file(buildDir.getAbsolutePath() + "/intermediates/res/merged/" + varDir).mkdirs()
 
-        println "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile"
+        File buildToolsPath = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion())
+        String aapt2Exe = new File(buildToolsPath, "aapt2" + (System.getProperty("os.name").startsWith("Windows")?".exe":"")).absolutePath
 
-        "aapt2 compile -o $buildDir.absolutePath/intermediates/res/merged/$buildTypeName $itemFile".execute()
-
-        //aapt2执行需要时间，这里等等它
-        Thread.sleep(100)
+        projects.logger.log(LogLevel.ERROR, "$aapt2Exe compile -o $buildDir.absolutePath/intermediates/res/merged/$varDir $itemFile")
+        "$aapt2Exe compile -o $buildDir.absolutePath/intermediates/res/merged/$varDir $itemFile".execute().waitFor()
     }
 }
 

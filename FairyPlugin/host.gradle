@@ -30,6 +30,11 @@ class FaiyExt {
 }
 extensions.create('fairy', FaiyExt)
 
+if ("false".equals(rootProject.properties.get("android.enableAapt2"))) {
+    throw new Exception("请开启aapt2编译开关：android.enableAapt2")
+}
+
+//generateSourcess时借此文件生成attrs.xml
 android.aaptOptions.additionalParameters("--emit-ids", project.buildDir.absolutePath + "/outputs/generated_exported_all_resouces.properties")
 
 afterEvaluate {
@@ -50,23 +55,23 @@ afterEvaluate {
         def flavorName = variant.flavorName
         def varDirName =  variant.dirName
 
-        println 'Check Env : ' + varName +  " " + buildTypeName + " " + flavorName + " " + varDirName
+        println 'Check Env : variant=' + varName +  ", buildTypeName=" + buildTypeName + ", flavorName=" + flavorName + ", varDirName=" + varDirName
 
         def mergeTask = variant.getMergeResources()
 
         mergeTask.doLast {
 
-            println '生成一份主题patch包，编译非独立插件时需要此包'
+            project.logger.error '生成一份主题patch包，编译非独立插件时需要此包'
 
-            File patchDir = new File(project.buildDir.absolutePath + "/outputs/theme_patch/" + buildTypeName);
+            File patchDir = new File(project.buildDir.absolutePath, "outputs/theme_patch/" + varDirName);
             patchDir.mkdirs();
 
             //宿主资源id分组就靠这个文件了
-            def String publicAttrrsXml= "/res/values/public_attrs.xml" ;
-            def String publicAttrrsXmlFile = patchDir.absolutePath + publicAttrrsXml;
+            def String publicAttrrsXml = "res/values/public_attrs.xml" ;
+            def String publicAttrrsXmlFile = new File(patchDir.absolutePath, publicAttrrsXml).absolutePath;
 
             //导出一份主题包备用，编译非独立插件时需要
-            createThemePatch(flavorName, buildTypeName, patchDir, publicAttrrsXml);
+            createThemePatch(varName, buildTypeName, patchDir, publicAttrrsXmlFile);
 
             if(!file(publicAttrrsXmlFile).exists()) {
                 throw new FileNotFoundException("createThemePatch 失败，public_attrs.xml 文件未生成，请检查路径：" + publicAttrrsXmlFile)
@@ -80,15 +85,15 @@ afterEvaluate {
             //sdk的版本位于～/Library/Android/sdk/build-tools/28.0.3//aapt2
             //如果不是同一个版本可能出现Android Resource Link错误、magic number错误
             //因此还需要保证环境变量中的aapt2和idea中使用的是相同的版本，并不低于28.0.3
-            println "aapt2 compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile"
-            "aapt2 compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile".execute()
+            File buildToolsPath = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion())
+            String aapt2Exe = new File(buildToolsPath, "aapt2" + (System.getProperty("os.name").startsWith("Windows")?".exe":"")).absolutePath
 
-            //aapt2执行需要时间，这里等等它，否则下面的文件存在判断可能会快速失败
-            Thread.sleep(100)
+            projects.logger.log(LogLevel.ERROR, "$aapt2Exe compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile")
+            "$aapt2Exe compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile".execute().waitFor()
 
             //检查aapt2是否执行成功
             if(!file(mergeResourcesOutPath + "/values_public_attrs.arsc.flat").exists()) {
-                throw new FileNotFoundException("values_public_attrs.arsc.flat 文件未找到，请检查路径：" + publicXmlPath)
+                throw new FileNotFoundException("values_public_attrs.arsc.flat 文件未生成，请检查路径：$publicAttrrsXmlFile")
             }
 
             //生成values_public_attrs这个文件以后，publicAttrrsXmlFile文件已经无用了，
@@ -113,7 +118,7 @@ afterEvaluate {
             }
 
             copy {
-                println '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + mergeAssetsTask.outputDir
+                project.logger.error '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + mergeAssetsTask.outputDir
                 from files(innerPluginApkList)
                 into(mergeAssetsTask.outputDir)
             }
@@ -155,7 +160,8 @@ afterEvaluate {
                     hostInfo.append("\nhost.versionName=" + versionName)
                     hostInfo.append("\nhost.buildType=" + buildTypeName)
                     hostInfo.append("\nhost.flavorName=" + flavorName)
-
+                    hostInfo.append("\nhost.varName=" + varName)
+                    hostInfo.append("\nhost.varDirName=" + varDirName)
                     def packageName = android.defaultConfig.applicationId
                     if (android.buildTypes[buildTypeName].applicationIdSuffix != null) {
                         packageName = packageName + android.buildTypes[buildTypeName].applicationIdSuffix;
@@ -183,14 +189,15 @@ afterEvaluate {
             //def processResFullName = baseVariant.apkData.fullName
             processResourcesTask.doLast {
                 copy {
-                    println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
-
-                    println processResourcesTask.resPackageOutputFolder
+                    project.logger.error '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
+                    println "from :" + processResourcesTask.resPackageOutputFolder
                     from processResourcesTask.resPackageOutputFolder
+                    include("*.ap_")
                     into("${project.buildDir}/outputs/")
                     rename(new Transformer<String, String>() {
                         @Override
                         String transform(String s) {
+                            project.logger.error "rename: " + s
                             return "resources.ap_"
                         }
                     })
@@ -226,16 +233,10 @@ afterEvaluate {
                     //jarMerger.addFolder(directoryInput.getFile());
                 }
 
-                String buildClassesTaskName3 = "packageAppClasses" + varName.capitalize();
-                String classesPath3 = 'intermediates/app_classes/' + (flavorName.equals("")?"":(flavorName + "/")) + buildTypeName + "/" + buildClassesTaskName3 + "/classes.jar"
+                def buildClassesTaskName = "packageAppClasses" + varName.capitalize();
+                def classesPath= 'intermediates/app_classes/' + varName + "/" + buildClassesTaskName + "/classes.jar"
 
-                def buildClassesTaskName;
-                def classesPath;
-
-                if (tasks.findByName(buildClassesTaskName3)) {
-                    buildClassesTaskName = buildClassesTaskName3;
-                    classesPath = classesPath3;
-                } else {
+                if (!tasks.findByName(buildClassesTaskName)) {
                     throw new IllegalAccessError("未找到打包宿主classes的task，请检查android gradle 插件版本")
                 }
 
@@ -245,17 +246,17 @@ afterEvaluate {
                     try {
                         tasks.getByName(buildClassesTaskName).execute()
                     } catch(Exception e) {
-                        println "fail to create jar for task " + javaCompile.name + " " + buildClassesTaskName
+                        projects.logger.log(LogLevel.ERROR, "fail to create jar for task " + javaCompile.name + " " + buildClassesTaskName)
                     }
                 } else {
-                    println "classes path already exists： " + classes.absolutePath
+                    projects.logger.log(LogLevel.DEBUG, "classes path already exists： " + classes.absolutePath)
                 }
                 if (classes.exists()) {
                     println "adding jar " + classes
                     jarMerger.addJar(classes)
                 } else {
-                    println "Not exists : classes path is " + classes.absolutePath
-                    println "Not exists : buildClassesTaskName is " + buildClassesTaskName
+                    projects.logger.log(LogLevel.ERROR, "Not exists : classes file path is " + classes.absolutePath)
+                    projects.logger.log(LogLevel.ERROR, "Not exists : build classes task name is " + buildClassesTaskName)
                 }
             } finally {
                 jarMerger.close()
@@ -298,6 +299,7 @@ afterEvaluate {
                             rename(new Transformer<String, String>() {
                                 @Override
                                 String transform(String s) {
+                                    project.logger.error "rename:" + s
                                     return hostObfuscatedJar
                                 }
                             })
@@ -312,7 +314,7 @@ afterEvaluate {
 
         //修改public_attrs的内容，填充attr的id
         tasks.findByName("generate${varName.capitalize()}Sources").doLast {
-            def f = file(buildDir.absolutePath + "/outputs/theme_patch/" + varName + "/res/values/public_attrs.xml")
+            def f = file(buildDir.absolutePath + "/outputs/theme_patch/" + varDirName + "/res/values/public_attrs.xml")
             println "update public attrs ids, file=" + f.absolutePath
             def String text = f.text
             if (f.exists()) {
@@ -351,14 +353,14 @@ task makeHostBaseLine(type: Zip) {
 }
 
 //导出主题patch
-def createThemePatch(String flavor, String buildType, File patchDir, String publicAttrsXmlFile) {
+def createThemePatch(String varName, String buildType, File patchDir, String publicAttrsXmlFile) {
 
     def packageName = android.defaultConfig.applicationId
     if (android.buildTypes[buildType].applicationIdSuffix != null) {
         packageName = packageName + android.buildTypes[buildType].applicationIdSuffix;
     }
 
-    String mergedResDir = "${project.buildDir}/intermediates/incremental/merge" + buildType.capitalize() + "Resources/merged.dir/"
+    String mergedResDir = "${project.buildDir}/intermediates/incremental/merge" + varName.capitalize() + "Resources/merged.dir/"
     FileTree allxmlFiles = fileTree(dir: mergedResDir)
     allxmlFiles.include 'values/values*.xml',
                         'values-v1*/values-v1*.xml',
@@ -377,7 +379,7 @@ def createThemePatch(String flavor, String buildType, File patchDir, String publ
 
         //通过values.xml生成publicAttrsXml
         ThemeProcessor.exportThemeStyle(itemFile, destFile, packageName,
-                itemFile.name.equals("values.xml")?new File(patchDir, publicAttrsXmlFile):null)
+                itemFile.name.equals("values.xml")?new File(publicAttrsXmlFile):null)
     }
 }
 
