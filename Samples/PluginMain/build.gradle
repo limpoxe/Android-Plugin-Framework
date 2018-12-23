@@ -31,6 +31,7 @@ android {
         targetSdkVersion 27
         versionCode 6
         versionName "1.2.0_" + project.ext.VCS_commitId
+        flavorDimensions "versionCode"
 
         ndk {
             //和splits.abi不能共存
@@ -80,6 +81,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        //如果增加自定义的buildtype，需要所有依赖的子项目都增加相同名称的定义
+        //否则需要显式指定子项目的依赖方式，如debugImplementation
+        //preview.initWith(buildTypes.debug) {
+        //}
+
     }
 
     splits {
@@ -88,6 +95,17 @@ android {
             reset()
             include 'armeabi-v7a', "x86"//select ABIs to build APKs for
             //universalApk true //generate an additional APK that contains all the ABIs
+        }
+    }
+    
+    //测试框架脚本是否支持Flavor配置
+    productFlavors {
+        f1 {
+            //
+        }
+
+        f2 {
+            //
         }
     }
 }

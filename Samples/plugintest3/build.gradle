@@ -9,6 +9,7 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
+        flavorDimensions "versionCode"
     }
 
     sourceSets.androidTest.setRoot('tests')
@@ -17,6 +18,17 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    //测试框架脚本是否支持Flavor配置
+    productFlavors {
+        f1 {
+            //
+        }
+
+        f2 {
+            //
         }
     }
 }
