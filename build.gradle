@@ -27,8 +27,8 @@ ext {
 
     //定义常量，方便统一切换脚本的版本
     HOST_FAIRY_SCRIPT = "../../FairyPlugin/host.gradle"
-    //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.67/FairyPlugin/host.gradle"
+    //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"
 
     PLUGIN_FAIRY_SCRIPT = '../../FairyPlugin/plugin.gradle'
-    //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/0.0.67/FairyPlugin/plugin.gradle"
+    //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
 }
