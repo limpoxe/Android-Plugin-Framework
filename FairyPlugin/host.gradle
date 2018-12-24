@@ -124,17 +124,8 @@ afterEvaluate {
             }
         }
 
-        for (baseVariant in variant.outputs) {
-
-            def manifestFilePath = baseVariant.processResources.manifestFile.absolutePath;
-
-            baseVariant.processManifest.doLast {
-
-                //android gradle3.+的属性
-                //println "$manifestOutputDirectory"
-
-                File manifestFile = new File(manifestFilePath)
-
+        tasks.findByName("process${varName.capitalize()}Manifest").doLast {
+            fileTree(manifestOutputDirectory).include("**/AndroidManifest.xml").each { manifestFile->
                 println '正在检查Manifest中的插件配置是否正确' + manifestFile.absolutePath
 
                 def originManifestContent = manifestFile.getText('UTF-8')
@@ -183,6 +174,9 @@ afterEvaluate {
                     manifestFile.write(modifyedManifestContent, 'UTF-8')
                 }
             }
+        }
+
+        for (baseVariant in variant.outputs) {
 
             //实际上最新版sdk和gradle可以直接指定apk了, 不需要.ap_文件
             def processResourcesTask = baseVariant.getProcessResources();
