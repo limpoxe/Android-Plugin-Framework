@@ -281,7 +281,7 @@ afterEvaluate {
                             sourceHostObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
                         }
                         def hostObfuscatedJar = "host_obfuscated.jar"
-                        println "导出混淆后的宿主jar " + sourceHostObfuscatedJar + " 包到 " + "${project.buildDir}/outputs/" + hostObfuscatedJar
+                        project.logger.error "导出混淆后的宿主jar " + sourceHostObfuscatedJar + " 包到 " + "${project.buildDir}/outputs/" + hostObfuscatedJar
 
                         copy {
                             from sourceHostObfuscatedJar

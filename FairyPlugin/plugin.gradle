@@ -129,39 +129,39 @@ afterEvaluate {
         }
 
         if (isApplicationModule) {
-            for (baseVariant in variant.outputs) {
+            tasks.findByName("process${varName.capitalize()}Manifest").doLast {
+                File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
+                def hostVersionName = null
+                def hostVersionCode = null
+                def hostApplicationId = null
+                def hostBuildType = null
+                def hostFlavorName = null
+                def hostVarName = null
+                def hostVarDirName = null
+                if (propFile.exists()) {
+                    def Properties props = new Properties()
+                    props.load(new FileInputStream(propFile))
+                    hostVersionName = props.getProperty("host.versionName")
+                    hostVersionCode = props.getProperty("host.versionCode")
+                    hostBuildType = props.getProperty("host.buildType")
+                    hostFlavorName = props.getProperty("host.flavorName")
+                    hostVarName = props.getProperty("host.varName")
+                    hostVarDirName = props.getProperty("host.varDirName")
 
-                baseVariant.processManifest.doLast {
-                    File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
-                    def hostVersionName = null
-                    def hostVersionCode = null
-                    def hostApplicationId = null
-                    def hostBuildType = null
-                    def hostFlavorName = null
-                    def hostVarName = null
-                    def hostVarDirName = null
-                    if (propFile.exists()) {
-                        def Properties props = new Properties()
-                        props.load(new FileInputStream(propFile))
-                        hostVersionName = props.getProperty("host.versionName")
-                        hostVersionCode = props.getProperty("host.versionCode")
-                        hostBuildType = props.getProperty("host.buildType")
-                        hostFlavorName = props.getProperty("host.flavorName")
-                        hostVarName = props.getProperty("host.varName")
-                        hostVarDirName = props.getProperty("host.varDirName")
+                    hostApplicationId = props.getProperty("host.applicationId")
 
-                        hostApplicationId = props.getProperty("host.applicationId")
+                    projects.logger.log(LogLevel.ERROR, "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName)
 
-                        projects.logger.log(LogLevel.ERROR, "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName)
+                } else {
+                    throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
+                }
 
-                    } else {
-                        throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
-                    }
+                fileTree(manifestOutputDirectory).include("**/AndroidManifest.xml").each { manifestFile->
                     if (hostVersionName != null && hostApplicationId != null && hostVersionCode != null) {
-                        println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
-                        println "插件Manifest文件中插入非独立插件标识 requiredHostApplicationId=" + hostApplicationId
-                        def manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
                         println "插件Manifest：" + manifestFile.absolutePath
+                        println "插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
+                        println "插入宿主版本号标识 requiredHostVersionCode=" + hostVersionCode
+                        println "插入宿主ID hostApplicationId=" + hostApplicationId
                         def originManifestContent = manifestFile.getText('UTF-8')
                         def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest requiredHostVersionName=\""
                                 + hostVersionName + "\" requiredHostVersionCode=\"" + hostVersionCode
@@ -198,7 +198,7 @@ afterEvaluate {
                     println "依赖的宿主基线混淆包jar路径为：" + host_obfuscated_jar
 
                     boolean isFind = false;
-                    proguardTask.outputs.files.files.each { File file->
+                    outputs.files.files.each { File file->
                         //http://blog.csdn.net/sbsujjbcy/article/details/50839263
                         //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
                         //最新版本路径已发生变化；2017-11-12
@@ -215,7 +215,7 @@ afterEvaluate {
                                 sourcePluginObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
                             }
                             //保留一个备份
-                            println "导出混淆后的插件jar包 "
+                            project.logger.error "导出混淆后的插件jar包 "
                             println "From " + sourcePluginObfuscatedJar //此文件是proguard任务的固定输出目录，最新版文件名即是0.jar, 旧版叫main.jar
                             println "To " + "${project.buildDir}/outputs/" + pluginObfuscatedJar
                             copy {
