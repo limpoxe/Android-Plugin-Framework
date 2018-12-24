@@ -57,9 +57,7 @@ afterEvaluate {
 
         println 'Check Env : variant=' + varName +  ", buildTypeName=" + buildTypeName + ", flavorName=" + flavorName + ", varDirName=" + varDirName
 
-        def mergeTask = variant.getMergeResources()
-
-        mergeTask.doLast {
+        variant.getMergeResources().doLast {
 
             project.logger.error '生成一份主题patch包，编译非独立插件时需要此包'
 
@@ -77,7 +75,7 @@ afterEvaluate {
                 throw new FileNotFoundException("createThemePatch 失败，public_attrs.xml 文件未生成，请检查路径：" + publicAttrrsXmlFile)
             }
 
-            String mergeResourcesOutPath = mergeTask.outputDir.absolutePath;
+            String mergeResourcesOutPath = outputDir.absolutePath;
 
             //需要确保aapt2在环境变量中，否则可能会执行失败
             //Android Studio环境中的aapt2和命令行中的可能不是同一个版本，
@@ -118,9 +116,9 @@ afterEvaluate {
             }
 
             copy {
-                project.logger.error '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + mergeAssetsTask.outputDir
+                project.logger.error '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + outputDir
                 from files(innerPluginApkList)
-                into(mergeAssetsTask.outputDir)
+                into(outputDir)
             }
         }
 
@@ -144,6 +142,7 @@ afterEvaluate {
                     if (hostInfo.exists()) {
                         hostInfo.delete()
                     }
+                    //没有单独命名，有多个abi时文件会覆盖
                     println '正在生成文件' + hostInfo.absolutePath
                     hostInfo.write("#Host Manifest CREATED AT " + new Date().format("yyyy-MM-dd HH:mm::ss"))
                     hostInfo.append("\nhost.versionCode=" + android.defaultConfig.versionCode)
@@ -176,26 +175,23 @@ afterEvaluate {
             }
         }
 
-        for (baseVariant in variant.outputs) {
-
-            //实际上最新版sdk和gradle可以直接指定apk了, 不需要.ap_文件
-            def processResourcesTask = baseVariant.getProcessResources();
+        tasks.findByName("process${varName.capitalize()}Resources").doLast {
+            //实际上最新版sdk和gradle可以直接指定apk了, 可以不使用.ap_文件
             //def processResFullName = baseVariant.apkData.fullName
-            processResourcesTask.doLast {
-                copy {
-                    project.logger.error '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
-                    println "from :" + processResourcesTask.resPackageOutputFolder
-                    from processResourcesTask.resPackageOutputFolder
-                    include("*.ap_")
-                    into("${project.buildDir}/outputs/")
-                    rename(new Transformer<String, String>() {
-                        @Override
-                        String transform(String s) {
-                            project.logger.error "rename: " + s
-                            return "resources.ap_"
-                        }
-                    })
-                }
+            copy {
+                project.logger.error name + ' 编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
+                println "from :" + resPackageOutputFolder
+                from resPackageOutputFolder
+                include("*.ap_")
+                into("${project.buildDir}/outputs/")
+                rename(new Transformer<String, String>() {
+                    @Override
+                    String transform(String s) {
+                        //多abi时会相互覆盖，不过对我们而言应该没什么影响
+                        project.logger.error "rename: " + s
+                        return "resources.ap_"
+                    }
+                })
             }
         }
 
@@ -203,7 +199,7 @@ afterEvaluate {
         def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
         javaCompile.doLast {
 
-            println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildTypeName + ", flavorName is " + flavorName +  ", varName is " + varName
+            println "Merge Jar After Task " + name + " buildType is " + buildTypeName + ", flavorName is " + flavorName +  ", varName is " + varName
 
             File jarFile = new File(project.buildDir, "outputs/host_classes.jar")
             if (jarFile.exists()) {
@@ -221,7 +217,7 @@ afterEvaluate {
                     }
                 });
 
-                javaCompile.classpath.each { jarPath ->
+                classpath.each { jarPath ->
                     println "adding jar " + jarPath
                     jarMerger.addJar(jarPath);
                     //jarMerger.addFolder(directoryInput.getFile());
@@ -240,7 +236,7 @@ afterEvaluate {
                     try {
                         tasks.getByName(buildClassesTaskName).execute()
                     } catch(Exception e) {
-                        projects.logger.log(LogLevel.ERROR, "fail to create jar for task " + javaCompile.name + " " + buildClassesTaskName)
+                        projects.logger.log(LogLevel.ERROR, "fail to create jar for task " + name + " " + buildClassesTaskName)
                     }
                 } else {
                     projects.logger.log(LogLevel.DEBUG, "classes path already exists： " + classes.absolutePath)
@@ -309,7 +305,7 @@ afterEvaluate {
         //修改public_attrs的内容，填充attr的id
         tasks.findByName("generate${varName.capitalize()}Sources").doLast {
             def f = file(buildDir.absolutePath + "/outputs/theme_patch/" + varDirName + "/res/values/public_attrs.xml")
-            println "update public attrs ids, file=" + f.absolutePath
+            project.logger.error "update public attrs ids, file=" + f.absolutePath
             def String text = f.text
             if (f.exists()) {
                 file(buildDir.absolutePath + "/outputs/generated_exported_all_resouces.properties").eachLine { el->
