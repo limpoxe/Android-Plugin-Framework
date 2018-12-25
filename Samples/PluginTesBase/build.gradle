@@ -21,38 +21,39 @@ android {
         htmlReport false
         xmlReport false
     }
+    
+    applicationVariants.all { variant ->
+        //保留APK的源码jar包
+        tasks.findByName("compile${variant.name.capitalize()}Sources").doLast {
+            tasks.findByName("packageAppClasses${variant.name.capitalize()}").execute()
+            project.copy {
+                project.logger.error '导出 ' + variant.name + ' classes.jar 包到build/outputs/apk目录'
+                from(buildDir.absolutePath + '/intermediates/app_classes/' + variant.name + "/packageAppClasses" + variant.name.capitalize()) {
+                    include "classes.jar"
+                }
+                into(buildDir.absolutePath + "/outputs/apk")
+                rename('classes', project.name + "-" + variant.name)
+            }
+        }
+
+        //复制apk到宿主目录
+//        tasks.findByName("package${variant.name.capitalize()}").doLast {
+//            outputs.previousOutputFiles.each {apk->
+//                if (apk.absolutePath.endsWith(".apk")) {
+//                    copy {
+//                        project.logger.error "复制插件" + apk.absolutePath + "到宿主assets目录"
+//                        from apk.getParent()
+//                        include project.name + '-debug.apk'
+//                        into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
+//                    }
+//                }
+//            }
+//        }
+    }
+    
 }
 
 dependencies {
     //支持使用maven坐标配置
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
 }
-
-tasks.whenTaskAdded { task ->
-    android.buildTypes.all { buildType ->
-        if (task.name.equalsIgnoreCase("compile" + buildType.name + "Sources")) {
-            task.doLast {
-                println '导出 ' + buildType.name + ' jar包到build/outputs/apk目录'
-                tasks.getByName("packageAppClasses" + buildType.name.capitalize()).execute()
-                project.copy {
-                    from(buildDir.absolutePath + '/intermediates/app_classes/' + buildType.name + "/packageAppClasses" + buildType.name.capitalize()) {
-                        include "classes.jar"
-                    }
-                    into(buildDir.absolutePath + "/outputs/apk")
-                    rename('classes', project.name + "-" + buildType.name)
-                }
-            }
-        }
-    }
-}
-
-//afterEvaluate {
-//    tasks.getByName("packageDebug").doLast {
-//        copy {
-//            println "复制插件" + apkPathList.get(0).absolutePath + "到宿主assets目录"
-//            from apkPathList.get(0).getParent()
-//            include project.name + '-debug.apk'
-//            into(project(':Samples:PluginMain').getProjectDir().absolutePath + '/src/main/assets/')
-//        }
-//    }
-//}
