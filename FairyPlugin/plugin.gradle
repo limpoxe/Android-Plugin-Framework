@@ -121,9 +121,15 @@ afterEvaluate {
             println "开始merge插件工程资源：" + host_patch_path + " 到" + varDirName
 
             File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
+            if (!propFile.exists()) {
+                throw new Exception("HostInfo.prop丢失：" + propFile.absolutePath)
+            }
             def Properties props = new Properties()
             props.load(new FileInputStream(propFile))
             def hostVarDirName = props.getProperty("host.varDirName")
+            if (hostVarDirName == null) {
+                throw new Exception("HostInfo.prop文件信息不全，请检查此文件内容：" + propFile.absolutePath)
+            }
             //应用宿主的主题包
             applyThemePatch(hostVarDirName, varName, varDirName, host_patch_extract_dir);
         }
