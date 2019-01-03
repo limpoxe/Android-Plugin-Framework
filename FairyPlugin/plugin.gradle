@@ -39,10 +39,11 @@ def fairyMinifyEnabled = false
 android{
 }
 
-//--package-id 和 -I 参数不能同时生效，太可惜了
-//android.aaptOptions.additionalParameters('--package-id', "0x80")
-android.aaptOptions.additionalParameters('-I', host_patch_extract_dir + "/" + host_patch_fileName)
-
+android.aaptOptions.additionalParameters(
+        '-I', host_patch_extract_dir + "/" + host_patch_fileName,
+        '--package-id', "0x7f", //默认0x7f，可以修改为任意其他值，如0x66、0x88，但要确保不和系统已经使用的id重复。典型的如0x10、0x20，都已被系统使用
+        '--allow-reserved-package-id')
+        
 afterEvaluate {
 
     if (isApplicationModule) {
