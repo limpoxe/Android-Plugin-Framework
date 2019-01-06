@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/com.example.pluginmain">
     <item
         android:id="@+id/action_night"
         android:title="@string/menu_night_mode"
