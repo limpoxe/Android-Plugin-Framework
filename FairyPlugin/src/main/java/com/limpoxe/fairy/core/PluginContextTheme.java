@@ -54,6 +54,8 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	private boolean crackPackageManager = false;
     //用于不能修改包名的特殊插件Activity，如一些三方sdk
     private boolean useHostPackageName = false;
+    //当前插件Context依附的外部Context，在插件Fragment或者View被潜入到宿主的Activity中时比较有用
+	private Context outerContext = null;
 
 	public PluginContextTheme(PluginDescriptor pluginDescriptor,
 							  Context base, Resources resources,
@@ -500,6 +502,9 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	}
 
 	public Context getOuter() {
+		if (outerContext != null) {
+			return outerContext;
+		}
 		Context base = getBaseContext();
 		while(base instanceof ContextWrapper) {
 			base = ((ContextWrapper)base).getBaseContext();
@@ -508,6 +513,10 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 			base = new HackContextImpl(base).getOuterContext();
 		}
 		return base;
+	}
+
+	public void setOuter(Context outerContext) {
+		this.outerContext = outerContext;
 	}
 
 	private Object getContextImpl() {
