@@ -13,8 +13,8 @@ import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import static com.limpoxe.fairy.core.proxy.ProxyUtil.createProxy;
 
@@ -24,7 +24,7 @@ import static com.limpoxe.fairy.core.proxy.ProxyUtil.createProxy;
 public class AndroidOsServiceManager extends MethodProxy {
 
     private static HashSet<String> sCacheKeySet;
-    private static HashMap<String, IBinder> sCache;
+    private static Map<String, IBinder> sCache;
 
     static {
         sMethods.put("getService", new getService());

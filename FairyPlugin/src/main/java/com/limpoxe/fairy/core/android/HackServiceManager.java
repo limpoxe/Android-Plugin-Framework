@@ -4,7 +4,7 @@ import android.os.IBinder;
 
 import com.limpoxe.fairy.util.RefInvoker;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by cailiming on 16/10/30.
@@ -27,8 +27,8 @@ public class HackServiceManager {
         RefInvoker.setField(null, ClassName, Field_sServiceManager, serviceManager);
     }
 
-    public static HashMap<String, IBinder> getCache() {
-        return (HashMap<String, IBinder>)RefInvoker.getField(null, ClassName, Field_sCache);
+    public static Map<String, IBinder> getCache() {
+        return (Map<String, IBinder>)RefInvoker.getField(null, ClassName, Field_sCache);
     }
 
     public static IBinder getService(String name) {

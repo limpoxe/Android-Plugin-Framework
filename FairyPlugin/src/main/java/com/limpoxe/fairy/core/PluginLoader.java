@@ -28,6 +28,7 @@ import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.manager.mapping.StubActivityMappingProcessor;
 import com.limpoxe.fairy.manager.mapping.StubReceiverMappingProcessor;
 import com.limpoxe.fairy.manager.mapping.StubServiceMappingProcessor;
+import com.limpoxe.fairy.util.FreeReflection;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -50,6 +51,11 @@ public class PluginLoader {
 
         LogUtil.v("插件框架初始化中...");
         long t1 = System.currentTimeMillis();
+
+        if (Build.VERSION.SDK_INT >= 28) {
+            boolean ret = FreeReflection.exemptAll();
+            LogUtil.v("hidden api exempt " + ret);
+        }
 
         FairyGlobal.setApplication(app);
         FairyGlobal.registStubMappingProcessor(new StubActivityMappingProcessor());
@@ -81,9 +87,6 @@ public class PluginLoader {
             });
         }
 
-        if (Build.VERSION.SDK_INT >= 28) {
-            HackActivityThread.get().setHiddenApiWarningShown(true);
-        }
         PluginInjector.injectHandlerCallback();//本来宿主进程是不需要注入handlecallback的，这里加上是为了对抗360安全卫士等软件，提高Instrumentation的成功率
         PluginInjector.injectInstrumentation();
         PluginInjector.injectBaseContext(FairyGlobal.getHostApplication());
