@@ -185,7 +185,7 @@ public class PluginManagerProvider extends ContentProvider {
     public Bundle call(String method, String arg, Bundle extras) {
 
         if (Build.VERSION.SDK_INT >= 19) {
-            LogUtil.v("callingPackage = ", getCallingPackage());
+            //LogUtil.v("callingPackage = ", getCallingPackage());
         }
 
         LogUtil.d("跨进程调用统计",
