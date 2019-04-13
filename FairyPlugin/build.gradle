@@ -4,11 +4,12 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.limpoxe'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion TARGET_SDK_VERSION
         versionCode 67
         versionName "0.0.67"
     }

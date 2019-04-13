@@ -7,7 +7,7 @@ apply from: 'vcs.gradle'
 configurations.all {
     resolutionStrategy {
         cacheChangingModulesFor(1, 'HOURS')
-        //force 'com.android.support:appcompat-v7:27.0.0'
+        //force "com.android.support:appcompat-v7:${SUPPORT_VERSION}"
     }
 }
 
@@ -17,8 +17,8 @@ repositories {
 
 android {
 
-    compileSdkVersion 27
-    buildToolsVersion "28.0.3"
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
 
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
@@ -28,7 +28,7 @@ android {
     defaultConfig {
         applicationId "com.example.pluginmain"
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion TARGET_SDK_VERSION
         versionCode 6
         versionName "1.2.0_" + project.ext.VCS_commitId
         flavorDimensions "versionCode"
@@ -134,7 +134,7 @@ dependencies {
 
     implementation project(':Samples:PluginShareLib')
 
-    implementation 'com.android.support:design:27.0.0'
+    implementation "com.android.support:design:${SUPPORT_VERSION}"
 
     implementation 'com.tencent.bugly:crashreport:2.1.5'
     //implementation 'com.umeng.analytics:analytics:latest.integration'

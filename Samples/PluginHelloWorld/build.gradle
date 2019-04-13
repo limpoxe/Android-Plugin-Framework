@@ -5,13 +5,13 @@ repositories {
 }
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "28.0.3"
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
 
     defaultConfig {
         applicationId "com.example.pluginhelloworld"
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion TARGET_SDK_VERSION
         versionCode 2
         versionName "1.0.1"
     }
@@ -26,8 +26,8 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:27.0.0'
-    implementation 'com.android.support:appcompat-v7:27.0.0'
+    implementation "com.android.support:support-v4:${SUPPORT_VERSION}"
+    implementation "com.android.support:appcompat-v7:${SUPPORT_VERSION}"
 }
 
 //afterEvaluate {
