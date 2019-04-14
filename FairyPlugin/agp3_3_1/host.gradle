@@ -211,6 +211,8 @@ afterEvaluate {
             }
         }
 
+        tasks.findByName("compile${varName.capitalize()}JavaWithJavac").finalizedBy tasks.findByName("bundle${varName.capitalize()}Classes")
+
         //将宿主的所有class，包括宿主的、和它所有依赖的类，合并起来打出一个jar来，供将来的非独立插件使用
         variant.javaCompileProvider.configure {
             it.doLast {
@@ -239,12 +241,11 @@ afterEvaluate {
                         //jarMerger.addFolder(directoryInput.getFile());
                     }
 
-                    def classesPath = project.buildDir.absolutePath + '/intermediates/javac/' + varName + "/compile${varName.capitalize()}JavaWithJavac"
-                    File classes = new File(classesPath + "/classes.jar");
+                    File classes = new File(destinationDir.getParent(), "classes.jar");
                     classes.delete();
 
                     try {
-                        ZipUtil.zip(classesPath + "/classes", classesPath, "classes.jar", new ArrayList<String>())
+                        ZipUtil.zip(destinationDir.absolutePath, destinationDir.getParent(), "classes.jar", new ArrayList<String>())
                     } catch(Exception e) {
                         throw new Exception("fail to create jar for app classes ")
                     }

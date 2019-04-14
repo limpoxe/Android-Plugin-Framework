@@ -135,6 +135,17 @@ afterEvaluate {
             applyThemePatch(hostVarDirName, varName, varDirName, host_patch_extract_dir);
         }
 
+        tasks.findByName("compile${varName.capitalize()}JavaWithJavac").finalizedBy tasks.findByName("bundle${varName.capitalize()}Classes")
+        tasks.findByName("compile${variant.name.capitalize()}Sources").doLast {
+            project.copy {
+                from(buildDir.absolutePath + '/intermediates/app_classes/' + varName +'/bundle' + varName.capitalize() + 'Classes') {
+                    include "classes.jar"
+                }
+                into(buildDir.absolutePath + "/outputs")
+                rename('classes', project.name + "-" + varName)
+            }
+        }
+
         if (isApplicationModule) {
             tasks.findByName("process${varName.capitalize()}Manifest").doLast {
                 File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
