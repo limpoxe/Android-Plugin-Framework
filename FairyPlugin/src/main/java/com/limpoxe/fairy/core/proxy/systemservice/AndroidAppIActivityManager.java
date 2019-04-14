@@ -227,6 +227,13 @@ public class AndroidAppIActivityManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             if(ProcessUtil.isPluginProcess()) {
                 String auth = (String)args[1];
+                //Q版本的参数位置发生了变化
+                //TODO 由于预览版rom的SDK_INT仍然是28，这里暂时使用BASE_OS来判断
+                if ("Q".equals(Build.VERSION.CODENAME)) {
+                    auth = (String)args[2];
+                } else {
+                    auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
+                }
                 LogUtil.d("getContentProvider", auth);
                 if (!PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
                     ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
@@ -262,6 +269,13 @@ public class AndroidAppIActivityManager extends MethodProxy {
             if (!ProcessUtil.isPluginProcess()) {
                 if (invokeResult == null) {
                     String auth = (String)args[1];
+                    //Q版本的参数位置发生了变化
+                    //TODO 由于预览版rom的SDK_INT仍然是28，这里暂时使用BASE_OS来判断
+                    if ("Q".equals(Build.VERSION.CODENAME)) {
+                        auth = (String)args[2];
+                    } else {
+                        auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
+                    }
                     LogUtil.d("getContentProvider", auth);
                     if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
                         return invokeResult;
