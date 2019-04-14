@@ -94,7 +94,7 @@ dependencies {
     //如果是独立插件，无需任何特殊配置
     /////////////////////////////////////////////////////////////////////
 
-    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/apk/PluginTesBase-debug.jar')
+    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/PluginTesBase-debug.jar')
 
     //支持使用maven坐标配置
     //baselinePatch 'xxx:xxx:xxx@xx'

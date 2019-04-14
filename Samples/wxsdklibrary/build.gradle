@@ -32,7 +32,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/apk/PluginTesBase-debug.jar')
+    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/PluginTesBase-debug.jar')
 
     //支持使用maven坐标配置
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')

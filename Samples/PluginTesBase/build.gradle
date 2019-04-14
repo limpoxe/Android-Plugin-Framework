@@ -23,19 +23,6 @@ android {
     }
     
     applicationVariants.all { variant ->
-        //保留APK的源码jar包
-        tasks.findByName("compile${variant.name.capitalize()}Sources").doLast {
-            tasks.findByName("packageAppClasses${variant.name.capitalize()}").execute()
-            project.copy {
-                project.logger.error '导出 ' + variant.name + ' classes.jar 包到build/outputs/apk目录'
-                from(buildDir.absolutePath + '/intermediates/app_classes/' + variant.name + "/packageAppClasses" + variant.name.capitalize()) {
-                    include "classes.jar"
-                }
-                into(buildDir.absolutePath + "/outputs/apk")
-                rename('classes', project.name + "-" + variant.name)
-            }
-        }
-
         //复制apk到宿主目录
 //        tasks.findByName("package${variant.name.capitalize()}").doLast {
 //            outputs.previousOutputFiles.each {apk->
