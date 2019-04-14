@@ -8,8 +8,12 @@ import javax.xml.parsers.SAXParserFactory
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import java.util.regex.Pattern
+import java.util.zip.CRC32
+import java.util.zip.CheckedOutputStream
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 configurations {
     innerPlugin
@@ -57,68 +61,64 @@ afterEvaluate {
 
         println 'Check Env : variant=' + varName +  ", buildTypeName=" + buildTypeName + ", flavorName=" + flavorName + ", varDirName=" + varDirName
 
-        variant.getMergeResources().doLast {
+        variant.getMergeResourcesProvider().configure {
+            it.doLast {
 
-            project.logger.error '生成一份主题patch包，编译非独立插件时需要此包'
+                project.logger.error '生成一份主题patch包，编译非独立插件时需要此包'
 
-            File patchDir = new File(project.buildDir.absolutePath, "outputs/theme_patch/" + varDirName);
-            patchDir.mkdirs();
+                File patchDir = new File(project.buildDir.absolutePath, "outputs/theme_patch/" + varDirName);
+                patchDir.mkdirs();
 
-            //宿主资源id分组就靠这个文件了
-            def String publicAttrrsXml = "res/values/public_attrs.xml" ;
-            def String publicAttrrsXmlFile = new File(patchDir.absolutePath, publicAttrrsXml).absolutePath;
+                //宿主资源id分组就靠这个文件了
+                def String publicAttrrsXml = "res/values/public_attrs.xml" ;
+                def String publicAttrrsXmlFile = new File(patchDir.absolutePath, publicAttrrsXml).absolutePath;
 
-            //导出一份主题包备用，编译非独立插件时需要
-            createThemePatch(varName, buildTypeName, patchDir, publicAttrrsXmlFile);
+                //导出一份主题包备用，编译非独立插件时需要
+                createThemePatch(varName, buildTypeName, patchDir, publicAttrrsXmlFile);
 
-            if(!file(publicAttrrsXmlFile).exists()) {
-                throw new FileNotFoundException("createThemePatch 失败，public_attrs.xml 文件未生成，请检查路径：" + publicAttrrsXmlFile)
-            }
+                if(!file(publicAttrrsXmlFile).exists()) {
+                    throw new FileNotFoundException("createThemePatch 失败，public_attrs.xml 文件未生成，请检查路径：" + publicAttrrsXmlFile)
+                }
 
-            String mergeResourcesOutPath = outputDir.absolutePath;
+                String mergeResourcesOutPath = outputDir.absolutePath;
 
-            //需要确保aapt2在环境变量中，否则可能会执行失败
-            //Android Studio环境中的aapt2和命令行中的可能不是同一个版本，
-            //idea使用的版本位于～/.gradle/caches/transforms-1/files-1.1/aapt2-**-osx.jar/**/aapt2-**/aapt2
-            //sdk的版本位于～/Library/Android/sdk/build-tools/28.0.3//aapt2
-            //如果不是同一个版本可能出现Android Resource Link错误、magic number错误
-            //因此还需要保证环境变量中的aapt2和idea中使用的是相同的版本，并不低于28.0.3
-            File buildToolsPath = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion())
-            String aapt2Exe = new File(buildToolsPath, "aapt2" + (System.getProperty("os.name").startsWith("Windows")?".exe":"")).absolutePath
+                //需要确保aapt2在环境变量中，否则可能会执行失败
+                //Android Studio环境中的aapt2和命令行中的可能不是同一个版本，
+                //idea使用的版本位于～/.gradle/caches/transforms-1/files-1.1/aapt2-**-osx.jar/**/aapt2-**/aapt2
+                //sdk的版本位于～/Library/Android/sdk/build-tools/28.0.3//aapt2
+                //如果不是同一个版本可能出现Android Resource Link错误、magic number错误
+                //因此还需要保证环境变量中的aapt2和idea中使用的是相同的版本，并不低于28.0.3
+                File buildToolsPath = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion())
+                String aapt2Exe = new File(buildToolsPath, "aapt2" + (System.getProperty("os.name").startsWith("Windows")?".exe":"")).absolutePath
 
-            projects.logger.log(LogLevel.ERROR, "$aapt2Exe compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile")
-            "$aapt2Exe compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile".execute().waitFor()
+                //把这个文件插入宿主的资源编译过程中是为了给宿主资源id分组，使得宿主资源id与将来的插件资源id不冲突
+                projects.logger.log(LogLevel.ERROR, "$aapt2Exe compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile")
+                "$aapt2Exe compile -o  $mergeResourcesOutPath $publicAttrrsXmlFile".execute().waitFor()
 
-            //检查aapt2是否执行成功
-            if(!file(mergeResourcesOutPath + "/values_public_attrs.arsc.flat").exists()) {
-                throw new FileNotFoundException("values_public_attrs.arsc.flat 文件未生成，请检查路径：$publicAttrrsXmlFile")
-            }
-
-            //生成values_public_attrs这个文件以后，publicAttrrsXmlFile文件已经无用了，
-            //接下来修改内容需要为生成一个public attr
-            String text = file(publicAttrrsXmlFile).text
-                    .replace("public_static_final_host", "public_static_final_plugin")
-                    .replace("0x7f3", "0x7f0")
-                    .replace("0x7f4", "0x7f1")
-            file(publicAttrrsXmlFile).write(text)
-        }
-
-        def mergeAssetsTask = variant.getMergeAssets()
-        mergeAssetsTask.setOnlyIf { true }
-        mergeAssetsTask.outputs.upToDateWhen { false }
-        mergeAssetsTask.doLast {
-
-            //检查内置插件坐标是否存在，不存在给出提示
-            innerPluginApkList.each { innerAPK ->
-                if (!file(innerAPK).exists()) {
-                    project.logger.info "引用的插件apk文件不存在，可能插件apk还未编译完成，或者宿主innerPlugin配置的路径错误：", innerAPK
+                //检查aapt2是否执行成功
+                if(!file(mergeResourcesOutPath + "/values_public_attrs.arsc.flat").exists()) {
+                    throw new FileNotFoundException("values_public_attrs.arsc.flat 文件未生成，影响宿主资源ID分组设置，请检查路径：$publicAttrrsXmlFile")
                 }
             }
+        }
 
-            copy {
-                project.logger.error '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + outputDir
-                from files(innerPluginApkList)
-                into(outputDir)
+        variant.getMergeAssetsProvider().configure {
+            it.setOnlyIf { true }
+            it.outputs.upToDateWhen { false }
+            it.doLast {
+
+                //检查内置插件坐标是否存在，不存在给出提示
+                innerPluginApkList.each { innerAPK ->
+                    if (!file(innerAPK).exists()) {
+                        project.logger.info "引用的插件apk文件不存在，可能插件apk还未编译完成，或者宿主innerPlugin配置的路径错误：", innerAPK
+                    }
+                }
+
+                copy {
+                    project.logger.error '复制宿主依赖的内置插件到merge后的assets目录\n' + innerPluginApkList + "\n" + outputDir
+                    from files(innerPluginApkList)
+                    into(outputDir)
+                }
             }
         }
 
@@ -176,6 +176,22 @@ afterEvaluate {
         }
 
         tasks.findByName("process${varName.capitalize()}Resources").doLast {
+            //修改此文件的内容，主要是设置用于id分组的id值，填充以及attr的值, 将来编译插件时需要此文件
+            File patchDir = new File(project.buildDir.absolutePath, "outputs/theme_patch/" + varDirName);
+            def String publicAttrrsXmlFile = new File(patchDir.absolutePath, "res/values/public_attrs.xml").absolutePath;
+            project.logger.error "update public attrs ids, file=" + publicAttrrsXmlFile
+            String text = file(publicAttrrsXmlFile).text
+                    .replace("public_static_final_host", "public_static_final_plugin")
+                    .replace("0x7f3", "0x7f0")
+                    .replace("0x7f4", "0x7f1")
+            file(buildDir.absolutePath + "/outputs/generated_exported_all_resouces.properties").eachLine { el->
+                if (el.contains(":attr/")) {
+                    String[] attrIdKeyValue = el.split("/")[1].split(" = ");
+                    text = text.replace("name=\"" + attrIdKeyValue[0] +"\">", "name=\"" + attrIdKeyValue[0] +"\" id=\"" + attrIdKeyValue[1] +  "\">")
+                }
+            }
+            file(publicAttrrsXmlFile).write(text)
+
             //实际上最新版sdk和gradle可以直接指定apk了, 可以不使用.ap_文件
             //def processResFullName = baseVariant.apkData.fullName
             copy {
@@ -196,68 +212,61 @@ afterEvaluate {
         }
 
         //将宿主的所有class，包括宿主的、和它所有依赖的类，合并起来打出一个jar来，供将来的非独立插件使用
-        def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
-        javaCompile.doLast {
+        variant.javaCompileProvider.configure {
+            it.doLast {
 
-            println "Merge Jar After Task " + name + " buildType is " + buildTypeName + ", flavorName is " + flavorName +  ", varName is " + varName
+                println "Merge Jar After Task " + name + " buildType is " + buildTypeName + ", flavorName is " + flavorName +  ", varName is " + varName
 
-            File jarFile = new File(project.buildDir, "outputs/host_classes.jar")
-            if (jarFile.exists()) {
-                jarFile.delete()
-            }
+                File jarFile = new File(project.buildDir, "outputs/host_classes.jar")
+                if (jarFile.exists()) {
+                    jarFile.delete()
+                }
 
-            JarMerger jarMerger = new JarMerger(jarFile)
-            try {
-                jarMerger.setFilter(new JarFilter() {
-                    public boolean checkEntry(String archivePath) throws JarFilter.ZipAbortException {
-                        if (archivePath.endsWith(".class")) {
-                            return true
+                JarMerger jarMerger = new JarMerger(jarFile)
+                try {
+                    jarMerger.setFilter(new JarFilter() {
+                        public boolean checkEntry(String archivePath) throws JarFilter.ZipAbortException {
+                            if (archivePath.endsWith(".class")) {
+                                return true
+                            }
+                            return false
                         }
-                        return false
+                    });
+
+                    classpath.each { jarPath ->
+                        println "adding jar " + jarPath
+                        jarMerger.addJar(jarPath);
+                        //jarMerger.addFolder(directoryInput.getFile());
                     }
-                });
 
-                classpath.each { jarPath ->
-                    println "adding jar " + jarPath
-                    jarMerger.addJar(jarPath);
-                    //jarMerger.addFolder(directoryInput.getFile());
-                }
+                    def classesPath = project.buildDir.absolutePath + '/intermediates/javac/' + varName + "/compile${varName.capitalize()}JavaWithJavac"
+                    File classes = new File(classesPath + "/classes.jar");
+                    classes.delete();
 
-                def buildClassesTaskName = "packageAppClasses" + varName.capitalize();
-                def classesPath= 'intermediates/app_classes/' + varName + "/" + buildClassesTaskName + "/classes.jar"
-
-                if (!tasks.findByName(buildClassesTaskName)) {
-                    throw new IllegalAccessError("未找到打包宿主classes的task，请检查android gradle 插件版本")
-                }
-
-                File classes = new File(buildDir, classesPath);
-
-                if (!classes.exists()) {
                     try {
-                        tasks.getByName(buildClassesTaskName).execute()
+                        ZipUtil.zip(classesPath + "/classes", classesPath, "classes.jar", new ArrayList<String>())
                     } catch(Exception e) {
-                        projects.logger.log(LogLevel.ERROR, "fail to create jar for task " + name + " " + buildClassesTaskName)
+                        throw new Exception("fail to create jar for app classes ")
                     }
-                } else {
-                    projects.logger.log(LogLevel.DEBUG, "classes path already exists： " + classes.absolutePath)
-                }
-                if (classes.exists()) {
-                    println "adding jar " + classes
-                    jarMerger.addJar(classes)
-                } else {
-                    projects.logger.log(LogLevel.ERROR, "Not exists : classes file path is " + classes.absolutePath)
-                    projects.logger.log(LogLevel.ERROR, "Not exists : build classes task name is " + buildClassesTaskName)
-                }
-            } finally {
-                jarMerger.close()
-            }
 
-            println "Merge Jar Finished, Jar is at " + jarFile.absolutePath
+                    if (classes.exists()) {
+                        println "adding jar " + classes
+                        jarMerger.addJar(classes)
+                    } else {
+                        throw new Exception("Not exists : classes file path is " + classes.absolutePath)
+                    }
+
+                } finally {
+                    jarMerger.close()
+                }
+
+                println "Merge Jar Finished, Jar is at " + jarFile.absolutePath
+            }
         }
 
-        //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
-        def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${variant.name.capitalize()}")
-        if (proguardTask) {
+        if (variant.buildType["minifyEnabled"]) {
+            //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
+            def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${varName.capitalize()}")
             proguardTask.doFirst {
                 println "开始混淆任务：" + varName.capitalize()
             }
@@ -297,26 +306,8 @@ afterEvaluate {
                     }
                 }
                 if (!isFind) {
-                    throw "obfuscated jar file not found, please check."
+                    throw new Exception("obfuscated jar file not found, please check.")
                 }
-            }
-        }
-
-        //修改public_attrs的内容，填充attr的id
-        tasks.findByName("generate${varName.capitalize()}Sources").doLast {
-            def f = file(buildDir.absolutePath + "/outputs/theme_patch/" + varDirName + "/res/values/public_attrs.xml")
-            project.logger.error "update public attrs ids, file=" + f.absolutePath
-            def String text = f.text
-            if (f.exists()) {
-                file(buildDir.absolutePath + "/outputs/generated_exported_all_resouces.properties").eachLine { el->
-                    if (el.contains(":attr/")) {
-                        String[] attrIdKeyValue = el.split("/")[1].split(" = ");
-                        text = text.replace("name=\"" + attrIdKeyValue[0] +"\">", "name=\"" + attrIdKeyValue[0] +"\" id=\"" + attrIdKeyValue[1] +  "\">")
-                    }
-                }
-                f.write(text)
-            } else {
-                throw new Exception(f.absolutePath + " Not Found!")
             }
         }
 
@@ -828,6 +819,192 @@ public interface JarFilter {
 
         public ZipAbortException(Throwable cause) {
             super(cause);
+        }
+    }
+}
+
+public class ZipUtil {
+
+    public static List<String> unZip(String path, String savepath) throws IOException
+    {
+        def resultList = new ArrayList<String>();
+        def count = -1;
+        def index = -1;
+        def flag = false;
+        def file = null;
+        def is = null;
+        def fos = null;
+        def bos = null;
+
+        ZipFile zipFile = new ZipFile(path);
+        Enumeration<?> entries = zipFile.entries();
+
+        while(entries.hasMoreElements())
+        {
+            def buf = new byte[2048];
+            ZipEntry entry = (ZipEntry)entries.nextElement();
+
+            def filename = savepath + entry.getName();
+
+            File folder = new File(filename).getParentFile();
+            if(!folder.exists()){
+                folder.mkdirs();
+            }
+
+            if(!filename.endsWith(File.separator)){
+
+                System.out.println("解压：" + filename);
+
+                file = new File(filename);
+                file.createNewFile();
+                is = zipFile.getInputStream(entry);
+                fos = new FileOutputStream(file);
+                bos = new BufferedOutputStream(fos, 2048);
+
+                while((count = is.read(buf)) > -1)
+                {
+                    bos.write(buf, 0, count );
+                }
+
+                bos.flush();
+
+                fos.close();
+                is.close();
+
+                resultList.add(entry.getName());
+            }
+        }
+
+        zipFile.close();
+
+        return resultList
+    }
+
+    /**
+     * 递归压缩文件夹
+     * @param srcRootDir 压缩文件夹根目录的子路径
+     * @param file 当前递归压缩的文件或目录对象
+     * @param zos 压缩文件存储对象
+     * @throws Exception
+     */
+    public static zip(String srcRootDir, File file, ZipOutputStream zos, ArrayList<String> filter) throws Exception
+    {
+        if (file == null)
+        {
+            return;
+        }
+
+        //如果是文件，则直接压缩该文件
+        if (file.isFile())
+        {
+            int count, bufferLen = 1024;
+            byte[] data = new byte[bufferLen];
+
+            //获取文件相对于压缩文件夹根目录的子路径
+            String subPath = file.getAbsolutePath();
+            int index = subPath.indexOf(srcRootDir);
+            if (index != -1)
+            {
+                subPath = subPath.substring(srcRootDir.length() + File.separator.length());
+            }
+
+            if (filter.contains(subPath)) {
+                System.out.println("过滤：" + subPath)
+                return;
+            } else {
+                System.out.println("压缩：" + subPath)
+            }
+
+            ZipEntry entry = new ZipEntry(subPath);
+            zos.putNextEntry(entry);
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+            while ((count = bis.read(data, 0, bufferLen)) != -1)
+            {
+                zos.write(data, 0, count);
+            }
+            bis.close();
+            zos.closeEntry();
+        }
+        //如果是目录，则压缩整个目录
+        else
+        {
+            //压缩目录中的文件或子目录
+            File[] childFileList = file.listFiles();
+            for (int n=0; n<childFileList.length; n++)
+            {
+                childFileList[n].getAbsolutePath().indexOf(file.getAbsolutePath());
+                zip(srcRootDir, childFileList[n], zos, filter);
+            }
+        }
+    }
+
+    /**
+     * 对文件或文件目录进行压缩
+     * @param srcPath 要压缩的源文件路径。如果压缩一个文件，则为该文件的全路径；如果压缩一个目录，则为该目录的顶层目录路径
+     * @param zipPath 压缩文件保存的路径。注意：zipPath不能是srcPath路径下的子文件夹
+     * @param zipFileName 压缩文件名
+     * @throws Exception
+     */
+    public static zip(String srcPath, String zipPath, String zipFileName, ArrayList<String> filter) throws Exception
+    {
+        CheckedOutputStream cos = null;
+        ZipOutputStream zos = null;
+        try
+        {
+            File srcFile = new File(srcPath);
+
+            //判断压缩文件保存的路径是否存在，如果不存在，则创建目录
+            File zipDir = new File(zipPath);
+            if (!zipDir.exists() || !zipDir.isDirectory())
+            {
+                zipDir.mkdirs();
+            }
+
+            //创建压缩文件保存的文件对象
+            String zipFilePath = zipPath + File.separator + zipFileName;
+            File zipFile = new File(zipFilePath);
+            if (zipFile.exists())
+            {
+                ///删除已存在的目标文件
+                boolean success = zipFile.delete();
+                System.out.println("删除已存在的目标文件:" + success)
+
+            }
+
+            cos = new CheckedOutputStream(new FileOutputStream(zipFile), new CRC32());
+            zos = new ZipOutputStream(cos);
+
+            //如果只是压缩一个文件，则需要截取该文件的父目录
+            String srcRootDir = srcPath;
+            if (srcFile.isFile())
+            {
+                int index = srcPath.lastIndexOf(File.separator);
+                if (index != -1)
+                {
+                    srcRootDir = srcPath.substring(0, index);
+                }
+            }
+            //调用递归压缩方法进行目录或文件压缩
+            zip(srcRootDir, srcFile, zos, filter);
+            zos.flush();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+        finally
+        {
+            try
+            {
+                if (zos != null)
+                {
+                    zos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 }
