@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--在宿主中指定这些id的范围是为了使宿主各类资源的id和插件各类资源的id不重复，否则会出错（若没出错也仅是凑巧）-->
+
+    <!-- 单独指定属性的资源范围是为了支持主题属性换肤  将end值设置为0100，意思预留从0000到0100的id给插件属性使用
+        即插件的attr不可超过256个，这个值可以根据实际情况调整
+     -->
+    <public-padding type="attr" name="public_static_final_host_attr_"     start="0x7f010000" end="0x7f010100" />
+
+    <!-- 除属性外 其他类型的资源设置为  0x7f32开始 -->
+    <public-padding type="drawable" name="public_static_final_host_drawable_" start="0x7f320000" end="0x7f320000" />
+    <public-padding type="layout" name="public_static_final_host_layout_"   start="0x7f330000" end="0x7f330000" />
+    <public-padding type="anim" name="public_static_final_host_anim_"     start="0x7f340000" end="0x7f340000" />
+    <public-padding type="xml" name="public_static_final_host_xml_"      start="0x7f350000" end="0x7f350000" />
+    <public-padding type="raw" name="public_static_final_host_raw_"      start="0x7f360000" end="0x7f360000" />
+    <public-padding type="dimen" name="public_static_final_host_dimen_"    start="0x7f370000" end="0x7f370000" />
+    <public-padding type="string" name="public_static_final_host_string_"   start="0x7f380000" end="0x7f380000" />
+    <public-padding type="style" name="public_static_final_host_style_"    start="0x7f390000" end="0x7f390000" />
+    <public-padding type="color" name="public_static_final_host_color_"    start="0x7f3a0000" end="0x7f3a0000" />
+    <public-padding type="id" name="public_static_final_host_id_"       start="0x7f3b0000" end="0x7f3b0000" />
+    <public-padding type="bool" name="public_static_final_host_bool_"     start="0x7f3c0000" end="0x7f3c0000" />
+    <public-padding type="integer" name="public_static_final_host_int_"  start="0x7f3d0000" end="0x7f3d0000" />
+    <public-padding type="array" name="public_static_final_host_array_"    start="0x7f3e0000" end="0x7f3e0000" />
+    <public-padding type="menu" name="public_static_final_host_menu_"     start="0x7f3f0000" end="0x7f3f0000" />
+    <public-padding type="mipmap" name="public_static_final_host_mipmap_"     start="0x7f400000" end="0x7f400000" />
+    <public-padding type="animator" name="public_static_final_host_animator"     start="0x7f410000" end="0x7f410000" />
+    <public-padding type="fraction" name="public_static_final_host_fraction"     start="0x7f420000" end="0x7f420000" />
+    <public-padding type="font" name="public_static_final_host_font"     start="0x7f430000" end="0x7f430000" />
+    <public-padding type="plurals" name="public_static_final_host_plurals"     start="0x7f440000" end="0x7f440000" />
+    <public-padding type="interpolator" name="public_static_final_host_interpolator"     start="0x7f450000" end="0x7f450000" />
+    <public-padding type="transition" name="public_static_final_host_transition"     start="0x7f460000" end="0x7f460000" />
+    <public-padding type="_aapt" name="public_static_final_host__aapt"     start="0x7f470000" end="0x7f470000" />
+
+</resources>
