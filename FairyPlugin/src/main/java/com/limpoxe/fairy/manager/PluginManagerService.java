@@ -290,13 +290,15 @@ class PluginManagerService {
 
 		// 检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
-		if (oldPluginDescriptor != null) {
+		boolean isHotUpdate = false;
+        if (oldPluginDescriptor != null) {
 			LogUtil.d("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath(), oldPluginDescriptor.getVersion(), pluginDescriptor.getVersion());
 
 			//检查插件是否已经加载
 			if (PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName())) {
 				if (!oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
 					LogUtil.w("旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，进行热更新");
+					isHotUpdate = true;
 					remove(oldPluginDescriptor.getPackageName());
 				} else {
 					LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
@@ -389,7 +391,8 @@ class PluginManagerService {
 				}
 
 				//自启动，安装时就启动
-				if (pluginDescriptor.getAutoStart()) {
+				if (pluginDescriptor.getAutoStart() || isHotUpdate) {
+					LogUtil.w("wakeup", pluginDescriptor.getPackageName());
 					PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
 				}
 

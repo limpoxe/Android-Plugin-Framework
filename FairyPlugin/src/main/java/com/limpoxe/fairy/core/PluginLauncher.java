@@ -8,6 +8,7 @@ import android.app.Application.ActivityLifecycleCallbacks;
 import android.app.Instrumentation;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -20,8 +21,11 @@ import android.os.Looper;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.android.HackActivityThread;
+import com.limpoxe.fairy.core.android.HackActivityThreadProviderClientRecord;
 import com.limpoxe.fairy.core.android.HackApplication;
+import com.limpoxe.fairy.core.android.HackContentProvider;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
 import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
 import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
@@ -347,9 +351,26 @@ public class PluginLauncher implements Serializable {
 		//退出AssetManager
 		//pluginDescriptor.getPluginContext().getResources().getAssets().close();
 
-		//退出ContentProvider
-		//TODO ContentProvider如何退出？
-		//ActivityThread.releaseProvider(IContentProvider provider, boolean stable)
+		LogUtil.d("退出ContentProvider");
+		HashMap<String, PluginProviderInfo> pluginProviderMap  = pluginDescriptor.getProviderInfos();
+		if (pluginProviderMap != null) {
+			HackActivityThread hackActivityThread = HackActivityThread.get();
+			// The lock of mProviderMap protects the following variables.
+			Map mProviderMap = hackActivityThread.getProviderMap();
+			if (mProviderMap != null) {
+				Map mLocalProviders = hackActivityThread.getProviderMap();
+				Map mLocalProvidersByName = hackActivityThread.getProviderMap();
+				Collection<PluginProviderInfo> collection = pluginProviderMap.values();
+				for(PluginProviderInfo pluginProviderInfo : collection) {
+					String auth = pluginProviderInfo.getAuthority();
+					synchronized (mProviderMap) {
+						removeProvider(auth, mProviderMap);
+						removeProvider(auth, mLocalProviders);
+						removeProvider(auth, mLocalProvidersByName);
+					}
+				}
+			}
+		}
 
 		//退出fragment
 		//即退出由FragmentManager保存的Fragment
@@ -367,6 +388,22 @@ public class PluginLauncher implements Serializable {
         }
 
 		loadedPluginMap.remove(packageName);
+	}
+
+	private static void removeProvider(String authority, Map map) {
+		if (map == null || authority == null) {
+			return;
+		}
+		Iterator<Map.Entry> iterator = map.entrySet().iterator();
+		while(iterator.hasNext()) {
+			Map.Entry entry = iterator.next();
+			ContentProvider contentProvider = new HackActivityThreadProviderClientRecord(entry.getValue()).getProvider();
+			if (contentProvider != null && authority.equals(new HackContentProvider(contentProvider).getAuthority())) {
+				iterator.remove();
+				LogUtil.e("remove plugin contentprovider from map for " + authority);
+				break;
+			}
+		}
 	}
 
 	public boolean isRunning(String packageName) {

@@ -36,6 +36,10 @@ public class HackActivityThread {
     private static final String Field_mBoundApplication = "mBoundApplication";
     private static final String Field_sPackageManager = "sPackageManager";
 
+    private static final String Field_mProviderMap = "mProviderMap";
+    private static final String Field_mLocalProviders = "mLocalProviders";
+    private static final String Field_mLocalProvidersByName = "mLocalProvidersByName";
+
     private static final String Field_SERVICE_DONE_EXECUTING_ANON = "SERVICE_DONE_EXECUTING_ANON";
     private static final String Field_SERVICE_DONE_EXECUTING_START = "SERVICE_DONE_EXECUTING_START";
     private static final String Field_SERVICE_DONE_EXECUTING_STOP = "SERVICE_DONE_EXECUTING_STOP";
@@ -227,5 +231,18 @@ public class HackActivityThread {
             ret = 0;//default is 0
         }
         return ret;
+    }
+
+    public Map getProviderMap() {
+        return (Map) RefInvoker.getField(instance, ClassName, Field_mProviderMap);
+    }
+
+    public Map getLocalProviders() {
+        return (Map) RefInvoker.getField(instance, ClassName, Field_mLocalProviders);
+
+    }
+
+    public Map getLocalProvidersByName() {
+        return (Map) RefInvoker.getField(instance, ClassName, Field_mLocalProvidersByName);
     }
 }
