@@ -310,7 +310,7 @@ public class PluginLauncher implements Serializable {
 				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
 				while(ir.hasNext()) {
 					BroadcastReceiver item = ir.next();
-					if (item.getClass().getClassLoader() == plugin.pluginClassLoader) {
+					if (item.getClass().getClassLoader() == plugin.pluginClassLoader.getParent()) {//RealPluginClassLoader
 						hackSupportV4LocalboarcastManager.unregisterReceiver(item);
 					}
 				}
@@ -323,7 +323,8 @@ public class PluginLauncher implements Serializable {
 		if (map != null) {
 			Collection<Service> list = map.values();
 			for (Service s :list) {
-				if (s.getClass().getClassLoader() == plugin.pluginClassLoader) {
+				if (s.getClass().getClassLoader() == plugin.pluginClassLoader.getParent()  //RealPluginClassLoader
+						|| s.getPackageName().equals(plugin.pluginPackageName)) {
 					s.stopSelf();
 				}
 			}
