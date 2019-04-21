@@ -122,12 +122,13 @@ class PluginManagerService {
 
 	synchronized int remove(String pluginId) {
 
-		PluginDescriptor old = sInstalledPlugins.remove(pluginId);
+		PluginDescriptor old = sInstalledPlugins.get(pluginId);
 
 		boolean result = false;
 
 		if (old != null) {
 			PluginLauncher.instance().stopPlugin(pluginId, old);
+			sInstalledPlugins.remove(pluginId);
 			result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 			boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 			LogUtil.w("delete old", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());

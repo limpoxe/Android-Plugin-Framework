@@ -326,9 +326,12 @@ public class PluginLauncher implements Serializable {
 			Collection<Service> list = map.values();
 			for (Service s :list) {
 				if (s.getClass().getClassLoader() == plugin.pluginClassLoader.getParent()  //RealPluginClassLoader
-						|| s.getPackageName().equals(plugin.pluginPackageName)) {   //这里判断是否是当前被stop的插件的组件时，与上面LocalBroadcast的判断逻辑时一样的
-																					//只不过sercie有getPackageName函数，所以不需要通过classloader的pluginPackageName来判断了
-					s.stopSelf();
+						//这里判断是否是当前被stop的插件的组件时，与上面LocalBroadcast的判断逻辑时一样的
+						//只不过sercie有getPackageName函数，所以不需要通过classloader的pluginPackageName来判断了
+						|| s.getPackageName().equals(plugin.pluginPackageName)) {
+					Intent intent = new Intent();
+					intent.setClassName(plugin.pluginPackageName, s.getClass().getName());
+					s.stopService(intent);
 				}
 			}
 		}
@@ -394,6 +397,8 @@ public class PluginLauncher implements Serializable {
         }
 
 		loadedPluginMap.remove(packageName);
+
+		LogUtil.d("stopPlugin done");
 	}
 
 	private static void removeProvider(String authority, Map map) {
