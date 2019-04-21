@@ -369,9 +369,15 @@ class PluginManagerService {
 				LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 				//ActivityThread.getPackageManager().performDexOptIfNeeded()
 				FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
-				ClassLoader cl = PluginCreator.createPluginClassLoader(pluginDescriptor.getInstalledPath(), pluginDescriptor.isStandalone(), null, null);
+				ClassLoader cl = PluginCreator.createPluginClassLoader(
+						pluginDescriptor.getPackageName(),
+						pluginDescriptor.getInstalledPath(),
+						pluginDescriptor.isStandalone(),
+						null,
+						null);
 				try {
 					cl.loadClass(Object.class.getName());
+					cl = null;
 				} catch (ClassNotFoundException e) {
 					LogUtil.printException("PluginManagerService.installPlugin", e);
 				}

@@ -18,17 +18,18 @@ import dalvik.system.DexClassLoader;
  * 
  */
 public class RealPluginClassLoader extends DexClassLoader {
+	public final String pluginPackageName;
 
 	private static Hashtable<String, String> soClassloaderMapper = new Hashtable<String, String>();
 
 	private String[] dependencies;
 	private List<DexClassLoader> multiDexClassLoaderList;
 
-	public RealPluginClassLoader(String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent,
+	public RealPluginClassLoader(String pluginPackageName, String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent,
                                  String[] dependencies, List<String> multiDexList) {
 		super(dexPath, optimizedDirectory, libraryPath, parent);
 		this.dependencies = dependencies;
-
+		this.pluginPackageName = pluginPackageName;
 		if (multiDexList != null) {
 			if (multiDexClassLoaderList == null) {
 				multiDexClassLoaderList = new ArrayList<DexClassLoader>(multiDexList.size());

@@ -26,7 +26,7 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static ClassLoader createPluginClassLoader(String absolutePluginApkPath, boolean isStandalone,
+	public static ClassLoader createPluginClassLoader(String pluginPackageName, String absolutePluginApkPath, boolean isStandalone,
 														 String[] dependences, List<String> pluginApkMultDexPath) {
 
 		String apkParentDir = new File(absolutePluginApkPath).getParent();
@@ -40,7 +40,8 @@ public class PluginCreator {
 		LogUtil.v(absolutePluginApkPath, optDir.getAbsolutePath(), libDir.getAbsolutePath());
 
 		if (!isStandalone) {//非独立插件
-			return new PluginClassLoader("", new RealPluginClassLoader(
+			return new PluginClassLoader(pluginPackageName, "", new RealPluginClassLoader(
+					pluginPackageName,
 					absolutePluginApkPath,
 					optDir.getAbsolutePath(),
 					libDir.getAbsolutePath(),
@@ -48,7 +49,8 @@ public class PluginCreator {
 					dependences,//插件依赖的插件
 					null));
 		} else {//独立插件
-			return new PluginClassLoader("", new RealPluginClassLoader(
+			return new PluginClassLoader(pluginPackageName, "", new RealPluginClassLoader(
+					pluginPackageName,
 					absolutePluginApkPath,
 					optDir.getAbsolutePath(),
 					libDir.getAbsolutePath(),

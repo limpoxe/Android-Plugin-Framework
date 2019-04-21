@@ -111,6 +111,7 @@ public class PluginLauncher implements Serializable {
 			LogUtil.i("初始化插件资源耗时:" + (t1 - startAt));
 
 			ClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
+							pluginDescriptor.getPackageName(),
 							pluginDescriptor.getInstalledPath(),
 							pluginDescriptor.isStandalone(),
 							pluginDescriptor.getDependencies(),
@@ -301,7 +302,6 @@ public class PluginLauncher implements Serializable {
 
 		//退出 LocalBroadcastManager
 		LogUtil.d("退出LocalBroadcastManager");
-
 		Object mInstance = HackSupportV4LocalboarcastManager.getInstance();
 		if (mInstance != null) {
 			HackSupportV4LocalboarcastManager hackSupportV4LocalboarcastManager = new HackSupportV4LocalboarcastManager(mInstance);
@@ -310,7 +310,9 @@ public class PluginLauncher implements Serializable {
 				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
 				while(ir.hasNext()) {
 					BroadcastReceiver item = ir.next();
-					if (item.getClass().getClassLoader() == plugin.pluginClassLoader.getParent()) {//RealPluginClassLoader
+					if (item.getClass().getClassLoader() == plugin.pluginClassLoader.getParent()
+							|| (item.getClass().getClassLoader() instanceof RealPluginClassLoader
+							&& ((RealPluginClassLoader)item.getClass().getClassLoader()).pluginPackageName.equals(plugin.pluginPackageName))) {//RealPluginClassLoader
 						hackSupportV4LocalboarcastManager.unregisterReceiver(item);
 					}
 				}
@@ -324,7 +326,8 @@ public class PluginLauncher implements Serializable {
 			Collection<Service> list = map.values();
 			for (Service s :list) {
 				if (s.getClass().getClassLoader() == plugin.pluginClassLoader.getParent()  //RealPluginClassLoader
-						|| s.getPackageName().equals(plugin.pluginPackageName)) {
+						|| s.getPackageName().equals(plugin.pluginPackageName)) {   //这里判断是否是当前被stop的插件的组件时，与上面LocalBroadcast的判断逻辑时一样的
+																					//只不过sercie有getPackageName函数，所以不需要通过classloader的pluginPackageName来判断了
 					s.stopSelf();
 				}
 			}

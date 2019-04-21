@@ -10,7 +10,10 @@ import dalvik.system.PathClassLoader;
  */
 public class PluginClassLoader extends PathClassLoader {
 
-	public PluginClassLoader(String dexPath, ClassLoader parent) {
+	public final String pluginPackageName;
+
+	public PluginClassLoader(String pluginPackageName, String dexPath, ClassLoader parent) {
 		super(dexPath, parent);
+		this.pluginPackageName = pluginPackageName;
 	}
 }
