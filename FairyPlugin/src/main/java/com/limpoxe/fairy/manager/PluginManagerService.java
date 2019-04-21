@@ -112,6 +112,12 @@ class PluginManagerService {
 	}
 
 	synchronized boolean removeAll() {
+		Iterator<Map.Entry<String, PluginDescriptor>> itr = sInstalledPlugins.entrySet().iterator();
+		while(itr.hasNext()) {
+			Map.Entry<String, PluginDescriptor> entry = itr.next();
+			PluginLauncher.instance().stopPlugin(entry.getKey(), entry.getValue());
+		}
+
 		sInstalledPlugins.clear();
 		boolean isSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 
