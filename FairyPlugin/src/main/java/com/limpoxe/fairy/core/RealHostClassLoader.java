@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Process;
 import android.widget.Toast;
 
@@ -112,7 +113,7 @@ public class RealHostClassLoader extends DexClassLoader {
 
             Toast.makeText(this, "正在退出...", Toast.LENGTH_LONG).show();
 
-            new Handler().postDelayed(new Runnable() {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     Process.killProcess(Process.myPid());

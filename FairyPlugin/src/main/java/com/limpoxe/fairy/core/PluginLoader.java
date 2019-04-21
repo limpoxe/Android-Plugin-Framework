@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -79,7 +80,7 @@ public class PluginLoader {
             CompatForFragmentClassCache.installFragmentClassCache();
             CompatForFragmentClassCache.installSupportV4FragmentClassCache();
             //不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
-            new Handler().post(new Runnable() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     AndroidWebkitWebViewFactoryProvider.installProxy();

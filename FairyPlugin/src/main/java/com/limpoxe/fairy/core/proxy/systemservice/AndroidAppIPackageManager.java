@@ -11,6 +11,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
@@ -78,7 +79,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
          * 因此这个hook需要通过post的方式，将执行时机推迟到application的oncreate之后执行
          }
          */
-        new Handler().post(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 sMethods.put("resolveContentProvider", new resolveContentProvider());

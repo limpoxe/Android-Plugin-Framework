@@ -1,6 +1,7 @@
 package com.limpoxe.fairy.manager;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.PluginFilter;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -44,13 +45,13 @@ public class PluginManagerHelper {
 
     public static PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
 
-        if (pluginId.startsWith("com.android.")) {
+        if (!PluginFilter.maybePlugin(pluginId)) {
             // 之所以有这判断, 是因为可能BinderProxyDelegate
             // 或者AndroidAppIPackageManager
             // 或者PluginBaseContextWrapper.createPackageContext
             // 中拦截了由系统发起的查询操作, 被拦截之后转到了这里
             // 所以在这做个快速判断.
-            LogUtil.d("默认com.android.开头的包名不是插件");
+            LogUtil.d("默认策略判定" + pluginId + "不是插件包名");
             return null;
         }
 
