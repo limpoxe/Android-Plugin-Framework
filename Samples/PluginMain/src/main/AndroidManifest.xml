@@ -51,7 +51,8 @@
         android:icon="@mipmap/cust_ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/ShareTheme" >
+        android:theme="@style/ShareTheme"
+        android:usesCleartextTraffic="true">
 
         <meta-data android:value="591d0ae61061d23ca5000dbf" android:name="UMENG_APPKEY"/>
         <meta-data android:value="Main_CN" android:name="UMENG_CHANNEL"/>
