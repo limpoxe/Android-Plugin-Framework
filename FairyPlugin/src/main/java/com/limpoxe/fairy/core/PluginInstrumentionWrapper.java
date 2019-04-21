@@ -261,7 +261,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				//1、确实是宿主Activity
 				//2、是插件Activity，但是上面的if没有识别出来（这种情况目前只发现在ActivityGroup情况下会出现，因为ActivityGroup不会触发resolveActivity方法，导致Intent没有更换）
 				//判断上述两种情况可以通过ClassLoader的类型来判断, 判断出来以后补一个resolveActivity方法
-				if (cl instanceof PluginClassLoader) {
+				if (cl instanceof PluginClassLoader || cl instanceof RealPluginClassLoader) {
 					PluginIntentResolver.resolveActivity(intent);
 				} else {
 					//Do Nothing

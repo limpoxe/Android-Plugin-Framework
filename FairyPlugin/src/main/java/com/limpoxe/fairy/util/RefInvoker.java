@@ -47,7 +47,14 @@ public class RefInvoker {
 		} catch (InstantiationException e) {
 			LogUtil.printException("InstantiationException", e);
 		} catch (InvocationTargetException e) {
-			LogUtil.printException("InvocationTargetException", e);
+            Throwable cause = e.getCause();
+            if(cause instanceof RuntimeException) {
+                throw (RuntimeException)cause;
+            } else if(cause instanceof Error) {
+                throw (Error)cause;
+            } else {
+                throw new RuntimeException("fail to newInstance " + className);
+            }
 		}
 		return null;
 	}
@@ -82,7 +89,14 @@ public class RefInvoker {
 			//这个日志...
 			LogUtil.e("NoSuchMethodException", methodName);
 		} catch (InvocationTargetException e) {
-			LogUtil.printException("InvocationTargetException", e);
+			Throwable cause = e.getCause();
+			if(cause instanceof RuntimeException) {
+				throw (RuntimeException)cause;
+			} else if(cause instanceof Error) {
+				throw (Error)cause;
+			} else {
+				throw new RuntimeException("fail to calling method " + methodName);
+			}
 		}
 		return null;
 	}

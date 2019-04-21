@@ -155,8 +155,11 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                                 method.invoke(null, new Object[]{context});
                                 LogUtil.d("触发了切换WebView Context");
                             } catch (IllegalAccessException e) {
+                                LogUtil.printException("WebView.initApplicationContext", e);
                             } catch (IllegalArgumentException e) {
+                                LogUtil.printException("WebView.initApplicationContext", e);
                             } catch (InvocationTargetException e) {
+                                LogUtil.printException("WebView.initApplicationContext", e);
                             }
                         }
                     } catch (NoSuchMethodException ex) {

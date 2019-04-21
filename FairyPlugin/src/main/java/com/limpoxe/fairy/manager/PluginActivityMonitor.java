@@ -6,8 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.limpoxe.fairy.core.PluginClassLoader;
 import com.limpoxe.fairy.core.PluginContextTheme;
+import com.limpoxe.fairy.core.RealPluginClassLoader;
+import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.HashMap;
 
@@ -19,11 +20,12 @@ public class PluginActivityMonitor {
 
 	public void onActivityCreate(final Activity activity) {
 		if (!activity.isChild()) {
-			if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
+			if (activity.getClass().getClassLoader() instanceof RealPluginClassLoader) {
 				String pluginId = ((PluginContextTheme)activity.getApplication().getBaseContext()).getPluginDescriptor().getPackageName();
 				BroadcastReceiver br = new BroadcastReceiver() {
 					@Override
 					public void onReceive(Context context, Intent intent) {
+						LogUtil.w("onReceive", intent.getAction(), "activity.finish()");
 						activity.finish();
 					}
 				};
@@ -48,7 +50,7 @@ public class PluginActivityMonitor {
 
 	public void onActivityDestory(Activity activity) {
 		if (!activity.isChild()) {
-			if (activity.getClass().getClassLoader() instanceof PluginClassLoader) {
+			if (activity.getClass().getClassLoader() instanceof RealPluginClassLoader) {
 				BroadcastReceiver br = receivers.remove(activity);
 				activity.unregisterReceiver(br);
 			}

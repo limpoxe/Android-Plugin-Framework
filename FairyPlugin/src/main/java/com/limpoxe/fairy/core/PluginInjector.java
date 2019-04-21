@@ -135,7 +135,7 @@ public class PluginInjector {
 		if (activity instanceof WaitForLoadingPluginActivity) {
 			return;
 		}
-		if (activity instanceof com.limpoxe.fairy.core.RealHostClassLoader.TolerantActivity) {
+		if (activity instanceof RealHostClassLoader.TolerantActivity) {
 			return;
 		}
 

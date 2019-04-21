@@ -70,7 +70,14 @@ public class AndroidOsIBinder extends MethodProxy {
                 } catch (InstantiationException e) {
                     LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
                 } catch (InvocationTargetException e) {
-                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
+                    Throwable cause = e.getCause();
+                    if(cause instanceof RuntimeException) {
+                        throw (RuntimeException)cause;
+                    } else if(cause instanceof Error) {
+                        throw (Error)cause;
+                    } else {
+                        throw new RuntimeException("AndroidOsIBinder.queryLocalInterface", cause);
+                    }
                 }
             }
 
