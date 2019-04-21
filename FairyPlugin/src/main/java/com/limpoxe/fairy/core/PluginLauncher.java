@@ -358,8 +358,10 @@ public class PluginLauncher implements Serializable {
 			// The lock of mProviderMap protects the following variables.
 			Map mProviderMap = hackActivityThread.getProviderMap();
 			if (mProviderMap != null) {
-				Map mLocalProviders = hackActivityThread.getProviderMap();
-				Map mLocalProvidersByName = hackActivityThread.getProviderMap();
+
+				Map mLocalProviders = hackActivityThread.getLocalProviders();
+				Map mLocalProvidersByName = hackActivityThread.getLocalProvidersByName();
+
 				Collection<PluginProviderInfo> collection = pluginProviderMap.values();
 				for(PluginProviderInfo pluginProviderInfo : collection) {
 					String auth = pluginProviderInfo.getAuthority();
