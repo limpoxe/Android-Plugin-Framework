@@ -11,7 +11,7 @@ android {
         minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 67
-        versionName "0.0.67"
+        versionName "0.0.68"
     }
 
     lintOptions {

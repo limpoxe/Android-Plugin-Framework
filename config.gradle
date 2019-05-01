@@ -8,10 +8,10 @@ ext {
 
     //定义常量，方便统一切换脚本的版本
     HOST_FAIRY_SCRIPT = "../../FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/host.gradle"
-    //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll(".","_")}/host.gradle"
+    //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/host.gradle"
 
     PLUGIN_FAIRY_SCRIPT = "../../FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/plugin.gradle"
-    //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll(".","_")}/plugin.gradle"
+    //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/plugin.gradle"
 
 
 }
