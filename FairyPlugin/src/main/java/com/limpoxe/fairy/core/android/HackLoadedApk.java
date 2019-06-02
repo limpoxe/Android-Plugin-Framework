@@ -1,7 +1,7 @@
 package com.limpoxe.fairy.core.android;
 
 import android.annotation.TargetApi;
-import android.app.AppComponentFactory;
+//import android.app.AppComponentFactory;
 import android.app.Application;
 import android.content.res.Resources;
 
@@ -63,12 +63,12 @@ public class HackLoadedApk {
         return RefInvoker.getField(instance, ClassName, Field_mActivityThread);
     }
 
-    @TargetApi(28)
-    public AppComponentFactory getAppComponentFactory() {
-        return (AppComponentFactory)RefInvoker.getField(instance, ClassName, Field_mAppComponentFactory);
-    }
+//    @TargetApi(28)
+//    public AppComponentFactory getAppComponentFactory() {
+//        return (AppComponentFactory)RefInvoker.getField(instance, ClassName, Field_mAppComponentFactory);
+//    }
 
-    public void setAppComponentFactory(AppComponentFactory appComponentFactory) {
-        RefInvoker.setField(instance, ClassName, Field_mAppComponentFactory, appComponentFactory);
-    }
+//    public void setAppComponentFactory(AppComponentFactory appComponentFactory) {
+//        RefInvoker.setField(instance, ClassName, Field_mAppComponentFactory, appComponentFactory);
+//    }
 }
