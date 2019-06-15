@@ -44,8 +44,13 @@ class PluginManagerService {
 	private final Hashtable<String, PluginDescriptor> sPendingPlugins = new Hashtable<String, PluginDescriptor>();
 
 	PluginManagerService() {
-		if (!ProcessUtil.isPluginProcess()) {
-			throw new IllegalAccessError("本类仅在插件进程使用");
+		if (FairyGlobal.isInited()) {//防止集成了插件框架但是没有调用init导致app起不来
+			if (!ProcessUtil.isPluginProcess()) {
+				throw new IllegalAccessError("本类仅在插件进程使用");
+			}
+		} else {
+			LogUtil.e("插件框架未初始化！");
+			LogUtil.printStackTrace();
 		}
 	}
 
@@ -69,27 +74,31 @@ class PluginManagerService {
 		if (sInstalledPlugins.size() == 0) {
 			long t1 = System.currentTimeMillis();
 
-			Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(INSTALLED_KEY);
-			if (installedPlugin != null) {
-				sInstalledPlugins.putAll(installedPlugin);
-			}
-
-			//把pending合并到install
-			Hashtable<String, PluginDescriptor> pendingPlugin = readPlugins(PENDING_KEY);
-			if (pendingPlugin != null) {
-				Iterator<Map.Entry<String, PluginDescriptor>> itr = pendingPlugin.entrySet().iterator();
-				while (itr.hasNext()) {
-					Map.Entry<String, PluginDescriptor> entry = itr.next();
-					//删除旧版
-					remove(entry.getKey());
+			try {
+				Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(INSTALLED_KEY);
+				if (installedPlugin != null) {
+					sInstalledPlugins.putAll(installedPlugin);
 				}
 
-				//保存新版
-				sInstalledPlugins.putAll(pendingPlugin);
-				savePlugins(INSTALLED_KEY, sInstalledPlugins);
+				//把pending合并到install
+				Hashtable<String, PluginDescriptor> pendingPlugin = readPlugins(PENDING_KEY);
+				if (pendingPlugin != null) {
+					Iterator<Map.Entry<String, PluginDescriptor>> itr = pendingPlugin.entrySet().iterator();
+					while (itr.hasNext()) {
+						Map.Entry<String, PluginDescriptor> entry = itr.next();
+						//删除旧版
+						remove(entry.getKey());
+					}
 
-				//清除pending
-				getSharedPreference().edit().remove(PENDING_KEY).commit();
+					//保存新版
+					sInstalledPlugins.putAll(pendingPlugin);
+					savePlugins(INSTALLED_KEY, sInstalledPlugins);
+
+					//清除pending
+					getSharedPreference().edit().remove(PENDING_KEY).commit();
+				}
+			} catch (Exception e) {
+				LogUtil.printException("load plugins fail", e);
 			}
 
 			long t2 = System.currentTimeMillis();
