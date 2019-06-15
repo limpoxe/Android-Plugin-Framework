@@ -320,7 +320,8 @@ public class PluginManagerProvider extends ContentProvider {
 
             return bundle;
         } else if (ACTION_STOP.equals(method)) {
-            PluginLauncher.instance().stopPlugin(arg, null);
+            PluginDescriptor pluginDescriptor = managerService.getPluginDescriptorByPluginId(arg);
+            PluginLauncher.instance().stopPlugin(arg, pluginDescriptor);
             bundle.putBoolean(STOP_RESULT, true);
 
             return bundle;

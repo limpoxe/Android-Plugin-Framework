@@ -284,6 +284,11 @@ public class PluginLauncher implements Serializable {
 
 	public void stopPlugin(String packageName, PluginDescriptor pluginDescriptor) {
 
+		if (pluginDescriptor == null) {
+			LogUtil.w("插件不存在", packageName);
+			return;
+		}
+
 		final LoadedPlugin plugin = getRunningPlugin(packageName);
 
 		if (plugin == null) {
