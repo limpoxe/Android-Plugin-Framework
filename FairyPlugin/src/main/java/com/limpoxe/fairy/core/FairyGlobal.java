@@ -17,6 +17,7 @@ public class FairyGlobal {
     private static boolean sSupportRemoteViews = true;
     private static ArrayList<StubMappingProcessor> mappingProcessors = new ArrayList<StubMappingProcessor>();
     private static boolean sFakePluginProcessName = true;
+    private static boolean sNeedVerifyHostVersionName = true;
 
     public static Application getHostApplication() {
         if (sApplication == null) {
@@ -93,6 +94,14 @@ public class FairyGlobal {
 
     public static boolean isNeedVerifyPlugin() {
         return sIsNeedVerifyPluginSign;
+    }
+
+    public static boolean isNeedVerifyHostVersionName() {
+        return sNeedVerifyHostVersionName;
+    }
+
+    public static void setNeedVerifyHostVersionName(boolean needVerify) {
+        sNeedVerifyHostVersionName = needVerify;
     }
 
     /**

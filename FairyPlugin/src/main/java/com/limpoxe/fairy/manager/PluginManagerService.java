@@ -287,7 +287,7 @@ class PluginManagerService {
         // 检查当前宿主版本是否匹配此非独立插件需要的版本
         PackageManager packageManager = FairyGlobal.getHostApplication().getPackageManager();
         String requireHostVerName = pluginDescriptor.getRequiredHostVersionName();
-        if (!pluginDescriptor.isStandalone() && requireHostVerName != null) {
+        if (FairyGlobal.isNeedVerifyHostVersionName() && !pluginDescriptor.isStandalone() && requireHostVerName != null) {
             //是非独立插件，而且指定了插件运行需要的的宿主版本
             try {
                 PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_META_DATA);
