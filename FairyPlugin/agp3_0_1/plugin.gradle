@@ -29,6 +29,19 @@ configurations {
     baselinePatch
 }
 
+class FaiyExt {
+    private boolean requireHostVersion = true;
+
+    public boolean getRequireHostVersion() {
+        return requireHostVersion
+    }
+
+    public void setRequireHostVersion(boolean required) {
+        this.requireHostVersion = required
+    }
+}
+extensions.create('fairy', FaiyExt)
+
 //基线包路径
 def host_patch_path = ""
 //基线包解压路径
@@ -325,9 +338,10 @@ afterEvaluate {
                         }
                         println "插件Manifest：" + manifestFile.absolutePath
                         def originManifestContent = manifestFile.getText('UTF-8')
-                        def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest requiredHostVersionName=\""
-                                + hostVersionName + "\" requiredHostVersionCode=\"" + hostVersionCode
-                                + "\" hostApplicationId=\"" + hostApplicationId + "\" ");
+                        def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest " +
+                                (fairy.requireHostVersion?("requiredHostVersionName=\"" + hostVersionName + "\" "):"") +
+                                (fairy.requireHostVersion?("requiredHostVersionCode=\"" + hostVersionCode + "\" "):"") +
+                                ("hostApplicationId=\"" + hostApplicationId + "\" "));
                         manifestFile.write(modifyedManifestContent, 'UTF-8')
                     } else {
                         throw new Exception("HostInfo.prop文件信息不全，请检查此文件内容：" + propFile.absolutePath)
