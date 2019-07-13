@@ -1,0 +1,1 @@
+apply from : "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp3_3_1/plugin.gradle"
