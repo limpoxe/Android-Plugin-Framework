@@ -20,12 +20,23 @@ def innerPluginApkList = []
 class FaiyExt {
     private String pluginProcess = ":plugin"
 
+    //指定当前宿主版本与哪些历史宿主版本兼容
+    private String compatibleWithHostVersion = null
+
     public String getPluginProcess() {
         return pluginProcess
     }
 
     public void setPluginProcess(String process) {
         this.pluginProcess = process
+    }
+
+    public String getCompatibleWithHostVersion() {
+        return compatibleWithHostVersion
+    }
+
+    public void setCompatibleWithHostVersion(String compatibleVersion) {
+        this.compatibleWithHostVersion = compatibleVersion
     }
 }
 extensions.create('fairy', FaiyExt)
@@ -137,7 +148,7 @@ afterEvaluate {
                 if (matcher.find()) {
                     def versionName = matcher.group(1)
                     //File hostInfo = new File("${project.buildDir}/outputs/HostInfo-" + tastName.replace("process","").replace("Resources", "") + ".prop")
-                    //没有单独命名，有多个favor时文件会覆盖
+                    println 'HostInfo.prop没有单独命名，有多个favor时文件会生成多个并覆盖，如果不同favor间版本号不同会导致基线包信息生成错误！！'
                     File hostInfo = new File("${project.buildDir}/outputs/HostInfo.prop")
                     if (hostInfo.exists()) {
                         hostInfo.delete()
@@ -170,6 +181,20 @@ afterEvaluate {
                     }
                     println '正在设置插件进程配置：' + customPluginProcessName
                     def modifyedManifestContent = originManifestContent.replaceAll("android:process=\":plugin\"", customPluginProcessName)
+                    manifestFile.write(modifyedManifestContent, 'UTF-8')
+                }
+
+                //指定当前宿主版本与哪些历史宿主版本兼容, 用于指定插件版本跨宿主版本。默认是自己与自己兼容，也即插件不能跨宿主版本
+                //例如：
+                // 宿主版本v1，插件版本v1.1, v1.2
+                // 宿主版本v2，插件版本v2.1, v2.1
+                // 默认插件不能跨宿主版本，也就是说插件版本v1.1, v1.2只能在宿主版本v1上运行，而插件版本v2.1, v2.2只能在宿主版本v2上运行
+                //若在发布宿主版本v2时，同时指定这个版本与宿主v1版本兼容，则插件版本v1.1, v1.2也可以在宿主版本v2上运行
+                //此功能请谨慎使用，否则可能引起插件崩溃
+                def compatibleWithHostVersion = fairy.compatibleWithHostVersion
+                if(compatibleWithHostVersion != null) {
+                    originManifestContent = manifestFile.getText('UTF-8')
+                    def modifyedManifestContent = originManifestContent.replaceAll("fairy_compatibleWithHostVersion_NOT_SET", compatibleWithHostVersion.trim())
                     manifestFile.write(modifyedManifestContent, 'UTF-8')
                 }
             }

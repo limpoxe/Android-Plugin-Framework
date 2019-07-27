@@ -1,6 +1,12 @@
 package com.limpoxe.fairy.util;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.os.Bundle;
+
+import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.FairyGlobal;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -207,5 +213,40 @@ public class PackageVerifyer {
             return true;
         }
         return false;
+    }
+
+    public static boolean isCompatibleWithHost(PluginDescriptor pluginDescriptor) {
+        // 检查当前宿主版本是否匹配此非独立插件需要的版本
+        PackageManager packageManager = FairyGlobal.getHostApplication().getPackageManager();
+        String requireHostVerName = pluginDescriptor.getRequiredHostVersionName();
+        if (FairyGlobal.isNeedVerifyHostVersionName() && !pluginDescriptor.isStandalone() && requireHostVerName != null) {
+            //是非独立插件，而且指定了插件运行需要的的宿主版本
+            try {
+                PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_META_DATA);
+                //判断宿主版本是否满足要求
+                LogUtil.v(pluginDescriptor.getPackageName(), requireHostVerName, hostPackageInfo.versionName);
+                if (!requireHostVerName.equals(hostPackageInfo.versionName)) {
+                    Bundle metaData = hostPackageInfo.applicationInfo.metaData;
+                    if (metaData != null) {
+                        String compatibleWithHostVersion = metaData.getString("fairy_compatibleWithHostVersion");
+                        if (compatibleWithHostVersion != null && !compatibleWithHostVersion.trim().equals("fairy_compatibleWithHostVersion_NOT_SET")) {
+                            LogUtil.e("compatibleWithHostVersion=" + compatibleWithHostVersion);
+                            String[] compatibleVersions = compatibleWithHostVersion.trim().split(",");
+                            for(String compatibleVer : compatibleVersions) {
+                                if(requireHostVerName.equals(compatibleVer.trim())) {
+                                    LogUtil.e("插件版本命中了宿主配置的兼容版本号！表明当前宿主版本支持此插件版本");
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostPackageInfo.versionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
+                    return false;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                LogUtil.printException("PluginManagerService.installPlugin", e);
+            }
+        }
+        return true;
     }
 }

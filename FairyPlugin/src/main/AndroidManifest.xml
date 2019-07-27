@@ -4,6 +4,8 @@
 
     <application>
 
+        <meta-data android:name="fairy_compatibleWithHostVersion" android:value="fairy_compatibleWithHostVersion_NOT_SET"/>
+
         <provider
             android:name=".manager.PluginManagerProvider"
             android:authorities="${applicationId}.manager"

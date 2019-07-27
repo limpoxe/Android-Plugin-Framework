@@ -285,24 +285,11 @@ class PluginManagerService {
         }
 
         // 检查当前宿主版本是否匹配此非独立插件需要的版本
-        PackageManager packageManager = FairyGlobal.getHostApplication().getPackageManager();
-        String requireHostVerName = pluginDescriptor.getRequiredHostVersionName();
-        if (FairyGlobal.isNeedVerifyHostVersionName() && !pluginDescriptor.isStandalone() && requireHostVerName != null) {
-            //是非独立插件，而且指定了插件运行需要的的宿主版本
-            try {
-                PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_META_DATA);
-                //判断宿主版本是否满足要求
-                LogUtil.v(pluginDescriptor.getPackageName(), requireHostVerName, hostPackageInfo.versionName);
-                if (!requireHostVerName.equals(hostPackageInfo.versionName)) {
-                    //不满足要求，不可安装此插件
-                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostPackageInfo.versionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
-                    new File(srcPluginFile).delete();
-                    return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-				LogUtil.printException("PluginManagerService.installPlugin", e);
-			}
-        }
+        if (!PackageVerifyer.isCompatibleWithHost(pluginDescriptor)) {
+			//不满足要求，不可安装此插件
+			new File(srcPluginFile).delete();
+			return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+		}
 
 		// 检查插件是否已经存在,若存在删除旧的
 		PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());

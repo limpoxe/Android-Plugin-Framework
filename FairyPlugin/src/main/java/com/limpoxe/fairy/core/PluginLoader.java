@@ -31,6 +31,7 @@ import com.limpoxe.fairy.manager.mapping.StubReceiverMappingProcessor;
 import com.limpoxe.fairy.manager.mapping.StubServiceMappingProcessor;
 import com.limpoxe.fairy.util.FreeReflection;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.PackageVerifyer;
 import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
@@ -158,23 +159,17 @@ public class PluginLoader {
         ArrayList<PluginDescriptor> pluginDescriptorList =  PluginManagerHelper.getPlugins();
         for(int i = 0; i < pluginDescriptorList.size(); i++) {
             PluginDescriptor pluginDescriptor = pluginDescriptorList.get(i);
-
-            boolean isRemoved = false;
-            //版本号发生了变化 检查已安装的非独立插件是否支持当前版本的宿主
-            if (isHostVerionChanged && !pluginDescriptor.isStandalone() && pluginDescriptor.getRequiredHostVersionName() != null) {
-                //判断宿主版本是否满足要求， 不满足要求，卸载此插件
-                if (!pluginDescriptor.getRequiredHostVersionName().equals(hostVersionName)) {
-                    LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostVersionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
-                    LogUtil.w("卸载此插件");
-                    //边循环边删除没问题，因为是不同的列表对象
-                    PluginManagerHelper.remove(pluginDescriptor.getPackageName());
-                    isRemoved = true;
+            if (isHostVerionChanged && !PackageVerifyer.isCompatibleWithHost(pluginDescriptor)) {
+                LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostVersionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
+                LogUtil.w("卸载此插件");
+                //边循环边删除没问题，因为是不同的列表对象
+                PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+            } else {
+                //如果插件配置了自启动，宿主启动时自动唤醒这些插件
+                if (pluginDescriptor.getAutoStart()) {
+                    LogUtil.w("唤起此插件：" + pluginDescriptor.getPackageName());
+                    PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
                 }
-            }
-
-            //自启动，宿主启动时自动启动
-            if (!isRemoved && pluginDescriptor.getAutoStart()) {
-                PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
             }
         }
 
