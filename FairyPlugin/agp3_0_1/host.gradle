@@ -200,10 +200,13 @@ afterEvaluate {
                     if (!AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
                         println processResourcesTask.resPackageOutputFolder
                         from processResourcesTask.resPackageOutputFolder
+                        include("*.ap_")
                         into("${project.buildDir}/outputs/")
                         rename(new Transformer<String, String>() {
                             @Override
                             String transform(String s) {
+                                //多abi时会相互覆盖，不过对我们而言应该没什么影响
+                                project.logger.error "rename: " + s
                                 return "resources.ap_"
                             }
                         })
@@ -211,10 +214,13 @@ afterEvaluate {
                         //Android Gradle Plugin Version 2.x
                         println processResourcesTask.packageOutputFile
                         from processResourcesTask.packageOutputFile
+                        include("*.ap_")
                         into("${project.buildDir}/outputs/")
                         rename(new Transformer<String, String>() {
                             @Override
                             String transform(String s) {
+                                //多abi时会相互覆盖，不过对我们而言应该没什么影响
+                                project.logger.error "rename: " + s
                                 return "resources.ap_"
                             }
                         })
