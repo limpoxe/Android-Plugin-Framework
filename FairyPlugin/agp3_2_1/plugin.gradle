@@ -33,8 +33,8 @@ extensions.create('fairy', FaiyExt)
 //基线包路径
 def host_patch_path = ""
 //基线包解压路径
-def host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch'
-def hostClassesJar = host_patch_extract_dir + "/host_classes.jar"
+def host_patch_extract_dir = project.buildDir.absolutePath + File.separator + 'outputs' + File.separator + 'baselinePatch'
+def hostClassesJar = host_patch_extract_dir + File.separator + "host_classes.jar"
 
 //基线包文件名
 def host_patch_fileName = "host.bar"

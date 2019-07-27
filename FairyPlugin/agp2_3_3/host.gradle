@@ -444,7 +444,7 @@ public class ThemeProcessor extends DefaultHandler {
 
     public void startDocument() throws SAXException {
         try {
-            outXmlStream = new BufferedWriter(new FileWriter(destFile));
+            outXmlStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile), "UTF-8"));
             outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
         } catch (FileNotFoundException e) {

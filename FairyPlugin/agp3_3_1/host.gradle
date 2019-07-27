@@ -328,8 +328,8 @@ afterEvaluate {
 task makeHostBaseLine(type: Zip) {
     extension "bar" //Baseline Application Resource
     baseName 'host'
-    from zipTree("build/outputs/resources.ap_")
-    from('build/outputs') {
+    from zipTree("${project.buildDir}/outputs/resources.ap_")
+    from("${project.buildDir}/outputs") {
         exclude '*.ap_'
     }
 }
@@ -406,14 +406,14 @@ public class ThemeProcessor extends DefaultHandler {
 
     public void startDocument() throws SAXException {
         try {
-            outXmlStream = new BufferedWriter(new FileWriter(destFile));
+            outXmlStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile), "UTF-8"));
             outXmlStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             outXmlStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
 
 
             if (attrFile != null) {
                 attrFile.getParentFile().mkdirs()
-                outPublicAttrStream = new BufferedWriter(new FileWriter(attrFile));
+                outPublicAttrStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(attrFile), "UTF-8"));
                 outPublicAttrStream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                 outPublicAttrStream.write("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
                 outPublicAttrStream.write("\n<resources>");
