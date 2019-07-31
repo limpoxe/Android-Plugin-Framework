@@ -3,6 +3,9 @@ package com.example.plugintest;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDex;
+
+import com.limpoxe.fairy.util.FakeUtil;
 
 import java.util.List;
 
@@ -40,5 +43,6 @@ public class PluginTestApplication extends  Application {
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
 		packageName = getPackageName();
+		MultiDex.install(FakeUtil.fakeMultiDexContext(this));
 	}
 }

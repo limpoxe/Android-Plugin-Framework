@@ -64,6 +64,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
 
@@ -157,7 +159,8 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         testMeta();
         testVersion1();
         testVersion2();
-    }
+		testMuliDex();
+	}
 
     private void testVersion1() {
         try {
@@ -178,6 +181,24 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
             Log.e("VersionInfo", "Exception", e);
         }
     }
+
+    private void testMuliDex() {
+		try {
+			//这个类大概率在副dex，通过反射来测试插件是否支持mutlidex，分4.4和5.x以上两种情况
+			Class A0 = Class.forName("com.example.plugintest.manymethods.n.e.A0");
+			Method a99 = A0.getDeclaredMethod("a99", String.class);
+			a99.invoke(null, "999");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+	}
 
     private void testMeta() {
         try {
