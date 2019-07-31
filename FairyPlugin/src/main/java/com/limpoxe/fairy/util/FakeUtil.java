@@ -28,6 +28,7 @@ import android.graphics.drawable.Drawable;
 import android.os.UserHandle;
 
 import com.limpoxe.fairy.core.FairyGlobal;
+import com.limpoxe.fairy.core.RealPluginClassLoader;
 import com.limpoxe.fairy.core.android.HackActivity;
 
 import java.lang.reflect.Field;
@@ -645,5 +646,20 @@ public class FakeUtil {
         };
         new HackActivity(fakeActivity).setApplication(FairyGlobal.getHostApplication());
         return fakeActivity;
+    }
+
+    public static Context fakeMultiDexContext(Application application) {
+        return new ContextWrapper(application) {
+            @Override
+            public ClassLoader getClassLoader() {
+                ClassLoader classLoader = super.getClassLoader();
+                if (!(classLoader instanceof RealPluginClassLoader)) {
+                    if(classLoader.getParent() instanceof RealPluginClassLoader) {
+                        classLoader = classLoader.getParent();
+                    }
+                }
+                return classLoader;
+            }
+        };
     }
 }
