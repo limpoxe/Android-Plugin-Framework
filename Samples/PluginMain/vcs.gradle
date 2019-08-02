@@ -1,8 +1,14 @@
-def gitCommitId = 'git rev-parse --short HEAD'.execute().text.trim()
-def gitCommitDate = 'git log -1 --pretty=%ci'.execute().text.trim()
+ext.VCS_commitId = ""
+ext.VCS_commitDate = "";
+try {
+    def gitCommitId = 'git rev-parse --short HEAD'.execute().text.trim()
+    def gitCommitDate = 'git log -1 --pretty=%ci'.execute().text.trim()
 
-ext.VCS_commitId = gitCommitId
-ext.VCS_commitDate = gitCommitDate;
+    ext.VCS_commitId = gitCommitId
+    ext.VCS_commitDate = gitCommitDate;
 
-println "VCS_commitId:" + ext.VCS_commitId
-println "VCS_commitDate:" + ext.VCS_commitDate
+    println "VCS_commitId:" + ext.VCS_commitId
+    println "VCS_commitDate:" + ext.VCS_commitDate
+} catch(IOException e) {
+    //未安装git命令时
+}
