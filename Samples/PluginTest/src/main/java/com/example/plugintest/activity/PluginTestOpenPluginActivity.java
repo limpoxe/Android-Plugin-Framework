@@ -111,5 +111,6 @@ public class PluginTestOpenPluginActivity extends AppCompatActivity implements O
 	protected void onDestroy() {
 		super.onDestroy();
 		unregisterReceiver(nestReceiver);
+		unregisterReceiver(nestReceiver2);
 	}
 }
