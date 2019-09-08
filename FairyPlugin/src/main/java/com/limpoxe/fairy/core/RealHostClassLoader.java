@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.limpoxe.fairy.core.bridge.PluginShadowService;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.ProcessUtil;
 
 import dalvik.system.DexClassLoader;
 
@@ -78,6 +79,23 @@ public class RealHostClassLoader extends DexClassLoader {
         return super.loadClass(className, resolve);
     }
 
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        //宿主Activity内嵌几个来自插件的Fragment时
+        //如果这个宿主Activity在后台被系统回收了，用户重新回到这个Activity时系统自动恢复被回收的Activity
+        //同时这个Activity内如果有Fragment也会被自动恢复，如果被恢复的Fragment是来自插件，则会发送ClassNotFound
+        //因为恢复Fragment时使用的ClassLoader就是当前宿主Activity的getClassLoader
+        //重写这个方法，就是为了处理这个问题，使得自动恢复Fragment不会产生ClassNotFound
+        //这里只关心被列入插件Manifest中的组件的类
+        if(ProcessUtil.isPluginProcess()) {
+            Class clazz = PluginLoader.loadPluginClassByName(name);
+            if (clazz != null) {
+                return clazz;
+            }
+        }
+        return super.findClass(name);
+    }
+
     public static class TolerantBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -116,6 +134,7 @@ public class RealHostClassLoader extends DexClassLoader {
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    LogUtil.w("killProcess，exit");
                     Process.killProcess(Process.myPid());
                     System.exit(10);
                 }
@@ -125,7 +144,7 @@ public class RealHostClassLoader extends DexClassLoader {
         @Override
         public void onBackPressed() {
             super.onBackPressed();
-
+            LogUtil.w("killProcess，exit");
             Process.killProcess(Process.myPid());
             System.exit(10);
         }

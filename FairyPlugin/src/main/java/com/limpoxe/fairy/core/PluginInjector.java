@@ -200,9 +200,17 @@ public class PluginInjector {
 					pluginContext = PluginCreator.createNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 				} else {
-					//do nothing
 					//进入这里表示这个宿主可能要同时显示来自多个不同插件的组件, 也就没办法将Context替换成之中某一个插件的context,
-					//剩下的交给PluginViewFactory去处理
+					//如果多个不同插件的组件是通过PluginView标签添加的，则会通过注入PluginViewFactory去处理Classloader
+
+					//这一行是为了配合RealHostClassLoader解决在宿主Activity被系统自动恢复时同时自动恢复了来自插件的Fragment而产生的ClassNotFound问题
+					PluginInjector.hackHostClassLoaderIfNeeded();
+
+					//不管怎样，如果打开的是宿主的Activity，都需要注入一个Context，用来在宿主中startActivity和sendBroadcast时检查目标是否为插件组件
+					Context mainContext = new PluginBaseContextWrapper(activity.getBaseContext());
+					hackActivity.setBase(null);
+					hackActivity.attachBaseContext(mainContext);
+
 					return;
 				}
 

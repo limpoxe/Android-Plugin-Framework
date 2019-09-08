@@ -16,6 +16,13 @@ public class ProcessUtil {
 
     private static Boolean isPluginProcess;
 
+    /**
+     * 因为判断进程的需要依赖activityManager.getRunningAppProcesses方法
+     * 而此方法又会被框架hook，所以这个方法必需在框架hookgetRunningAppProcesses前先hook一次，并将结果缓存到成员变量中
+     * 这样才能不受hook影响
+     * @param context
+     * @return
+     */
     public static boolean isPluginProcess(Context context) {
 
         if (isPluginProcess == null) {

@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 /**
  * 在activity中标记这个注解，
  * 用来通知插件框架，这个activity需要替换上下文，用来嵌入来自其他插件的组件
+ * 例如这个宿主Activity需要内嵌插件Fragment/View时；
  * 同时配置了这个注解的Activity需要运行再插件进程中
  */
 
