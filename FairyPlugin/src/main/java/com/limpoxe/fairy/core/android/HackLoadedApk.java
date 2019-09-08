@@ -24,6 +24,7 @@ public class HackLoadedApk {
     private static final String Field_mClassLoader = "mClassLoader";
     private static final String Field_mActivityThread = "mActivityThread";
     private static final String Field_mAppComponentFactory = "mAppComponentFactory";
+    private static final String Field_mReceivers = "mReceivers";
 
     private Object instance;
 
@@ -63,7 +64,11 @@ public class HackLoadedApk {
         return RefInvoker.getField(instance, ClassName, Field_mActivityThread);
     }
 
-//    @TargetApi(28)
+    public Object getReceivers() {
+        return RefInvoker.getField(instance, ClassName, Field_mReceivers);
+    }
+
+    //    @TargetApi(28)
 //    public AppComponentFactory getAppComponentFactory() {
 //        return (AppComponentFactory)RefInvoker.getField(instance, ClassName, Field_mAppComponentFactory);
 //    }

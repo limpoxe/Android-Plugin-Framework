@@ -61,6 +61,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
      */
 	@Override
 	public void callApplicationOnCreate(Application app) {
+		//FIXME 对TabActivity的支持在9上有bug会导致插件Application会被创建两次
 
 		//ContentProvider的相关操作应该放在installContentProvider之后执行,
 		//而installContentProvider是ActivityThread在调用application的attach之后,onCreate之前执行
