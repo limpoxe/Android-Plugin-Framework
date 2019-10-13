@@ -210,7 +210,6 @@ public class PluginInjector {
 					Context mainContext = new PluginBaseContextWrapper(activity.getBaseContext());
 					hackActivity.setBase(null);
 					hackActivity.attachBaseContext(mainContext);
-
 					return;
 				}
 

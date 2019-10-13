@@ -263,7 +263,7 @@ public class FileUtil {
 	}
 
 	public static void printAll(File file) {
-		LogUtil.d("printAll", file.getAbsolutePath());
+		//LogUtil.d("printAll", file.getAbsolutePath());
 		if (file.isDirectory()) {
 			File[] childFiles = file.listFiles();
 			if (childFiles != null && childFiles.length > 0) {

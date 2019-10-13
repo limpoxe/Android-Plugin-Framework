@@ -68,7 +68,7 @@ public class HackLoadedApk {
         return RefInvoker.getField(instance, ClassName, Field_mReceivers);
     }
 
-    //    @TargetApi(28)
+//    @TargetApi(28)
 //    public AppComponentFactory getAppComponentFactory() {
 //        return (AppComponentFactory)RefInvoker.getField(instance, ClassName, Field_mAppComponentFactory);
 //    }

@@ -88,7 +88,7 @@ public class PluginManagerHelper {
         return PluginManagerProviderClient.wakeup(pluginid);
     }
 
-    public static synchronized int remove(String pluginId) {
+    public static int remove(String pluginId) {
         return PluginManagerProviderClient.remove(pluginId);
     }
 
@@ -99,7 +99,7 @@ public class PluginManagerHelper {
     /**
      * 清除列表并不能清除已经加载到内存当中的class,因为class一旦加载后后无法卸载
      */
-    public static synchronized void removeAll() {
+    public static void removeAll() {
         PluginManagerProviderClient.removeAll();
     }
 

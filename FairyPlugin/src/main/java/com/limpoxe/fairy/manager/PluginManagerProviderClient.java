@@ -80,7 +80,7 @@ public class PluginManagerProviderClient {
         return result;
     }
 
-    public static synchronized int remove(String pluginId) {
+    public static int remove(String pluginId) {
         Bundle result = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE, pluginId, null);
         if (result != null) {
@@ -89,7 +89,7 @@ public class PluginManagerProviderClient {
         return PluginManagerHelper.REMOVE_FAIL;
     }
 
-    public static synchronized boolean removeAll() {
+    public static boolean removeAll() {
         Bundle bundle = CompatForContentProvider.call(PluginManagerProvider.buildUri(),
                 PluginManagerProvider.ACTION_REMOVE_ALL, null, null);
         if (bundle != null) {

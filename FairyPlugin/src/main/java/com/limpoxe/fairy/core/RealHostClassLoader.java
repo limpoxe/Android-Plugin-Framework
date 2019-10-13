@@ -111,9 +111,15 @@ public class RealHostClassLoader extends DexClassLoader {
 
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-            LogUtil.w("容错TolerantService被触发");
+            LogUtil.w("容错TolerantService onStartCommand被触发");
             stopSelf();
             return super.onStartCommand(intent, flags, startId);
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            LogUtil.w("容错TolerantService onDestroy被触发");
         }
     }
 

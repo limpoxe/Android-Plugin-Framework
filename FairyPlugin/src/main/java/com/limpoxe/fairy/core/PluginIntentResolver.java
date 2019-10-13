@@ -84,7 +84,7 @@ public class PluginIntentResolver {
             PluginInjector.hackHostClassLoaderIfNeeded();
 
             HackReceiverData hackReceiverData = new HackReceiverData(msgObj);
-            Intent intent = hackReceiverData.getIntent();
+            final Intent intent = hackReceiverData.getIntent();
             //className要么是真组件，要么是stub，要么是exact的组件
             String className = intent.getComponent().getClassName();
             //当是stub或者exact时，需要处理className，供classloader使用
@@ -101,6 +101,13 @@ public class PluginIntentResolver {
                     }
                 }
                 if (realReceiverClassName == null) {
+                    // Intent的目标Component是Stub，
+                    // 但是没用找到对应的插件，
+                    // 正常情况下后续流程会抛出Stub ClassNotFound，
+                    // 这里加容错防crash
+                    LogUtil.w("返回容错标记， 交给HostClassLoader处理");
+                    intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER_NOT_FOUND));
+                    hackReceiverData.getInfo().name = intent.getComponent().getClassName();
                     return null;
                 }
 
@@ -122,6 +129,7 @@ public class PluginIntentResolver {
 
                     // HostClassLoader检测到这个特殊标记后会进行替换，得到真实的className
                     intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER + realReceiverClassName));
+                    // TODO 部分9.0的设备上，改name没用？？HMA-AL00 JSN-AL00？ Redmi Note 7 Pro；Redmi K20 Pro； EML-AL00； MI 6X；
                     hackReceiverData.getInfo().name = intent.getComponent().getClassName();
 
                     //v0.0.58以后4.x的系统上需要setIntent，否则反序列化对象可能出现classloader问题
@@ -132,11 +140,14 @@ public class PluginIntentResolver {
                     //}
                     return PluginLoader.getDefaultPluginContext(clazz);
                 } else {
-                    //在未安装插件的情况下收到了由宿主桥接到插件的广播，例如开关机广播，会到这里来
-                    if(targetClassName == null) {
-                        LogUtil.w("返回容错标记， 交给HostClassLoader处理");
-                        intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER_NOT_FOUND));
-                    }
+                    // Intent的目标Component是Stub，
+                    // 但是没用找到对应的插件，
+                    // 正常情况下后续流程会抛出Stub ClassNotFound，
+                    // 这里加容错防crash
+                    LogUtil.w("返回容错标记， 交给HostClassLoader处理");
+                    intent.setComponent(new ComponentName(intent.getComponent().getPackageName(), CLASS_PREFIX_RECEIVER_NOT_FOUND));
+                    hackReceiverData.getInfo().name = intent.getComponent().getClassName();
+                    return null;
                 }
             }
         }

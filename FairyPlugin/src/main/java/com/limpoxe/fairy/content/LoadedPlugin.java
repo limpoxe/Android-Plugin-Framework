@@ -19,6 +19,8 @@ public class LoadedPlugin {
     public final String pluginPackageName;
     public final String pluginSourceDir;
 
+    public boolean applicationOnCreateCalled = false;
+
     public Application pluginApplication;
 
     public LoadedPlugin(String packageName,
@@ -39,7 +41,7 @@ public class LoadedPlugin {
             return pluginClazz;
         } catch (ClassNotFoundException e) {
             LogUtil.printException("ClassNotFound " + clazzName, e);
-        } catch (java.lang.IllegalAccessError illegalAccessError) {
+        } catch (IllegalAccessError illegalAccessError) {
             illegalAccessError.printStackTrace();
             throw new IllegalAccessError("出现这个异常最大的可能是插件dex和" +
                     "宿主dex包含了相同的class导致冲突, " +

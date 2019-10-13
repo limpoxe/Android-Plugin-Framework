@@ -90,83 +90,67 @@ public class PluginLauncher implements Serializable {
 		return null;
 	}
 
-	public synchronized LoadedPlugin startPlugin(PluginDescriptor pluginDescriptor) {
-		LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
-		if (plugin == null) {
+	public LoadedPlugin startPlugin(final PluginDescriptor pluginDescriptor) {
+		return SyncRunnable.runOnMainSync(new Runner<LoadedPlugin>() {
+			@Override
+			public LoadedPlugin run() {
+				LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
+				if (plugin == null) {
+					long startAt = System.currentTimeMillis();
+					LogUtil.i("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
+					LogUtil.v("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
-			long startAt = System.currentTimeMillis();
-			LogUtil.i("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
-			LogUtil.v("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
+					Resources pluginRes = PluginCreator.createPluginResource(
+						FairyGlobal.getHostApplication().getApplicationInfo().sourceDir,
+						FairyGlobal.getHostApplication().getResources(), pluginDescriptor);
 
-			Resources pluginRes = PluginCreator.createPluginResource(
-					FairyGlobal.getHostApplication().getApplicationInfo().sourceDir,
-					FairyGlobal.getHostApplication().getResources(), pluginDescriptor);
-
-			if (pluginRes == null) {
-				LogUtil.e("初始化插件失败 : res");
-                throw new PluginResInitError("初始化插件失败 : res");
-			}
-
-			long t1 = System.currentTimeMillis();
-			LogUtil.i("初始化插件资源耗时:" + (t1 - startAt));
-
-			ClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
-							pluginDescriptor.getPackageName(),
-							pluginDescriptor.getInstalledPath(),
-							pluginDescriptor.isStandalone(),
-							pluginDescriptor.getDependencies(),
-							pluginDescriptor.getMuliDexList());
-
-			long t12 = System.currentTimeMillis();
-			LogUtil.i("初始化插件DexClassLoader耗时:" + (t12 - t1));
-
-			PluginContextTheme pluginContext = (PluginContextTheme)PluginCreator.createPluginContext(
-					pluginDescriptor,
-					FairyGlobal.getHostApplication().getBaseContext(),
-					pluginRes,
-					pluginClassLoader);
-
-			//插件Context默认主题设置为插件application主题
-			pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
-
-			long t13 = System.currentTimeMillis();
-			LogUtil.i("初始化插件Theme耗时:" + (t13 - t12));
-
-			plugin = new LoadedPlugin(pluginDescriptor.getPackageName(),
-					pluginDescriptor.getInstalledPath(),
-					pluginContext,
-					pluginClassLoader);
-
-			loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
-
-			//inflate data in meta-data
-			pluginDescriptor.inflateMetaData(pluginDescriptor, pluginRes);
-
-			if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-				LogUtil.i("当前执行插件初始化的线程是主线程，开始初始化插件Application");
-				initApplication(pluginContext, pluginClassLoader, pluginRes, pluginDescriptor, plugin);
-			} else {
-				LogUtil.i("当前执行插件初始化的线程不是主线程，异步通知主线程初始化插件Application", Thread.currentThread().getId(), Thread.currentThread().getName() );
-				final LoadedPlugin finalLoadedPlugin = plugin;
-				new Handler(Looper.getMainLooper()).post(new Runnable() {
-					@Override
-					public void run() {
-						if (finalLoadedPlugin.pluginApplication == null) {
-							initApplication(finalLoadedPlugin.pluginContext,
-									finalLoadedPlugin.pluginClassLoader,
-									finalLoadedPlugin.pluginContext.getResources(),
-									((PluginContextTheme)finalLoadedPlugin.pluginContext).getPluginDescriptor(),
-									finalLoadedPlugin);
-						}
+					if (pluginRes == null) {
+						LogUtil.e("初始化插件失败 : res");
+						throw new PluginResInitError("初始化插件失败 : res");
 					}
-				});
+
+					long t1 = System.currentTimeMillis();
+					LogUtil.i("初始化插件资源耗时:" + (t1 - startAt));
+
+					ClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
+						pluginDescriptor.getPackageName(),
+						pluginDescriptor.getInstalledPath(),
+						pluginDescriptor.isStandalone(),
+						pluginDescriptor.getDependencies(),
+						pluginDescriptor.getMuliDexList());
+
+					long t12 = System.currentTimeMillis();
+					LogUtil.i("初始化插件DexClassLoader耗时:" + (t12 - t1));
+
+					PluginContextTheme pluginContext = (PluginContextTheme)PluginCreator.createPluginContext(
+						pluginDescriptor,
+						FairyGlobal.getHostApplication().getBaseContext(),
+						pluginRes,
+						pluginClassLoader);
+
+					//插件Context默认主题设置为插件application主题
+					pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
+
+					long t13 = System.currentTimeMillis();
+					LogUtil.i("初始化插件Theme耗时:" + (t13 - t12));
+
+					plugin = new LoadedPlugin(pluginDescriptor.getPackageName(),
+						pluginDescriptor.getInstalledPath(),
+						pluginContext,
+						pluginClassLoader);
+
+					loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
+
+					//inflate data in meta-data
+					PluginDescriptor.inflateMetaData(pluginDescriptor, pluginRes);
+
+					initApplication(pluginContext, pluginClassLoader, pluginRes, pluginDescriptor, plugin);
+				} else {
+					//LogUtil.d("IS RUNNING", packageName);
+				}
+				return plugin;
 			}
-
-		} else {
-			//LogUtil.d("IS RUNNING", packageName);
-		}
-
-		return plugin;
+		});
 	}
 
 	private void initApplication(Context pluginContext, ClassLoader pluginClassLoader, Resources pluginRes, PluginDescriptor pluginDescriptor, LoadedPlugin plugin) {
@@ -178,6 +162,7 @@ public class PluginLauncher implements Serializable {
 		Application pluginApplication = callPluginApplicationOnCreate(pluginContext, pluginClassLoader, pluginDescriptor);
 
 		plugin.pluginApplication = pluginApplication;//这里之所以不放在LoadedPlugin的构造器里面，是因为contentprovider在安装时loadclass，造成死循环
+		plugin.applicationOnCreateCalled = true;
 
 		long t3 = System.currentTimeMillis();
 		LogUtil.i("初始化插件 " + pluginDescriptor.getPackageName() + " " + pluginDescriptor.getApplicationName() + ", 耗时:" + (t3 - t13));
@@ -324,7 +309,7 @@ public class PluginLauncher implements Serializable {
 			}
 		}
 
-		//退出Service
+		LogUtil.d("退出Service");
 		//bindservie启动的service应该不需要处理，退出activity的时候会unbind
 		Map<IBinder, Service> map = HackActivityThread.get().getServices();
 		if (map != null) {
@@ -343,9 +328,9 @@ public class PluginLauncher implements Serializable {
 
 		//退出webview
 		LogUtil.d("还原WebView Context");
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
+		SyncRunnable.runOnMainSync(new Runner<Void>() {
 			@Override
-			public void run() {
+			public Void run() {
 				//这个方法需要在UI线程运行
 				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(FairyGlobal.getHostApplication());
 
@@ -357,6 +342,7 @@ public class PluginLauncher implements Serializable {
 				//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
 				LogUtil.d("退出BroadcastReceiver");
 				((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
+				return null;
 			}
 		});
 
@@ -386,15 +372,22 @@ public class PluginLauncher implements Serializable {
 			}
 		}
 
-		//退出fragment
+		LogUtil.d("清理fragment class 缓存");
 		//即退出由FragmentManager保存的Fragment
         CompatForFragmentClassCache.clearFragmentClassCache();
         CompatForFragmentClassCache.clearSupportV4FragmentClassCache();
 
-        //给插件一个机会自己做一些清理工作
-		plugin.pluginApplication.onTerminate();
+		LogUtil.d("调用插件Application.onTerminate()");
+		SyncRunnable.runOnMainSync(new Runner<Void>() {
+			@Override
+			public Void run() {
+				//给插件一个机会自己做一些清理工作
+				plugin.pluginApplication.onTerminate();
+				return null;
+			}
+		});
 
-        //移除插件注册的crashHandler
+		LogUtil.d("移除插件注册的crashHandler");
         //这里不一定能清理干净，因为UncaugthExceptionWrapper可能会被创建多个实例。不过也没什么大的影响
         Thread.UncaughtExceptionHandler exceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
         if (exceptionHandler instanceof UncaugthExceptionWrapper) {
@@ -423,7 +416,12 @@ public class PluginLauncher implements Serializable {
 	}
 
 	public boolean isRunning(String packageName) {
-		return loadedPluginMap.get(packageName) != null;
+		LoadedPlugin loadedPlugin = loadedPluginMap.get(packageName);
+		// 因为isRunning方法可能是在子线程1中被调用
+		// startPlugin方法可能是在子线程2中被调用，而插件application onCreate是通过异步转同步在主线程中被调用
+		// 所有这几有几率出现能去到LoadedPlugin，但是application onCreate还没有被执行的情况，
+		// 因此这里多加一个applicationOnCreateCalled判断
+		return loadedPlugin != null && loadedPlugin.applicationOnCreateCalled;
 	}
 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)

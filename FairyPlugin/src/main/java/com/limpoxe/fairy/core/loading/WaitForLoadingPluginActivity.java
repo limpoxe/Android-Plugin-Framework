@@ -2,6 +2,7 @@ package com.limpoxe.fairy.core.loading;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -70,45 +71,43 @@ public class WaitForLoadingPluginActivity extends Activity {
         super.onResume();
         LogUtil.i("WaitForLoadingPluginActivity Shown");
         if (pluginDescriptor != null && !PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName())) {
-            new Thread(new Runnable() {
+            AsyncTask asyncTask = new AsyncTask() {
                 @Override
-                public void run() {
-
+                protected Object doInBackground(Object[] objects) {
                     PluginLauncher.instance().startPlugin(pluginDescriptor);
+                    return null;
+                }
 
+                @Override
+                protected void onPostExecute(Object o) {
                     long remainTime = (loadingAt + FairyGlobal.getMinLoadingTime()) - System.currentTimeMillis();
+                    LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
+                    if (loadedPlugin != null && loadedPlugin.pluginApplication != null) {
+                        LogUtil.i("WaitForLoadingPluginActivity open target");
+                        LogUtil.e("注意，对首次启动的首屏Activity来说，进入了WaitFor界面后忽略了startActivityForResult");
 
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            LoadedPlugin loadedPlugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
-                            if (loadedPlugin != null && loadedPlugin.pluginApplication != null) {
-                                LogUtil.i("WaitForLoadingPluginActivity open target");
-                                LogUtil.e("注意，对首次启动的首屏Activity来说，进入了WaitFor界面后忽略了startActivityForResult");
-
-                                Intent intent = getIntent();
-                                if (intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
-                                    String[] targetClassName  = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR);
-                                    if (targetClassName.length >1) {
-                                        intent.setAction(targetClassName[1]);
-                                    } else {
-                                        intent.setAction(null);
-                                    }
-                                }
-                                intent.setClassName(pluginDescriptor.getPackageName(), pluginClassName);
-                                //重新resoloveIntent，绑定stub
-                                PluginIntentResolver.resolveActivity(intent);
-
-                                startActivity(intent);
-                                finish();
+                        Intent intent = getIntent();
+                        if (intent.getAction() != null && intent.getAction().contains(PluginIntentResolver.CLASS_SEPARATOR)) {
+                            String[] targetClassName  = intent.getAction().split(PluginIntentResolver.CLASS_SEPARATOR);
+                            if (targetClassName.length >1) {
+                                intent.setAction(targetClassName[1]);
                             } else {
-                                LogUtil.w("WTF!", pluginDescriptor, loadedPlugin);
-                                finish();
+                                intent.setAction(null);
                             }
                         }
-                    },  remainTime);
+                        intent.setClassName(pluginDescriptor.getPackageName(), pluginClassName);
+                        //重新resoloveIntent，绑定stub
+                        PluginIntentResolver.resolveActivity(intent);
+
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        LogUtil.w("WTF!", pluginDescriptor, loadedPlugin);
+                        finish();
+                    }
                 }
-            }).start();
+            };
+            asyncTask.execute();
         } else {
             LogUtil.w("WTF!", pluginDescriptor);
             finish();

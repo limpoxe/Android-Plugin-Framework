@@ -36,7 +36,7 @@ public class HackInstrumentation {
     public Instrumentation.ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
                                                             Intent intent, int requestCode, Bundle options) {
 
-        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        Object result = RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivity, new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
                         Intent.class, int.class, Bundle.class }, new Object[] { who, contextThread, token, target,
                         intent, requestCode, options });
@@ -48,7 +48,7 @@ public class HackInstrumentation {
                                     Intent[] intents, Bundle options) {
 
         RefInvoker
-                .invokeMethod(instance, android.app.Instrumentation.class.getName(),  Method_execStartActivities ,
+                .invokeMethod(instance, Instrumentation.class.getName(),  Method_execStartActivities ,
                         new Class[]{Context.class, IBinder.class, IBinder.class, Activity.class, Intent[].class,
                                 Bundle.class}, new Object[]{who, contextThread, token, target, intents, options});
     }
@@ -56,7 +56,7 @@ public class HackInstrumentation {
     public void execStartActivitiesAsUser(Context who, IBinder contextThread, IBinder token, Activity target,
                                           Intent[] intents, Bundle options, int userId) {
 
-        RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivitiesAsUser, new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
                         Intent[].class, Bundle.class, int.class }, new Object[] { who, contextThread, token, target,
                         intents, options, userId });
@@ -66,7 +66,7 @@ public class HackInstrumentation {
     public Instrumentation.ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token,
                                                             Fragment target, Intent intent, int requestCode, Bundle options) {
 
-        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        Object result = RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivity , new Class[] { Context.class, IBinder.class, IBinder.class,
                         Fragment.class, Intent.class, int.class, Bundle.class }, new Object[] { who,
                         contextThread, token, target, intent, requestCode, options });
@@ -78,7 +78,7 @@ public class HackInstrumentation {
     public Instrumentation.ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target,
                                                             Intent intent, int requestCode, Bundle options, UserHandle user) {
 
-        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        Object result = RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivity, new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
                         Intent.class, int.class, Bundle.class, UserHandle.class }, new Object[] { who, contextThread,
                         token, target, intent, requestCode, options, user });
@@ -93,7 +93,7 @@ public class HackInstrumentation {
             Context who, IBinder contextThread, IBinder token, Activity target,
             Intent intent, int requestCode) {
 
-        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        Object result = RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivity, new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
                         Intent.class, int.class }, new Object[] { who, contextThread,
                         token, target, intent, requestCode });
@@ -105,7 +105,7 @@ public class HackInstrumentation {
                                     IBinder token, Activity target, Intent[] intents) {
 
         RefInvoker
-                .invokeMethod(instance, android.app.Instrumentation.class.getName(), Method_execStartActivities,
+                .invokeMethod(instance, Instrumentation.class.getName(), Method_execStartActivities,
                         new Class[]{Context.class, IBinder.class, IBinder.class, Activity.class, Intent[].class},
                         new Object[]{who, contextThread, token, target, intents});
     }
@@ -115,7 +115,7 @@ public class HackInstrumentation {
             Context who, IBinder contextThread, IBinder token, Fragment target,
             Intent intent, int requestCode) {
 
-        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        Object result = RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivity, new Class[] { Context.class, IBinder.class, IBinder.class, Fragment.class,
                         Intent.class, int.class }, new Object[] { who, contextThread,
                         token, target, intent, requestCode });
@@ -128,7 +128,7 @@ public class HackInstrumentation {
             Context who, IBinder contextThread, IBinder token, Activity target,
             Intent intent, int requestCode, Bundle options, int userId) {
 
-        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        Object result = RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivityAsCaller, new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
                         Intent.class, int.class, Bundle.class, int.class}, new Object[] { who, contextThread,
                         token, target, intent, requestCode, options, userId});
@@ -156,7 +156,7 @@ public class HackInstrumentation {
             Intent intent, int requestCode, Bundle options, boolean ignoreTargetSecurity,
             int userId) {
 
-        Object result = RefInvoker.invokeMethod(instance, android.app.Instrumentation.class.getName(),
+        Object result = RefInvoker.invokeMethod(instance, Instrumentation.class.getName(),
                 Method_execStartActivityAsCaller, new Class[] { Context.class, IBinder.class, IBinder.class, Activity.class,
                         Intent.class, int.class, Bundle.class, boolean.class, int.class}, new Object[] { who, contextThread,
                         token, target, intent, requestCode, options, ignoreTargetSecurity, userId});
