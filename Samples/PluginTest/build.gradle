@@ -85,6 +85,7 @@ def getDate() {
     return formattedDate
 }
 
+def hostbarName = project(':Samples:PluginMain').android.defaultConfig.versionName
 
 dependencies {
 
@@ -102,7 +103,7 @@ dependencies {
 
     //支持使用maven坐标配置
     //baselinePatch 'xxx:xxx:xxx@xx'
-    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
+    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Debug.bar")
 
     //Just For Test ButterKnife
     //compile 'com.jakewharton:butterknife:8.5.1'

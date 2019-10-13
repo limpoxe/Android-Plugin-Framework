@@ -40,7 +40,9 @@ android {
     
 }
 
+def hostbarName = project(':Samples:PluginMain').android.defaultConfig.versionName
+
 dependencies {
     //支持使用maven坐标配置
-    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
+    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Debug.bar")
 }

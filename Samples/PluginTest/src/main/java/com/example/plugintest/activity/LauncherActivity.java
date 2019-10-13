@@ -288,10 +288,14 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
             }
             if (isGranted) {
                 TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-                @SuppressLint("MissingPermission") List<CellInfo> list =  telephonyManager.getAllCellInfo();
-                if (list != null) {
-                    LogUtil.v(list);
-                }
+                try {
+					@SuppressLint("MissingPermission") List<CellInfo> list =  telephonyManager.getAllCellInfo();
+					if (list != null) {
+						LogUtil.v(list);
+					}
+				} catch (Exception e) {
+                	e.printStackTrace();
+				}
             }
         }
     }
