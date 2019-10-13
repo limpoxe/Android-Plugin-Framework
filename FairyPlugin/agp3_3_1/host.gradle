@@ -337,8 +337,21 @@ afterEvaluate {
             }
         }
 
+
+        //将宿主编译产物作为基线包存档，这样可以使插件脱离宿主工程独立编译
+        task "makeHostBaseLine${varName.capitalize()}"(type: Zip) {
+            extension "bar" //Baseline Application Resource
+            baseName 'host'
+            version android.defaultConfig.versionName
+            classifier "${varName.capitalize()}"
+            from zipTree("${project.buildDir}/outputs/resources.ap_")
+            from("${project.buildDir}/outputs") {
+                exclude '*.ap_'
+            }
+        }
+
         //导出宿主最终的基线包
-        tasks.findByName("assemble${varName.capitalize()}").finalizedBy makeHostBaseLine
+        tasks.findByName("assemble${varName.capitalize()}").finalizedBy "makeHostBaseLine${varName.capitalize()}"
     }
 
     if (gradle.startParameter.taskNames.find {
@@ -346,16 +359,6 @@ afterEvaluate {
         it.startsWith("assemble") || it.startsWith("build")
     } != null) {
         //nothing
-    }
-}
-
-//将宿主编译产物作为基线包存档，这样可以使插件脱离宿主工程独立编译
-task makeHostBaseLine(type: Zip) {
-    extension "bar" //Baseline Application Resource
-    baseName 'host'
-    from zipTree("${project.buildDir}/outputs/resources.ap_")
-    from("${project.buildDir}/outputs") {
-        exclude '*.ap_'
     }
 }
 
