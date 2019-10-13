@@ -1,6 +1,8 @@
 package com.example.pluginmain;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -69,4 +71,9 @@ public class TestFragmentActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Debug.trackHuaweiReceivers();
+	}
 }

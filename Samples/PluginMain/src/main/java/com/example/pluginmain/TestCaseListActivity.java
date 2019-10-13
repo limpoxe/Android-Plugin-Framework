@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
@@ -235,5 +236,11 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
         intent.putExtra("ret", "宿主反馈OK");
         setResult(RESULT_OK, intent);
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Debug.trackHuaweiReceivers();
     }
 }

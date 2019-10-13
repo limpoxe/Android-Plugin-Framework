@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 
 import com.limpoxe.fairy.util.FakeUtil;
+import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class PluginTestApplication extends  Application {
 		super.onCreate();
 
 		Context ctx = getApplicationContext();
-		Log.d("xx", "" + ctx);
+		Log.d("PluginTestApplication", "" + ctx);
 
 		if (isApplicationProcess()) {
 			Log.d("api欺骗成功，让插件以为自己在主进程运行");
@@ -44,5 +45,11 @@ public class PluginTestApplication extends  Application {
 		super.attachBaseContext(base);
 		packageName = getPackageName();
 		MultiDex.install(FakeUtil.fakeMultiDexContext(this));
+	}
+
+	@Override
+	public void onTerminate() {
+		super.onTerminate();
+		LogUtil.e("PluginTestApplication onTerminate");
 	}
 }

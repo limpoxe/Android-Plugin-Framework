@@ -85,8 +85,11 @@ android {
 
         //如果增加自定义的buildtype，需要所有依赖的子项目都增加相同名称的定义
         //否则需要显式指定子项目的依赖方式，如debugImplementation
-        //preview.initWith(buildTypes.debug) {
-        //}
+        //或者配置fallback策略
+        preview {
+            initWith debug
+            matchingFallbacks = ['debug']
+        }
 
     }
 

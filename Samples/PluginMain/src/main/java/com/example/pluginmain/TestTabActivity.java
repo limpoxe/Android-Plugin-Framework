@@ -45,4 +45,10 @@ public class TestTabActivity extends TabActivity {
 		getLocalActivityManager()
 				.getCurrentActivity().onBackPressed();
 	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Debug.trackHuaweiReceivers();
+	}
 }

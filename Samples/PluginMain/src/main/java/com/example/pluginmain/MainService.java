@@ -30,4 +30,10 @@ public class MainService extends Service {
         startService(serviceIntent);
 
     }
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		Log.d("MainService", "onDestroy");
+	}
 }

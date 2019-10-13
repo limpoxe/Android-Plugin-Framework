@@ -118,4 +118,10 @@ public class TestSkinActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Debug.trackHuaweiReceivers();
+	}
 }

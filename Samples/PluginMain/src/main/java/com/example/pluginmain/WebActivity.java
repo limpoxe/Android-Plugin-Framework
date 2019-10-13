@@ -72,4 +72,10 @@ public class WebActivity extends AppCompatActivity {
 
 		});
 	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Debug.trackHuaweiReceivers();
+	}
 }

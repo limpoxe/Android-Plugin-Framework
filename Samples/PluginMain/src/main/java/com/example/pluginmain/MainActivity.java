@@ -11,9 +11,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 //import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -145,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         }
-                    }).start();
+                    }, "t-demo-installer").start();
 
 				} else {
 					Toast.makeText(MainActivity.this, "点1次就可以啦！", Toast.LENGTH_LONG).show();
@@ -385,6 +387,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         //MobclickAgent.onPause(this);
+        Debug.trackHuaweiReceivers();
     }
 
     @Override

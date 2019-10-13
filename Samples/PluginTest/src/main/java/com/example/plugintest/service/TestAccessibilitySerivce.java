@@ -22,15 +22,21 @@ public class TestAccessibilitySerivce extends AccessibilityService {
         info.notificationTimeout = 100; //通知的时间
         setServiceInfo(info);
         Log.printStackTrace();
-        Log.e("xxx onServiceConnected");
+        Log.e("TestAccessibilitySerivce onServiceConnected");
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        Log.e("xxx AccessibilityEvent : " + event.toString());
+        Log.e("TestAccessibilitySerivce onAccessibilityEvent : " + event.toString());
     }
 
     @Override
     public void onInterrupt() {
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e("TestAccessibilitySerivce onDestroy");
     }
 }
