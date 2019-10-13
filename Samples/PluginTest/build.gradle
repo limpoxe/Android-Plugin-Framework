@@ -89,9 +89,9 @@ def hostbarName = project(':Samples:PluginMain').android.defaultConfig.versionNa
 
 dependencies {
 
-    implementation project(":Samples:plugintest3");
+    api project(":Samples:plugintest3");
     //demo宿主里面没有添加multidex这个库，所以插件要开multidex需要在插件中加这个依赖
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.0'
 
     //////////////////////////////////////////////////////////////////////
     //下面这一堆provided的配置，是因为这些包在编译宿主的时候，已经被打包到宿主的apk中。
@@ -107,7 +107,7 @@ dependencies {
 
     //Just For Test ButterKnife
     //compile 'com.jakewharton:butterknife:8.5.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
 
 }
 

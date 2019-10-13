@@ -14,3 +14,4 @@ build-cache
 build-cache.lock
 /dump.txt
 dump.txt
+.cxx

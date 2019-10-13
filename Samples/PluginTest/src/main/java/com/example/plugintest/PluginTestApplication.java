@@ -3,7 +3,7 @@ package com.example.plugintest;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 
 import com.limpoxe.fairy.util.FakeUtil;
 import com.limpoxe.fairy.util.LogUtil;

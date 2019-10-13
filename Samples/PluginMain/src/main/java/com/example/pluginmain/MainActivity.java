@@ -1,7 +1,7 @@
 package com.example.pluginmain;
 
 import android.Manifest;
-import android.arch.lifecycle.Lifecycle;
+import androidx.lifecycle.Lifecycle;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,15 +11,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 //import android.provider.BaseColumns;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -101,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
         List<ResolveInfo> infos = manager.queryIntentActivities(intent, 0);
 
         Log.e("xx", "infos=" + (infos==null?"0":infos.size()));
-        Log.e("xx", butterTest.getText().toString());
-
+        Log.e("xx", "btnText=" + butterTest.getText().toString());
+        Log.e("xx", "stringFromJNI " + CxxTest.stringFromJNI());
     }
 
 	private void initView() {

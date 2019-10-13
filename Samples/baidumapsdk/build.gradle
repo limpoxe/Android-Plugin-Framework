@@ -43,7 +43,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "com.android.support:appcompat-v7:${SUPPORT_VERSION}"
+    implementation "androidx.appcompat:appcompat:${SUPPORT_VERSION}"
 }
 
 

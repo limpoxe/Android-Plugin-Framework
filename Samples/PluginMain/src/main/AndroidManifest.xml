@@ -159,7 +159,7 @@
         <!--Demo config for plugin AdMob end -->
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="a.b.c.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">

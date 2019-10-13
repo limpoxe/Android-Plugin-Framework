@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:support-v4:${SUPPORT_VERSION}"
-    implementation "com.android.support:appcompat-v7:${SUPPORT_VERSION}"
+    implementation "androidx.legacy:legacy-support-v4:${SUPPORT_VERSION}"
+    implementation "androidx.appcompat:appcompat:${SUPPORT_VERSION}"
     implementation fileTree(dir: 'libs', include: ['**/**.jar'])
 }
