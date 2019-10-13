@@ -4,13 +4,13 @@ ext {
     BUILD_TOOLS_VERSION = "29.0.2"
     TARGET_SDK_VERSION = 29
     SUPPORT_VERSION = "27.0.0"
-    GRADLE_PLUGIN_VERSION = '3.5.0'
+    GRADLE_PLUGIN_VERSION = '3.5.1'
 
     //定义常量，方便统一切换脚本的版本
-    HOST_FAIRY_SCRIPT = "../../FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/host.gradle"
+    HOST_FAIRY_SCRIPT = "../../FairyPlugin/agp3_3_1/host.gradle"
     //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/host.gradle"
 
-    PLUGIN_FAIRY_SCRIPT = "../../FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/plugin.gradle"
+    PLUGIN_FAIRY_SCRIPT = "../../FairyPlugin/agp3_3_1/plugin.gradle"
     //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/plugin.gradle"
 
 
