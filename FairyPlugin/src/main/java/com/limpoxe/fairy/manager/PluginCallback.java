@@ -6,7 +6,7 @@ package com.limpoxe.fairy.manager;
 @Deprecated
 public interface PluginCallback {
 
-	public static final String ACTION_PLUGIN_CHANGED = "com.limpoxe.fairy.action_plugin_changed";
+	public static final String ACTION_PLUGIN_CHANGED = "com.limpoxe.fairy.action.PLUGIN_CHANGED";
 
     public static final String EXTRA_TYPE = "type";
     public static final String EXTRA_ID = "id";

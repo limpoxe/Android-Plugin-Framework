@@ -197,14 +197,23 @@ public class PluginLauncher implements Serializable {
 			((PluginContextTheme)pluginContext).setCrackPackageManager(false);
 
 		} catch (Exception e) {
-
+			String errInfo = "callPluginApplicationOnCreate failed";
 			//java.io.IOException: Failed to find magic in xxx.apk
+			//Error openning archive xxx.apk: Invalid file
+			//Failed to open Zip archive xxx.apk
 			if (pluginDescriptor != null) {
-				LogUtil.e("error, remove " + pluginDescriptor.getPackageName());
-				PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+				int removeResult = PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+				boolean isInstalled = PluginManagerHelper.isInstalled(pluginDescriptor.getPackageName());
+				errInfo = "error happened,"
+						+ pluginDescriptor.getPackageName()
+						+ "," + pluginDescriptor.getInstalledPath()
+						+ "," + pluginDescriptor.getInstallationTime()
+						+ "," + removeResult
+						+ "," + isInstalled;
+				LogUtil.e(errInfo);
 			}
 
-            throw new PluginNotFoundError(e);
+            throw new PluginNotFoundError(errInfo, e);
 		}
 
 		//安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前

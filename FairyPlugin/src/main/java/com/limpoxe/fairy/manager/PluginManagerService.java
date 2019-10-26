@@ -152,13 +152,13 @@ class PluginManagerService {
 				boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 				LogUtil.w("delete old", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 				if (deleteSuccess) {
-					return PluginManagerHelper.SUCCESS;
+					return PluginManagerHelper.REMOVE_SUCCESS;
 				} else {
 					return PluginManagerHelper.REMOVE_FAIL;
 				}
 			} else {
 				LogUtil.e("插件未安装", pluginId);
-				return PluginManagerHelper.PLUGIN_NOT_EXIST;
+				return PluginManagerHelper.REMOVE_FAIL_PLUGIN_NOT_EXIST;
 			}
 		}
 	}

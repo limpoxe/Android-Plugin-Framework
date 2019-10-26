@@ -31,13 +31,12 @@ public class LogUtil {
     private static void printLog(int level, Object... msg) {
         if (isEnable) {
             StringBuilder str = new StringBuilder();
-
             if (msg != null) {
                 for (Object obj : msg) {
-                    str.append("★").append(obj);
+                    str.append("||").append(obj);
                 }
-                if (str.length() > 0) {
-                    str.deleteCharAt(0);
+                if (str.length() > 1) {
+                    str.delete(0, 2);//删除开头的分隔符
                 }
             } else {
                 str.append("null");
@@ -51,18 +50,14 @@ public class LogUtil {
                     if (st != null) {
                         String fileName = st.getFileName();
                         tag = (fileName == null) ? "Unkown" : fileName.replace(".java", "");
-                        str.insert(0, "【" + tag + "." + st.getMethodName() + "() line " + st.getLineNumber() + "】\n>>>[")
+                        str.insert(0, "[" + tag + "." + st.getMethodName() + "() line " + st.getLineNumber() + "]\n>>>[")
                                 .append("]");
                     }
                 }
-
-                tag =  (tag==null)?"Fairy":("Fairy_" + tag);
-
                 while (str.length() > 0) {
-                    DEFAULT_LOGHANDLER.publish(tag, level, str.substring(0, Math.min(2000, str.length())).toString());
+                    DEFAULT_LOGHANDLER.publish("Fairy", level, str.substring(0, Math.min(2000, str.length())).toString());
                     str.delete(0, 2000);
                 }
-
             } catch (Exception exception) {
                 exception.printStackTrace();
             }

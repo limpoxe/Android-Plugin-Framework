@@ -22,6 +22,9 @@ import java.io.FileNotFoundException;
  */
 public class ProviderClientProxy extends ContentProvider {
 
+    /**
+     * @see com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIActivityManager.getContentProvider
+     */
     public static final String CALL_PROXY_KEY = "target_call";
     public static final String TARGET_URL = "targetUrl";
 

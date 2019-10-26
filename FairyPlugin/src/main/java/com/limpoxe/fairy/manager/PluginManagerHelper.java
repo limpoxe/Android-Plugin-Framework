@@ -15,7 +15,6 @@ import java.util.ArrayList;
 public class PluginManagerHelper {
 
     public static final int SUCCESS = 0;
-
     public static final int SRC_FILE_NOT_FOUND = 1;
     public static final int COPY_FILE_FAIL = 2;
     public static final int SIGNATURES_INVALIDATE = 3;
@@ -26,7 +25,8 @@ public class PluginManagerHelper {
     public static final int INSTALL_FAIL = 7;
     public static final int HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN = 9;
 
-    public static final int PLUGIN_NOT_EXIST = 21;
+    public static final int REMOVE_SUCCESS = 0;
+    public static final int REMOVE_FAIL_PLUGIN_NOT_EXIST = 21;
     public static final int REMOVE_FAIL = 27;
 
     public static PluginDescriptor getPluginDescriptorByClassName(String clazzName) {

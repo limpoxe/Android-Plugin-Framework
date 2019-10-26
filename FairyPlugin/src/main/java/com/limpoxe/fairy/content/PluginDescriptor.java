@@ -550,7 +550,7 @@ public class PluginDescriptor implements Serializable {
 				clazzName = intent.getComponent().getClassName();
 				result = new ArrayList<String>(1);
 				result.add(clazzName);
-                LogUtil.e("暂时不考虑不同的插件中配置了相同类全名的组件的问题, 先到先得");
+                LogUtil.e("暂时不考虑不同的插件中配置了相同类全名的组件的问题, 先到先得", getPackageName(), clazzName);
 				return result;
 			}
 		} else {

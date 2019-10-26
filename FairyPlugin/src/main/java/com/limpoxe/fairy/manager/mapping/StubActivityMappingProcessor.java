@@ -99,7 +99,7 @@ public class StubActivityMappingProcessor implements StubMappingProcessor {
                         LogUtil.printException("StubActivityMappingProcessor.bindStub", e);
                     }
                 } else {
-                    LogUtil.e("插件尚未运行，无法获取pluginResource对象");
+                    LogUtil.e("插件尚未运行，无法获取pluginResource对象", pluginDescriptor.getPackageName());
                 }
             }
 

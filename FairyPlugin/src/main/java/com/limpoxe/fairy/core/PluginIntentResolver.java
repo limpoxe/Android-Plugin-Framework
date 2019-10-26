@@ -245,10 +245,12 @@ public class PluginIntentResolver {
 	 */
 	public static ArrayList<String> matchPlugin(Intent intent, int type) {
 
+	    //快速排除一些确定的非插件Intent
         if (intent.getAction() != null && (
                 intent.getAction().endsWith(".STUB_DEFAULT") ||
                 intent.getAction().endsWith(".STUB_EXACT") ||
-                intent.getAction().contains(CLASS_SEPARATOR))) {
+                intent.getAction().contains(CLASS_SEPARATOR) ||
+                intent.getAction().startsWith("com.limpoxe.fairy.action"))) {
             return null;
         }
 
