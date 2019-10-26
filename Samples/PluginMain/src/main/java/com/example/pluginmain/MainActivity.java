@@ -199,7 +199,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         //MobclickAgent.onEvent(MainActivity.this, "test_2");
                         PluginManagerHelper.remove(pluginDescriptor.getPackageName());
-                        refreshListView();
                     }
                 });
 
@@ -305,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private static String getErrMsg(int code) {
 		if(code== PluginManagerHelper.SUCCESS) {
-			return "成功";
+			return "安装成功";
 		} else if (code == PluginManagerHelper.SRC_FILE_NOT_FOUND) {
 			return "失败: 安装文件未找到";
 		} else if (code == PluginManagerHelper.COPY_FILE_FAIL) {
@@ -320,12 +319,14 @@ public class MainActivity extends AppCompatActivity {
 			return "失败: 同版本插件已加载,无需安装";
 		} else if (code == PluginManagerHelper.MIN_API_NOT_SUPPORTED) {
 			return "失败: 当前系统版本过低,不支持此插件";
-		} else if (code == PluginManagerHelper.PLUGIN_NOT_EXIST) {
-			return "失败: 插件不存在";
-		} else if (code == PluginManagerHelper.REMOVE_FAIL) {
-			return "失败: 删除插件失败";
 		} else if (code == PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN) {
             return "失败: 插件要求的宿主版本和当前宿主版本不匹配";
+        }  else if (code == PluginManagerHelper.REMOVE_FAIL_PLUGIN_NOT_EXIST) {
+            return "失败: 插件不存在";
+        } else if (code == PluginManagerHelper.REMOVE_SUCCESS) {
+            return "删除插件成功";
+        } else if (code == PluginManagerHelper.REMOVE_FAIL) {
+            return "失败: 删除插件失败";
         } else {
 			return "失败: 其他 code=" + code;
 		}
