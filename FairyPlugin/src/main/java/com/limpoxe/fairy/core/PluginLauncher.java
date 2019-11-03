@@ -414,6 +414,7 @@ public class PluginLauncher implements Serializable {
 		//即退出由FragmentManager保存的Fragment
         CompatForFragmentClassCache.clearFragmentClassCache();
         CompatForFragmentClassCache.clearSupportV4FragmentClassCache();
+		CompatForFragmentClassCache.clearAndroidXFragmentClassCache();
 
 		LogUtil.d("调用插件Application.onTerminate()");
 		SyncRunnable.runOnMainSync(new Runner<Void>() {

@@ -80,6 +80,7 @@ public class PluginLoader {
             CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache();
             CompatForFragmentClassCache.installFragmentClassCache();
             CompatForFragmentClassCache.installSupportV4FragmentClassCache();
+            CompatForFragmentClassCache.installAndroidXFragmentClassCache();
             //不可在主进程中同步安装，因为此时ActivityThread还没有准备好, 会导致空指针。
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override

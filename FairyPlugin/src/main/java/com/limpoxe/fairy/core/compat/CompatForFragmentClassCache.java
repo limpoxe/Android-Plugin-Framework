@@ -11,6 +11,9 @@ import java.util.Map;
  */
 public class CompatForFragmentClassCache {
 
+    private static final String androidx_fragment_app_Fragment = "androidx.fragment.app.Fragment";
+    private static final String androidx_fragment_app_Fragment_sClassMap = "sClassMap";
+
     private static final String android_support_v4_app_Fragment = "android.support.v4.app.Fragment";
     private static final String android_support_v4_app_Fragment_sClassMap = "sClassMap";
 
@@ -63,6 +66,12 @@ public class CompatForFragmentClassCache {
         }
     }
 
+    //阻止class缓存
+    public static void installAndroidXFragmentClassCache() {
+        //TODO 这里应当构造一个 EmptySimpleArrayMap 塞进去，阻止缓存
+        clearAndroidXFragmentClassCache();
+    }
+
     //清理class缓存
     public static void clearSupportV4FragmentClassCache() {
         Class  FragmentClass = null;
@@ -97,4 +106,21 @@ public class CompatForFragmentClassCache {
             LogUtil.printException("CompatForFragmentClassCache.clearFragmentClassCache", e);
         }
     }
+
+    //清理class缓存
+    public static void clearAndroidXFragmentClassCache() {
+        Class  FragmentClass = null;
+        try {
+            FragmentClass = Class.forName(androidx_fragment_app_Fragment);
+            Object slCassMap = RefInvoker.getField(null, FragmentClass, androidx_fragment_app_Fragment_sClassMap);
+
+            if (slCassMap != null) {
+                RefInvoker.invokeMethod(slCassMap, slCassMap.getClass(), "clear", (Class[])null, (Object[])null);
+            }
+
+        } catch (ClassNotFoundException e) {
+            LogUtil.printException("CompatForFragmentClassCache.clearAndroidXFragmentClassCache", e);
+        }
+    }
+
 }
