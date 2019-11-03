@@ -31,7 +31,7 @@ public class PluginTestService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
-			Log.d("xx", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+			Log.d("xx", ((ParamVO) intent.getParcelableExtra("paramvo")) + ", action:" + intent.getAction());
 		}
 
 		Log.d("PluginTestService", "PluginTestService onStartCommand "

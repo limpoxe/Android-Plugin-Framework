@@ -20,7 +20,7 @@ public class PluginTestReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
-		Log.d("PluginTestReceiver", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+		Log.d("PluginTestReceiver", ((ParamVO) intent.getParcelableExtra("paramvo")) + ", action:" + intent.getAction());
 
 		Toast.makeText(context, "PluginTestReceiver onReceive " + context.getResources().getText(R.string.hello_world4),
 				Toast.LENGTH_LONG).show();

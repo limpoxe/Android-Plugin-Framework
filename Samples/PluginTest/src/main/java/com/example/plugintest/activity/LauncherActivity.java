@@ -102,7 +102,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         public void onReceive(Context context, Intent intent) {
             intent.setExtrasClassLoader(ParamVO.class.getClassLoader());
             String msg = intent.getStringExtra("msg");
-            ParamVO paramVO = (ParamVO)intent.getSerializableExtra("vo");
+            ParamVO paramVO = (ParamVO)intent.getParcelableExtra("vo");
             Toast.makeText(context, msg + ", " + paramVO, Toast.LENGTH_SHORT).show();
         }
     };

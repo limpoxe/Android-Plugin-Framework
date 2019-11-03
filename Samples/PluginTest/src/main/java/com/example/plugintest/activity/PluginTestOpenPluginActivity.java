@@ -43,14 +43,14 @@ public class PluginTestOpenPluginActivity extends AppCompatActivity implements O
 	class NestReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d("NestReceiver", intent.getStringExtra("str1") + ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+			Log.d("NestReceiver", intent.getStringExtra("str1") + ((ParamVO) intent.getParcelableExtra("paramvo")) + ", action:" + intent.getAction());
 		}
 	}
 
 	class NestReceiver2 extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d("NestReceiver2", ((ParamVO) intent.getSerializableExtra("paramvo")) + ", action:" + intent.getAction());
+			Log.d("NestReceiver2", ((ParamVO) intent.getParcelableExtra("paramvo")) + ", action:" + intent.getAction());
 		}
 	}
 

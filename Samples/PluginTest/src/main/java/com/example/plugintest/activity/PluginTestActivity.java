@@ -39,7 +39,7 @@ public class PluginTestActivity extends Activity implements OnClickListener {
 
 		Log.d("xx", getApplication().toString() + "," + getApplicationContext().toString() + "," + getApplication().getApplicationContext().toString());
 
-		Log.d("xx", ((ParamVO)getIntent().getSerializableExtra("paramvo")) + ", action:" + getIntent().getAction() + getIntent().toUri(0));
+		Log.d("xx", ((ParamVO)getIntent().getParcelableExtra("paramvo")) + ", action:" + getIntent().getAction() + getIntent().toUri(0));
 
 		mInflater = getLayoutInflater();
 		View scrollview = mInflater.inflate(R.layout.plugin_layout, null);
