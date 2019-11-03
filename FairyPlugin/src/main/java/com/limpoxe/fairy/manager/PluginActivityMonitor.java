@@ -14,14 +14,14 @@ import java.util.HashMap;
 
 public class PluginActivityMonitor {
 
-	public static final String ACTION_UN_INSTALL_PLUGIN = "com.limpoxe.fairy.action.ACTION_UN_INSTALL_PLUGIN";
+	public static final String ACTION_STOP_PLUGIN = ".fairy.action.ACTION_STOP_PLUGIN";
 
 	private HashMap<Activity, BroadcastReceiver> receivers = new HashMap<Activity, BroadcastReceiver>();
 
 	public void onActivityCreate(final Activity activity) {
 		if (!activity.isChild()) {
 			if (activity.getClass().getClassLoader() instanceof RealPluginClassLoader) {
-				String pluginId = ((PluginContextTheme)activity.getApplication().getBaseContext()).getPluginDescriptor().getPackageName();
+				String pluginPackageName = ((PluginContextTheme)activity.getApplication().getBaseContext()).getPluginDescriptor().getPackageName();
 				BroadcastReceiver br = new BroadcastReceiver() {
 					@Override
 					public void onReceive(Context context, Intent intent) {
@@ -31,7 +31,8 @@ public class PluginActivityMonitor {
 				};
 				receivers.put(activity, br);
 
-				activity.registerReceiver(br, new IntentFilter(pluginId + ACTION_UN_INSTALL_PLUGIN));
+				LogUtil.v("registerReceiver", pluginPackageName + ACTION_STOP_PLUGIN);
+				activity.registerReceiver(br, new IntentFilter(pluginPackageName + ACTION_STOP_PLUGIN));
 			}
 		}
 	}
@@ -52,6 +53,7 @@ public class PluginActivityMonitor {
 		if (!activity.isChild()) {
 			if (activity.getClass().getClassLoader() instanceof RealPluginClassLoader) {
 				BroadcastReceiver br = receivers.remove(activity);
+				LogUtil.v("unregisterReceiver", br.getClass().getName());
 				activity.unregisterReceiver(br);
 			}
 		}

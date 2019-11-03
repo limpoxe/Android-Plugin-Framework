@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
-import android.os.Build;
 
 import com.limpoxe.fairy.content.PluginActivityInfo;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -18,6 +17,8 @@ import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import static com.limpoxe.fairy.manager.PluginCallback.ACTION_PLUGIN_CHANGED;
 
 public class PluginIntentResolver {
 
@@ -250,7 +251,7 @@ public class PluginIntentResolver {
                 intent.getAction().endsWith(".STUB_DEFAULT") ||
                 intent.getAction().endsWith(".STUB_EXACT") ||
                 intent.getAction().contains(CLASS_SEPARATOR) ||
-                intent.getAction().startsWith("com.limpoxe.fairy.action"))) {
+                intent.getAction().equals(ACTION_PLUGIN_CHANGED))) {
             return null;
         }
 

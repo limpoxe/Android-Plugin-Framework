@@ -147,10 +147,11 @@ class PluginManagerService {
 
 			if (old != null) {
 				PluginLauncher.instance().stopPlugin(pluginId, old);
+				LogUtil.e("remove records and files...", pluginId);
 				sInstalledPlugins.remove(pluginId);
 				result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
 				boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
-				LogUtil.w("delete old", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
+				LogUtil.e("remove done", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 				if (deleteSuccess) {
 					return PluginManagerHelper.REMOVE_SUCCESS;
 				} else {

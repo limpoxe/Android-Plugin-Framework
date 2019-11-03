@@ -53,6 +53,9 @@ public class CompatForFragmentClassCache {
                     //4.4+ ArrayMap<String, Class<?>>
                     //RefInvoker.setField(null, FragmentClass, android_support_v4_app_Fragment_sClassMap, );
                     //这里不做处理，依赖卸载插件时调用clear移除
+                    /**
+                     * {@link com.limpoxe.fairy.core.PluginLauncher#stopPlugin}
+                     */
                 }
             }
         } catch (ClassNotFoundException e) {

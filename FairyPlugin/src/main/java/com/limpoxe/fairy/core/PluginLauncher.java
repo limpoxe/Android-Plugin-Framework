@@ -15,15 +15,14 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.content.PluginProviderInfo;
 import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackActivityThreadProviderClientRecord;
+import com.limpoxe.fairy.core.android.HackAndroidXLocalboarcastManager;
 import com.limpoxe.fairy.core.android.HackApplication;
 import com.limpoxe.fairy.core.android.HackContentProvider;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
@@ -290,6 +289,8 @@ public class PluginLauncher implements Serializable {
 			return;
 		}
 
+		LogUtil.e("stopPlugin...", plugin.pluginPackageName);
+
 		//退出LocalService
 		LogUtil.d("退出LocalService");
 		LocalServiceManager.unRegistService(pluginDescriptor);
@@ -297,7 +298,9 @@ public class PluginLauncher implements Serializable {
 
 		//退出Activity
 		LogUtil.d("退出Activity");
-		FairyGlobal.getHostApplication().sendBroadcast(new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_UN_INSTALL_PLUGIN));
+		Intent stopPluginIntent = new Intent(plugin.pluginPackageName + PluginActivityMonitor.ACTION_STOP_PLUGIN);
+		stopPluginIntent.setPackage(FairyGlobal.getHostApplication().getPackageName());
+		FairyGlobal.getHostApplication().sendBroadcast(stopPluginIntent);
 
 		//退出 LocalBroadcastManager
 		LogUtil.d("退出LocalBroadcastManager");
@@ -307,13 +310,39 @@ public class PluginLauncher implements Serializable {
 			HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers = hackSupportV4LocalboarcastManager.getReceivers();
 			if (mReceivers != null) {
 				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
+				ArrayList<BroadcastReceiver> needRemoveList = new ArrayList<>();
 				while(ir.hasNext()) {
 					BroadcastReceiver item = ir.next();
-					if (item.getClass().getClassLoader() == plugin.pluginClassLoader.getParent()
+					if (item.getClass().getClassLoader() == plugin.pluginClassLoader.getParent() //RealPluginClassLoader
 							|| (item.getClass().getClassLoader() instanceof RealPluginClassLoader
-							&& ((RealPluginClassLoader)item.getClass().getClassLoader()).pluginPackageName.equals(plugin.pluginPackageName))) {//RealPluginClassLoader
-						hackSupportV4LocalboarcastManager.unregisterReceiver(item);
+								&& ((RealPluginClassLoader)item.getClass().getClassLoader()).pluginPackageName.equals(plugin.pluginPackageName))) {//RealPluginClassLoader, 也有可能不是同一个实例
+						needRemoveList.add(item);
 					}
+				}
+				for(BroadcastReceiver broadcastReceiver : needRemoveList) {
+					LogUtil.e("SupportV4 unregisterReceiver", broadcastReceiver.getClass().getName());
+					hackSupportV4LocalboarcastManager.unregisterReceiver(broadcastReceiver);
+				}
+			}
+		}
+		Object mInstanceX = HackAndroidXLocalboarcastManager.getInstance();
+		if (mInstanceX != null) {
+			HackAndroidXLocalboarcastManager hackAndroidXLocalboarcastManager = new HackAndroidXLocalboarcastManager(mInstanceX);
+			HashMap mReceivers = hackAndroidXLocalboarcastManager.getReceivers();
+			if (mReceivers != null) {
+				Iterator<BroadcastReceiver> ir = mReceivers.keySet().iterator();
+				ArrayList<BroadcastReceiver> needRemoveList = new ArrayList<>();
+				while(ir.hasNext()) {
+					BroadcastReceiver item = ir.next();
+					if (item.getClass().getClassLoader() == plugin.pluginClassLoader.getParent() //RealPluginClassLoader
+							|| (item.getClass().getClassLoader() instanceof RealPluginClassLoader
+								&& ((RealPluginClassLoader)item.getClass().getClassLoader()).pluginPackageName.equals(plugin.pluginPackageName))) {//RealPluginClassLoader, 也有可能不是同一个实例
+						needRemoveList.add(item);
+					}
+				}
+				for(BroadcastReceiver broadcastReceiver : needRemoveList) {
+					LogUtil.e("AndroidX unregisterReceiver", broadcastReceiver.getClass().getName());
+					hackAndroidXLocalboarcastManager.unregisterReceiver(broadcastReceiver);
 				}
 			}
 		}
@@ -349,7 +378,7 @@ public class PluginLauncher implements Serializable {
 				//		这种方式，在上一步Activitiy、service退出时会自然退出，所以不用处理
 				//2、application注册
 				//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
-				LogUtil.d("退出BroadcastReceiver");
+				LogUtil.v("退出BroadcastReceiver");
 				((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
 				return null;
 			}
@@ -405,7 +434,7 @@ public class PluginLauncher implements Serializable {
 
 		loadedPluginMap.remove(packageName);
 
-		LogUtil.d("stopPlugin done");
+		LogUtil.e("stopPlugin done", plugin.pluginPackageName);
 	}
 
 	private static void removeProvider(String authority, Map map) {

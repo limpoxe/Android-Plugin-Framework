@@ -241,6 +241,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 		for (BroadcastReceiver br:
 			 receivers) {
 			if (br != null) {
+				LogUtil.e("unregisterReceiver", br.getClass().getName());
 				super.unregisterReceiver(br);
 			}
 		}
