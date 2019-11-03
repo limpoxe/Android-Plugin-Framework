@@ -78,6 +78,7 @@ public class PluginLoader {
         if (isPluginProcess) {
             HackLayoutInflater.installPluginCustomViewConstructorCache();
             CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache();
+            CompatForSupportv7ViewInflater.installAndroidXPluginCustomViewConstructorCache();
             CompatForFragmentClassCache.installFragmentClassCache();
             CompatForFragmentClassCache.installSupportV4FragmentClassCache();
             CompatForFragmentClassCache.installAndroidXFragmentClassCache();
