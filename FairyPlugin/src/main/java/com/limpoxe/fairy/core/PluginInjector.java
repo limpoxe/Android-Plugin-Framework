@@ -33,7 +33,6 @@ import com.limpoxe.fairy.core.android.HackService;
 import com.limpoxe.fairy.core.android.HackWindow;
 import com.limpoxe.fairy.core.annotation.AnnotationProcessor;
 import com.limpoxe.fairy.core.annotation.PluginContainer;
-//import com.limpoxe.fairy.core.compat.CompatForAppComponentFactoryApi28;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7_23_2;
 import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginNotInitError;
@@ -49,6 +48,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+//import com.limpoxe.fairy.core.compat.CompatForAppComponentFactoryApi28;
 
 public class PluginInjector {
 
@@ -77,7 +78,6 @@ public class PluginInjector {
 	}
 
 	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
-		LogUtil.d("安装插件中的contentProvider");
 		List<ProviderInfo> hostProviders = context.getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
         boolean isAlreadyAddByHost = false;
 
@@ -111,8 +111,7 @@ public class PluginInjector {
 		}
 
 		if(providers.size() > 0) {
-			LogUtil.v("为插件安装ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
-			//pluginContext.getPackageName().equals(applicationInfo.packageName) == true
+			LogUtil.e("为插件安装ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
 			//安装的时候使用的是插件的Context, 所有无需对Classloader进行映射处理
 			HackActivityThread.get().installContentProviders(pluginContext, providers);
 		}

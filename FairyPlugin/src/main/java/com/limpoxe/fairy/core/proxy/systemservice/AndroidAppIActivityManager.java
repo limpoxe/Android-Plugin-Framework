@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.IBinder;
@@ -234,102 +235,130 @@ public class AndroidAppIActivityManager extends MethodProxy {
                 } else {
                     auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
                 }
-                LogUtil.d("getContentProvider", auth);
-                if (!PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
-                    ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
-                    for(PluginDescriptor pluginDescriptor : list) {
-                        HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
-                        if (map != null) {
-                            Iterator<PluginProviderInfo> iterator = map.values().iterator();
-                            while(iterator.hasNext()) {
-                                PluginProviderInfo pluginProviderInfo = iterator.next();
-                                //在插件中找到了匹配的contentprovider
-                                if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
-                                    //先检查插件是否已经初始化
-                                    boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
-                                    if (!isrunning) {
-                                        LogUtil.d("getContentProvider", "wakeup");
-                                        PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
-                                        //TODO 这里时许仍然晚了一步 可能是因为wakeup异步执行的原因
-                                    }
-                                    break;
+                LogUtil.e("getContentProvider", auth);
+                tryWakeupBeforeCallPluginProvider(auth);
+            }
+            return super.beforeInvoke(target, method, args);
+        }
+
+        private void tryWakeupBeforeCallPluginProvider(final String auth) {
+            if (!PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
+                boolean found = false;
+                ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
+                for(PluginDescriptor pluginDescriptor : list) {
+                    HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
+                    if (map != null) {
+                        Iterator<PluginProviderInfo> iterator = map.values().iterator();
+                        while(iterator.hasNext()) {
+                            PluginProviderInfo pluginProviderInfo = iterator.next();
+                            //在插件中找到了匹配的contentprovider
+                            if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
+                                found = true;
+                                //先检查插件是否已经初始化
+                                boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
+                                if (!isrunning) {
+                                    LogUtil.e("getContentProvider", "not running, wakeup", pluginDescriptor.getPackageName());
+                                    PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+                                    //TODO 这里时许仍然晚了一步 可能是因为wakeup异步执行的原因
+                                } else {
+                                    LogUtil.e("getContentProvider", "is running", pluginProviderInfo.getAuthority(), pluginProviderInfo.getName());
                                 }
+                                break;
+                            } else {
+                                LogUtil.e("getContentProvider", "not match", pluginProviderInfo.getAuthority(), pluginProviderInfo.getName());
                             }
                         }
                     }
                 }
+                LogUtil.e("getContentProvider", auth, "found", found);
             }
-            return super.beforeInvoke(target, method, args);
         }
 
         //ApplicationThread, auth, userId, stable
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
+            if (invokeResult != null) {
+                return invokeResult;
+            }
+            //invokeResult为空表示没有获取到contentprovider，正常情况下会抛出Unknown URI
+            //这里为了让非插件进程也能调用插件进程的插件ContentProvider，需要在此进程安装一个Proxy进行桥接
+            String auth = (String)args[1];
+            //Q版本的参数位置发生了变化
+            //TODO 由于预览版rom的SDK_INT仍然是28，这里暂时使用BASE_OS来判断
+            if ("Q".equals(Build.VERSION.CODENAME)) {
+                auth = (String)args[2];
+            } else {
+                auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
+            }
+            LogUtil.e("getContentProvider", auth);
+            //快速判断，排除不是来自插件的auth
+            if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
+                return invokeResult;
+            }
+
             //非插件进程
             if (!ProcessUtil.isPluginProcess()) {
-                if (invokeResult == null) {
-                    String auth = (String)args[1];
-                    //Q版本的参数位置发生了变化
-                    //TODO 由于预览版rom的SDK_INT仍然是28，这里暂时使用BASE_OS来判断
-                    if ("Q".equals(Build.VERSION.CODENAME)) {
-                        auth = (String)args[2];
-                    } else {
-                        auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
-                    }
-                    LogUtil.d("getContentProvider", auth);
-                    if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
-                        return invokeResult;
-                    }
+                return tryInstallProxyForCallerProcess(invokeResult, auth);
+            } else {
+                return tryReInstallPluginContentProvider(invokeResult, auth);
+            }
+        }
 
-                    List<ProviderInfo> hostProviders = FairyGlobal.getHostApplication().getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
-                    boolean isAlreadyAddByHost = false;
-                    ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
-                    for(PluginDescriptor pluginDescriptor : list) {
-                        HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
-                        if (map != null) {
-                            Iterator<PluginProviderInfo> iterator = map.values().iterator();
-                            while(iterator.hasNext()) {
-                                PluginProviderInfo pluginProviderInfo = iterator.next();
+        /**
+         * 为了让非插件进程也能调用插件进程中插件配置的ContentProvider
+         * @param invokeResult
+         * @return
+         */
+        private Object tryInstallProxyForCallerProcess(final Object invokeResult, final String auth) {
+            List<ProviderInfo> hostProviders = FairyGlobal.getHostApplication().getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
+            boolean isAlreadyAddByHost = false;
+            ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
+            for(PluginDescriptor pluginDescriptor : list) {
+                HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
+                if (map != null) {
+                    Iterator<PluginProviderInfo> iterator = map.values().iterator();
+                    while(iterator.hasNext()) {
+                        PluginProviderInfo pluginProviderInfo = iterator.next();
 
-                                isAlreadyAddByHost = false;
+                        isAlreadyAddByHost = false;
 
-                                if (hostProviders != null) {
-                                    for(ProviderInfo hostProvider : hostProviders) {
-                                        if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
-                                            LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
-                                            isAlreadyAddByHost = true;
-                                            break;
-                                        }
-                                    }
+                        if (hostProviders != null) {
+                            for(ProviderInfo hostProvider : hostProviders) {
+                                if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
+                                    LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
+                                    isAlreadyAddByHost = true;
+                                    break;
                                 }
-                                if (isAlreadyAddByHost) {
-                                    continue;
-                                }
+                            }
+                        }
+                        if (isAlreadyAddByHost) {
+                            continue;
+                        }
 
-                                //在插件中找到了匹配的contentprovider
-                                if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
-                                    //先检查插件是否已经初始化
-                                    boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
-                                    if (!isrunning) {
-                                        isrunning = PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
-                                    }
-                                    if (!isrunning) {
-                                        return invokeResult;
-                                    }
+                        //在插件中找到了匹配的contentprovider
+                        if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
+                            //先检查插件是否已经初始化
+                            boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
+                            if (!isrunning) {
+                                isrunning = PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+                            }
+                            if (!isrunning) {
+                                return invokeResult;
+                            }
 
-                                    ProviderInfo providerInfo = new ProviderInfo();
-                                    providerInfo.applicationInfo = FairyGlobal.getHostApplication().getApplicationInfo();
-                                    providerInfo.authority = auth;
-                                    providerInfo.name = ProviderClientProxy.class.getName();
-                                    providerInfo.packageName = FairyGlobal.getHostApplication().getPackageName();
-                                    Object holder = HackContentProviderHolder.newInstance(providerInfo);
+                            ProviderInfo providerInfo = new ProviderInfo();
+                            providerInfo.applicationInfo = FairyGlobal.getHostApplication().getApplicationInfo();
+                            providerInfo.authority = auth;
+                            //设置代理Provider
+                            providerInfo.name = ProviderClientProxy.class.getName();
+                            providerInfo.packageName = FairyGlobal.getHostApplication().getPackageName();
+                            Object holder = HackContentProviderHolder.newInstance(providerInfo);
 
-                                    if (holder != null) {
-                                        return holder;
-                                    } else {
-                                        return invokeResult;
-                                    }
-                                }
+                            if (holder != null) {
+                                //返回代理Provider
+                                return holder;
+                            } else {
+                                return invokeResult;
                             }
                         }
                     }
@@ -337,6 +366,67 @@ public class AndroidAppIActivityManager extends MethodProxy {
             }
             return invokeResult;
         }
+
+        private Object tryReInstallPluginContentProvider(final Object invokeResult, final String auth) {
+            boolean isAlreadyAddByHost = false;
+            List<ProviderInfo> hostProviders = FairyGlobal.getHostApplication().getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
+            ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
+            for(PluginDescriptor pluginDescriptor : list) {
+                HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
+                if (map != null) {
+                    Iterator<PluginProviderInfo> iterator = map.values().iterator();
+                    while(iterator.hasNext()) {
+                        isAlreadyAddByHost = false;
+                        PluginProviderInfo pluginProviderInfo = iterator.next();
+                        if (hostProviders != null) {
+                            for(ProviderInfo hostProvider : hostProviders) {
+                                if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
+                                    LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
+                                    isAlreadyAddByHost = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isAlreadyAddByHost) {
+                            continue;
+                        }
+                        //在插件中找到了匹配的contentprovider
+                        if (auth != null && auth.equals(pluginProviderInfo.getAuthority())) {
+                            //先检查插件是否已经初始化
+                            boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
+                            if (!isrunning) {
+                                isrunning = PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+                            }
+                            if (!isrunning) {
+                                return invokeResult;
+                            }
+
+                            LogUtil.e("安装插件中的contentProvider");
+                            ProviderInfo providerInfo = new ProviderInfo();
+                            providerInfo.name = pluginProviderInfo.getName();
+                            providerInfo.authority = pluginProviderInfo.getAuthority();
+                            providerInfo.applicationInfo = new ApplicationInfo(FairyGlobal.getHostApplication().getApplicationInfo());
+                            providerInfo.applicationInfo.packageName = pluginDescriptor.getPackageName();
+                            providerInfo.exported = pluginProviderInfo.isExported();
+                            providerInfo.packageName = FairyGlobal.getHostApplication().getApplicationInfo().packageName;
+                            providerInfo.grantUriPermissions = pluginProviderInfo.isGrantUriPermissions();
+
+                            LogUtil.e("providerInfo packageName ", pluginDescriptor.getPackageName(), providerInfo.packageName, auth);
+
+                            Object holder = HackContentProviderHolder.newInstance(providerInfo);
+                            if (holder != null) {
+                                return holder;
+                            } else {
+                                LogUtil.d("getContentProvider", "NULL");
+                                return invokeResult;
+                            }
+                        }
+                    }
+                }
+            }
+            return invokeResult;
+        }
+
     }
 
     public static class getTasks extends MethodDelegate {
