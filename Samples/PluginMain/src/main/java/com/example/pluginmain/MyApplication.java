@@ -1,7 +1,11 @@
 package com.example.pluginmain;
 
-import com.limpoxe.fairy.core.FairyGlobal;
+import android.content.Context;
+import android.os.Build;
+import android.webkit.WebView;
+
 import com.limpoxe.fairy.core.DemoApplication;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.tencent.bugly.crashreport.CrashReport;
 //import com.tencent.bugly.crashreport.CrashReport;
 //import com.umeng.analytics.MobclickAgent;
@@ -25,4 +29,12 @@ public class MyApplication extends DemoApplication {
         //Just for test custom Mapping Processor
         FairyGlobal.registStubMappingProcessor(new TestCoustProcessor());
 	}
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            WebView.setDataDirectorySuffix(getProcessName().replaceAll("[\\.:]", "_"));
+        }
+        super.attachBaseContext(base);
+    }
 }
