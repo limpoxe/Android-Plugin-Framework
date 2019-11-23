@@ -184,7 +184,11 @@ afterEvaluate {
                     projects.logger.log(LogLevel.ERROR, "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName)
 
                 } else {
-                    throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
+                    if (!file(host_patch_path).exists()) {
+                        throw new Exception("依赖的宿主基线文件不存在，请检查${project.name}工程的dependencies.baselinePatch依赖的文件是否存在。\n依赖的文件路径为：" + host_patch_path)
+                    } else {
+                        throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
+                    }
                 }
 
                 fileTree(manifestOutputDirectory).include("**/AndroidManifest.xml").each { manifestFile->
