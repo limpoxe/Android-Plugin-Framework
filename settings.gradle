@@ -1,8 +1,9 @@
 include ':FairyPlugin'
+include ':Samples:PluginShareLib'
+include ':Samples:PluginMain'
+
 include ':Samples:PluginTesBase'
 include ':Samples:PluginHelloWorld'
-include ':Samples:PluginMain'
-include ':Samples:PluginShareLib'
 include ':Samples:PluginTest'
 include ':Samples:PluginTest2'
 include ':Samples:plugintest3'
