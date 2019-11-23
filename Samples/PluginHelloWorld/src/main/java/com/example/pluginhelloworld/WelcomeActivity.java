@@ -13,8 +13,6 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import com.example.hellojni.HelloJni;
-
 /**
  * 独立插件测试demo
  */

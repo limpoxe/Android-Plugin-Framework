@@ -19,6 +19,18 @@ android {
         versionName "1.0.1"
         flavorDimensions "versionCode"
         multiDexEnabled true
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
     }
 
     lintOptions {

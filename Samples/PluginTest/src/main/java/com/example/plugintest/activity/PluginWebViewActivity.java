@@ -29,8 +29,8 @@ import android.widget.Button;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.example.hellojni.HelloJni;
 import com.example.plugintest.R;
+import com.example.plugintest.hellojni.HelloJni;
 import com.example.plugintest.provider.PluginDbTables;
 import com.example.plugintestbase.ILoginService;
 import com.example.plugintestbase.LoginVO;

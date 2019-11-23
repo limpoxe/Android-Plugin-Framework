@@ -1,4 +1,4 @@
-package com.example.hellojni;
+package com.example.plugintest.hellojni;
 
 public class HelloJni {
 

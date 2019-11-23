@@ -14,6 +14,18 @@ android {
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 2
         versionName "1.0.1"
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
     }
 
     lintOptions {
