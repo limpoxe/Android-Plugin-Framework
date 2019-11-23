@@ -9,7 +9,7 @@ extern "C" {
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_pluginmain_CxxTest_stringFromJNI(
         JNIEnv* env,
-        jobject /* this */) {
+        jclass /* this */) {
 
     whoami();
 

@@ -52,6 +52,12 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
+    /** @hide */ public static final int LOG_ID_MAIN = 0;
+    /** @hide */ public static final int LOG_ID_RADIO = 1;
+    /** @hide */ public static final int LOG_ID_EVENTS = 2;
+    /** @hide */ public static final int LOG_ID_SYSTEM = 3;
+    /** @hide */ public static final int LOG_ID_CRASH = 4;
+
     private BaseAdapter listAdapter;
     private ListView mListView;
 
@@ -98,9 +104,10 @@ public class MainActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> infos = manager.queryIntentActivities(intent, 0);
 
-        Log.e("xx", "infos=" + (infos==null?"0":infos.size()));
+        Log.e("xx", "launcher intent size =" + (infos==null?"0":infos.size()));
         Log.e("xx", "btnText=" + butterTest.getText().toString());
         Log.e("xx", "stringFromJNI " + CxxTest.stringFromJNI());
+        CxxTest.println(LOG_ID_MAIN, Log.ERROR, "MainActivity", "end onCreate ");
     }
 
 	private void initView() {
