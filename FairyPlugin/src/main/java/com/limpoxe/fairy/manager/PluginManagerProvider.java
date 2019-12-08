@@ -334,6 +334,7 @@ public class PluginManagerProvider extends ContentProvider {
                         PluginManagerHelper.stop(descriptor.getPackageName());
                     }
                     //杀进程不能在binder线程执行，否则会导致调用方和被调用方都被杀掉
+                    LogUtil.w("killProcess，exit");
                     Process.killProcess(Process.myPid());
                     System.exit(10);
                 }

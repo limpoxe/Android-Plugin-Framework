@@ -15,7 +15,9 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -138,12 +140,12 @@ public class PluginLauncher implements Serializable {
 						pluginContext,
 						pluginClassLoader);
 
-					loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
-
 					//inflate data in meta-data
 					PluginDescriptor.inflateMetaData(pluginDescriptor, pluginRes);
 
 					initApplication(pluginContext, pluginClassLoader, pluginRes, pluginDescriptor, plugin);
+
+					loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
 				} else {
 					//LogUtil.d("IS RUNNING", packageName);
 				}
@@ -227,7 +229,18 @@ public class PluginLauncher implements Serializable {
         Thread.UncaughtExceptionHandler old = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(null);
 
-        pluginApplication.onCreate();
+        try {
+			pluginApplication.onCreate();
+		} catch (final Exception e) {
+        	LogUtil.printException("callPluginApplicationOnCreate", e);
+        	new Handler(Looper.getMainLooper()).post(new Runnable() {
+				@Override
+				public void run() {
+					LogUtil.e("callPluginApplicationOnCreate", "throw e");
+					throw e;
+				}
+			});
+		}
 
         Thread.UncaughtExceptionHandler pluginExHandler = Thread.getDefaultUncaughtExceptionHandler();
 
@@ -369,17 +382,23 @@ public class PluginLauncher implements Serializable {
 		SyncRunnable.runOnMainSync(new Runner<Void>() {
 			@Override
 			public Void run() {
-				//这个方法需要在UI线程运行
-				AndroidWebkitWebViewFactoryProvider.switchWebViewContext(FairyGlobal.getHostApplication());
+				try {
+					//这个方法需要在UI线程运行
+					AndroidWebkitWebViewFactoryProvider.switchWebViewContext(FairyGlobal.getHostApplication());
 
-				//退出BroadcastReceiver
-				//广播一般有个注册方式
-				//1、activity、service注册
-				//		这种方式，在上一步Activitiy、service退出时会自然退出，所以不用处理
-				//2、application注册
-				//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
-				LogUtil.v("退出BroadcastReceiver");
-				((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
+					//退出BroadcastReceiver
+					//广播一般有个注册方式
+					//1、activity、service注册
+					//		这种方式，在上一步Activitiy、service退出时会自然退出，所以不用处理
+					//2、application注册
+					//      这里需要处理这种方式注册的广播，这种方式注册的广播会被PluginContextTheme对象记录下来
+					LogUtil.v("退出BroadcastReceiver");
+					if (plugin.pluginApplication != null) {
+						((PluginContextTheme) plugin.pluginApplication.getBaseContext()).unregisterAllReceiver();
+					}
+				} catch (Exception e) {
+					LogUtil.printException("stopPlugin", e);
+				}
 				return null;
 			}
 		});
@@ -420,8 +439,12 @@ public class PluginLauncher implements Serializable {
 		SyncRunnable.runOnMainSync(new Runner<Void>() {
 			@Override
 			public Void run() {
-				//给插件一个机会自己做一些清理工作
-				plugin.pluginApplication.onTerminate();
+				try {
+					//给插件一个机会自己做一些清理工作
+					plugin.pluginApplication.onTerminate();
+				} catch (Exception e) {
+					LogUtil.printException("stopPlugin", e);
+				}
 				return null;
 			}
 		});

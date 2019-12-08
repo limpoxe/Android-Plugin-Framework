@@ -2,6 +2,9 @@ package com.limpoxe.fairy.core;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Process;
+
+import com.limpoxe.fairy.util.LogUtil;
 
 public class SyncRunnable implements Runnable {
     private final Runner mTarget;
@@ -15,7 +18,13 @@ public class SyncRunnable implements Runnable {
 
     @Override
     public void run() {
-        mResult = mTarget.run();
+        try {
+            mResult = mTarget.run();
+        } catch (Exception e) {
+            LogUtil.printException("Exception kill", e);
+            LogUtil.e("Kill", "发生了无法处理的异常，杀掉当前进程: " + Process.myPid());
+            Process.killProcess(Process.myPid());
+        }
         synchronized (this) {
             mComplete = true;
             notifyAll();
