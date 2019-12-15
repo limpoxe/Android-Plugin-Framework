@@ -174,8 +174,16 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
    cd  Android-Plugin-Framework
    
    ./gradlew clean
+  
+   ./gradlew build
    
-   ./gradlew assembleDebug
+   ./gradlew build
+   
+   ./gradlew build
+   
+   ./gradlew build
+   
+   说明：由于框架、demo宿主和各个demo插件都在同一个工程下，依赖关系互相影响，需要多次build才能成功。将各个工程剥离开后只需按顺序编译1次即可
 ```
    
 
