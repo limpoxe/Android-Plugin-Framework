@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 
+import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
@@ -194,12 +195,22 @@ public class PluginBaseContextWrapper extends ContextWrapper {
 		// 1、context返回插件宿主packageName时,安装插件中的contentprovider时会用到它，
 		// 被android.app.ActiviThread这个类调用。
 		// 2、可以方便的创建一个插件ApplicationContext副本。用于满足一些特定的业务需要
-		if (PluginManagerHelper.getPluginDescriptorByPluginId(packageName) != null) {
-            LogUtil.v(packageName, "创建插件Context");
-            return PluginCreator.getNewPluginApplicationContext(packageName);
-		} else {
-            LogUtil.v(packageName, "创建正常Context");
+		PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
+		if (pluginDescriptor != null) {
+			if (getPackageName().equals(packageName)) {
+				LogUtil.v(packageName, "创建插件Context");
+				Context context = PluginCreator.getNewPluginApplicationContext(pluginDescriptor, false);
+				if (context != null) {
+					return context;
+				} else {
+					return this;
+				}
+			} else {
+				LogUtil.v(packageName, "创建插件Context");
+				return PluginCreator.getNewPluginApplicationContext(pluginDescriptor, true);
+			}
         }
+		LogUtil.v(packageName, "创建正常Context");
 		return super.createPackageContext(packageName, flags);
 	}
 }

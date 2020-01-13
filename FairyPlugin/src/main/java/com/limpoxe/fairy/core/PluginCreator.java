@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.android.HackAssetManager;
+import com.limpoxe.fairy.manager.PluginManager;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
@@ -214,27 +215,35 @@ public class PluginCreator {
 		return new PluginContextTheme(pluginDescriptor, base, pluginRes, pluginClassLoader);
 	}
 
+	/*package*/ static Context getNewPluginApplicationContext(PluginDescriptor pluginDescriptor, boolean shouldCreate) {
+		if (pluginDescriptor == null) {
+			return null;
+		}
+		//插件可能尚未初始化，确保使用前已经初始化
+		final LoadedPlugin plugin;
+		if (shouldCreate) {
+			plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
+		} else {
+			plugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
+		}
+		if (plugin != null) {
+			PluginContextTheme newContext = (PluginContextTheme)PluginCreator.createPluginContext(
+					((PluginContextTheme) plugin.pluginContext).getPluginDescriptor(),
+					FairyGlobal.getHostApplication().getBaseContext(), plugin.pluginResource, plugin.pluginClassLoader);
+
+			newContext.setPluginApplication(plugin.pluginApplication);
+
+			newContext.setTheme(pluginDescriptor.getApplicationTheme());
+
+			return newContext;
+		}
+
+		return null;
+	}
+
     /*package*/ static Context getNewPluginApplicationContext(String pluginId) {
-        PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
-        if (pluginDescriptor == null) {
-            return null;
-        }
-        //插件可能尚未初始化，确保使用前已经初始化
-        LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
-
-        if (plugin != null) {
-            PluginContextTheme newContext = (PluginContextTheme)PluginCreator.createPluginContext(
-                    ((PluginContextTheme) plugin.pluginContext).getPluginDescriptor(),
-                    FairyGlobal.getHostApplication().getBaseContext(), plugin.pluginResource, plugin.pluginClassLoader);
-
-            newContext.setPluginApplication(plugin.pluginApplication);
-
-            newContext.setTheme(pluginDescriptor.getApplicationTheme());
-
-            return newContext;
-        }
-
-        return null;
+		PluginDescriptor descriptor = PluginManagerHelper.getPluginDescriptorByFragmentId(pluginId);
+        return getNewPluginApplicationContext(descriptor, true);
     }
 
     /**
