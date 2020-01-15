@@ -12,6 +12,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        flavorDimensions "versionCode"
     }
     buildTypes {
         release {
@@ -21,11 +22,22 @@ android {
     }
 
     lintOptions {
+        tasks.lint.enabled false
         checkReleaseBuilds false
         abortOnError false
         textReport false
         htmlReport false
         xmlReport false
+    }
+    //测试框架脚本是否支持Flavor配置
+    productFlavors {
+        f1 {
+            //
+        }
+
+        f2 {
+            //
+        }
     }
 }
 
@@ -34,7 +46,7 @@ def hostbarName = project(':Samples:PluginMain').android.defaultConfig.versionNa
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/PluginTesBase-debug.jar')
+    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/PluginTesBase-f1Debug.jar')
 
     //支持使用maven坐标配置
     baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Debug.bar")

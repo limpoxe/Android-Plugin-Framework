@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView isStandard = (TextView) view.findViewById(R.id.is_standard);
                 TextView pluginVersion = (TextView) view.findViewById(R.id.plugin_version);
                 TextView uninstall = (TextView) view.findViewById(R.id.uninstall);
+                TextView detail = (TextView) view.findViewById(R.id.detail);
 
                 final PluginDescriptor pluginDescriptor = plugins.get(position);
                 appName.setText(ResourceUtil.getLabel(pluginDescriptor));
@@ -198,6 +199,15 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         //MobclickAgent.onEvent(MainActivity.this, "test_1");
                         testStartActivity2(pluginDescriptor);
+                    }
+                });
+
+                detail.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                        intent.putExtra("plugin_id", pluginDescriptor.getPackageName());
+                        startActivity(intent);
                     }
                 });
 

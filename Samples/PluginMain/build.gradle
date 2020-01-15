@@ -140,12 +140,12 @@ dependencies {
     //支持坐标依赖
     //innerPlugin 'xxx:xxx:xxx@apk'
     innerPlugin files(project(':Samples:PluginTest').getBuildDir().absolutePath + '/outputs/apk/f1/debug/PluginTest-f1-debug.apk')
-    innerPlugin files(project(':Samples:admobdemo').getBuildDir().absolutePath + '/outputs/apk/debug/admobdemo-debug.apk')
-    innerPlugin files(project(':Samples:baidumapsdk').getBuildDir().absolutePath + '/outputs/apk/debug/baidumapsdk-debug.apk')
-    innerPlugin files(project(':Samples:PluginHelloWorld').getBuildDir().absolutePath + '/outputs/apk/debug/PluginHelloWorld-debug.apk')
-    innerPlugin files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/apk/debug/PluginTesBase-debug.apk')
-    innerPlugin files(project(':Samples:PluginTest2').getBuildDir().absolutePath + '/outputs/apk/debug/PluginTest2-debug.apk')
-    innerPlugin files(project(':Samples:wxsdklibrary').getBuildDir().absolutePath + '/outputs/apk/debug/wxsdklibrary-debug.apk')
+    innerPlugin files(project(':Samples:admobdemo').getBuildDir().absolutePath + '/outputs/apk/f1/debug/admobdemo-f1-debug.apk')
+    innerPlugin files(project(':Samples:baidumapsdk').getBuildDir().absolutePath + '/outputs/apk/f1/debug/baidumapsdk-f1-debug.apk')
+    innerPlugin files(project(':Samples:PluginHelloWorld').getBuildDir().absolutePath + '/outputs/apk/f1/debug/PluginHelloWorld-f1-debug.apk')
+    innerPlugin files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/apk/f1/debug/PluginTesBase-f1-debug.apk')
+    innerPlugin files(project(':Samples:PluginTest2').getBuildDir().absolutePath + '/outputs/apk/f1/debug/PluginTest2-f1-debug.apk')
+    innerPlugin files(project(':Samples:wxsdklibrary').getBuildDir().absolutePath + '/outputs/apk/f1/debug/wxsdklibrary-f1-debug.apk')
 
     implementation project(':Samples:PluginShareLib')
 

@@ -14,6 +14,8 @@ android {
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 2
         versionName "1.0.1"
+        flavorDimensions "versionCode"
+
         externalNativeBuild {
             cmake {
                 cppFlags ""
@@ -29,11 +31,22 @@ android {
     }
 
     lintOptions {
+        tasks.lint.enabled false
         checkReleaseBuilds false
         abortOnError false
         textReport false
         htmlReport false
         xmlReport false
+    }
+    //测试框架脚本是否支持Flavor配置
+    productFlavors {
+        f1 {
+            //
+        }
+
+        f2 {
+            //
+        }
     }
 }
 

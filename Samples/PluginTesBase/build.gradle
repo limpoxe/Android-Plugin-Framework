@@ -12,14 +12,26 @@ android {
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        flavorDimensions "versionCode"
     }
 
     lintOptions {
+        tasks.lint.enabled false
         checkReleaseBuilds false
         abortOnError false
         textReport false
         htmlReport false
         xmlReport false
+    }
+    //测试框架脚本是否支持Flavor配置
+    productFlavors {
+        f1 {
+            //
+        }
+
+        f2 {
+            //
+        }
     }
     
     applicationVariants.all { variant ->
