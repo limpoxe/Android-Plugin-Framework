@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.manager.PluginManagerProvider;
@@ -28,6 +29,10 @@ public class ProcessUtil {
         if (isPluginProcess == null) {
             String processName = getCurProcessName(context);
             String pluginProcessName = getPluginProcessName(context);
+
+            if (TextUtils.isEmpty(processName) || TextUtils.isEmpty(pluginProcessName)) {
+                LogUtil.e("a fatal error happened, should throw an exception here?", "processName:" + pluginProcessName + ", pluginProcessName:" + pluginProcessName);
+            }
 
             isPluginProcess = processName.equals(pluginProcessName);
         }

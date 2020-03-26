@@ -232,7 +232,8 @@ public class PluginInjector {
             //如果是配置了PluginContainer注解和pluginId的宿主Activity，此宿主的Activity的全屏配置可能会被插件的主题覆盖而丢失，可以通过代码设置回去
             resetWindowConfig(pluginContext, pluginDescriptor, activity, activityInfo, pluginActivityInfo);
 
-			activity.setTitle(activity.getClass().getName());
+            String simpleName = activity.getClass().getSimpleName();
+			activity.setTitle(simpleName!=null?simpleName:activity.getClass().getName());
 
 		} else {
 			// 如果是打开宿主程序的activity，注入一个无害的Context，用来在宿主程序中startService和sendBroadcast时检查打开的对象是否是插件中的对象

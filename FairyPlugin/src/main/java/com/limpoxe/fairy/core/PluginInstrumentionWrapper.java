@@ -295,6 +295,17 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
+		if (icicle != null && icicle.getParcelable("android:support:fragments") != null) {
+			if (ProcessUtil.isPluginProcess()) {
+				if (AnnotationProcessor.getPluginContainer(activity.getClass()) != null) {
+					// 加了注解的Activity正在自动恢复且页面包含了Fragment。直接清除fragment，
+					// 防止如果被恢复的fragment来自插件时，在某些情况下会使用宿主的classloader加载插件fragment
+					// 导致classnotfound问题
+					icicle.clear();
+					icicle = null;
+				}
+			}
+		}
 
 		PluginInjector.injectInstrumetionFor360Safe(activity, this);
 
@@ -336,7 +347,14 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 			}
 		}
 
-		real.callActivityOnCreate(activity, icicle);
+		try {
+			real.callActivityOnCreate(activity, icicle);
+		} catch (RuntimeException e) {
+			throw new RuntimeException(
+					" activity : " + activity.getClassLoader() +
+					" pluginContainer : " + AnnotationProcessor.getPluginContainer(activity.getClass()) +
+					", process : " + ProcessUtil.isPluginProcess(), e);
+		}
 
 		monitor.onActivityCreate(activity);
 
@@ -365,6 +383,12 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		if (savedInstanceState != null) {
 			savedInstanceState.setClassLoader(activity.getClassLoader());
+			// defined by Activity.java
+			final String WINDOW_HIERARCHY_TAG = "android:viewHierarchyState";
+			Bundle windowState = savedInstanceState.getBundle(WINDOW_HIERARCHY_TAG);
+			if (windowState != null) {
+				windowState.setClassLoader(activity.getClassLoader());
+			}
 		}
 
 		real.callActivityOnRestoreInstanceState(activity, savedInstanceState);
