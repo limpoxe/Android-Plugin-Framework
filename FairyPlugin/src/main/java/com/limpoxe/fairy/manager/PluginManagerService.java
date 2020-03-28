@@ -214,7 +214,7 @@ class PluginManagerService {
 		synchronized (mLock) {
 			LogUtil.w("开始安装插件", srcPluginFile);
 			long startAt = System.currentTimeMillis();
-			if (!FileUtil.checkPathSafe(srcPluginFile) || TextUtils.isEmpty(srcPluginFile)) {
+			if (TextUtils.isEmpty(srcPluginFile) || !FileUtil.checkPathSafe(srcPluginFile)) {
 				return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 			}
 
