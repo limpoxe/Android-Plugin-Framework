@@ -41,8 +41,8 @@ class PluginManagerService {
 	private static final String PENDING_KEY = "plugins.pending";
 
 	private Object mLock = new Object();
-	private final Hashtable<String, PluginDescriptor> sInstalledPlugins = new Hashtable<String, PluginDescriptor>();
-	private final Hashtable<String, PluginDescriptor> sPendingPlugins = new Hashtable<String, PluginDescriptor>();
+	private final Hashtable<String, PluginDescriptor> mEnabledPlugins = new Hashtable<String, PluginDescriptor>();
+	private final Hashtable<String, PluginDescriptor> mDisabledPlugins = new Hashtable<String, PluginDescriptor>();
 
 	PluginManagerService() {
 		if (FairyGlobal.isInited()) {//防止集成了插件框架但是没有调用init导致app起不来
@@ -72,13 +72,13 @@ class PluginManagerService {
 	@SuppressWarnings("unchecked")
 	void loadInstalledPlugins() {
 		synchronized (mLock) {
-			if (sInstalledPlugins.size() == 0) {
+			if (mEnabledPlugins.size() == 0) {
 				long t1 = System.currentTimeMillis();
 
 				try {
 					Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(INSTALLED_KEY);
 					if (installedPlugin != null) {
-						sInstalledPlugins.putAll(installedPlugin);
+						mEnabledPlugins.putAll(installedPlugin);
 					}
 
 					//把pending合并到install
@@ -92,8 +92,8 @@ class PluginManagerService {
 						}
 
 						//保存新版
-						sInstalledPlugins.putAll(pendingPlugin);
-						savePlugins(INSTALLED_KEY, sInstalledPlugins);
+						mEnabledPlugins.putAll(pendingPlugin);
+						savePlugins(INSTALLED_KEY, mEnabledPlugins);
 
 						//清除pending
 						getSharedPreference().edit().remove(PENDING_KEY).commit();
@@ -109,29 +109,29 @@ class PluginManagerService {
 	}
 
 	private boolean addOrReplace(PluginDescriptor pluginDescriptor) {
-		sInstalledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-        boolean isSaveSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
+		mEnabledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
+        boolean isSaveSuccess = savePlugins(INSTALLED_KEY, mEnabledPlugins);
         if (!isSaveSuccess) {
-            sInstalledPlugins.remove(pluginDescriptor.getPackageName());
+            mEnabledPlugins.remove(pluginDescriptor.getPackageName());
         }
         return isSaveSuccess;
 	}
 
 	private boolean pending(PluginDescriptor pluginDescriptor) {
-		sPendingPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-		return savePlugins(PENDING_KEY, sPendingPlugins);
+		mDisabledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
+		return savePlugins(PENDING_KEY, mDisabledPlugins);
 	}
 
 	boolean removeAll() {
 		synchronized (mLock) {
-			Iterator<Map.Entry<String, PluginDescriptor>> itr = sInstalledPlugins.entrySet().iterator();
+			Iterator<Map.Entry<String, PluginDescriptor>> itr = mEnabledPlugins.entrySet().iterator();
 			while(itr.hasNext()) {
 				Map.Entry<String, PluginDescriptor> entry = itr.next();
 				PluginLauncher.instance().stopPlugin(entry.getKey(), entry.getValue());
 			}
 
-			sInstalledPlugins.clear();
-			boolean isSuccess = savePlugins(INSTALLED_KEY, sInstalledPlugins);
+			mEnabledPlugins.clear();
+			boolean isSuccess = savePlugins(INSTALLED_KEY, mEnabledPlugins);
 
 			FileUtil.deleteAll(new File(getPluginRootDir()));
 
@@ -141,15 +141,15 @@ class PluginManagerService {
 
 	int remove(String pluginId) {
 		synchronized (mLock) {
-			PluginDescriptor old = sInstalledPlugins.get(pluginId);
+			PluginDescriptor old = mEnabledPlugins.get(pluginId);
 
 			boolean result = false;
 
 			if (old != null) {
 				PluginLauncher.instance().stopPlugin(pluginId, old);
 				LogUtil.e("remove records and files...", pluginId);
-				sInstalledPlugins.remove(pluginId);
-				result = savePlugins(INSTALLED_KEY, sInstalledPlugins);
+				mEnabledPlugins.remove(pluginId);
+				result = savePlugins(INSTALLED_KEY, mEnabledPlugins);
 				boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 				LogUtil.e("remove done", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 				if (deleteSuccess) {
@@ -165,7 +165,7 @@ class PluginManagerService {
 	}
 
 	Collection<PluginDescriptor> getPlugins() {
-		return sInstalledPlugins.values();
+		return mEnabledPlugins.values();
 	}
 
 	/**
@@ -175,7 +175,7 @@ class PluginManagerService {
 	 * @return
 	 */
 	PluginDescriptor getPluginDescriptorByFragmenetId(String clazzId) {
-		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
+		Iterator<PluginDescriptor> itr = mEnabledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
 			if (descriptor.containsFragment(clazzId)) {
@@ -186,7 +186,7 @@ class PluginManagerService {
 	}
 
 	PluginDescriptor getPluginDescriptorByPluginId(String pluginId) {
-		PluginDescriptor pluginDescriptor = sInstalledPlugins.get(pluginId);
+		PluginDescriptor pluginDescriptor = mEnabledPlugins.get(pluginId);
 		if (pluginDescriptor != null && pluginDescriptor.isEnabled()) {
 			return pluginDescriptor;
 		}
@@ -194,7 +194,7 @@ class PluginManagerService {
 	}
 
 	PluginDescriptor getPluginDescriptorByClassName(String clazzName) {
-		Iterator<PluginDescriptor> itr = sInstalledPlugins.values().iterator();
+		Iterator<PluginDescriptor> itr = mEnabledPlugins.values().iterator();
 		while (itr.hasNext()) {
 			PluginDescriptor descriptor = itr.next();
 			if (descriptor.containsName(clazzName)) {
