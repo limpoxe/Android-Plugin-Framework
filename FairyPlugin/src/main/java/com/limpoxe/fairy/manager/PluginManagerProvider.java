@@ -124,7 +124,7 @@ public class PluginManagerProvider extends ContentProvider {
         mainHandler = new Handler(Looper.getMainLooper());
         managerService = new PluginManagerService();
         changeListener = new PluginCallbackImpl();
-        managerService.loadInstalledPlugins();
+        managerService.loadEnabledPlugins();
 
         return true;
     }

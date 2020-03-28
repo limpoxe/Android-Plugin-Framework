@@ -37,8 +37,8 @@ import java.util.Set;
 
 class PluginManagerService {
 
-	private static final String INSTALLED_KEY = "plugins.list";
-	private static final String PENDING_KEY = "plugins.pending";
+	private static final String ENABLED_KEY = "plugins.list";
+	private static final String DISABLED_KEY = "plugins.pending";
 
 	private Object mLock = new Object();
 	private final Hashtable<String, PluginDescriptor> mEnabledPlugins = new Hashtable<String, PluginDescriptor>();
@@ -58,31 +58,31 @@ class PluginManagerService {
 	/**
 	 * 插件的安装目录, 插件apk将来会被放在这个目录下面
 	 */
-	private String genInstallPath(String pluginId, String pluginVersoin) {
+	private static String genInstallPath(String pluginId, String pluginVersoin) {
 		if (pluginId.indexOf(File.separatorChar) >= 0 || pluginVersoin.indexOf(File.separatorChar) >= 0) {
 			throw new IllegalArgumentException("path contains a path separator");
 		}
 		return  getPluginRootDir() + "/" + pluginId + "/" + pluginVersoin + "/base-1.apk";
 	}
 
-	private String getPluginRootDir() {
+	private static String getPluginRootDir() {
 		return FairyGlobal.getHostApplication().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
 	}
 
 	@SuppressWarnings("unchecked")
-	void loadInstalledPlugins() {
+	void loadEnabledPlugins() {
 		synchronized (mLock) {
 			if (mEnabledPlugins.size() == 0) {
 				long t1 = System.currentTimeMillis();
 
 				try {
-					Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(INSTALLED_KEY);
+					Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(ENABLED_KEY);
 					if (installedPlugin != null) {
 						mEnabledPlugins.putAll(installedPlugin);
 					}
 
 					//把pending合并到install
-					Hashtable<String, PluginDescriptor> pendingPlugin = readPlugins(PENDING_KEY);
+					Hashtable<String, PluginDescriptor> pendingPlugin = readPlugins(DISABLED_KEY);
 					if (pendingPlugin != null) {
 						Iterator<Map.Entry<String, PluginDescriptor>> itr = pendingPlugin.entrySet().iterator();
 						while (itr.hasNext()) {
@@ -93,10 +93,10 @@ class PluginManagerService {
 
 						//保存新版
 						mEnabledPlugins.putAll(pendingPlugin);
-						savePlugins(INSTALLED_KEY, mEnabledPlugins);
+						savePlugins(ENABLED_KEY, mEnabledPlugins);
 
 						//清除pending
-						getSharedPreference().edit().remove(PENDING_KEY).commit();
+						getSharedPreference().edit().remove(DISABLED_KEY).commit();
 					}
 				} catch (Exception e) {
 					LogUtil.printException("load plugins fail", e);
@@ -110,7 +110,7 @@ class PluginManagerService {
 
 	private boolean addOrReplace(PluginDescriptor pluginDescriptor) {
 		mEnabledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-        boolean isSaveSuccess = savePlugins(INSTALLED_KEY, mEnabledPlugins);
+        boolean isSaveSuccess = savePlugins(ENABLED_KEY, mEnabledPlugins);
         if (!isSaveSuccess) {
             mEnabledPlugins.remove(pluginDescriptor.getPackageName());
         }
@@ -119,7 +119,7 @@ class PluginManagerService {
 
 	private boolean pending(PluginDescriptor pluginDescriptor) {
 		mDisabledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-		return savePlugins(PENDING_KEY, mDisabledPlugins);
+		return savePlugins(DISABLED_KEY, mDisabledPlugins);
 	}
 
 	boolean removeAll() {
@@ -131,7 +131,7 @@ class PluginManagerService {
 			}
 
 			mEnabledPlugins.clear();
-			boolean isSuccess = savePlugins(INSTALLED_KEY, mEnabledPlugins);
+			boolean isSuccess = savePlugins(ENABLED_KEY, mEnabledPlugins);
 
 			FileUtil.deleteAll(new File(getPluginRootDir()));
 
@@ -149,7 +149,7 @@ class PluginManagerService {
 				PluginLauncher.instance().stopPlugin(pluginId, old);
 				LogUtil.e("remove records and files...", pluginId);
 				mEnabledPlugins.remove(pluginId);
-				result = savePlugins(INSTALLED_KEY, mEnabledPlugins);
+				result = savePlugins(ENABLED_KEY, mEnabledPlugins);
 				boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 				LogUtil.e("remove done", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 				if (deleteSuccess) {
