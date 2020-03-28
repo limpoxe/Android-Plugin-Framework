@@ -31,7 +31,7 @@ public class ProcessUtil {
             String pluginProcessName = getPluginProcessName(context);
 
             if (TextUtils.isEmpty(processName) || TextUtils.isEmpty(pluginProcessName)) {
-                LogUtil.e("a fatal error happened, should throw an exception here?", "processName:" + pluginProcessName + ", pluginProcessName:" + pluginProcessName);
+                LogUtil.e("a fatal error happened, should throw an exception here?", "processName:" + processName + ", pluginProcessName:" + pluginProcessName);
             }
 
             isPluginProcess = processName.equals(pluginProcessName);
