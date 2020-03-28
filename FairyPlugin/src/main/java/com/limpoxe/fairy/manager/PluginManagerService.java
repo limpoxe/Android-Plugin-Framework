@@ -36,13 +36,11 @@ import java.util.Map;
 import java.util.Set;
 
 class PluginManagerService {
-
+    private static final String SP_NAME = "plugins.installed";
 	private static final String ENABLED_KEY = "plugins.list";
-	private static final String DISABLED_KEY = "plugins.pending";
 
 	private Object mLock = new Object();
 	private final Hashtable<String, PluginDescriptor> mEnabledPlugins = new Hashtable<String, PluginDescriptor>();
-	private final Hashtable<String, PluginDescriptor> mDisabledPlugins = new Hashtable<String, PluginDescriptor>();
 
 	PluginManagerService() {
 		if (FairyGlobal.isInited()) {//防止集成了插件框架但是没有调用init导致app起不来
@@ -74,34 +72,10 @@ class PluginManagerService {
 		synchronized (mLock) {
 			if (mEnabledPlugins.size() == 0) {
 				long t1 = System.currentTimeMillis();
-
-				try {
-					Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(ENABLED_KEY);
-					if (installedPlugin != null) {
-						mEnabledPlugins.putAll(installedPlugin);
-					}
-
-					//把pending合并到install
-					Hashtable<String, PluginDescriptor> pendingPlugin = readPlugins(DISABLED_KEY);
-					if (pendingPlugin != null) {
-						Iterator<Map.Entry<String, PluginDescriptor>> itr = pendingPlugin.entrySet().iterator();
-						while (itr.hasNext()) {
-							Map.Entry<String, PluginDescriptor> entry = itr.next();
-							//删除旧版
-							remove(entry.getKey());
-						}
-
-						//保存新版
-						mEnabledPlugins.putAll(pendingPlugin);
-						savePlugins(ENABLED_KEY, mEnabledPlugins);
-
-						//清除pending
-						getSharedPreference().edit().remove(DISABLED_KEY).commit();
-					}
-				} catch (Exception e) {
-					LogUtil.printException("load plugins fail", e);
-				}
-
+                Hashtable<String, PluginDescriptor> installedPlugin = readPlugins(ENABLED_KEY);
+                if (installedPlugin != null) {
+                    mEnabledPlugins.putAll(installedPlugin);
+                }
 				long t2 = System.currentTimeMillis();
 				LogUtil.i("加载所有插件列表, 耗时 : " + (t2 - t1));
 			}
@@ -110,16 +84,11 @@ class PluginManagerService {
 
 	private boolean addOrReplace(PluginDescriptor pluginDescriptor) {
 		mEnabledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-        boolean isSaveSuccess = savePlugins(ENABLED_KEY, mEnabledPlugins);
+        boolean isSaveSuccess = writePlugins(ENABLED_KEY, mEnabledPlugins);
         if (!isSaveSuccess) {
             mEnabledPlugins.remove(pluginDescriptor.getPackageName());
         }
         return isSaveSuccess;
-	}
-
-	private boolean pending(PluginDescriptor pluginDescriptor) {
-		mDisabledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
-		return savePlugins(DISABLED_KEY, mDisabledPlugins);
 	}
 
 	boolean removeAll() {
@@ -131,7 +100,7 @@ class PluginManagerService {
 			}
 
 			mEnabledPlugins.clear();
-			boolean isSuccess = savePlugins(ENABLED_KEY, mEnabledPlugins);
+			boolean isSuccess = writePlugins(ENABLED_KEY, mEnabledPlugins);
 
 			FileUtil.deleteAll(new File(getPluginRootDir()));
 
@@ -149,7 +118,7 @@ class PluginManagerService {
 				PluginLauncher.instance().stopPlugin(pluginId, old);
 				LogUtil.e("remove records and files...", pluginId);
 				mEnabledPlugins.remove(pluginId);
-				result = savePlugins(ENABLED_KEY, mEnabledPlugins);
+				result = writePlugins(ENABLED_KEY, mEnabledPlugins);
 				boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
 				LogUtil.e("remove done", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 				if (deleteSuccess) {
@@ -441,12 +410,11 @@ class PluginManagerService {
 	}
 
 	private static SharedPreferences getSharedPreference() {
-		SharedPreferences sp = FairyGlobal.getHostApplication().getSharedPreferences("plugins.installed",
-				Build.VERSION.SDK_INT < 11 ? Context.MODE_PRIVATE : Context.MODE_PRIVATE | 0x0004);
+		SharedPreferences sp = FairyGlobal.getHostApplication().getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
 		return sp;
 	}
 
-	private boolean savePlugins(String key, Hashtable<String, PluginDescriptor> plugins) {
+	private boolean writePlugins(String key, Hashtable<String, PluginDescriptor> plugins) {
 
 		ObjectOutputStream objectOutputStream = null;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
