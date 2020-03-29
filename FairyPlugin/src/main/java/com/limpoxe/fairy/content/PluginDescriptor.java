@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.util.LogUtil;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -117,6 +118,10 @@ public class PluginDescriptor implements Serializable {
 	 */
 	private HashMap<String, ArrayList<PluginIntentFilter>> receivers = new HashMap<String, ArrayList<PluginIntentFilter>>();
 
+	private String rootDir;
+	private String versionedRootDir;
+	private String nativeLibDir;
+	private String dalvikCacheDir;
 	private String installedPath;
 
 	private long installationTime;
@@ -397,6 +402,62 @@ public class PluginDescriptor implements Serializable {
 
 	public void setServices(HashMap<String, ArrayList<PluginIntentFilter>> services) {
 		this.services = services;
+	}
+
+	public String getRootDir() {
+		if (rootDir == null) {
+			if (installedPath != null) {
+				// 使用installedPath获取rootDir是为了数据结构兼容
+				rootDir = new File(getVersionedRootDir()).getParentFile().getAbsolutePath();
+			}
+		}
+		return rootDir;
+	}
+
+	public void setRootDir(String rootDir) {
+		this.rootDir = rootDir;
+	}
+
+	public String getVersionedRootDir() {
+		if (versionedRootDir == null) {
+			if (installedPath != null) {
+				// 使用installedPath获取rootDir是为了数据结构兼容
+				versionedRootDir = new File(installedPath).getParentFile().getAbsolutePath();
+			}
+		}
+		return versionedRootDir;
+	}
+
+	public void setVersionedRootDir(String versionedRootDir) {
+		this.versionedRootDir = versionedRootDir;
+	}
+
+	public String getNativeLibDir() {
+		if (nativeLibDir == null) {
+			if (installedPath != null) {
+				// 使用installedPath获取rootDir是为了数据结构兼容
+				nativeLibDir = getVersionedRootDir() + File.separator + "lib";
+			}
+		}
+		return nativeLibDir;
+	}
+
+	public void setNativeLibDir(String nativeLibDir) {
+		this.nativeLibDir = nativeLibDir;
+	}
+
+	public String getDalvikCacheDir() {
+		if (dalvikCacheDir == null) {
+			if (installedPath != null) {
+				// 使用installedPath获取rootDir是为了数据结构兼容
+				dalvikCacheDir = getVersionedRootDir() + File.separator + "dalvik-cache";
+			}
+		}
+		return dalvikCacheDir;
+	}
+
+	public void setDalvikCacheDir(String dalvikCacheDir) {
+		this.dalvikCacheDir = dalvikCacheDir;
 	}
 
 	public String getInstalledPath() {

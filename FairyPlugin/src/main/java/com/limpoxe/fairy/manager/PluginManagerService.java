@@ -321,19 +321,18 @@ class PluginManagerService {
 			}
 
 			// 先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
-			File apkParent = new File(pluginDescriptor.getInstalledPath()).getParentFile();
-			File tempSoDir = new File(apkParent, "temp");
-			LogUtil.w("解压so", tempSoDir.getAbsolutePath());
-			Set<String> soList = FileUtil.unZipSo(pluginDescriptor.getInstalledPath(), tempSoDir);
+			File tempUnzipDir = new File(pluginDescriptor.getVersionedRootDir(), "temp");
+			LogUtil.w("解压so", tempUnzipDir.getAbsolutePath());
+			Set<String> soList = FileUtil.unZipSo(pluginDescriptor.getInstalledPath(), tempUnzipDir);
 			if (soList != null) {//TODO soList插件中所有so的名字列表，如果插件中不同cpu架构下的so个数不相等可能会复制不匹配的so
 				ArrayList<String> abiList = getSupportedAbis();
-				LogUtil.w("复制so", apkParent.getAbsolutePath());
+				LogUtil.w("复制so", pluginDescriptor.getNativeLibDir());
 				for (String soName : soList) {
-					FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath(), abiList);
+					FileUtil.copySo2(tempUnzipDir, soName, pluginDescriptor.getNativeLibDir(), abiList);
 				}
 				//删掉临时文件
-				LogUtil.e("remove dir", tempSoDir);
-				FileUtil.deleteAll(tempSoDir);
+				LogUtil.e("remove dir", tempUnzipDir);
+				FileUtil.deleteAll(tempUnzipDir);
 				LogUtil.e("remove dir done");
 			}
 
@@ -347,13 +346,15 @@ class PluginManagerService {
 			//触发dexopt
 			LogUtil.e("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 			//ActivityThread.getPackageManager().performDexOptIfNeeded()
-			File dalvikCacheDir = new File(apkParent, "dalvik-cache");
+			File dalvikCacheDir = new File(pluginDescriptor.getDalvikCacheDir());
 			LogUtil.e("remove dir", dalvikCacheDir.getAbsolutePath());
 			FileUtil.deleteAll(dalvikCacheDir);
 			LogUtil.e("remove dir done", dalvikCacheDir.getAbsolutePath());
 			ClassLoader cl = PluginCreator.createPluginClassLoader(
 					pluginDescriptor.getPackageName(),
 					pluginDescriptor.getInstalledPath(),
+					pluginDescriptor.getDalvikCacheDir(),
+					pluginDescriptor.getNativeLibDir(),
 					pluginDescriptor.isStandalone(),
 					null,
 					null);

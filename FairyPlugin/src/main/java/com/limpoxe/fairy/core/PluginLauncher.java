@@ -115,11 +115,13 @@ public class PluginLauncher implements Serializable {
 					LogUtil.w("初始化插件资源耗时:" + (t1 - startAt));
 
 					ClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
-						pluginDescriptor.getPackageName(),
-						pluginDescriptor.getInstalledPath(),
-						pluginDescriptor.isStandalone(),
-						pluginDescriptor.getDependencies(),
-						pluginDescriptor.getMuliDexList());
+					        pluginDescriptor.getPackageName(),
+						    pluginDescriptor.getInstalledPath(),
+                            pluginDescriptor.getDalvikCacheDir(),
+                            pluginDescriptor.getNativeLibDir(),
+						    pluginDescriptor.isStandalone(),
+						    pluginDescriptor.getDependencies(),
+						    pluginDescriptor.getMuliDexList());
 
 					long t12 = System.currentTimeMillis();
 					LogUtil.w("初始化插件DexClassLoader耗时:" + (t12 - t1));

@@ -26,15 +26,18 @@ public class PluginCreator {
 	 *            插件apk文件路径
 	 * @return
 	 */
-	public static ClassLoader createPluginClassLoader(String pluginPackageName, String absolutePluginApkPath, boolean isStandalone,
-														 String[] dependences, List<String> pluginApkMultDexPath) {
+	public static ClassLoader createPluginClassLoader(String pluginPackageName,
+													  String absolutePluginApkPath,
+													  String absolutePluginDalvikCachePath,
+													  String absolutePluginNativeLibPath,
+													  boolean isStandalone,
+													  String[] dependences,
+													  List<String> pluginApkMultDexPath) {
 
-		String apkParentDir = new File(absolutePluginApkPath).getParent();
-
-		File optDir = new File(apkParentDir, "dalvik-cache");
+		File optDir = new File(absolutePluginDalvikCachePath);
 		optDir.mkdirs();
 
-		File libDir = new File(apkParentDir, "lib");
+		File libDir = new File(absolutePluginNativeLibPath);
 		libDir.mkdirs();
 
 		LogUtil.v(absolutePluginApkPath, optDir.getAbsolutePath(), libDir.getAbsolutePath());

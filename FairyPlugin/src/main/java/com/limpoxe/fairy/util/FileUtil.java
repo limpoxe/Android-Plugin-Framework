@@ -90,17 +90,16 @@ public class FileUtil {
 		return false;
 	}
 
-	public static boolean copySo(File sourceDir, String soName, String dest, ArrayList<String> supportedAbis) {
+	public static boolean copySo2(File sourceDir, String soName, String dest, ArrayList<String> supportedAbis) {
 		boolean isSuccess = false;
 
 		try {
 			for(String abi : supportedAbis) {
 				if (abi != null) {
 					LogUtil.d("try supported abi:", abi);
-					String name = "lib" + File.separator + abi + File.separator + soName;
-					File sourceFile = new File(sourceDir, name);
-					if (sourceFile.exists()) {
-						isSuccess = copyFile(sourceFile.getAbsolutePath(), dest + File.separator +  "lib" + File.separator + soName);
+					File sourceSoFile = new File(sourceDir, "lib" + File.separator + abi + File.separator + soName);
+					if (sourceSoFile.exists()) {
+						isSuccess = copyFile(sourceSoFile.getAbsolutePath(), dest + File.separator + soName);
 						break;
 					}
 				}
@@ -119,6 +118,34 @@ public class FileUtil {
 		return isSuccess;
 	}
 
+	@Deprecated
+	public static boolean copySo(File sourceDir, String soName, String dest, ArrayList<String> supportedAbis) {
+		boolean isSuccess = false;
+
+		try {
+			for(String abi : supportedAbis) {
+				if (abi != null) {
+					LogUtil.d("try supported abi:", abi);
+					File sourceSoFile = new File(sourceDir, "lib" + File.separator + abi + File.separator + soName);
+					if (sourceSoFile.exists()) {
+						isSuccess = copyFile(sourceSoFile.getAbsolutePath(), dest + File.separator +  "lib" + File.separator + soName);
+						break;
+					}
+				}
+			}
+
+			if (!isSuccess) {
+				LogUtil.e("安装 " + soName + " 失败: NO_MATCHING_ABIS");
+				if (DEBUG && Thread.currentThread() == Looper.getMainLooper().getThread()) {
+					Toast.makeText(FairyGlobal.getHostApplication(), "安装 " + soName + " 失败: NO_MATCHING_ABIS", Toast.LENGTH_LONG).show();
+				}
+			}
+		} catch(Exception e) {
+			LogUtil.printException("FileUtil.copySo", e);
+		}
+
+		return isSuccess;
+	}
 
 	public static Set<String> unZipSo(String apkFile, File tempDir) {
 
