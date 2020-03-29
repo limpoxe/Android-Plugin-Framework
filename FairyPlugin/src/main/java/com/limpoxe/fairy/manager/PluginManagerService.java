@@ -226,9 +226,10 @@ class PluginManagerService {
 				LogUtil.e("fail::PARSE_MANIFEST_FAIL", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.PARSE_MANIFEST_FAIL);
 			}
+			LogUtil.w("插件详情", pluginDescriptor.getPackageName(), pluginDescriptor.getVersion(), pluginDescriptor.isStandalone(), pluginDescriptor.getAutoStart());
 
 			// 检查插件适用系统版本
-			LogUtil.w("检查插件适用系统版本", Build.VERSION.SDK_INT, pluginDescriptor.getMinSdkVersion());
+			LogUtil.w("检查插件适用系统版本", pluginDescriptor.getMinSdkVersion(), Build.VERSION.SDK_INT);
 			if (pluginDescriptor.getMinSdkVersion() != null && Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion()))  {
 				new File(srcPluginFile).delete();
 				LogUtil.e("fail::MIN_API_NOT_SUPPORTED", pluginDescriptor.getPackageName(), "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion());
@@ -252,9 +253,9 @@ class PluginManagerService {
 			// 可选步骤，验证插件APK证书是否和宿主程序证书相同。
 			// 证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
 			// 公钥相同意味着是同一个作者发布的程序
-			LogUtil.w("对比插件和宿主签名");
-			boolean isDebugable = (0 != (FairyGlobal.getHostApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
-			if (FairyGlobal.isNeedVerifyPlugin() && !isDebugable) {
+			LogUtil.w("检查插件和宿主签名（调用setNeedVerifyPlugin()可关闭检查）");
+			boolean debuggable = (0 != (FairyGlobal.getHostApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+			if (FairyGlobal.isNeedVerifyPlugin() && !debuggable) {
 				Signature[] mainSignatures = null;
 				try {
 					PackageInfo pkgInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_SIGNATURES);
@@ -355,7 +356,7 @@ class PluginManagerService {
 			}
 			LogUtil.e("DEXOPT完毕");
 			//打印一下目录结构
-			if (isDebugable) {
+			if (debuggable) {
 				FileUtil.printAll(new File(FairyGlobal.getHostApplication().getApplicationInfo().dataDir));
 			}
 
