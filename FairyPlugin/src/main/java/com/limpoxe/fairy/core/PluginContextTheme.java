@@ -493,7 +493,7 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	//android-N
 	public File getDataDir() {
 		if (dataDir == null) {
-			dataDir = new File(new File(mPluginDescriptor.getInstalledPath()).getParentFile().getParentFile(), "data");
+			dataDir = new File(mPluginDescriptor.getDataDir());
 			if (!dataDir.exists()) {
 				dataDir.mkdirs();
 				//setpermisssion

@@ -122,6 +122,7 @@ public class PluginDescriptor implements Serializable {
 	private String versionedRootDir;
 	private String nativeLibDir;
 	private String dalvikCacheDir;
+	private String dataDir;
 	private String installedPath;
 
 	private long installationTime;
@@ -407,7 +408,6 @@ public class PluginDescriptor implements Serializable {
 	public String getRootDir() {
 		if (rootDir == null) {
 			if (installedPath != null) {
-				// 使用installedPath获取rootDir是为了数据结构兼容
 				rootDir = new File(getVersionedRootDir()).getParentFile().getAbsolutePath();
 			}
 		}
@@ -421,7 +421,6 @@ public class PluginDescriptor implements Serializable {
 	public String getVersionedRootDir() {
 		if (versionedRootDir == null) {
 			if (installedPath != null) {
-				// 使用installedPath获取rootDir是为了数据结构兼容
 				versionedRootDir = new File(installedPath).getParentFile().getAbsolutePath();
 			}
 		}
@@ -435,7 +434,6 @@ public class PluginDescriptor implements Serializable {
 	public String getNativeLibDir() {
 		if (nativeLibDir == null) {
 			if (installedPath != null) {
-				// 使用installedPath获取rootDir是为了数据结构兼容
 				nativeLibDir = getVersionedRootDir() + File.separator + "lib";
 			}
 		}
@@ -449,7 +447,6 @@ public class PluginDescriptor implements Serializable {
 	public String getDalvikCacheDir() {
 		if (dalvikCacheDir == null) {
 			if (installedPath != null) {
-				// 使用installedPath获取rootDir是为了数据结构兼容
 				dalvikCacheDir = getVersionedRootDir() + File.separator + "dalvik-cache";
 			}
 		}
@@ -458,6 +455,17 @@ public class PluginDescriptor implements Serializable {
 
 	public void setDalvikCacheDir(String dalvikCacheDir) {
 		this.dalvikCacheDir = dalvikCacheDir;
+	}
+
+	public String getDataDir() {
+		if (dataDir == null) {
+			dataDir = getRootDir() + File.separator + "data";
+		}
+		return dataDir;
+	}
+
+	public void setDataDir(String dataDir) {
+		this.dataDir = dataDir;
 	}
 
 	public String getInstalledPath() {
