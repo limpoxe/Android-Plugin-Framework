@@ -95,11 +95,12 @@ public class PluginLauncher implements Serializable {
 		return SyncRunnable.runOnMainSync(new Runner<LoadedPlugin>() {
 			@Override
 			public LoadedPlugin run() {
+				LogUtil.w("startPlugin", pluginDescriptor.getPackageName());
 				LoadedPlugin plugin = loadedPluginMap.get(pluginDescriptor.getPackageName());
 				if (plugin == null) {
 					long startAt = System.currentTimeMillis();
-					LogUtil.i("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
-					LogUtil.v("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
+					LogUtil.w("正在初始化插件 " + pluginDescriptor.getPackageName() + ": Resources, DexClassLoader, Context, Application");
+					LogUtil.w("插件信息", pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
 					Resources pluginRes = PluginCreator.createPluginResource(
 						FairyGlobal.getHostApplication().getApplicationInfo().sourceDir,
@@ -111,7 +112,7 @@ public class PluginLauncher implements Serializable {
 					}
 
 					long t1 = System.currentTimeMillis();
-					LogUtil.i("初始化插件资源耗时:" + (t1 - startAt));
+					LogUtil.w("初始化插件资源耗时:" + (t1 - startAt));
 
 					ClassLoader pluginClassLoader = PluginCreator.createPluginClassLoader(
 						pluginDescriptor.getPackageName(),
@@ -121,7 +122,7 @@ public class PluginLauncher implements Serializable {
 						pluginDescriptor.getMuliDexList());
 
 					long t12 = System.currentTimeMillis();
-					LogUtil.i("初始化插件DexClassLoader耗时:" + (t12 - t1));
+					LogUtil.w("初始化插件DexClassLoader耗时:" + (t12 - t1));
 
 					PluginContextTheme pluginContext = (PluginContextTheme)PluginCreator.createPluginContext(
 						pluginDescriptor,
@@ -133,7 +134,7 @@ public class PluginLauncher implements Serializable {
 					pluginContext.setTheme(pluginDescriptor.getApplicationTheme());
 
 					long t13 = System.currentTimeMillis();
-					LogUtil.i("初始化插件Theme耗时:" + (t13 - t12));
+					LogUtil.w("初始化插件Theme耗时:" + (t13 - t12));
 
 					plugin = new LoadedPlugin(pluginDescriptor.getPackageName(),
 						pluginDescriptor.getInstalledPath(),
@@ -143,8 +144,10 @@ public class PluginLauncher implements Serializable {
 					//inflate data in meta-data
 					PluginDescriptor.inflateMetaData(pluginDescriptor, pluginRes);
 
+					LogUtil.w("initApplication");
 					initApplication(pluginContext, pluginClassLoader, pluginRes, pluginDescriptor, plugin);
 
+					LogUtil.w("add to loadedPluginMap", pluginDescriptor.getPackageName());
 					loadedPluginMap.put(pluginDescriptor.getPackageName(), plugin);
 				} else {
 					//LogUtil.d("IS RUNNING", packageName);

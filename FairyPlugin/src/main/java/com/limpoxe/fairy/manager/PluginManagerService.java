@@ -109,8 +109,9 @@ class PluginManagerService {
 			mEnabledPlugins.clear();
 			boolean isSuccess = writePlugins(ENABLED_KEY, mEnabledPlugins);
 
-			LogUtil.w("开始删除文件夹", getPluginRootDir());
-			FileUtil.deleteAll(new File(getPluginRootDir()));
+			File rootDir = new File(getPluginRootDir());
+			LogUtil.w("开始删除文件夹", rootDir.getAbsolutePath());
+			FileUtil.deleteAll(rootDir);
 			LogUtil.w("开始删除文件夹完成");
 
 			return isSuccess;
@@ -313,17 +314,17 @@ class PluginManagerService {
 			LogUtil.w("更新插件描述信息");
 			PackageInfo packageInfo = pluginDescriptor.getPackageInfo(PackageManager.GET_GIDS);
 			if (packageInfo != null) {
-				LogUtil.v("设置theme、logo、icon", destApkPath);
+				LogUtil.v("设置theme、logo、icon", pluginDescriptor.getInstalledPath());
 				pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
 				pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
 				pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
 			}
 
 			// 先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
-			File apkParent = new File(destApkPath).getParentFile();
+			File apkParent = new File(pluginDescriptor.getInstalledPath()).getParentFile();
 			File tempSoDir = new File(apkParent, "temp");
 			LogUtil.w("解压so", tempSoDir.getAbsolutePath());
-			Set<String> soList = FileUtil.unZipSo(destApkPath, tempSoDir);
+			Set<String> soList = FileUtil.unZipSo(pluginDescriptor.getInstalledPath(), tempSoDir);
 			if (soList != null) {//TODO soList插件中所有so的名字列表，如果插件中不同cpu架构下的so个数不相等可能会复制不匹配的so
 				ArrayList<String> abiList = getSupportedAbis();
 				LogUtil.w("复制so", apkParent.getAbsolutePath());
