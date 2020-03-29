@@ -109,7 +109,9 @@ class PluginManagerService {
 			mEnabledPlugins.clear();
 			boolean isSuccess = writePlugins(ENABLED_KEY, mEnabledPlugins);
 
+			LogUtil.w("开始删除文件夹", getPluginRootDir());
 			FileUtil.deleteAll(new File(getPluginRootDir()));
+			LogUtil.w("开始删除文件夹完成");
 
 			return isSuccess;
 		}
@@ -120,11 +122,12 @@ class PluginManagerService {
 			PluginDescriptor old = mEnabledPlugins.get(pluginId);
 			if (old != null) {
 				PluginLauncher.instance().stopPlugin(pluginId, old);
-				LogUtil.e("remove records and files...", pluginId);
+				File dir = new File(old.getInstalledPath()).getParentFile();
+				LogUtil.e("remove records and files...", pluginId, dir.getAbsolutePath());
 				mEnabledPlugins.remove(pluginId);
 				boolean writeSucc = writePlugins(ENABLED_KEY, mEnabledPlugins);
-				boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
-				LogUtil.e("remove done", writeSucc, deleteSuccess, old.getInstalledPath(), old.getPackageName());
+				boolean deleteSuccess = FileUtil.deleteAll(dir);
+				LogUtil.e("remove done", dir.getAbsolutePath(), writeSucc, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 				if (deleteSuccess) {
 					return PluginManagerHelper.REMOVE_SUCCESS;
 				} else {
@@ -328,7 +331,9 @@ class PluginManagerService {
 					FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath(), abiList);
 				}
 				//删掉临时文件
+				LogUtil.e("remove dir", tempSoDir);
 				FileUtil.deleteAll(tempSoDir);
+				LogUtil.e("remove dir done");
 			}
 
 			//try {
@@ -341,7 +346,10 @@ class PluginManagerService {
 			//触发dexopt
 			LogUtil.e("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 			//ActivityThread.getPackageManager().performDexOptIfNeeded()
-			FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
+			File dalvikCacheDir = new File(apkParent, "dalvik-cache");
+			LogUtil.e("remove dir", dalvikCacheDir.getAbsolutePath());
+			FileUtil.deleteAll(dalvikCacheDir);
+			LogUtil.e("remove dir done", dalvikCacheDir.getAbsolutePath());
 			ClassLoader cl = PluginCreator.createPluginClassLoader(
 					pluginDescriptor.getPackageName(),
 					pluginDescriptor.getInstalledPath(),

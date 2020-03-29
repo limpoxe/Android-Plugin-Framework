@@ -258,12 +258,12 @@ public class FileUtil {
 				}
 			}
 		}
-		LogUtil.d("delete", file.getAbsolutePath());
+		LogUtil.v("delete", file.getAbsolutePath());
 		return file.delete();
 	}
 
 	public static void printAll(File file) {
-		//LogUtil.d("printAll", file.getAbsolutePath());
+		LogUtil.v("printAll", file.getAbsolutePath());
 		if (file.isDirectory()) {
 			File[] childFiles = file.listFiles();
 			if (childFiles != null && childFiles.length > 0) {
