@@ -67,6 +67,10 @@ class PluginManagerService {
 		return FairyGlobal.getHostApplication().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
 	}
 
+	private static String genTmpPath(File srcFile) {
+		return FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath() + File.separator + System.currentTimeMillis() + "_" + srcFile.getName();
+	}
+
 	@SuppressWarnings("unchecked")
 	void loadEnabledPlugins() {
 		synchronized (mLock) {
@@ -82,7 +86,10 @@ class PluginManagerService {
 		}
 	}
 
-	private boolean addOrReplace(PluginDescriptor pluginDescriptor) {
+	private boolean updateEnabledPlugins(PluginDescriptor pluginDescriptor) {
+		//删掉旧的
+		remove(pluginDescriptor.getPackageName());
+		//添加新的
 		mEnabledPlugins.put(pluginDescriptor.getPackageName(), pluginDescriptor);
         boolean isSaveSuccess = writePlugins(ENABLED_KEY, mEnabledPlugins);
         if (!isSaveSuccess) {
@@ -111,23 +118,21 @@ class PluginManagerService {
 	int remove(String pluginId) {
 		synchronized (mLock) {
 			PluginDescriptor old = mEnabledPlugins.get(pluginId);
-
-			boolean result = false;
-
 			if (old != null) {
 				PluginLauncher.instance().stopPlugin(pluginId, old);
 				LogUtil.e("remove records and files...", pluginId);
 				mEnabledPlugins.remove(pluginId);
-				result = writePlugins(ENABLED_KEY, mEnabledPlugins);
+				boolean writeSucc = writePlugins(ENABLED_KEY, mEnabledPlugins);
 				boolean deleteSuccess = FileUtil.deleteAll(new File(old.getInstalledPath()).getParentFile());
-				LogUtil.e("remove done", result, deleteSuccess, old.getInstalledPath(), old.getPackageName());
+				LogUtil.e("remove done", writeSucc, deleteSuccess, old.getInstalledPath(), old.getPackageName());
 				if (deleteSuccess) {
 					return PluginManagerHelper.REMOVE_SUCCESS;
 				} else {
+					LogUtil.e("remove：REMOVE_FAIL", pluginId);
 					return PluginManagerHelper.REMOVE_FAIL;
 				}
 			} else {
-				LogUtil.e("插件未安装", pluginId);
+				LogUtil.e("remove：REMOVE_FAIL_PLUGIN_NOT_EXIST", pluginId);
 				return PluginManagerHelper.REMOVE_FAIL_PLUGIN_NOT_EXIST;
 			}
 		}
@@ -184,47 +189,46 @@ class PluginManagerService {
 			LogUtil.w("开始安装插件", srcPluginFile);
 			long startAt = System.currentTimeMillis();
 			if (TextUtils.isEmpty(srcPluginFile) || !FileUtil.checkPathSafe(srcPluginFile)) {
+				LogUtil.e("fail::SRC_FILE_NOT_FOUND", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 			}
-
 			File srcFile = new File(srcPluginFile);
 			if (!srcFile.exists() || !srcFile.isFile()) {
+				LogUtil.e("fail::SRC_FILE_NOT_FOUND", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 			}
-
 			try {
 				//解析相对路径，得到真实绝对路径
 				srcPluginFile = srcFile.getCanonicalPath();
 			} catch (IOException e) {
 				LogUtil.printException("PluginManagerService.installPlugin", e);
+				LogUtil.e("fail::getCanonicalPath", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.INSTALL_FAIL);
 			}
 
 			// 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
 			if (!srcPluginFile.startsWith(FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath())) {
-				String tempFilePath = FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath()
-					+ File.separator + System.currentTimeMillis() + "_" + srcFile.getName();
-				if (FileUtil.copyFile(srcPluginFile, tempFilePath)) {
-					srcPluginFile = tempFilePath;
-				} else {
-					LogUtil.e("复制插件文件失败", srcPluginFile, tempFilePath);
+				String tempFilePath = genTmpPath(srcFile);
+				if (!FileUtil.copyFile(srcPluginFile, tempFilePath)) {
 					new File(tempFilePath).delete();
+					LogUtil.e("fail::COPY_FILE_FAIL", srcPluginFile, tempFilePath);
 					return new InstallResult(PluginManagerHelper.COPY_FILE_FAIL);
 				}
+				srcPluginFile = tempFilePath;
 			}
 
 			// 解析Manifest，获得插件详情
 			final PluginDescriptor pluginDescriptor = PluginManifestParser.parseManifest(srcPluginFile);
 			if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
-				LogUtil.e("解析插件Manifest文件失败", srcPluginFile);
 				new File(srcPluginFile).delete();
+				LogUtil.e("fail::PARSE_MANIFEST_FAIL", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.PARSE_MANIFEST_FAIL);
 			}
 
 			//判断插件适用系统版本
 			if (pluginDescriptor.getMinSdkVersion() != null && Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion()))  {
-				LogUtil.e("当前系统版本过低, 不支持此插件", "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion(), pluginDescriptor.getPackageName());
 				new File(srcPluginFile).delete();
+				LogUtil.e("fail::MIN_API_NOT_SUPPORTED", pluginDescriptor.getPackageName(), "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion());
 				return new InstallResult(PluginManagerHelper.MIN_API_NOT_SUPPORTED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 
@@ -237,8 +241,8 @@ class PluginManagerService {
 			Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
 			boolean isDebugable = (0 != (FairyGlobal.getHostApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 			if (pluginSignatures == null) {
-				LogUtil.e("插件签名验证失败", srcPluginFile);
 				new File(srcPluginFile).delete();
+				LogUtil.e("fail::SIGNATURES_INVALIDATE", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.SIGNATURES_INVALIDATE);
 			}
 
@@ -254,8 +258,8 @@ class PluginManagerService {
 					LogUtil.printException("PluginManagerService.installPlugin", e);
 				}
 				if (!PackageVerifyer.isSignaturesSame(mainSignatures, pluginSignatures)) {
-					LogUtil.e("插件证书和宿主证书不一致", srcPluginFile);
 					new File(srcPluginFile).delete();
+					LogUtil.e("fail::VERIFY_SIGNATURES_FAIL", srcPluginFile);
 					return new InstallResult(PluginManagerHelper.VERIFY_SIGNATURES_FAIL);
 				}
 			}
@@ -264,126 +268,107 @@ class PluginManagerService {
 			if (!PackageVerifyer.isCompatibleWithHost(pluginDescriptor)) {
 				//不满足要求，不可安装此插件
 				new File(srcPluginFile).delete();
+				LogUtil.e("fail::HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN", pluginDescriptor.getPackageName());
 				return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 
-			// 检查插件是否已经存在,若存在删除旧的
+			boolean isOldRunning = false;
+			// 检查现有插件版本和要更新的插件版本是否相同
 			PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
-			boolean isHotUpdate = false;
 			if (oldPluginDescriptor != null) {
-				LogUtil.d("已安装过，安装路径为", oldPluginDescriptor.getInstalledPath(), oldPluginDescriptor.getVersion(), pluginDescriptor.getVersion());
-
-				//检查插件是否已经加载
-				if (PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName())) {
-					if (!oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
-						LogUtil.w("旧版插件已经加载， 且新版插件和旧版插件版本不同，直接删除旧版，进行热更新");
-						isHotUpdate = true;
-						remove(oldPluginDescriptor.getPackageName());
-					} else {
-						LogUtil.e("旧版插件已经加载， 且新版插件和旧版插件版本相同，拒绝安装");
-						new File(srcPluginFile).delete();
-						return new InstallResult(PluginManagerHelper.FAIL_BECAUSE_SAME_VER_HAS_LOADED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-					}
-				} else {
-					LogUtil.v("旧版插件还未加载，忽略版本，直接删除旧版，尝试安装新版");
-					remove(oldPluginDescriptor.getPackageName());
+				isOldRunning = PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName());
+				//版本号无变化，不需要安装
+				if (oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion())) {
+					new File(srcPluginFile).delete();
+					LogUtil.e("fail::SAME_VERSION", oldPluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+					return new InstallResult(PluginManagerHelper.FAIL_BECAUSE_SAME_VER_HAS_LOADED, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 				}
 			}
 
 			// 复制插件到插件目录
-			String destApkPath = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+			final String destApkPath = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destApkPath);
-
+			new File(srcPluginFile).delete();
+			srcPluginFile = null;
 			if (!isCopySuccess) {
-
-				LogUtil.e("复制插件到安装目录失败", srcPluginFile);
-				//删掉临时文件
-				new File(srcPluginFile).delete();
+				LogUtil.e("fail::COPY_FILE_FAIL", destApkPath);
 				return new InstallResult(PluginManagerHelper.COPY_FILE_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-			} else {
-
-				//第5步，先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
-				File apkParent = new File(destApkPath).getParentFile();
-				File tempSoDir = new File(apkParent, "temp");
-				Set<String> soList = FileUtil.unZipSo(srcPluginFile, tempSoDir);
-				if (soList != null) {//TODO soList插件中所有so的名字列表，如果插件中不同cpu架构下的so个数不相等可能会复制不匹配的so
-					ArrayList<String> abiList = getSupportedAbis();
-					for (String soName : soList) {
-						FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath(), abiList);
-					}
-					//删掉临时文件
-					FileUtil.deleteAll(tempSoDir);
-				}
-
-				//try {
-				//ArrayList<String> multiDexFiles = PluginMultiDexExtractor.performExtractions(new File(destApkPath), new File(apkParent, "secondDexes"));
-				//pluginDescriptor.setMuliDexList(multiDexFiles);
-				//} catch (IOException e) {
-				//	e.printStackTrace();
-				//}
-
-				//万事具备 添加到已安装插件列表
-				pluginDescriptor.setInstalledPath(destApkPath);
-				pluginDescriptor.setInstallationTime(System.currentTimeMillis());
-				PackageInfo packageInfo = pluginDescriptor.getPackageInfo(PackageManager.GET_GIDS);
-				if (packageInfo != null) {
-					pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
-					pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
-					pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
-				}
-
-				boolean isInstallSuccess = addOrReplace(pluginDescriptor);
-
-				//删掉临时文件
-				new File(srcPluginFile).delete();
-
-				if (!isInstallSuccess) {
-					LogUtil.e("安装插件失败", srcPluginFile);
-
-					new File(destApkPath).delete();
-
-					return new InstallResult(PluginManagerHelper.INSTALL_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-				} else {
-					//通过创建classloader来触发dexopt，但不加载
-					LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
-					//ActivityThread.getPackageManager().performDexOptIfNeeded()
-					FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
-					ClassLoader cl = PluginCreator.createPluginClassLoader(
-						pluginDescriptor.getPackageName(),
-						pluginDescriptor.getInstalledPath(),
-						pluginDescriptor.isStandalone(),
-						null,
-						null);
-					try {
-						cl.loadClass(Object.class.getName());
-						cl = null;
-					} catch (ClassNotFoundException e) {
-						LogUtil.printException("PluginManagerService.installPlugin", e);
-					}
-					LogUtil.d("DEXOPT完毕");
-
-					LogUtil.d("注册localService");
-					LocalServiceManager.registerService(pluginDescriptor);
-
-					long endAt = System.currentTimeMillis();
-					LogUtil.w("插件安装成功", pluginDescriptor.getPackageName(), "耗时 : " + (endAt - startAt));
-
-					LogUtil.v("安装路径", pluginDescriptor.getInstalledPath());
-
-					//打印一下目录结构
-					if (isDebugable) {
-						FileUtil.printAll(new File(FairyGlobal.getHostApplication().getApplicationInfo().dataDir));
-					}
-
-					//自启动，安装时就启动
-					if (pluginDescriptor.getAutoStart() || isHotUpdate) {
-						LogUtil.w("wakeup", pluginDescriptor.getPackageName());
-						PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
-					}
-
-					return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
-				}
 			}
+
+			//更新插件描述信息
+			PackageInfo packageInfo = pluginDescriptor.getPackageInfo(PackageManager.GET_GIDS);
+			if (packageInfo != null) {
+				pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
+				pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
+				pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
+			}
+			pluginDescriptor.setInstalledPath(destApkPath);
+			pluginDescriptor.setInstallationTime(System.currentTimeMillis());
+
+			//第5步，先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
+			File apkParent = new File(destApkPath).getParentFile();
+			File tempSoDir = new File(apkParent, "temp");
+			Set<String> soList = FileUtil.unZipSo(destApkPath, tempSoDir);
+			if (soList != null) {//TODO soList插件中所有so的名字列表，如果插件中不同cpu架构下的so个数不相等可能会复制不匹配的so
+				ArrayList<String> abiList = getSupportedAbis();
+				for (String soName : soList) {
+					FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath(), abiList);
+				}
+				//删掉临时文件
+				FileUtil.deleteAll(tempSoDir);
+			}
+
+			//try {
+			//ArrayList<String> multiDexFiles = PluginMultiDexExtractor.performExtractions(new File(destApkPath), new File(apkParent, "secondDexes"));
+			//pluginDescriptor.setMuliDexList(multiDexFiles);
+			//} catch (IOException e) {
+			//	e.printStackTrace();
+			//}
+
+			//触发dexopt
+			LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
+			//ActivityThread.getPackageManager().performDexOptIfNeeded()
+			FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
+			ClassLoader cl = PluginCreator.createPluginClassLoader(
+					pluginDescriptor.getPackageName(),
+					pluginDescriptor.getInstalledPath(),
+					pluginDescriptor.isStandalone(),
+					null,
+					null);
+			try {
+				cl.loadClass(Object.class.getName());
+				cl = null;
+			} catch (ClassNotFoundException e) {
+				LogUtil.printException("PluginManagerService.installPlugin", e);
+			}
+			LogUtil.d("DEXOPT完毕");
+			//打印一下目录结构
+			if (isDebugable) {
+				FileUtil.printAll(new File(FairyGlobal.getHostApplication().getApplicationInfo().dataDir));
+			}
+
+			//这个步骤真正完成插件更替
+			LogUtil.e("开始插件更替", pluginDescriptor.getPackageName());
+			boolean isInstallSuccess = updateEnabledPlugins(pluginDescriptor);
+			LogUtil.e("完成插件更替", pluginDescriptor.getPackageName(), isInstallSuccess);
+			if (!isInstallSuccess) {
+				LogUtil.e("fail::INSTALL_FAIL", pluginDescriptor.getPackageName());
+				return new InstallResult(PluginManagerHelper.INSTALL_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+			}
+
+			LogUtil.v("注册插件内定义的localService");
+			LocalServiceManager.registerService(pluginDescriptor);
+			LogUtil.v("注册完成");
+			//自启动，安装时就启动
+			if (pluginDescriptor.getAutoStart() || isOldRunning) {
+				LogUtil.w("需要立即唤醒插件", pluginDescriptor.getPackageName());
+				boolean succ = PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+				LogUtil.w("立即唤醒" + (succ?"成功":"失败"), pluginDescriptor.getPackageName());
+			}
+			LogUtil.w("安装" + pluginDescriptor.getPackageName() + "成功，耗时(ms) : " + (System.currentTimeMillis() - startAt));
+			LogUtil.v("安装路径为", pluginDescriptor.getInstalledPath());
+
+			return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		}
 	}
 
