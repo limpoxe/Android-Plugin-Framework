@@ -198,7 +198,7 @@ class PluginManagerService {
 				return new InstallResult(PluginManagerHelper.SRC_FILE_NOT_FOUND);
 			}
 			try {
-				//解析相对路径，得到真实绝对路径
+				// 解析相对路径，得到真实绝对路径
 				srcPluginFile = srcFile.getCanonicalPath();
 			} catch (IOException e) {
 				LogUtil.printException("PluginManagerService.installPlugin", e);
@@ -209,6 +209,7 @@ class PluginManagerService {
 			// 先将apk复制到宿主程序私有目录，防止在安装过程中文件被篡改
 			if (!srcPluginFile.startsWith(FairyGlobal.getHostApplication().getCacheDir().getAbsolutePath())) {
 				String tempFilePath = genTmpPath(srcFile);
+				LogUtil.w("先将apk复制到宿主程序私有目录", tempFilePath);
 				if (!FileUtil.copyFile(srcPluginFile, tempFilePath)) {
 					new File(tempFilePath).delete();
 					LogUtil.e("fail::COPY_FILE_FAIL", srcPluginFile, tempFilePath);
@@ -218,6 +219,7 @@ class PluginManagerService {
 			}
 
 			// 解析Manifest，获得插件详情
+			LogUtil.w("解析Manifest，获得插件详情", srcPluginFile);
 			final PluginDescriptor pluginDescriptor = PluginManifestParser.parseManifest(srcPluginFile);
 			if (pluginDescriptor == null || TextUtils.isEmpty(pluginDescriptor.getPackageName())) {
 				new File(srcPluginFile).delete();
@@ -225,7 +227,8 @@ class PluginManagerService {
 				return new InstallResult(PluginManagerHelper.PARSE_MANIFEST_FAIL);
 			}
 
-			//判断插件适用系统版本
+			// 检查插件适用系统版本
+			LogUtil.w("检查插件适用系统版本", Build.VERSION.SDK_INT, pluginDescriptor.getMinSdkVersion());
 			if (pluginDescriptor.getMinSdkVersion() != null && Build.VERSION.SDK_INT < Integer.valueOf(pluginDescriptor.getMinSdkVersion()))  {
 				new File(srcPluginFile).delete();
 				LogUtil.e("fail::MIN_API_NOT_SUPPORTED", pluginDescriptor.getPackageName(), "系统:" + Build.VERSION.SDK_INT, "插件:" + pluginDescriptor.getMinSdkVersion());
@@ -238,17 +241,19 @@ class PluginManagerService {
 			// 也即高版本的minSdkVersion的插件，即使签名没有被篡改过，在低版本的系统中仍然会校验失败
 			// 所以先校验minSdkVersion，再校验签名
 			//sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
+			LogUtil.w("读取插件APK签名");
 			Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
-			boolean isDebugable = (0 != (FairyGlobal.getHostApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 			if (pluginSignatures == null) {
 				new File(srcPluginFile).delete();
 				LogUtil.e("fail::SIGNATURES_INVALIDATE", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.SIGNATURES_INVALIDATE);
 			}
 
-			//可选步骤，验证插件APK证书是否和宿主程序证书相同。
-			//证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
-			//公钥相同意味着是同一个作者发布的程序
+			// 可选步骤，验证插件APK证书是否和宿主程序证书相同。
+			// 证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
+			// 公钥相同意味着是同一个作者发布的程序
+			LogUtil.w("对比插件和宿主签名");
+			boolean isDebugable = (0 != (FairyGlobal.getHostApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 			if (FairyGlobal.isNeedVerifyPlugin() && !isDebugable) {
 				Signature[] mainSignatures = null;
 				try {
@@ -265,6 +270,7 @@ class PluginManagerService {
 			}
 
 			// 检查当前宿主版本是否匹配此非独立插件需要的版本
+			LogUtil.w("检查插件和宿主是否兼容");
 			if (!PackageVerifyer.isCompatibleWithHost(pluginDescriptor)) {
 				//不满足要求，不可安装此插件
 				new File(srcPluginFile).delete();
@@ -272,8 +278,9 @@ class PluginManagerService {
 				return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 
-			boolean isOldRunning = false;
 			// 检查现有插件版本和要更新的插件版本是否相同
+			LogUtil.w("检查插件版本是否有变化");
+			boolean isOldRunning = false;
 			PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 			if (oldPluginDescriptor != null) {
 				isOldRunning = PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName());
@@ -287,6 +294,7 @@ class PluginManagerService {
 
 			// 复制插件到插件目录
 			final String destApkPath = genInstallPath(pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
+			LogUtil.w("复制插件到插件目录", destApkPath);
 			boolean isCopySuccess = FileUtil.copyFile(srcPluginFile, destApkPath);
 			new File(srcPluginFile).delete();
 			srcPluginFile = null;
@@ -295,22 +303,26 @@ class PluginManagerService {
 				return new InstallResult(PluginManagerHelper.COPY_FILE_FAIL, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 
-			//更新插件描述信息
+			// 更新插件描述信息
+			pluginDescriptor.setInstalledPath(destApkPath);
+			pluginDescriptor.setInstallationTime(System.currentTimeMillis());
+			LogUtil.w("更新插件描述信息");
 			PackageInfo packageInfo = pluginDescriptor.getPackageInfo(PackageManager.GET_GIDS);
 			if (packageInfo != null) {
+				LogUtil.v("设置theme、logo、icon", destApkPath);
 				pluginDescriptor.setApplicationTheme(packageInfo.applicationInfo.theme);
 				pluginDescriptor.setApplicationIcon(packageInfo.applicationInfo.icon);
 				pluginDescriptor.setApplicationLogo(packageInfo.applicationInfo.logo);
 			}
-			pluginDescriptor.setInstalledPath(destApkPath);
-			pluginDescriptor.setInstallationTime(System.currentTimeMillis());
 
-			//第5步，先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
+			// 先解压so到临时目录，再从临时目录复制到插件so目录。 在构造插件Dexclassloader的时候，会使用这个so目录作为参数
 			File apkParent = new File(destApkPath).getParentFile();
 			File tempSoDir = new File(apkParent, "temp");
+			LogUtil.w("解压so", tempSoDir.getAbsolutePath());
 			Set<String> soList = FileUtil.unZipSo(destApkPath, tempSoDir);
 			if (soList != null) {//TODO soList插件中所有so的名字列表，如果插件中不同cpu架构下的so个数不相等可能会复制不匹配的so
 				ArrayList<String> abiList = getSupportedAbis();
+				LogUtil.w("复制so", apkParent.getAbsolutePath());
 				for (String soName : soList) {
 					FileUtil.copySo(tempSoDir, soName, apkParent.getAbsolutePath(), abiList);
 				}
@@ -326,7 +338,7 @@ class PluginManagerService {
 			//}
 
 			//触发dexopt
-			LogUtil.d("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
+			LogUtil.e("正在进行DEXOPT...", pluginDescriptor.getInstalledPath());
 			//ActivityThread.getPackageManager().performDexOptIfNeeded()
 			FileUtil.deleteAll(new File(apkParent, "dalvik-cache"));
 			ClassLoader cl = PluginCreator.createPluginClassLoader(
@@ -341,7 +353,7 @@ class PluginManagerService {
 			} catch (ClassNotFoundException e) {
 				LogUtil.printException("PluginManagerService.installPlugin", e);
 			}
-			LogUtil.d("DEXOPT完毕");
+			LogUtil.e("DEXOPT完毕");
 			//打印一下目录结构
 			if (isDebugable) {
 				FileUtil.printAll(new File(FairyGlobal.getHostApplication().getApplicationInfo().dataDir));
@@ -366,7 +378,7 @@ class PluginManagerService {
 				LogUtil.w("立即唤醒" + (succ?"成功":"失败"), pluginDescriptor.getPackageName());
 			}
 			LogUtil.w("安装" + pluginDescriptor.getPackageName() + "成功，耗时(ms) : " + (System.currentTimeMillis() - startAt));
-			LogUtil.v("安装路径为", pluginDescriptor.getInstalledPath());
+			LogUtil.w("安装详情", pluginDescriptor.getPackageName(), pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
 			return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		}
