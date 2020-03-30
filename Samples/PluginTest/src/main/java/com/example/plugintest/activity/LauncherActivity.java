@@ -22,14 +22,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.ActionBar;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.view.Gravity;
@@ -41,6 +39,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.FileProvider;
 
 import com.example.pluginmain.MessageEvent;
 import com.example.pluginsharelib.BaseActivity;
@@ -160,6 +162,13 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         testVersion1();
         testVersion2();
 		testMuliDex();
+		testUseLibray();
+	}
+
+	private void testUseLibray() {
+		AndroidHttpClient androidHttpClient = AndroidHttpClient.newInstance("test/test", getApplicationContext());
+		ClassLoader classloader = androidHttpClient.getClass().getClassLoader();
+		android.util.Log.e("LauncherActivity", "testUseLibray, classloader=" + classloader);
 	}
 
     private void testVersion1() {

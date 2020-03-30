@@ -54,6 +54,16 @@
         android:theme="@style/ShareTheme"
         android:usesCleartextTraffic="true">
 
+        <!--
+            targetSdkVersion过高时在build.gradle里面加useLibrary 'org.apache.http.legacy'配置不会生效
+            所以需要写死在manifest里面。而且这个包在7.x上如果不加uses-library，系统也会自动加到bootclassloader里面，
+            但是9.x和10.x不会自动加到bootclassloader里面，需要主动在manifest里面申请后，系统帮忙加到PatchClassloader的
+            sharedLibraryLoaders
+        -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
         <meta-data android:value="591d0ae61061d23ca5000dbf" android:name="UMENG_APPKEY"/>
         <meta-data android:value="Main_CN" android:name="UMENG_CHANNEL"/>
 

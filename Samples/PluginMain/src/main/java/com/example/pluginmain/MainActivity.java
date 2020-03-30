@@ -1,7 +1,6 @@
 package com.example.pluginmain;
 
 import android.Manifest;
-import androidx.lifecycle.Lifecycle;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,11 +10,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.net.http.AndroidHttpClient;
 import android.os.Bundle;
-//import android.provider.BaseColumns;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,6 +23,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.pluginsharelib.SharePOJO;
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.manager.PluginCallback;
@@ -35,7 +34,6 @@ import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.FileUtil;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ResourceUtil;
-//import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -49,6 +47,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+//import android.provider.BaseColumns;
+//import com.umeng.analytics.MobclickAgent;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -107,7 +108,14 @@ public class MainActivity extends AppCompatActivity {
         Log.e("xx", "launcher intent size =" + (infos==null?"0":infos.size()));
         Log.e("xx", "btnText=" + butterTest.getText().toString());
         Log.e("xx", "stringFromJNI " + CxxTest.stringFromJNI());
+        testUseLibray();
         CxxTest.println(LOG_ID_MAIN, Log.ERROR, "MainActivity", "end onCreate ");
+    }
+
+    private void testUseLibray() {
+        AndroidHttpClient androidHttpClient = AndroidHttpClient.newInstance("test/test", getApplicationContext());
+        ClassLoader classloader = androidHttpClient.getClass().getClassLoader();
+        Log.e("MainActivity", "testUseLibray, classloader=" + classloader);
     }
 
 	private void initView() {

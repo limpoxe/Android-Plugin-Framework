@@ -1,10 +1,13 @@
 package com.example.pluginhelloworld;
 
+import android.net.http.AndroidHttpClient;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * 独立插件测试demo
@@ -23,6 +26,14 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.finish();
             }
         });
+
+        testUseLibray();
+    }
+
+    private void testUseLibray() {
+        AndroidHttpClient androidHttpClient = AndroidHttpClient.newInstance("test/test", getApplicationContext());
+        ClassLoader classloader = androidHttpClient.getClass().getClassLoader();
+        Log.e("MainActivity", "testUseLibray, classloader=" + classloader);
     }
 
     @Override
