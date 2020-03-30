@@ -143,6 +143,20 @@ public class RealPluginClassLoader extends DexClassLoader {
 		}
 
 		if (clazz == null && suppressed != null) {
+			try {
+				// 插件捞class没捞着，最后回头到宿主的classloader里面捞一次
+				Class classInHostButNotReallyInHost = RealPluginClassLoader.class.getClassLoader().loadClass(className);
+				// 如果捞到了，先不要开心，还需要排除一下这个类是不是在宿主class所在的classloader中
+				// 进这个case的典型场景就是独立插件中使用了use-libray
+				// 因为从android9开始use-libray既不会加到主包的classloader里面，也不会加到系统的classloader
+				// 而是在中间多了一个ClassLoader[] sharedLibraryLoaders用来存储use-libray附加的classloader
+				// 这里的逻辑就是为了在sharedLibraryLoaders里面再捞一次
+                // 不影响非独立插件的原因是非独立插件的parent就是宿主，搜索链路中已经包含它了
+				if (classInHostButNotReallyInHost.getClassLoader() != RealPluginClassLoader.class.getClassLoader()) {
+					return classInHostButNotReallyInHost;
+				}
+			} catch (ClassNotFoundException e) {
+			}
 			throw suppressed;
 		}
 
