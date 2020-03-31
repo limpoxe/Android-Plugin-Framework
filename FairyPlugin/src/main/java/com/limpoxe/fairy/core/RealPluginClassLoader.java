@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core;
 
+import android.os.Build;
+
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.util.FileUtil;
 import com.limpoxe.fairy.util.LogUtil;
@@ -19,22 +21,24 @@ import dalvik.system.DexClassLoader;
  */
 public class RealPluginClassLoader extends DexClassLoader {
 	public final String pluginPackageName;
-
+	public final boolean isStandalone;
 	private static Hashtable<String, String> soClassloaderMapper = new Hashtable<String, String>();
 
 	private String[] dependencies;
 	private List<DexClassLoader> multiDexClassLoaderList;
 
-	public RealPluginClassLoader(String pluginPackageName, String dexPath, String optimizedDirectory, String libraryPath, ClassLoader parent,
-                                 String[] dependencies, List<String> multiDexList) {
-		super(dexPath, optimizedDirectory, libraryPath, parent);
+	public RealPluginClassLoader(String pluginPackageName, String dexPath, String[] dependencies,
+								 String optimizedDirectory, String libraryPath,
+								 List<String> multiDexList, boolean isStandalone) {
+		super(dexPath, optimizedDirectory, libraryPath, isStandalone ? ClassLoader.getSystemClassLoader().getParent() : RealPluginClassLoader.class.getClassLoader());
 		this.dependencies = dependencies;
 		this.pluginPackageName = pluginPackageName;
+		this.isStandalone = isStandalone;
 		if (multiDexList != null) {
 			if (multiDexClassLoaderList == null) {
 				multiDexClassLoaderList = new ArrayList<DexClassLoader>(multiDexList.size());
 				for(String path: multiDexList) {
-					multiDexClassLoaderList.add(new DexClassLoader(path, optimizedDirectory, libraryPath, parent));
+					multiDexClassLoaderList.add(new DexClassLoader(path, optimizedDirectory, libraryPath, getParent()));
 				}
 			}
 		}
@@ -140,23 +144,33 @@ public class RealPluginClassLoader extends DexClassLoader {
 					}
 				}
 			}
+
+			if (clazz == null && isStandalone) {
+				try {
+					// 插件捞class没捞着，最后回头到宿主的classloader里面捞一次
+					Class classInHostButNotReallyInHost = RealPluginClassLoader.class.getClassLoader().loadClass(className);
+					// 如果捞到了，先不要开心，还需要排除一下这个类是不是在宿主class所在的classloader中
+					// 进这个case的典型场景就是独立插件中使用了use-libray
+					// 因为从android10开始use-libray既不会加到主包的classloader里面，也不会加到系统的classloader
+					// 而是在中间多了一个ClassLoader[] sharedLibraryLoaders用来存储use-libray附加的classloader
+					// android9又不太一样，是合并到宿主的PatchClassloader的dexElements列表中
+					// 这里的逻辑就是为了在sharedLibraryLoaders里面再捞一次
+					// 不影响非独立插件的原因是非独立插件的parent就是宿主，搜索链路中已经包含它了
+					if (Build.VERSION.SDK_INT >= 29) {
+						if (classInHostButNotReallyInHost.getClassLoader() != RealPluginClassLoader.class.getClassLoader()) {
+							return classInHostButNotReallyInHost;
+						}
+					} else if (Build.VERSION.SDK_INT == 28) {
+						if (classInHostButNotReallyInHost.getClassLoader() == RealPluginClassLoader.class.getClassLoader()) {
+							return classInHostButNotReallyInHost;
+						}
+					}
+				} catch (ClassNotFoundException e) {
+				}
+			}
 		}
 
 		if (clazz == null && suppressed != null) {
-			try {
-				// 插件捞class没捞着，最后回头到宿主的classloader里面捞一次
-				Class classInHostButNotReallyInHost = RealPluginClassLoader.class.getClassLoader().loadClass(className);
-				// 如果捞到了，先不要开心，还需要排除一下这个类是不是在宿主class所在的classloader中
-				// 进这个case的典型场景就是独立插件中使用了use-libray
-				// 因为从android9开始use-libray既不会加到主包的classloader里面，也不会加到系统的classloader
-				// 而是在中间多了一个ClassLoader[] sharedLibraryLoaders用来存储use-libray附加的classloader
-				// 这里的逻辑就是为了在sharedLibraryLoaders里面再捞一次
-                // 不影响非独立插件的原因是非独立插件的parent就是宿主，搜索链路中已经包含它了
-				if (classInHostButNotReallyInHost.getClassLoader() != RealPluginClassLoader.class.getClassLoader()) {
-					return classInHostButNotReallyInHost;
-				}
-			} catch (ClassNotFoundException e) {
-			}
 			throw suppressed;
 		}
 
