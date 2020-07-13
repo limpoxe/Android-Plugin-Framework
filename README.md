@@ -25,7 +25,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 - 支持插件WebView加载插件本地HTML文件
 - 支持插件Fragment/View内嵌宿主Activity中
 - 支持FileProvider
-- 支持2.3-9.0
+- 支持2.3-10.0
 
 ### LIMIT
 - 不支持插件Activity转场动画使用插件中的动画资源
