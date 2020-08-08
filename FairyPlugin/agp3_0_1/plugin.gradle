@@ -43,106 +43,114 @@ class FaiyExt {
     }
 }
 extensions.create('fairy', FaiyExt)
-
-//基线包路径
-def host_patch_path = ""
-//基线包解压路径
-def host_patch_extract_dir = project.buildDir.absolutePath + File.separator + 'outputs' + File.separator + 'baselinePatch'
-def hostClassesJar = host_patch_extract_dir + File.separator + "host_classes.jar"
-
-//基线包文件名
-def host_patch_fileName = "host.bar"
-
-
-def ApplicationPlugin = getPlugins().findPlugin("com.android.application")
-def LibraryPlugin = getPlugins().findPlugin("com.android.library")
-def isApplicationModule
-def AndroidGradlePluginVersion
-if (ApplicationPlugin != null) {
-    isApplicationModule = true;
-    AndroidGradlePluginVersion = ApplicationPlugin.androidBuilder.createdBy
-} else {
-    isApplicationModule = false;
-    AndroidGradlePluginVersion = LibraryPlugin.androidBuilder.createdBy
-}
-def fairyMinifyEnabled = false
-
 android{
 }
 
-dependencies {
-
-    if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
-        if (!fairyMinifyEnabled) {
-            provided files(hostClassesJar)
-        } else {
-            compile files(hostClassesJar)
-        }
+println "执行命令决定了bar文件依赖路径！"
+//基线包文件名
+def host_patch_fileName = "host.bar"
+//基线包解压路径
+def default_host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/unspecified'
+def host_patch_extract_dir = default_host_patch_extract_dir
+gradle.startParameter.taskNames.each { startTaskName ->
+    if (startTaskName.contains("Debug")) {
+        host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/debug'
+    } else if (startTaskName.contains("Release")) {
+        host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/release'
     }
-
 }
+//基线包解压后的classjar的路径
+def hostClassesJar = host_patch_extract_dir + "/host_classes.jar"
 
-//第一件事 将宿主资源添加到编译时，仅参与编译，不参与打包
-android.aaptOptions.additionalParameters('-I', host_patch_extract_dir + "/" + host_patch_fileName)
+//根据启动参数来决定aaptOptions要依赖哪个bar文件
+android.aaptOptions.additionalParameters(
+        '-I', host_patch_extract_dir + "/" + host_patch_fileName)
+
+println ">>>" + default_host_patch_extract_dir
+println ">>>" + host_patch_extract_dir
+println ">>>" + host_patch_extract_dir + "/" + host_patch_fileName
+println ">>>" + hostClassesJar
 
 HashMap<String, SortedMap<String, ArrayList<String>>> declareStyleMap = new HashMap<String, SortedMap<String, ArrayList<String>>>();
 
 afterEvaluate {
+    def isApplicationModule = getPlugins().hasPlugin("com.android.application")
     if (isApplicationModule) {
         if (android.defaultConfig.applicationId == null) {
             throw new Exception("插件build.gradle未配置android.defaultConfig.applicationId")
         }
     }
 
-    //a、读取混淆开关配置
-    //b、读取宿主基线包文件路径
-    //c、添加hostjar到项目依赖树中
-    gradle.startParameter.taskNames.each { startTaskName ->
-        if (startTaskName.contains("Debug")) {
-            fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
-            configurations.each { config ->
-                //如果同时配置了多个，被先遍历到的生效
-                if ("".equals(host_patch_path)) {
-                    if (config.name.equals("debugBaselinePatch") || config.name.equals("baselinePatch")) {
-                        config.files.each { patch ->
-                            host_patch_path = patch.absolutePath;
-                            println project.name + "发现宿主基线配置指向位置：" + host_patch_path
-                        }
-                    }
-                }
-            }
-        } else if (startTaskName.contains("Release")) {
-            fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
-            configurations.each { config ->
-                //如果同时配置了多个，被先遍历到的生效
-                if ("".equals(host_patch_path)) {
-                    if (config.name.equals("releaseBaselinePatch") || config.name.equals("baselinePatch")) {
-                        config.files.each { patch ->
-                            host_patch_path = patch.absolutePath;
-                            println project.name + "发现宿主基线配置指向位置：" + host_patch_path
-                        }
-                    }
-                }
-            }
-        }
-    }
-    //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
-    println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
-    if (!fairyMinifyEnabled) {
-        configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
-    } else {
-        configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
-    }
-
-    def moduleVariants = isApplicationModule?android.applicationVariants:android.libraryVariants
+    def moduleVariants = isApplicationModule ? android.applicationVariants : android.libraryVariants
     for (variant in moduleVariants) {
-
         def varName = variant.name;
         def buildTypeName = variant.buildType.name
         def flavorName = variant.flavorName
         def varDirName =  variant.dirName
 
-        println 'Check Env : ' + varName +  " " + buildTypeName + " " + flavorName + " " + varDirName
+        println '\n'
+        println project.name + ' Check Env : variant=' + varName +  ", buildTypeName=" + buildTypeName + ", flavorName=" + flavorName + ", varDirName=" + varDirName
+
+        //读取宿主基线包文件路径，并解压到指定目录
+        //从原理上讲应该每个变种都需要一个对应的基线包路径，这里偷懒了，只考虑了buildType，忽略favor
+        def host_patch_path = ""
+        def configure = configurations['baselinePatch']
+        if (configure.files.size() == 0) {
+            configure = configurations[variant.buildType.name + 'BaselinePatch'];
+        }
+        configure.files.each { patch ->
+            host_patch_path = patch.absolutePath;
+            println "发现宿主基线配置指向位置：" + host_patch_path
+            if ("".equals(host_patch_path) || !file(host_patch_path).exists()) {
+                file(host_patch_extract_dir).deleteDir();
+                println "宿主基线patch文件不存在"
+            } else {
+                //按buildType解压到不同的文件夹里面
+                println "解压宿主基线文件：" + host_patch_path + "    \n 到 " + host_patch_extract_dir
+                //这里做一个简单校验判断，提高效率
+                if (file(host_patch_extract_dir + "/" + host_patch_fileName).size() != file(host_patch_path).size()) {
+                    copy {
+                        def zipFile = file(host_patch_path);//host.bar
+                        def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
+                        outputDir.deleteDir();
+                        from zipTree(zipFile)
+                        from(zipFile) {
+                            rename {
+                                host_patch_fileName
+                            }
+                        }
+                        into outputDir
+                    }
+                } else {
+                    println "源与目标文件大小相同，省去解压步骤"
+                }
+                //这里做一个简单校验判断，提高效率
+                if (file(default_host_patch_extract_dir + "/" + host_patch_fileName).size() != file(host_patch_path).size()) {
+                    copy {
+                        //留存一份到默认目录，当不是使用assembleDebug和assembleRelease编译时会使用这个文件夹
+                        //如果同时配置了debug和release，使用最后一个遍历到的buildType覆盖
+                        def zipFile = file(host_patch_path);//host.bar
+                        def outputDir = file(default_host_patch_extract_dir)//outputs/baselinePatch
+                        outputDir.deleteDir();
+                        from zipTree(zipFile)
+                        from(zipFile) {
+                            rename {
+                                host_patch_fileName
+                            }
+                        }
+                        into outputDir
+                    }
+                }
+            }
+        }
+        //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
+        //这里偷懒了，只考虑了buildType，忽略favor
+        println "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + variant.buildType.minifyEnabled
+        if (!variant.buildType.minifyEnabled) {
+            configurations[variant.buildType.name + 'CompileOnly'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
+        } else {
+            configurations[variant.buildType.name + 'implementation'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
+        }
 
         def generateDebugSourcesTask = tasks.findByName("generate${varName.capitalize()}Resources")
         if (generateDebugSourcesTask) {
