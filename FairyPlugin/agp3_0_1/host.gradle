@@ -28,8 +28,6 @@ configurations {
     innerPlugin
 }
 
-def AndroidGradlePluginVersion = getPlugins().findPlugin("com.android.application").androidBuilder.createdBy
-
 def innerPluginApkList = []
 
 class FaiyExt {
@@ -219,37 +217,18 @@ afterEvaluate {
             processResourcesTask.doLast {
                 copy {
                     println '编译宿主资源编译完成后导出后缀为.ap_的资源包，此资源包在编译非独立插件时需要此包'
-
-                    //println com.android.builder.Version.ANDROID_GRADLE_PLUGIN_VERSION
-                    //Android Gradle Plugin Version 3.x
-                    if (!AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
-                        println processResourcesTask.resPackageOutputFolder
-                        from processResourcesTask.resPackageOutputFolder
-                        include("*.ap_")
-                        into("${project.buildDir}/outputs/")
-                        rename(new Transformer<String, String>() {
-                            @Override
-                            String transform(String s) {
-                                //多abi时会相互覆盖，不过对我们而言应该没什么影响
-                                project.logger.error "rename: " + s
-                                return "resources.ap_"
-                            }
-                        })
-                    } else {
-                        //Android Gradle Plugin Version 2.x
-                        println processResourcesTask.packageOutputFile
-                        from processResourcesTask.packageOutputFile
-                        include("*.ap_")
-                        into("${project.buildDir}/outputs/")
-                        rename(new Transformer<String, String>() {
-                            @Override
-                            String transform(String s) {
-                                //多abi时会相互覆盖，不过对我们而言应该没什么影响
-                                project.logger.error "rename: " + s
-                                return "resources.ap_"
-                            }
-                        })
-                    }
+                    println processResourcesTask.resPackageOutputFolder
+                    from processResourcesTask.resPackageOutputFolder
+                    include("*.ap_")
+                    into("${project.buildDir}/outputs/")
+                    rename(new Transformer<String, String>() {
+                        @Override
+                        String transform(String s) {
+                            //多abi时会相互覆盖，不过对我们而言应该没什么影响
+                            project.logger.error "rename: " + s
+                            return "resources.ap_"
+                        }
+                    })
                 }
             }
         }

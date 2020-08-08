@@ -94,7 +94,7 @@ afterEvaluate {
                 println "宿主基线patch文件不存在"
             } else {
                 //按buildType解压到不同的文件夹里面
-                println "解压宿主基线文件：" + host_patch_path + "    \n 到 " + host_patch_extract_dir
+                println "解压宿主基线文件：" + host_patch_path + "\n    到 " + host_patch_extract_dir
                 //这里做一个简单校验判断，提高效率
                 if (file(host_patch_extract_dir + "/" + host_patch_fileName).size() != file(host_patch_path).size()) {
                     copy {

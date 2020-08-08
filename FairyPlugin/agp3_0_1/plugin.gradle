@@ -94,19 +94,22 @@ afterEvaluate {
         //读取宿主基线包文件路径，并解压到指定目录
         //从原理上讲应该每个变种都需要一个对应的基线包路径，这里偷懒了，只考虑了buildType，忽略favor
         def host_patch_path = ""
-        def configure = configurations['baselinePatch']
+        def configure = configurations.maybeCreate(variant.buildType.name + 'BaselinePatch')
+        if (configure == null || configure.files.size() == 0) {
+            configure = configurations['baselinePatch']
+        }
         if (configure.files.size() == 0) {
-            configure = configurations[variant.buildType.name + 'BaselinePatch'];
+            project.logger.error '未配置基线包依赖！'
         }
         configure.files.each { patch ->
             host_patch_path = patch.absolutePath;
-            println "发现宿主基线配置指向位置：" + host_patch_path
+            println project.name + " 发现宿主基线配置指向位置：" + host_patch_path
             if ("".equals(host_patch_path) || !file(host_patch_path).exists()) {
                 file(host_patch_extract_dir).deleteDir();
                 println "宿主基线patch文件不存在"
             } else {
                 //按buildType解压到不同的文件夹里面
-                println "解压宿主基线文件：" + host_patch_path + "    \n 到 " + host_patch_extract_dir
+                println "解压宿主基线文件：" + host_patch_path + "\n    到 " + host_patch_extract_dir
                 //这里做一个简单校验判断，提高效率
                 if (file(host_patch_extract_dir + "/" + host_patch_fileName).size() != file(host_patch_path).size()) {
                     copy {
@@ -347,12 +350,7 @@ afterEvaluate {
                     if (hostVersionName != null && hostApplicationId != null && hostVersionCode != null) {
                         println "插件Manifest文件中插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
                         println "插件Manifest文件中插入非独立插件标识 requiredHostApplicationId=" + hostApplicationId
-                        def manifestFile
-                        if (AndroidGradlePluginVersion.startsWith("Android Gradle 2")) {
-                            manifestFile = new File(properties.get("manifestOutputFile").absolutePath)
-                        } else {
-                            manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
-                        }
+                        def manifestFile = new File("$manifestOutputDirectory/AndroidManifest.xml")
                         println "插件Manifest：" + manifestFile.absolutePath
                         def originManifestContent = manifestFile.getText('UTF-8')
                         def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest " +
