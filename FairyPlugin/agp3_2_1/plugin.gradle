@@ -15,6 +15,8 @@ import java.util.zip.*
 
 configurations {
     baselinePatch
+    debugBaselinePatch
+    releaseBaselinePatch
 }
 
 class FaiyExt {
@@ -65,56 +67,86 @@ afterEvaluate {
         }
     }
 
-    configurations.each { config ->
-        if (config.name.equals("baselinePatch")) {
-            config.files.each { patch ->
+    //a、读取混淆开关配置
+    //b、读取宿主基线包文件路径
+    //c、添加hostjar到项目依赖树中
+    gradle.startParameter.taskNames.each { startTaskName ->
+        if (startTaskName.contains("Debug")) {
+            fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
+            configurations.each { config ->
+                //如果同时配置了多个，被先遍历到的生效
+                if ("".equals(host_patch_path)) {
+                    if (config.name.equals("debugBaselinePatch") || config.name.equals("baselinePatch")) {
+                        config.files.each { patch ->
+                            host_patch_path = patch.absolutePath;
+                            println project.name + "发现宿主基线配置指向位置：" + host_patch_path
 
-                //读取宿主基线包文件路径
-                host_patch_path = patch.absolutePath;
-                println project.name + "发现宿主基线配置指向位置：" + host_patch_path
+                            println "检查宿主基线patch文件：" + host_patch_path
 
-                println "检查宿主基线patch文件：" + host_patch_path
-
-                if (!file(host_patch_path).exists()) {
-                    file(host_patch_extract_dir).deleteDir();
-                    println "宿主基线patch文件不存在"
-                } else {
-                    copy {
-                        println "正在解压宿主基线patch文件：" + host_patch_path
-                        def zipFile = file(host_patch_path);//host.bar
-                        def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
-                        outputDir.deleteDir();
-                        from zipTree(zipFile)
-                        from(zipFile) {
-                            rename {
-                                host_patch_fileName
+                            if ("".equals(host_patch_path) || !file(host_patch_path).exists()) {
+                                file(host_patch_extract_dir).deleteDir();
+                                println "宿主基线patch文件不存在"
+                            } else {
+                                copy {
+                                    println "正在解压宿主基线patch文件：" + host_patch_path
+                                    def zipFile = file(host_patch_path);//host.bar
+                                    def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
+                                    outputDir.deleteDir();
+                                    from zipTree(zipFile)
+                                    from(zipFile) {
+                                        rename {
+                                            host_patch_fileName
+                                        }
+                                    }
+                                    into outputDir
+                                }
                             }
                         }
-                        into outputDir
                     }
                 }
+            }
+        } else if (startTaskName.contains("Release")) {
+            fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
+            configurations.each { config ->
+                //如果同时配置了多个，被先遍历到的生效
+                if ("".equals(host_patch_path)) {
+                    if (config.name.equals("releaseBaselinePatch") || config.name.equals("baselinePatch")) {
+                        config.files.each { patch ->
+                            host_patch_path = patch.absolutePath;
+                            println project.name + "发现宿主基线配置指向位置：" + host_patch_path
 
-                //读取混淆开关配置
-                gradle.startParameter.taskNames.each { startTaskName ->
-                    if (startTaskName.startsWith("assemble")) {
-                        if (startTaskName.contains("Debug")) {
-                            fairyMinifyEnabled = android.buildTypes.debug.minifyEnabled
-                        } else if (startTaskName.contains("Release")) {
-                            fairyMinifyEnabled = android.buildTypes.release.minifyEnabled
+                            println "检查宿主基线patch文件：" + host_patch_path
+
+                            if ("".equals(host_patch_path) || !file(host_patch_path).exists()) {
+                                file(host_patch_extract_dir).deleteDir();
+                                println "宿主基线patch文件不存在"
+                            } else {
+                                copy {
+                                    println "正在解压宿主基线patch文件：" + host_patch_path
+                                    def zipFile = file(host_patch_path);//host.bar
+                                    def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
+                                    outputDir.deleteDir();
+                                    from zipTree(zipFile)
+                                    from(zipFile) {
+                                        rename {
+                                            host_patch_fileName
+                                        }
+                                    }
+                                    into outputDir
+                                }
+                            }
                         }
                     }
                 }
-
-                //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
-                println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
-                if (!fairyMinifyEnabled) {
-                    configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
-                } else {
-                    configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
-                }
-
             }
         }
+    }
+    //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
+    println project.name + "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + fairyMinifyEnabled
+    if (!fairyMinifyEnabled) {
+        configurations.compileOnly.dependencies.add(project.dependencies.create(files(hostClassesJar)))
+    } else {
+        configurations.implementation.dependencies.add(project.dependencies.create(files(hostClassesJar)))
     }
 
     def moduleVariants = isApplicationModule?android.applicationVariants:android.libraryVariants
