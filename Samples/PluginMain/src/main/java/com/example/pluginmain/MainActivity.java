@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     private void testUseLibray() {
         AndroidHttpClient androidHttpClient = AndroidHttpClient.newInstance("test/test", getApplicationContext());
         ClassLoader classloader = androidHttpClient.getClass().getClassLoader();
+        androidHttpClient.close();
         Log.e("MainActivity", "testUseLibray, classloader=" + classloader);
     }
 

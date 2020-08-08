@@ -178,3 +178,34 @@ fairy {
     //此功能请谨慎使用，否则可能引起插件崩溃
     //compatibleWithHostVersion = "1.2.0,1.2.1"
 }
+
+tasks.whenTaskAdded { it1->
+    println it1.name
+}
+
+afterEvaluate {
+    for (variant in android.applicationVariants) {
+        def varName = variant.name;
+        def varDirName =  variant.dirName
+        def mergeProjectDexTask = tasks.findByName("mergeProjectDex${varName.capitalize()}")
+        if (mergeProjectDexTask != null) {
+            mergeProjectDexTask.doLast {
+                mergeProjectDexTask.outputs.files.each { it1->
+                    fileTree(it1).each { it2->
+                        println 'dex::' + it2
+                    }
+                }
+            }
+        }
+        def mergeDexTask = tasks.findByName("mergeDex${varName.capitalize()}")
+        if (mergeDexTask != null) {
+            mergeDexTask.doLast {
+                mergeDexTask.outputs.files.each { it1->
+                    fileTree(it1).each { it2->
+                        println 'dex::' + it2
+                    }
+                }
+            }
+        }
+    }
+}
