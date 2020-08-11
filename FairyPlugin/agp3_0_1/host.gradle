@@ -104,7 +104,13 @@ afterEvaluate {
                 println '编译宿主资源时插入' + url + ' 到' + destPath + ', 用来控制宿主资源id分组'
                 HttpURLConnection httpConn =(HttpURLConnection)(new URL(url).openConnection())
                 InputStream inputStream = httpConn.getInputStream()
-                OutputStream ouput =new FileOutputStream(new File(destPath, "public.xml"))
+                File destPublicXmlFile = new File(destPath, "public.xml")
+                File parentFile = destPublicXmlFile.getParentFile()
+                if (!parentFile.exists()) {
+                    parentFile.mkdirs()
+                }
+
+                OutputStream ouput =new FileOutputStream(destPublicXmlFile)
                 byte[] buffer = new byte[8*1024]
                 int size = -1
                 while((size = inputStream.read(buffer)) != -1) {
@@ -236,6 +242,8 @@ afterEvaluate {
         //第5件事
         def org.gradle.api.tasks.compile.JavaCompile javaCompile = variant.javaCompile;
         javaCompile.doLast {
+            HashMap<String, String> jarSets = new HashMap<String, String>();
+            jarSets.put("android.jar", "<Inner>")
 
             println "Merge Jar After Task " + javaCompile.name + " buildType is " + buildTypeName + ", flavorName is " + flavorName +  ", varName is " + varName
 
@@ -256,8 +264,16 @@ afterEvaluate {
                 });
 
                 javaCompile.classpath.each { jarPath ->
-                    jarMerger.addJar(jarPath);
-                    //jarMerger.addFolder(directoryInput.getFile());
+                    String jarName = jarPath.getName();
+                    if(!jarSets.keySet().contains(jarName)) {
+                        println "addJar path: $jarPath"
+                        jarMerger.addJar(jarPath);
+                        if (!jarName.equals("classes.jar") && jarPath.absolutePath.endsWith("/libs/" + jarName)) {
+                            jarSets.put(jarName, jarPath.absolutePath)
+                        }
+                    } else {
+                        println "ignore jar: $jarPath \n\\------ because of : " + jarSets.get(jarName)
+                    }
                 }
 
                 String buildClassesTaskName1 = "jar" + varName.capitalize() +  "Classes";
@@ -294,6 +310,7 @@ afterEvaluate {
                     println "classes path already exists： " + classes.absolutePath
                 }
                 if (classes.exists()) {
+                    println "addJar path: $classes.absolutePath"
                     jarMerger.addJar(classes)
                 }
             } finally {

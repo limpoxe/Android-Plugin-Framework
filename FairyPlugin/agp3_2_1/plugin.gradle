@@ -35,32 +35,27 @@ extensions.create('fairy', FaiyExt)
 android{
 }
 
-println "执行命令决定了bar文件依赖路径！"
-//基线包文件名
-def host_patch_fileName = "host.bar"
-//基线包解压路径
-def default_host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/unspecified'
-def host_patch_extract_dir = default_host_patch_extract_dir
+def hostBar = "host.bar"
+def hostJar = "host_classes.jar"
+def hostBarRootDir = rootProject.rootDir.absolutePath + '/.gradle/fairy/baselinePatch/'
+def defaultExtraDir = hostBarRootDir + "unspecified"
+def currentSelectedBar = defaultExtraDir + "/" + hostBar
 gradle.startParameter.taskNames.each { startTaskName ->
     if (startTaskName.contains("Debug")) {
-        host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/debug'
+        currentSelectedBar = hostBarRootDir + "debug" + "/" + hostBar
     } else if (startTaskName.contains("Release")) {
-        host_patch_extract_dir = project.buildDir.absolutePath + '/outputs/baselinePatch/release'
+        currentSelectedBar = hostBarRootDir + "release" + "/" + hostBar
     }
 }
-//基线包解压后的classjar的路径
-def hostClassesJar = host_patch_extract_dir + "/host_classes.jar"
 
-//根据启动参数来决定aaptOptions要依赖哪个bar文件
+println "执行命令决定了bar文件依赖路径！"
+println ">>>" + hostBarRootDir
+println ">>>" + currentSelectedBar
+
 android.aaptOptions.additionalParameters(
-        '-I', host_patch_extract_dir + "/" + host_patch_fileName,
+        '-I', currentSelectedBar,
         '--package-id', "0x7f", //默认0x7f，可以修改为任意其他值，如0x66、0x88，但要确保不和系统已经使用的id重复。典型的如0x10、0x20，都已被系统使用
         '--allow-reserved-package-id')
-
-println ">>>" + default_host_patch_extract_dir
-println ">>>" + host_patch_extract_dir
-println ">>>" + host_patch_extract_dir + "/" + host_patch_fileName
-println ">>>" + hostClassesJar
 
 afterEvaluate {
     def isApplicationModule = getPlugins().hasPlugin("com.android.application")
@@ -75,36 +70,39 @@ afterEvaluate {
         def buildTypeName = variant.buildType.name
         def flavorName = variant.flavorName
         def varDirName =  variant.dirName
+        def hostBarExtraRootDir = hostBarRootDir + variant.buildType.name
 
         println '\n'
         println project.name + ' Check Env : variant=' + varName +  ", buildTypeName=" + buildTypeName + ", flavorName=" + flavorName + ", varDirName=" + varDirName
 
         //读取宿主基线包文件路径，并解压到指定目录
-        //从原理上讲应该每个变种都需要一个对应的基线包路径，这里偷懒了，只考虑了buildType，忽略favor
-        def host_patch_path = ""
-        def configure = configurations['baselinePatch']
+        def configure = configurations.maybeCreate(variant.buildType.name + 'BaselinePatch')
+        if (configure == null || configure.files.size() == 0) {
+            configure = configurations['baselinePatch']
+        }
         if (configure.files.size() == 0) {
-            configure = configurations[variant.buildType.name + 'BaselinePatch'];
+            project.logger.error '未配置基线包依赖！'
         }
         configure.files.each { patch ->
-            host_patch_path = patch.absolutePath;
-            println "发现宿主基线配置指向位置：" + host_patch_path
-            if ("".equals(host_patch_path) || !file(host_patch_path).exists()) {
-                file(host_patch_extract_dir).deleteDir();
-                println "宿主基线patch文件不存在"
+            println "发现宿主基线配置指向位置：" + patch.absolutePath
+            //从原理上讲应该每个变种都需要一个对应的基线包解压路径，这里偷懒了，只考虑了buildType，忽略favor
+            if ("".equals(patch.absolutePath) || !file(patch.absolutePath).exists()) {
+                println "宿主基线patch文件不存在：" + patch.absolutePath
+                println "清理对应的缓存目录：" + hostBarExtraRootDir
+                file(hostBarExtraRootDir).deleteDir();
             } else {
                 //按buildType解压到不同的文件夹里面
-                println "解压宿主基线文件：" + host_patch_path + "\n    到 " + host_patch_extract_dir
+                println "解压宿主基线文件：" + patch.absolutePath + "\n    到 " + hostBarExtraRootDir
                 //这里做一个简单校验判断，提高效率
-                if (file(host_patch_extract_dir + "/" + host_patch_fileName).size() != file(host_patch_path).size()) {
+                if (file(hostBarExtraRootDir + "/" + hostBar).size() != file(patch.absolutePath).size()) {
                     copy {
-                        def zipFile = file(host_patch_path);//host.bar
-                        def outputDir = file(host_patch_extract_dir)//outputs/baselinePatch
+                        def zipFile = file(patch.absolutePath)
+                        def outputDir = file(hostBarExtraRootDir)
                         outputDir.deleteDir();
                         from zipTree(zipFile)
                         from(zipFile) {
                             rename {
-                                host_patch_fileName
+                                hostBar
                             }
                         }
                         into outputDir
@@ -113,17 +111,17 @@ afterEvaluate {
                     println "源与目标文件大小相同，省去解压步骤"
                 }
                 //这里做一个简单校验判断，提高效率
-                if (file(default_host_patch_extract_dir + "/" + host_patch_fileName).size() != file(host_patch_path).size()) {
+                if (file(defaultExtraDir + "/" + hostBar).size() != file(patch.absolutePath).size()) {
                     copy {
                         //留存一份到默认目录，当不是使用assembleDebug和assembleRelease编译时会使用这个文件夹
                         //如果同时配置了debug和release，使用最后一个遍历到的buildType覆盖
-                        def zipFile = file(host_patch_path);//host.bar
-                        def outputDir = file(default_host_patch_extract_dir)//outputs/baselinePatch
+                        def zipFile = file(patch.absolutePath);
+                        def outputDir = file(defaultExtraDir)
                         outputDir.deleteDir();
                         from zipTree(zipFile)
                         from(zipFile) {
                             rename {
-                                host_patch_fileName
+                                hostBar
                             }
                         }
                         into outputDir
@@ -133,6 +131,12 @@ afterEvaluate {
         }
         //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
         //这里偷懒了，只考虑了buildType，忽略favor
+        def hostClassesJar = hostBarExtraRootDir + "/" + hostJar
+        if (!file(hostClassesJar).exists()) {
+            //当不是使用assembleDebug和assembleRelease编译时
+            println "hostClassesJar " + hostClassesJar + " 不存在，自动切换到default"
+            hostClassesJar = defaultExtraDir + "/" + hostJar;
+        }
         println "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + variant.buildType.minifyEnabled
         if (!variant.buildType.minifyEnabled) {
             configurations[variant.buildType.name + 'CompileOnly'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
@@ -145,9 +149,9 @@ afterEvaluate {
         mergeResourceTask.outputs.upToDateWhen { false }
         mergeResourceTask.doLast {
 
-            println "开始merge插件工程资源：" + host_patch_path + " 到" + varDirName
+            println "开始merge插件工程资源：" + hostBarExtraRootDir + " 到" + varDirName
 
-            File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
+            File propFile = file(hostBarExtraRootDir + "/HostInfo.prop");
             if (!propFile.exists()) {
                 throw new Exception("HostInfo.prop丢失：" + propFile.absolutePath)
             }
@@ -158,12 +162,12 @@ afterEvaluate {
                 throw new Exception("HostInfo.prop文件信息不全，请检查此文件内容：" + propFile.absolutePath)
             }
             //应用宿主的主题包
-            applyThemePatch(hostVarDirName, varName, varDirName, host_patch_extract_dir);
+            applyThemePatch(hostVarDirName, varName, varDirName, hostBarExtraRootDir);
         }
 
         if (isApplicationModule) {
             tasks.findByName("process${varName.capitalize()}Manifest").doLast {
-                File propFile = file(host_patch_extract_dir + "/HostInfo.prop");
+                File propFile = file(hostBarExtraRootDir + "/HostInfo.prop");
                 def hostVersionName = null
                 def hostVersionCode = null
                 def hostApplicationId = null
@@ -186,7 +190,11 @@ afterEvaluate {
                     projects.logger.log(LogLevel.ERROR, "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName)
 
                 } else {
-                    throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
+                    if ("".equals(hostBarExtraRootDir) || !file(hostBarExtraRootDir).exists()) {
+                        throw new Exception("依赖的宿主基线文件不存在，请检查${project.name}工程的dependencies.baselinePatch依赖的文件是否存在。\n依赖的文件路径为：" + hostBarExtraRootDir)
+                    } else {
+                        throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
+                    }
                 }
 
                 fileTree(manifestOutputDirectory).include("**/AndroidManifest.xml").each { manifestFile->
@@ -213,7 +221,7 @@ afterEvaluate {
             if (proguardTask) {
                 proguardTask.doFirst {
                     println "开始混淆任务 " + varName.capitalize()
-                    def baselineMappingFile = host_patch_extract_dir + "/mapping/" + varName + "/mapping.txt";
+                    def baselineMappingFile = hostBarExtraRootDir + "/mapping/" + varName + "/mapping.txt";
                     projects.logger.log(LogLevel.ERROR, "应用基线mapping文件： " + baselineMappingFile)
                     if (!file(baselineMappingFile).exists()) {
                         throw "baselineMappingFile is Not Found : " + baselineMappingFile
@@ -224,7 +232,7 @@ afterEvaluate {
 
                     println "混淆完成 " + varName.capitalize()
 
-                    def host_obfuscated_jar = host_patch_extract_dir + "/host_obfuscated.jar"
+                    def host_obfuscated_jar = hostBarExtraRootDir + "/host_obfuscated.jar"
                     if (!new File(host_obfuscated_jar).exists()) {
                         project.logger.error "宿主基线混淆包不存在 " + host_obfuscated_jar
                         throw new Exception("宿主基线混淆包不存在 " + host_obfuscated_jar + "， 请检查宿主编译产物中是否包含此文件")
@@ -527,67 +535,6 @@ def applyThemePatch(hostVarDirName, varName, varDir, hostPatchExtractDir) {
         "$aapt2Exe compile -o $buildDir.absolutePath/intermediates/res/merged/$varDir $itemFile".execute().waitFor()
     }
 }
-
-/** fix provided config for aar dependences
-ext.plist = []
-configurations.provided.dependencies.each {dep ->
-    println dep
-    gradle.startParameter.taskNames.each { startTaskName ->
-        if (startTaskName.startsWith("assemble") || startTaskName.startsWith("build")) {
-            if (dep.version.equals('unspecified')) {
-
-                String buildType = startTaskName.replace("assemble", "").replace("build", "")
-                if (buildType.length() == 0) {
-                    buildType = "debug";
-                }
-
-                //为依赖库插入jar任务
-                dep.dependencyProject.tasks.getByName("compile" + buildType + "Sources").doLast {
-                    String jarTaskName = "jar" + buildType.substring(0, 1).toUpperCase()+ buildType.replaceFirst("\\w","") +  "Classes"
-                    println '执行task：' + jarTaskName;
-                    dep.dependencyProject.tasks.getByName(jarTaskName).execute()
-                }
-
-                //src的jar
-                File srcJar = new File(dep.dependencyProject.buildDir, "intermediates/packaged/" + buildType + "/classes.jar")
-                addProvidedDependences(configurations.provided.dependencies, srcJar);
-
-                //处理aar依赖
-                File aarDir = new File(dep.dependencyProject.buildDir, "intermediates/exploded-aar")
-                addProvidedDependences(configurations.provided.dependencies, aarDir)
-
-                //处理libs/jar依赖
-                //TODO
-
-            }
-        }
-    }
-}
-
-configurations.provided.dependencies.clear()
-
-ext.plist.each { path ->
-    configurations.provided.dependencies.add(project.dependencies.create(files(path)))
-    println "try add provided jar to plugin project : " + path
-}
-
-def addProvidedDependences(DependencySet providedDepSet, File root) {
-    //宿主编译前文件可能不存在, 所以要先编译宿主 再编译插件
-    if (root.getName().endsWith(".jar")) {
-        ext.plist +=[root.getAbsolutePath()]
-        //providedDepSet.add(project.dependencies.create(files(root.getAbsolutePath())))
-        //println "try add provided jar to plugin project : " + root.getAbsolutePath()
-    } else {
-        File[] subFiles = root.listFiles();
-        if (subFiles != null) {
-            for (File subFile : subFiles) {
-                addProvidedDependences(providedDepSet, subFile);
-            }
-        }
-    }
-}
-*/
-
 
 public class StyleProcessor extends DefaultHandler {
 
