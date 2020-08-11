@@ -66,7 +66,8 @@ dependencies {
     implementation 'com.facebook.rebound:rebound:0.3.5'
 
     //支持使用maven坐标配置
-    baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Debug.bar")
+    debugBaselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Debug.bar")
+    releaseBaselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Release.bar")
 }
 
 //afterEvaluate {

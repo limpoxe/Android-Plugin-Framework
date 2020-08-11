@@ -113,12 +113,13 @@ dependencies {
     //如果是独立插件，无需任何特殊配置
     /////////////////////////////////////////////////////////////////////
 
-    compileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/PluginTesBase-f1Debug.jar')
+    debugCompileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/PluginTesBase-f1Debug.jar')
+    releaseCompileOnly files(project(':Samples:PluginTesBase').getBuildDir().absolutePath + '/outputs/PluginTesBase-f1Release.jar')
 
     //支持使用maven坐标配置
     //baselinePatch 'xxx:xxx:xxx@xx'
     debugBaselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Debug.bar")
-    releaseBaselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Debug.bar")
+    releaseBaselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + "/distributions/host-${hostbarName}-F1Release.bar")
 
     //Just For Test ButterKnife
     //compile 'com.jakewharton:butterknife:8.5.1'
