@@ -24,10 +24,12 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
+import android.view.Display;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
@@ -212,5 +214,17 @@ public class PluginBaseContextWrapper extends ContextWrapper {
         }
 		LogUtil.v(packageName, "创建正常Context");
 		return super.createPackageContext(packageName, flags);
+	}
+
+	@Override
+	public Context createConfigurationContext(Configuration overrideConfiguration) {
+		LogUtil.v("BaseContext", "可能需要重写此方法，用于适配AndroidX1.1.+");
+		return super.createConfigurationContext(overrideConfiguration);
+	}
+
+	@Override
+	public Context createDisplayContext(Display display) {
+		LogUtil.v("BaseContext", "可能需要重写此方法");
+		return super.createDisplayContext(display);
 	}
 }
