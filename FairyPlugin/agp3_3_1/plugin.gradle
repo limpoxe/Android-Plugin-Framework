@@ -141,7 +141,7 @@ afterEvaluate {
         if (!variant.buildType.minifyEnabled) {
             configurations[variant.buildType.name + 'CompileOnly'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
         } else {
-            configurations[variant.buildType.name + 'implementation'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
+            configurations[variant.buildType.name + 'Implementation'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
         }
 
         def mergeResourceTask = tasks.findByName("merge${varName.capitalize()}Resources");
