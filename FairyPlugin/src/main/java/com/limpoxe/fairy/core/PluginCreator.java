@@ -238,7 +238,7 @@ public class PluginCreator {
      * @param base  由系统创建的Context。 其实际类型应该是ContextImpl
      * @return
      */
-	/*package*/ static Context createNewPluginComponentContext(Context pluginContext, Context base, int theme) {
+    public static Context createNewPluginComponentContext(Context pluginContext, Context base, int theme) {
         PluginContextTheme newContext = null;
         if (pluginContext != null) {
             newContext = (PluginContextTheme)PluginCreator.createPluginContext(((PluginContextTheme) pluginContext).getPluginDescriptor(),
@@ -246,8 +246,12 @@ public class PluginCreator {
                     (ClassLoader) pluginContext.getClassLoader());
 
             newContext.setPluginApplication((Application) ((PluginContextTheme) pluginContext).getApplicationContext());
-
-            newContext.setTheme(FairyGlobal.getHostApplication().getApplicationContext().getApplicationInfo().theme);
+            
+            if (theme == 0) {
+				newContext.setTheme(FairyGlobal.getHostApplication().getApplicationContext().getApplicationInfo().theme);
+			} else {
+				newContext.setTheme(theme);
+			}
         }
         return newContext;
     }
