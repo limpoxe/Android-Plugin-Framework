@@ -51,8 +51,11 @@ public class AndroidOsServiceManager extends MethodProxy {
         sCache = HackServiceManager.getCache();
         sCacheKeySet = new HashSet<String>();
         sCacheKeySet.addAll(sCache.keySet());
+        IBinder windowService = sCache.get(Context.WINDOW_SERVICE);
         sCache.clear();
-
+        if (windowService != null) {
+            sCache.put(Context.WINDOW_SERVICE, windowService);
+        }
         LogUtil.d("安装完成");
     }
 
