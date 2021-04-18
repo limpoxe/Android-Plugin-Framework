@@ -1,10 +1,19 @@
 package com.limpoxe.fairy.core.viewfactory;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.util.AttributeSet;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import com.limpoxe.fairy.content.LoadedPlugin;
+import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.PluginContextTheme;
+import com.limpoxe.fairy.core.PluginCreator;
+import com.limpoxe.fairy.core.PluginLauncher;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
+import com.limpoxe.fairy.util.LogUtil;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -127,6 +136,33 @@ public class PluginViewInflater {
         //wrap it in a new wrapper
         //context = new ContextThemeWrapper(context, themeId);
         return context;
+    }
+
+    static Context createContext(Context Context, String pluginId) {
+        try {
+            PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
+
+            if (pluginDescriptor != null) {
+
+                //插件可能尚未初始化，确保使用前已经初始化
+                LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
+
+                Context baseContext = Context;
+                if (!(baseContext instanceof PluginContextTheme)) {
+                    baseContext = ((ContextWrapper)baseContext).getBaseContext();
+                }
+                if (baseContext instanceof PluginContextTheme) {
+                    baseContext = ((PluginContextTheme) baseContext).getBaseContext();
+                }
+                Context pluginViewContext = PluginCreator.createNewPluginComponentContext(plugin.pluginContext, baseContext, pluginDescriptor.getApplicationTheme());
+                return pluginViewContext;
+            } else {
+                LogUtil.e("未找到插件" + pluginId + "，请确认是否已安装");
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 
 }
