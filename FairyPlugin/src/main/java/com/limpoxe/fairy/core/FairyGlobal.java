@@ -20,7 +20,8 @@ public class FairyGlobal {
     private static ArrayList<StubMappingProcessor> mappingProcessors = new ArrayList<StubMappingProcessor>();
     private static boolean sFakePluginProcessName = true;
     private static boolean sNeedVerifyHostVersionName = true;
-
+    private static String sNotificationResPath;
+    
     public static Application getHostApplication() {
         if (sApplication == null) {
             throw new IllegalStateException("not inited yet");
@@ -109,6 +110,17 @@ public class FairyGlobal {
 
     public static void setNeedVerifyHostVersionName(boolean needVerify) {
         sNeedVerifyHostVersionName = needVerify;
+    }
+
+    public static String getNotificationResPath() {
+        if (sNotificationResPath == null) {
+            return getHostApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk";
+        }
+        return sNotificationResPath;
+    }
+
+    public static void setNotificationResPath(String notificationResPath) {
+        sNotificationResPath = notificationResPath;
     }
 
     /**
