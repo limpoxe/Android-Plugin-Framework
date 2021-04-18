@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.RefInvoker;
 
 /**
  * Created by Administrator on 2015/12/13.
@@ -46,6 +47,54 @@ public class PluginViewFactory implements PluginFactoryInterface {
 	@Override
 	public final View onCreateView(View parent, String name,
 								   Context context, AttributeSet attrs) {
+		if ("fragment".equals(name)) {
+
+			String pluginId = attrs.getAttributeValue(null, "context");
+			String fname = attrs.getAttributeValue(null, "class");
+			if (fname == null) {
+				int count = attrs.getAttributeCount();
+				for(int i = 0; i < count; i++) {
+					if ("name".equals(attrs.getAttributeName(i))) {
+						fname = attrs.getAttributeValue(i);
+						break;
+					}
+				}
+			}
+
+			if (pluginId != null) {
+				Context fragmentContext = createContext(context, pluginId);
+				if (fragmentContext != null) {
+					if (mOriginalWindowCallback instanceof LayoutInflater.Factory) {
+						//框架并不知道实际可能是什么类型，所以都试一下
+						try {
+							//for android.app.Fragment
+							android.app.Fragment.instantiate(fragmentContext, fname, null);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						try {
+							//for android.support.v4.app.Fragment
+							RefInvoker.invokeMethod(null, "android.support.v4.app.Fragment",
+								"isSupportFragmentClass",new Class[]{Context.class, String.class}, new Object[]{fragmentContext, fname});
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						try {
+							//for androidx.fragment.app.Fragment
+							RefInvoker.invokeMethod(null, "androidx.fragment.app.Fragment",
+								"isSupportFragmentClass",new Class[]{Context.class, String.class}, new Object[]{fragmentContext, fname});
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						View view = ((LayoutInflater.Factory) mOriginalWindowCallback).onCreateView(name, fragmentContext, attrs);
+						if (view != null) {
+							return view;
+						}
+					}
+				}
+			}
+		}
+
 		// First let the Activity's Factory try and inflate the view
 		final View view = callActivityOnCreateView(parent, name, context, attrs);
 		if (view != null) {
@@ -92,5 +141,12 @@ public class PluginViewFactory implements PluginFactoryInterface {
 
 		return mPluginViewInflater.createView(parent, name, context, attrs,
 				inheritContext, isPre21);
+	}
+
+	private Context createContext(Context Context, String pluginId) {
+		if (mPluginViewInflater == null) {
+			mPluginViewInflater = new PluginViewInflater(mContext, mViewfactory);
+		}
+		return mPluginViewInflater.createContext(Context, pluginId);
 	}
 }
