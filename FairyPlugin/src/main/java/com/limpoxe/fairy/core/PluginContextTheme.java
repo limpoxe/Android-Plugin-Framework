@@ -10,12 +10,14 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.ArrayMap;
+import android.view.Display;
 import android.view.LayoutInflater;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -185,6 +187,18 @@ public class PluginContextTheme extends PluginBaseContextWrapper {
 	@Override
 	public Context getApplicationContext() {
 		return mPluginApplication;
+	}
+
+	@Override
+	public Context createConfigurationContext(Configuration overrideConfiguration) {
+		//todo 这里将参数overrideConfiguration扔掉了，可能会导致夜间模式失效。要支持夜间模式需要把这个参数用起来
+		return PluginCreator.createNewPluginComponentContext(this, getBaseContext(), 0);
+	}
+
+	@Override
+	public Context createDisplayContext(Display display) {
+		//todo 这个函数不重写可能无法支持副屏
+		return super.createDisplayContext(display);
 	}
 
 	@Override
