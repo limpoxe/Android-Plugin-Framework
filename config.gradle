@@ -7,10 +7,10 @@ ext {
     GRADLE_PLUGIN_VERSION = '4.1.3'
 
     //定义常量，方便统一切换脚本的版本
-    HOST_FAIRY_SCRIPT = "../../FairyPlugin/agp4.1.3/host.gradle"
+    HOST_FAIRY_SCRIPT = "../../FairyPlugin/agp4_1_3/host.gradle"
     //HOST_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/host.gradle"
 
-    PLUGIN_FAIRY_SCRIPT = "../../FairyPlugin/agp4.1.3/plugin.gradle"
+    PLUGIN_FAIRY_SCRIPT = "../../FairyPlugin/agp4_1_3/plugin.gradle"
     //PLUGIN_FAIRY_SCRIPT = "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp${GRADLE_PLUGIN_VERSION.replaceAll("\\.","_")}/plugin.gradle"
 
 
