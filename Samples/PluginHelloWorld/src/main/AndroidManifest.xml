@@ -33,6 +33,17 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:name=".TransparentActivity" >
         </activity>
+        
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="x.y.z.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepath" />
+        </provider>
+        
     </application>
 
 </manifest>
