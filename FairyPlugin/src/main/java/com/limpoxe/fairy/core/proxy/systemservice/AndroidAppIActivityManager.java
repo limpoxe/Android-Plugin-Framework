@@ -324,6 +324,12 @@ public class AndroidAppIActivityManager extends MethodProxy {
                         isAlreadyAddByHost = false;
 
                         if (hostProviders != null) {
+                            if (hostProvider.name.equals(ProviderClientProxy.class.getName())) {
+                                continue;
+                            }
+                            if (hostProvider.metaData != null && hostProvider.metaData.containsKey("fairy_bridge")) {
+                                continue;
+                            }
                             for(ProviderInfo hostProvider : hostProviders) {
                                 if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
                                     LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
@@ -380,6 +386,12 @@ public class AndroidAppIActivityManager extends MethodProxy {
                         isAlreadyAddByHost = false;
                         PluginProviderInfo pluginProviderInfo = iterator.next();
                         if (hostProviders != null) {
+                            if (hostProvider.name.equals(ProviderClientProxy.class.getName())) {
+                                continue;
+                            }
+                            if (hostProvider.metaData != null && hostProvider.metaData.containsKey("fairy_bridge")) {
+                                continue;
+                            }
                             for(ProviderInfo hostProvider : hostProviders) {
                                 if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
                                     LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
