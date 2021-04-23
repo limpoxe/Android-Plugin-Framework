@@ -9,6 +9,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.IBinder;
@@ -78,9 +79,15 @@ public class PluginInjector {
 	}
 
 	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
-		List<ProviderInfo> hostProviders = context.getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
-        boolean isAlreadyAddByHost = false;
-
+        ProviderInfo[] hostProviders = new ProviderInfo[0];
+		try {
+			hostProviders = FairyGlobal.getHostApplication().getPackageManager()
+				.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(),
+					PackageManager.GET_PROVIDERS).providers;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		boolean isAlreadyAddByHost = false;
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 
