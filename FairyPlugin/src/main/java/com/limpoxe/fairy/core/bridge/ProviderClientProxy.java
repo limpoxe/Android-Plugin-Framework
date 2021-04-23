@@ -28,6 +28,7 @@ public class ProviderClientProxy extends ContentProvider {
     public static final String CALL_PROXY_KEY = "target_call";
     public static final String TARGET_URL = "targetUrl";
 
+    private ProviderInfo providerInfo;
     private String mAuthority = null;
 
     public ProviderClientProxy() {
@@ -90,6 +91,13 @@ public class ProviderClientProxy extends ContentProvider {
         if (extras != null && extras.getParcelable(CALL_PROXY_KEY) != null) {
             return PluginManagerProviderClient.call(method, arg, extras);
         }
+        if (providerInfo != null) {
+            if (extras == null) {
+                extras = new Bundle();
+            }
+            extras.putParcelable(CALL_PROXY_KEY, Uri.parse("content://" + providerInfo.authority));
+            return PluginManagerProviderClient.call(method, arg, extras);
+        }
         return null;
     }
 
@@ -101,6 +109,7 @@ public class ProviderClientProxy extends ContentProvider {
 
     @Override
     public void attachInfo(Context context, ProviderInfo info) {
+        providerInfo = info;
         LogUtil.d("attachInfo", info.authority, info.name);
         super.attachInfo(context, info);
     }
