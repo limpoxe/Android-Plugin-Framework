@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.IBinder;
@@ -311,7 +312,14 @@ public class AndroidAppIActivityManager extends MethodProxy {
          * @return
          */
         private Object tryInstallProxyForCallerProcess(final Object invokeResult, final String auth) {
-            List<ProviderInfo> hostProviders = FairyGlobal.getHostApplication().getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
+            ProviderInfo[] hostProviders = new ProviderInfo[0];
+            try {
+                hostProviders = FairyGlobal.getHostApplication().getPackageManager()
+                    .getPackageInfo(FairyGlobal.getHostApplication().getPackageName(),
+                        PackageManager.GET_PROVIDERS).providers;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             boolean isAlreadyAddByHost = false;
             ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
             for(PluginDescriptor pluginDescriptor : list) {
@@ -369,8 +377,15 @@ public class AndroidAppIActivityManager extends MethodProxy {
         }
 
         private Object tryReInstallPluginContentProvider(final Object invokeResult, final String auth) {
+            ProviderInfo[] hostProviders = new ProviderInfo[0];
+            try {
+                hostProviders = FairyGlobal.getHostApplication().getPackageManager()
+                    .getPackageInfo(FairyGlobal.getHostApplication().getPackageName(),
+                        PackageManager.GET_PROVIDERS).providers;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             boolean isAlreadyAddByHost = false;
-            List<ProviderInfo> hostProviders = FairyGlobal.getHostApplication().getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
             ArrayList<PluginDescriptor> list = PluginManagerHelper.getPlugins();
             for(PluginDescriptor pluginDescriptor : list) {
                 HashMap<String, PluginProviderInfo> map = pluginDescriptor.getProviderInfos();
