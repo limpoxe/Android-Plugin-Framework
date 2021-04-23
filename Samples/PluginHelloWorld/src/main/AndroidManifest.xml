@@ -35,7 +35,7 @@
         </activity>
         
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="com.example.pluginhelloworld.HelloFileProvider"
             android:authorities="x.y.z.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
