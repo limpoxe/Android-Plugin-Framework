@@ -215,7 +215,7 @@
             android:configChanges="orientation"/>
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="com.example.plugintest.provider.TestFileProvider"
             android:authorities="a.b.c.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
