@@ -169,7 +169,7 @@
         <!--Demo config for plugin AdMob end -->
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy$ProviderClientUnsafeProxy0"
             android:authorities="a.b.c.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
@@ -180,7 +180,7 @@
 
         <!-- demo for bridge test -->
         <provider
-            android:name="com.limpoxe.fairy.core.bridge.ProviderClientProxy"
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy$ProviderClientUnsafeProxy1"
             android:authorities="x.y.z.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
