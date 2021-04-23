@@ -19,10 +19,9 @@ import com.limpoxe.fairy.util.RefInvoker;
 import java.io.FileNotFoundException;
 
 import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.CALL_PROXY_KEY;
+import static com.limpoxe.fairy.manager.PluginManifestParser.PREVIOUS;
 
 public class ProviderClientUnsafeProxy extends ContentProvider {
-
-    private static String PREVIOUS = "unsafe.proxy.";
 
     private ProviderInfo providerInfo;
     private String mAuthority = null;
