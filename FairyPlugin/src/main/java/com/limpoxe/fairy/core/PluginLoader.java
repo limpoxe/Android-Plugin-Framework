@@ -55,7 +55,7 @@ public class PluginLoader {
         long t1 = System.currentTimeMillis();
 
         if (Build.VERSION.SDK_INT >= 28) {
-            boolean ret = FreeReflection.exemptAll();
+            boolean ret = FreeReflection.exemptAll(app);
             LogUtil.v("hidden api exempt " + ret);
         }
 
