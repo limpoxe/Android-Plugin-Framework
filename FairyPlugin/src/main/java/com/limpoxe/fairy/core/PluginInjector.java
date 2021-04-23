@@ -33,7 +33,6 @@ import com.limpoxe.fairy.core.android.HackService;
 import com.limpoxe.fairy.core.android.HackWindow;
 import com.limpoxe.fairy.core.annotation.AnnotationProcessor;
 import com.limpoxe.fairy.core.annotation.PluginContainer;
-import com.limpoxe.fairy.core.bridge.ProviderClientProxy;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7_23_2;
 import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginNotInitError;
@@ -89,12 +88,6 @@ public class PluginInjector {
 
 			if (hostProviders != null) {
 				for(ProviderInfo hostProvider : hostProviders) {
-                    if (hostProvider.name.equals(ProviderClientProxy.class.getName())) {
-						continue;
-					}
-					if (hostProvider.metaData != null && hostProvider.metaData.containsKey("fairy_bridge")) {
-						continue;
-					}
 					if (hostProvider.authority.equals(pluginProviderInfo.getAuthority())) {
 						LogUtil.e("此contentProvider已经在宿主中定义，不再安装插件中定义的contentprovider", hostProvider.authority, pluginProviderInfo.getName(), pluginProviderInfo.getName());
 						isAlreadyAddByHost = true;
