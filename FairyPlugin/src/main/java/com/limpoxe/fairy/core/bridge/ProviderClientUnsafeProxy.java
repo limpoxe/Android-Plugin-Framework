@@ -12,18 +12,20 @@ import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.FileNotFoundException;
 
-import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.CALL_PROXY_KEY;
 import static com.limpoxe.fairy.manager.PluginManifestParser.PREVIOUS;
 
 public class ProviderClientUnsafeProxy extends ContentProvider {
+    /**
+     * @see com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIActivityManager.getContentProvider
+     */
+    static final String TARGET_URL = "targetUrl";
 
-    private ProviderInfo providerInfo;
+    private ProviderInfo mProviderInfo;
     private String mAuthority = null;
 
     public ProviderClientUnsafeProxy() {
@@ -37,9 +39,20 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         return false;
     }
 
-    private static Uri buildTargetUri(Uri uri) {
-        Uri target = Uri.parse(uri.toString().replace(uri.getHost(), PREVIOUS + uri.getHost()));
-        return target;
+    @Override
+    public void attachInfo(Context context, ProviderInfo info) {
+        mProviderInfo = info;
+        LogUtil.d("attachInfo", info.authority, info.name);
+        super.attachInfo(context, info);
+    }
+
+    private Uri buildUri(Uri uri) {
+        if (getClass().isMemberClass()) {
+            Uri target = Uri.parse(uri.toString().replace(uri.getHost(), PREVIOUS + uri.getHost()));
+            return target;
+        } else {
+            return uri;
+        }
     }
 
     @Override
@@ -47,7 +60,7 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("query", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.query(buildTargetUri(uri), strings, s, strings1, s1);
+            return PluginShadowProviderClient.query(buildUri(uri), strings, s, strings1, s1);
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
@@ -58,7 +71,7 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("query", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.query(buildTargetUri(uri), projection, queryArgs, cancellationSignal);
+            return PluginShadowProviderClient.query(buildUri(uri), projection, queryArgs, cancellationSignal);
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
@@ -69,7 +82,7 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("query", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.query(buildTargetUri(uri), projection, selection, selectionArgs, sortOrder, cancellationSignal);
+            return PluginShadowProviderClient.query(buildUri(uri), projection, selection, selectionArgs, sortOrder, cancellationSignal);
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
@@ -80,7 +93,7 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("getType", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.getType(buildTargetUri(uri));
+            return PluginShadowProviderClient.getType(buildUri(uri));
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
@@ -91,7 +104,7 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("insert", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.insert(buildTargetUri(uri), contentValues);
+            return PluginShadowProviderClient.insert(buildUri(uri), contentValues);
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
@@ -102,7 +115,7 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("delete", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.delete(buildTargetUri(uri), s, strings);
+            return PluginShadowProviderClient.delete(buildUri(uri), s, strings);
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
@@ -113,27 +126,10 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("update", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.update(buildTargetUri(uri), contentValues, s, strings);
+            return PluginShadowProviderClient.update(buildUri(uri), contentValues, s, strings);
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
-    }
-
-    @Override
-    public Bundle call(String method, String arg, Bundle extras) {
-        long tokoen = Binder.clearCallingIdentity();
-        try {
-            if (providerInfo != null) {
-                if (extras == null) {
-                    extras = new Bundle();
-                }
-                extras.putParcelable(CALL_PROXY_KEY, buildTargetUri(Uri.parse("content://" + providerInfo.authority)));
-                return PluginManagerProviderClient.call(method, arg, extras);
-            }
-        } finally {
-            Binder.restoreCallingIdentity(tokoen);
-        }
-        return null;
     }
 
     @Override
@@ -141,17 +137,25 @@ public class ProviderClientUnsafeProxy extends ContentProvider {
         LogUtil.d("openFile", uri);
         long tokoen = Binder.clearCallingIdentity();
         try {
-            return PluginManagerProviderClient.openFile(buildTargetUri(uri), mode);
+            return PluginShadowProviderClient.openFile(buildUri(uri), mode);
         } finally {
             Binder.restoreCallingIdentity(tokoen);
         }
     }
 
     @Override
-    public void attachInfo(Context context, ProviderInfo info) {
-        providerInfo = info;
-        LogUtil.d("attachInfo", info.authority, info.name);
-        super.attachInfo(context, info);
+    public Bundle call(String method, String arg, Bundle extras) {
+        Uri uri = buildUri(Uri.parse("content://" + mProviderInfo.authority));
+        long tokoen = Binder.clearCallingIdentity();
+        try {
+            if (extras == null) {
+                extras = new Bundle();
+            }
+            extras.putParcelable(TARGET_URL, uri);
+            return PluginShadowProviderClient.call(uri, method, arg, extras);
+        } finally {
+            Binder.restoreCallingIdentity(tokoen);
+        }
     }
 
     public static class ProviderClientUnsafeProxy0 extends ProviderClientUnsafeProxy {};
