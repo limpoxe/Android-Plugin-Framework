@@ -21,17 +21,17 @@ public class MyApplication extends DemoApplication {
         //UMENG SDK
         //MobclickAgent.setDebugMode(true);
         //MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
-
-        FairyGlobal.setLogEnable(true);
-        FairyGlobal.setLocalHtmlenable(false);
-        FairyGlobal.setLoadingResId(R.layout.loading);
-
-        //Just for test custom Mapping Processor
-        FairyGlobal.registStubMappingProcessor(new TestCoustProcessor());
 	}
 
     @Override
     protected void attachBaseContext(Context base) {
+	    FairyGlobal.setLogEnable(true);
+        FairyGlobal.setLocalHtmlenable(false);
+        //not mecessary
+        FairyGlobal.setLoadingResId(R.layout.loading);
+        //Just for test custom Mapping Processor
+        FairyGlobal.registStubMappingProcessor(new TestCoustProcessor());
+
         if (Build.VERSION.SDK_INT >= 28) {
             WebView.setDataDirectorySuffix(getProcessName().replaceAll("[\\.:]", "_"));
         }
