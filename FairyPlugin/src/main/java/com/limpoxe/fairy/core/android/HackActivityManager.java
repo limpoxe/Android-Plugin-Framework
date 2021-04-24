@@ -16,8 +16,8 @@ public class HackActivityManager {
         return RefInvoker.getField(null, ClassName, Field_IActivityManagerSingleton);
     }
 
-    public static Object setIActivityManagerSingleton(Object activityManagerSingleton) {
-       return RefInvoker.getField(null, ClassName, Field_IActivityManagerSingleton);
+    public static void setIActivityManagerSingleton(Object activityManagerSingleton) {
+        RefInvoker.setField(null, ClassName, Field_IActivityManagerSingleton, activityManagerSingleton);
     }
 
 }
