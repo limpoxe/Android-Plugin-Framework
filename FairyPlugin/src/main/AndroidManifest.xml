@@ -11,6 +11,12 @@
             android:authorities="${applicationId}.manager"
             android:exported="false"
             android:process=":plugin" />
+        
+        <provider
+            android:name=".core.bridge.PluginShadowProvider"
+            android:authorities="${applicationId}.bridge"
+            android:exported="false"
+            android:process=":plugin" />
 
         <!--
             对Receiver的类全名没有要求，可随意指定，框架中是通过action来查询。
