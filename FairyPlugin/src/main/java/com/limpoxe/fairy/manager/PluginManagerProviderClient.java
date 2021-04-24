@@ -1,23 +1,11 @@
 package com.limpoxe.fairy.manager;
 
-import android.annotation.TargetApi;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.os.ParcelFileDescriptor;
 
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.compat.CompatForContentProvider;
-import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.ArrayList;
-
-import static com.limpoxe.fairy.core.bridge.ProviderClientProxy.TARGET_URL;
 
 /**
  * Created by cailiming on 17/1/25.
@@ -218,109 +206,6 @@ public class PluginManagerProviderClient {
                 PluginManagerProvider.ACTION_STOP,
                 pluginId, null);
     }
-
-    /********Provider Begin********/
-    public static Cursor query(Uri url, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        Uri newUri = buildNewUri(url);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            return resolver.query(newUri, projection, selection, selectionArgs, sortOrder);
-        } catch (Exception e) {
-            LogUtil.printException("query " + url, e);
-        }
-        return null;
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static Cursor query(Uri url, String[] projection, String selection, String[] selectionArgs, String sortOrder, CancellationSignal cancellationSignal) {
-        Uri newUri = buildNewUri(url);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            return resolver.query(newUri, projection, selection, selectionArgs, sortOrder, cancellationSignal);
-        } catch (Exception e) {
-            LogUtil.printException("query " + url, e);
-        }
-        return null;
-    }
-
-    @TargetApi(Build.VERSION_CODES.O)
-    public static Cursor query(Uri url, String[] projection, Bundle queryArgs, CancellationSignal cancellationSignal) {
-        Uri newUri = buildNewUri(url);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            return resolver.query(newUri, projection, queryArgs, cancellationSignal);
-        } catch (Exception e) {
-            LogUtil.printException("query " + url, e);
-        }
-        return null;
-    }
-
-    public static String getType(Uri url) {
-        Uri newUri = buildNewUri(url);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            return resolver.getType(newUri);
-        } catch (Exception e) {
-            LogUtil.printException("getType " + url, e);
-        }
-        return null;
-    }
-
-    public static Uri insert(Uri url, ContentValues contentValues) {
-        Uri newUri = buildNewUri(url);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            return resolver.insert(newUri, contentValues);
-        } catch (Exception e) {
-            LogUtil.printException("insert " + url, e);
-        }
-        return null;
-    }
-
-    public static int delete(Uri url, String where, String[] selectionArgs) {
-        Uri newUri = buildNewUri(url);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            return resolver.delete(newUri, where, selectionArgs);
-        } catch (Exception e) {
-            LogUtil.printException("delete " + url, e);
-        }
-        return -1;
-    }
-
-    public static int update(Uri url, ContentValues values, String where, String[] selectionArgs) {
-        Uri newUri = buildNewUri(url);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            return resolver.update(newUri, values, where, selectionArgs);
-        } catch (Exception e) {
-            LogUtil.printException("delete " + url, e);
-        }
-        return -1;
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static Bundle call(String method, String arg, Bundle extras) {
-        //约定：原始url被吞掉了，所以调用这个函数的时候需要同时将原始url放入extras
-        return CompatForContentProvider.call(PluginManagerProvider.buildUri(), method, arg, extras);
-    }
-
-    private static Uri buildNewUri(Uri url) {
-        return PluginManagerProvider.buildUri().buildUpon().appendQueryParameter(TARGET_URL, url.toString()).build();
-    }
-
-    public static ParcelFileDescriptor openFile(Uri uri, String mode) {
-        Uri newUri = buildNewUri(uri);
-        ContentResolver resolver = FairyGlobal.getHostApplication().getContentResolver();
-        try {
-            LogUtil.d("openFile", uri, newUri);
-            return resolver.openFileDescriptor(newUri, mode);
-        } catch (Exception e) {
-            LogUtil.printException("openFile " + uri, e);
-        }
-        return null;
-    }
-    /********Provider End********/
 
     public static void rebootPluginProcess() {
         //杀掉插件进程
