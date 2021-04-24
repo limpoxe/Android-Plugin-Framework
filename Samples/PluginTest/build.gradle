@@ -5,6 +5,7 @@ apply from: PLUGIN_FAIRY_SCRIPT
 android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
+    ndkVersion NDK_VERSION
 
     useLibrary 'org.apache.http.legacy'
 
