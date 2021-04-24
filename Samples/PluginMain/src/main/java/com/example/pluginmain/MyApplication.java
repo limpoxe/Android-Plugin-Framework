@@ -25,7 +25,7 @@ public class MyApplication extends DemoApplication {
 
     @Override
     protected void attachBaseContext(Context base) {
-	    FairyGlobal.setLogEnable(true);
+        FairyGlobal.setLogEnable(true);
         FairyGlobal.setLocalHtmlenable(false);
         //not mecessary
         FairyGlobal.setLoadingResId(R.layout.loading);
