@@ -24,6 +24,7 @@ import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppINotificationManager
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIPackageManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidOsServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
+import com.limpoxe.fairy.core.proxy.systemservice.AndroidWidgetToast;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.manager.mapping.StubActivityMappingProcessor;
@@ -69,6 +70,7 @@ public class PluginLoader {
         boolean isPluginProcess = ProcessUtil.isPluginProcess();
         if(ProcessUtil.isPluginProcess()) {
             AndroidOsServiceManager.installProxy();
+            AndroidWidgetToast.installProxy();
         }
 
         AndroidAppIActivityManager.installProxy();
