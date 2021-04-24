@@ -21,7 +21,7 @@ import com.limpoxe.fairy.core.android.HackComponentName;
 import com.limpoxe.fairy.core.android.HackContentProviderHolder;
 import com.limpoxe.fairy.core.android.HackSingleton;
 import com.limpoxe.fairy.core.bridge.PluginShadowService;
-import com.limpoxe.fairy.core.bridge.ProviderClientProxy;
+import com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
@@ -200,21 +200,19 @@ public class AndroidAppIActivityManager extends MethodProxy {
      *    想在非插件进程调用插件contentprovider，必定会在此非插件进程触发getContentProvider方法
      *    进入到下面的逻辑中；
      *    如果目标contentprovider是插件中的（通过auth判断），则先返回一个fake的contentprovider给调用者
-     *    此时，非插件进程中的调用发起方，获得来一个fake的contentprovider；其实例是：ProviderClientProxy
+     *    此时，非插件进程中的调用发起方，获得来一个fake的contentprovider；其实例是：{@link ProviderClientUnsafeProxy}
      *
-     *    接下来，所有对插件contentprovdier的调用，其实都是在调用这个fake contentprovider：ProviderClientProxy
+     *    接下来，所有对插件contentprovdier的调用，其实都是在调用这个fake contentprovider：{@link ProviderClientUnsafeProxy}
      *
-     *    而ProviderClientProxy会将所有调用，都转发给PluginMangerProvider，这个provider是定义在插件进程中的
+     *    而{@link ProviderClientUnsafeProxy}会将所有调用，都转发给 {@link com.limpoxe.fairy.core.bridge.PluginShadowProvider}，这个provider是定义在插件进程中的
      *
-     *    接着由这个插件进程中的PluginMangerProvider，将调用再转发给插件定义的contentreslover
+     *    接着由这个插件进程中的{@link com.limpoxe.fairy.core.bridge.PluginShadowProvider}，将调用再转发给插件定义的contentreslover
      *    到这一步为止，其实就是回到了最前面在插件进程中调用插件contentprovider逻辑中去了
      *
-     *    而在前面提到的"都转发给PluginMangerProvider"，有一种情况是不方便直接转发的，就是call函数
-     *    call函数丢失了url参数，在PluginMangerProvider在转发的时候不知道要转给谁，
+     *    而在前面提到的"都转发给{@link com.limpoxe.fairy.core.bridge.PluginShadowProvider}"，有一种情况是不方便直接转发的，就是call函数
+     *    call函数丢失了url参数，在{@link com.limpoxe.fairy.core.bridge.PluginShadowProvider}在转发的时候不知道要转给谁，
      *    因此额外做了一个约定，是非插件进程的调用发起方，在试图调用插件provider的call方法时，
-     *    需要同时将url添加到参数extras中去，PluginMangerProvider在转发的时候再从extras中取出url参数，就知道要转给谁了
-     *
-     *    这就是ProviderClientProxy.CALL_PROXY_KEY这个参数的由来
+     *    需要同时将url添加到参数extras中去，{@link com.limpoxe.fairy.core.bridge.PluginShadowProvider}在转发的时候再从extras中取出url参数，就知道要转给谁了
      *
      */
     public static class getContentProvider extends MethodDelegate {
@@ -359,7 +357,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             providerInfo.applicationInfo = FairyGlobal.getHostApplication().getApplicationInfo();
                             providerInfo.authority = auth;
                             //设置代理Provider
-                            providerInfo.name = ProviderClientProxy.class.getName();
+                            providerInfo.name = ProviderClientUnsafeProxy.class.getName();
                             providerInfo.packageName = FairyGlobal.getHostApplication().getPackageName();
                             Object holder = HackContentProviderHolder.newInstance(providerInfo);
 
