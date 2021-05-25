@@ -9,8 +9,17 @@ import java.util.HashMap;
 public class WhiteList {
 
     public static final HashMap<String, String> sInterfaceList = new HashMap<String, String>();
-
+    public static final HashSet<String> sSystemServiceName = new HashSet<String>();
+    
     static {
+        //不需要在getService()时被hook的系统服务列在此处，hook越少稳定性越高
+        addServiceToIgnoreList("phone");
+        addServiceToIgnoreList("iphonesubinfo");
+        addServiceToIgnoreList("isub");
+        addServiceToIgnoreList("wifi");
+        addServiceToIgnoreList("multiwindow");
+        addServiceToIgnoreList("assetatlas");
+        
         // 通常情况下,如果是通过编译命令生成的接口, 类名如下
         // 接口类全名 : descriptor
         // 接口服务端侧实现类基类全名 : descriptor.Stub
@@ -74,4 +83,11 @@ public class WhiteList {
         }
     }
 
+    public static void addServiceToIgnoreList(String systemServiceName) {
+        sSystemServiceName.add(systemServiceName);
+    }
+
+    public static boolean isInIgnoreList(String systemServiceName) {
+        return sSystemServiceName.contains(systemServiceName);
+    }
 }
