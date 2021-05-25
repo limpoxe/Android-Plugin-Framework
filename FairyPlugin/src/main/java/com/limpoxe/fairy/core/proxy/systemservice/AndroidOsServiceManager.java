@@ -9,6 +9,7 @@ import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.android.HackServiceManager;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
+import com.limpoxe.fairy.core.proxy.WhiteList;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
@@ -64,7 +65,7 @@ public class AndroidOsServiceManager extends MethodProxy {
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             LogUtil.i("ServiceManager.getService", args[0], invokeResult != null);
-            if (ProcessUtil.isPluginProcess() && invokeResult != null) {
+            if (ProcessUtil.isPluginProcess() && invokeResult != null && !WhiteList.isInIgnoreList((String)args[0])) {
                 IBinder binder = AndroidOsIBinder.installProxy((String)args[0], (IBinder) invokeResult);
                 //0 = "package" //7.0
                 //1 = "window" //7.0
