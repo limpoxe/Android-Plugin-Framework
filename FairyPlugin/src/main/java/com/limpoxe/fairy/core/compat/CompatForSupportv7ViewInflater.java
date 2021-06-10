@@ -1,6 +1,5 @@
 package com.limpoxe.fairy.core.compat;
 
-import android.os.Debug;
 import android.view.View;
 
 import com.limpoxe.fairy.util.LogUtil;
@@ -33,7 +32,7 @@ public class CompatForSupportv7ViewInflater {
                         android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
             }
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache", e);
+            //LogUtil.printException("CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache", e);
         }
     }
 
@@ -52,7 +51,7 @@ public class CompatForSupportv7ViewInflater {
                 LogUtil.e("todo fix SimpleArrayMap", androidx_app_AppCompatViewInflater, androidx_app_AppCompatViewInflater_sConstructorMap);
             }
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForSupportv7ViewInflater.installAndroidXPluginCustomViewConstructorCache", e);
+            //LogUtil.printException("CompatForSupportv7ViewInflater.installAndroidXPluginCustomViewConstructorCache", e);
         }
     }
 
