@@ -31,6 +31,14 @@
         android:layout_centerInParent="true"
         android:text="测试全屏透明Activity跳转"/>
 
+    <Button
+        android:id="@+id/test_installapk_btn"
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/test_transparent_btn"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:text="测试安装apk"/>
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
