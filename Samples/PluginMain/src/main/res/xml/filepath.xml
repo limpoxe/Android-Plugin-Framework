@@ -1,5 +1,15 @@
 <paths>
+    <!--
+    <root-path/>代表设备的根目录new File("/");
+    <files-path/>代表context.getFilesDir()
+    <cache-path/>代表context.getCacheDir()
+    <external-files-path/>代表context.getExternalFilesDirs()
+    <external-cache-path/>代表context.getExternalCacheDirs()
+    <external-media-path/>代表context.getExternalMediaDirs()
+    <external-path/> 代表Environment.getExternalStorageDirectory()
+    -->
     <!-- name是为这条path定义一个别称，和文件的物理路径没关系 -->
+    <external-path path="Download/" name="downloads" />
     <external-path path="Pictures/" name="camera_photos" />
-    <external-path name="external_files" path="."/>
+    <external-path path="./" name="external_files" />
 </paths>
