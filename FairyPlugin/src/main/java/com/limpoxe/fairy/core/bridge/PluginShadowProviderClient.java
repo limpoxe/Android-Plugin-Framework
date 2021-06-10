@@ -107,7 +107,7 @@ public class PluginShadowProviderClient {
         try {
             return resolver.openFileDescriptor(newUri, mode);
         } catch (Exception e) {
-            LogUtil.printException("openFile " + uri, e);
+            LogUtil.printException("openFile " + uri + ", " + newUri, e);
         }
         return null;
     }
