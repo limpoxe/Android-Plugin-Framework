@@ -163,6 +163,7 @@ afterEvaluate {
                     hostInfo.append("\nhost.flavorName=" + flavorName)
                     hostInfo.append("\nhost.varName=" + varName)
                     hostInfo.append("\nhost.varDirName=" + varDirName)
+                    hostInfo.append("\nhost.minifyEnabled=" + variant.buildType.minifyEnabled)
                     def packageName = android.defaultConfig.applicationId
                     if (android.buildTypes[buildTypeName].applicationIdSuffix != null) {
                         packageName = packageName + android.buildTypes[buildTypeName].applicationIdSuffix;
@@ -290,49 +291,60 @@ afterEvaluate {
             }
         }
 
-        if (variant.buildType["minifyEnabled"]) {
+        if (variant.buildType.minifyEnabled) {
+            if (!"false".equals(rootProject.properties.get("android.enableR8"))) {
+                throw new Exception("请关闭R8：android.enableR8=false")
+            }
             //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
             def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${varName.capitalize()}")
-            proguardTask.doFirst {
-                println "开始混淆任务：" + varName.capitalize()
+            if (proguardTask == null) {
+                proguardTask = project.tasks.findByName("minify${varName.capitalize()}WithProguard")
             }
-            proguardTask.doLast {
-                println "混淆完成：" + varName.capitalize()
-                boolean isFind = false;
-                proguardTask.outputs.files.files.each { File file->
-                    //http://blog.csdn.net/sbsujjbcy/article/details/50839263
-                    //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
-                    //最新版本路径已发生变化；2017-11-12
-                    project.logger.error "file outputs=>${file.absolutePath}"
-                    String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                    println String.valueOf(file.absolutePath.contains(keyword)) + ", " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
-                    if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName)) {
+            if (proguardTask != null) {
+                proguardTask.doFirst {
+                    println "开始混淆任务：" + varName.capitalize()
+                }
+                proguardTask.doLast {
+                    println "混淆完成：" + varName.capitalize()
+                    boolean isFind = false;
+                    proguardTask.outputs.files.files.each { File file->
+                        //http://blog.csdn.net/sbsujjbcy/article/details/50839263
+                        //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
+                        //最新版本路径已发生变化；2017-11-12
+                        project.logger.error "file outputs=>${file.absolutePath}"
+                        String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
+                        println String.valueOf(file.absolutePath.contains(keyword)) + ", " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
+                        if ((file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName))
+                            || file.absolutePath.contains("/shrunk_jar/")) {
 
-                        isFind = true;
-                        def sourceHostObfuscatedJar
-                        if (new File(file.absolutePath + "/0.jar").exists()) {
-                            sourceHostObfuscatedJar = file.absolutePath + "/0.jar"
-                        } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
-                            sourceHostObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
-                        }
-                        def hostObfuscatedJar = "host_obfuscated.jar"
-                        project.logger.error "导出混淆后的宿主jar " + sourceHostObfuscatedJar + " 包到 " + "${project.buildDir}/outputs/" + hostObfuscatedJar
+                            isFind = true;
+                            def sourceHostObfuscatedJar
+                            if (new File(file.absolutePath + "/0.jar").exists()) {
+                                sourceHostObfuscatedJar = file.absolutePath + "/0.jar"
+                            } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
+                                sourceHostObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
+                            } else if (file.absolutePath.endsWith("/minified.jar")) {
+                                sourceHostObfuscatedJar = file.absolutePath
+                            }
+                            def hostObfuscatedJar = "host_obfuscated.jar"
+                            project.logger.error "导出混淆后的宿主jar " + sourceHostObfuscatedJar + " 包到 " + "${project.buildDir}/outputs/" + hostObfuscatedJar
 
-                        copy {
-                            from sourceHostObfuscatedJar
-                            into("${project.buildDir}/outputs/")
-                            rename(new Transformer<String, String>() {
-                                @Override
-                                String transform(String s) {
-                                    project.logger.error "rename:" + s
-                                    return hostObfuscatedJar
-                                }
-                            })
+                            copy {
+                                from sourceHostObfuscatedJar
+                                into("${project.buildDir}/outputs/")
+                                rename(new Transformer<String, String>() {
+                                    @Override
+                                    String transform(String s) {
+                                        project.logger.error "rename:" + s
+                                        return hostObfuscatedJar
+                                    }
+                                })
+                            }
                         }
                     }
-                }
-                if (!isFind) {
-                    throw new Exception("obfuscated jar file not found, please check.")
+                    if (!isFind) {
+                        throw new Exception("obfuscated jar file not found, please check.")
+                    }
                 }
             }
         }
