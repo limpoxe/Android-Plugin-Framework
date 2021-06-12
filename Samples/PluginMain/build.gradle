@@ -180,10 +180,6 @@ fairy {
     //compatibleWithHostVersion = "1.2.0,1.2.1"
 }
 
-tasks.whenTaskAdded { it1->
-    println it1.name
-}
-
 afterEvaluate {
     for (variant in android.applicationVariants) {
         def varName = variant.name;
