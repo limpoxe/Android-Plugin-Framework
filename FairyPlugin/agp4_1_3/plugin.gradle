@@ -127,6 +127,16 @@ afterEvaluate {
                         into outputDir
                     }
                 }
+                //读取宿主编译信息
+                File propFile = file(hostBarExtraRootDir + "/HostInfo.prop");
+                if (!propFile.exists()) {
+                    throw new Exception("HostInfo.prop丢失：" + propFile.absolutePath)
+                }
+                def Properties props = new Properties()
+                props.load(new FileInputStream(propFile))
+                props.keySet().forEach { propKey->
+                    project.ext.setProperty(propKey, props.getProperty(propKey))
+                }
             }
         }
         //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
@@ -141,6 +151,9 @@ afterEvaluate {
         if (!variant.buildType.minifyEnabled) {
             configurations[variant.buildType.name + 'CompileOnly'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
         } else {
+            if (!"false".equals(rootProject.properties.get("android.enableR8"))) {
+                throw new Exception("请关闭R8：android.enableR8=false")
+            }
             configurations[variant.buildType.name + 'Implementation'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
         }
 
@@ -148,21 +161,8 @@ afterEvaluate {
         mergeResourceTask.setOnlyIf { true }
         mergeResourceTask.outputs.upToDateWhen { false }
         mergeResourceTask.doLast {
-
-            println "开始merge插件工程资源：" + hostBarExtraRootDir + " 到" + varDirName
-
-            File propFile = file(hostBarExtraRootDir + "/HostInfo.prop");
-            if (!propFile.exists()) {
-                throw new Exception("HostInfo.prop丢失：" + propFile.absolutePath)
-            }
-            def Properties props = new Properties()
-            props.load(new FileInputStream(propFile))
-            def hostVarDirName = props.getProperty("host.varDirName")
-            if (hostVarDirName == null) {
-                throw new Exception("HostInfo.prop文件信息不全，请检查此文件内容：" + propFile.absolutePath)
-            }
             //应用宿主的主题包
-            applyThemePatch(hostVarDirName, varName, varDirName, hostBarExtraRootDir);
+            applyThemePatch(varName, varDirName, hostBarExtraRootDir);
         }
 
         if (isApplicationModule) {
@@ -177,33 +177,20 @@ afterEvaluate {
                 }
             }
             tasks.findByName("process${varName.capitalize()}Manifest").doLast {
-                File propFile = file(hostBarExtraRootDir + "/HostInfo.prop");
-                def hostVersionName = null
-                def hostVersionCode = null
-                def hostApplicationId = null
-                def hostBuildType = null
-                def hostFlavorName = null
-                def hostVarName = null
-                def hostVarDirName = null
-                if (propFile.exists()) {
-                    def Properties props = new Properties()
-                    props.load(new FileInputStream(propFile))
-                    hostVersionName = props.getProperty("host.versionName")
-                    hostVersionCode = props.getProperty("host.versionCode")
-                    hostBuildType = props.getProperty("host.buildType")
-                    hostFlavorName = props.getProperty("host.flavorName")
-                    hostVarName = props.getProperty("host.varName")
-                    hostVarDirName = props.getProperty("host.varDirName")
-
-                    hostApplicationId = props.getProperty("host.applicationId")
-
+                def hostVersionName = project.ext.getProperty("host.versionName")
+                def hostVersionCode = project.ext.getProperty("host.versionCode")
+                def hostApplicationId = project.ext.getProperty("host.applicationId")
+                def hostBuildType = project.ext.getProperty("host.buildType")
+                def hostFlavorName = project.ext.getProperty("host.flavorName")
+                def hostVarName = project.ext.getProperty("host.varName")
+                def hostVarDirName = project.ext.getProperty("host.varDirName")
+                if (hostApplicationId != null) {
                     projects.logger.log(LogLevel.ERROR, "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName)
-
                 } else {
                     if ("".equals(hostBarExtraRootDir) || !file(hostBarExtraRootDir).exists()) {
                         throw new Exception("依赖的宿主基线文件不存在，请检查${project.name}工程的dependencies.baselinePatch依赖的文件是否存在。\n依赖的文件路径为：" + hostBarExtraRootDir)
                     } else {
-                        throw new Exception("HostInfo.prop文件丢失，请检查此路径：" + propFile.absolutePath)
+                        throw new Exception("宿主基线包信息丢失")
                     }
                 }
 
@@ -220,23 +207,23 @@ afterEvaluate {
                                 ("hostApplicationId=\"" + hostApplicationId + "\" "));
                         manifestFile.write(modifyedManifestContent, 'UTF-8')
                     } else {
-                        throw new Exception("HostInfo.prop文件信息不全，请检查此文件内容：" + propFile.absolutePath)
+                        throw new Exception("宿主基线包信息不全，请检查.")
                     }
                 }
             }
 
             //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
             def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${varName.capitalize()}")
-
-            if (proguardTask) {
+            if (proguardTask == null) {
+                proguardTask = project.tasks.findByName("minify${varName.capitalize()}WithProguard")
+            }
+            if (proguardTask != null) {
+                if (project.ext.has("host.varName")) {
+                    def baselineMappingFile = hostBarExtraRootDir + "/mapping/" + project.ext.getProperty("host.varName") + "/mapping.txt";
+                    println "应用基线mapping文件： " + baselineMappingFile
+                }
                 proguardTask.doFirst {
-                    println "开始混淆任务 " + varName.capitalize()
-                    def baselineMappingFile = hostBarExtraRootDir + "/mapping/" + varName + "/mapping.txt";
-                    projects.logger.log(LogLevel.ERROR, "应用基线mapping文件： " + baselineMappingFile)
-                    if (!file(baselineMappingFile).exists()) {
-                        throw "baselineMappingFile is Not Found : " + baselineMappingFile
-                    }
-                    getTransform().applyMapping(file(baselineMappingFile));
+                    println "开始混淆任务：" + varName.capitalize()
                 }
                 proguardTask.doLast {
 
@@ -257,7 +244,8 @@ afterEvaluate {
                         println "file outputs=>${file.absolutePath}"
                         String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
                         println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildTypeName + " " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
-                        if (file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName)) {
+                        if ((file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName))
+                                || file.absolutePath.contains("/shrunk_jar/")) {
                             isFind = true;
                             def pluginObfuscatedJar = "plugin_obfuscated.jar"
                             def sourcePluginObfuscatedJar
@@ -265,10 +253,12 @@ afterEvaluate {
                                 sourcePluginObfuscatedJar = file.absolutePath + "/0.jar"
                             } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
                                 sourcePluginObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
+                            } else if (file.absolutePath.endsWith("/minified.jar")) {
+                                sourcePluginObfuscatedJar = file.absolutePath
                             }
                             //保留一个备份
                             project.logger.error "导出混淆后的插件jar包 "
-                            println "From " + sourcePluginObfuscatedJar //此文件是proguard任务的固定输出目录，最新版文件名即是0.jar, 旧版叫main.jar
+                            println "From " + sourcePluginObfuscatedJar //此文件是proguard任务的固定输出目录
                             println "To " + "${project.buildDir}/outputs/" + pluginObfuscatedJar
                             copy {
                                 from sourcePluginObfuscatedJar
@@ -285,7 +275,7 @@ afterEvaluate {
                         }
                     }
                     if (!isFind) {
-                        throw "obfuscated jar file not found, please check."
+                        throw new Exception("obfuscated jar file not found, please check.")
                     }
                 }
             }
@@ -308,8 +298,8 @@ def diffJar(String plugin, String host) {
     println "再删掉插件的源 " + plugin
     new File(plugin).delete()
 
-    println "通过压缩过滤重新生成插件的源，替换之前被删掉的源， host classSize = " + hostClasses.size() + " " + file(plugin).getName()
-    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", file(plugin).getParent(), "0.jar", hostClasses)
+    println "通过压缩过滤重新生成插件的源，替换之前被删掉的源， host classSize = " + hostClasses.size() + ", " + file(plugin).getName()
+    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", file(plugin).getParent(), file(plugin).getName(), hostClasses)
     println "重新生成的插件的源 " + plugin
 
     //备份diff后的包
@@ -514,9 +504,14 @@ public class ZipUtil {
     }
 }
 
-def applyThemePatch(hostVarDirName, varName, varDir, hostPatchExtractDir) {
+def applyThemePatch(varName, varDir, hostPatchExtractDir) {
+    println "开始merge插件工程资源：" + hostPatchExtractDir + " 到" + varDir
 
-    def fromDir = hostPatchExtractDir + "/theme_patch/" + hostVarDirName;
+    if (!file(hostPatchExtractDir).exists()) {
+        throw new FileNotFoundException("Dir Not Found: " + hostPatchExtractDir);
+    }
+
+    def fromDir = hostPatchExtractDir + "/theme_patch/" + project.ext.getProperty("host.varDirName")
     def resourceDir = project.buildDir.absolutePath + "/intermediates/incremental/merge" + varName.capitalize() + "Resources/merged.dir"
 
     if (!file(fromDir).exists()) {
