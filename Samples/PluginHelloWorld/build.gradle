@@ -32,7 +32,10 @@ android {
             version CMAKE_VERSION
         }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     lintOptions {
         tasks.lint.enabled false
         checkReleaseBuilds false
