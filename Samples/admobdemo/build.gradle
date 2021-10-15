@@ -21,6 +21,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     lintOptions {
         tasks.lint.enabled false
         checkReleaseBuilds false
@@ -43,8 +47,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.google.android.material:material:${MATERIAL_VERSION}"
     implementation "androidx.appcompat:appcompat:${SUPPORT_VERSION}"
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
     implementation 'com.google.android.gms:play-services-ads:11.6.0'
 }
 

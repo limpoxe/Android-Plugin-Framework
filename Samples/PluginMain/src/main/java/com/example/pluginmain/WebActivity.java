@@ -33,7 +33,7 @@ public class WebActivity extends AppCompatActivity {
 		setUpWebViewSetting();
 		setClient();
 
-		web.loadUrl("file:///android_asset/local_web_test.html");
+		web.loadUrl("file:///android_asset/host_localweb_test.html");
 	}
 
 	private void setUpWebViewSetting() {

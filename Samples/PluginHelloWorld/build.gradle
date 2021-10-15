@@ -7,6 +7,7 @@ repositories {
 android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
+    ndkVersion NDK_VERSION
 
     useLibrary 'org.apache.http.legacy'
 
@@ -28,10 +29,13 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.10.2"
+            version CMAKE_VERSION
         }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     lintOptions {
         tasks.lint.enabled false
         checkReleaseBuilds false
@@ -53,7 +57,7 @@ android {
 }
 
 dependencies {
-    implementation "androidx.legacy:legacy-support-v4:${SUPPORT_VERSION}"
+    implementation "com.google.android.material:material:${MATERIAL_VERSION}"
     implementation "androidx.appcompat:appcompat:${SUPPORT_VERSION}"
 }
 

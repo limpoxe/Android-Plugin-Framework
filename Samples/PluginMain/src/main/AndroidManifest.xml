@@ -46,12 +46,15 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <application
         android:name=".MyApplication"
         android:icon="@mipmap/cust_ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/ShareTheme"
+        android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
 
         <!--
@@ -169,7 +172,7 @@
         <!--Demo config for plugin AdMob end -->
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy$ProviderClientUnsafeProxy0"
             android:authorities="a.b.c.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
@@ -178,7 +181,17 @@
                 android:resource="@xml/filepath" />
         </provider>
 
-        <!-- 名字随便写，只要和自定义的stubMapping匹配上就可-->
+        <!-- demo for bridge test -->
+        <provider
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy$ProviderClientUnsafeProxy1"
+            android:authorities="x.y.z.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepath" />
+        </provider>
+        
         <activity
             android:name="com.example.pluginmain.WebActivity"
             android:exported="true"

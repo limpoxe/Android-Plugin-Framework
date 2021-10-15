@@ -168,6 +168,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 	private void testUseLibray() {
 		AndroidHttpClient androidHttpClient = AndroidHttpClient.newInstance("test/test", getApplicationContext());
 		ClassLoader classloader = androidHttpClient.getClass().getClassLoader();
+        androidHttpClient.close();
 		android.util.Log.e("LauncherActivity", "testUseLibray, classloader=" + classloader);
 	}
 

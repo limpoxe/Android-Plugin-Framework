@@ -20,6 +20,13 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
 
+        <fragment
+            class="com.example.plugintest.fragment.PluginSpecFragment"
+            context="com.example.plugintest"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/plugin_specfragment" />
+
     </LinearLayout>
 
 </ScrollView>

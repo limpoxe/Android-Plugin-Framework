@@ -4,7 +4,7 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
-### 最新版本: 'com.github.limpoxe:Android-Plugin-Framework:0.0.70@aar'
+### 最新版本: 'com.github.limpoxe:Android-Plugin-Framework:0.0.71@aar'
                
 ### 此项目主要目标是为了运行非独立插件，而不是任意第三方app。
 
@@ -25,7 +25,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 - 支持插件WebView加载插件本地HTML文件
 - 支持插件Fragment/View内嵌宿主Activity中
 - 支持FileProvider
-- 支持2.3-10.0
+- 支持2.3-11.0
 
 ### LIMIT
 - 不支持插件Activity转场动画使用插件中的动画资源
@@ -44,6 +44,13 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 
 # HOW TO USE
 ```
+    buildscript {
+        dependencies {
+            //gradle-6.5-all
+            classpath "com.android.tools.build:gradle:4.1.3"
+        }
+    }
+    
     allprojects {
     		repositories {
     			...
@@ -159,6 +166,8 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
         //***这是demo中的示例，请根据自己的实际情况修改，作用是指向插件依赖的宿主基线包***
         //支持文件、maven坐标等写法
         //baselinePatch 'xxx:xxx:xxx@bar'
+        //debugBaselinePatch 'xxx:xxx:xxx@bar'
+        //releaseBaselinePatch 'xxx:xxx:xxx@bar'
         baselinePatch files(project(':Samples:PluginMain').getBuildDir().absolutePath + '/distributions/host.bar')
     }
 

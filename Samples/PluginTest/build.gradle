@@ -5,6 +5,7 @@ apply from: PLUGIN_FAIRY_SCRIPT
 android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
+    ndkVersion NDK_VERSION
 
     useLibrary 'org.apache.http.legacy'
 
@@ -31,10 +32,13 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.10.2"
+            version CMAKE_VERSION
         }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     lintOptions {
         tasks.lint.enabled = false
         checkReleaseBuilds false
