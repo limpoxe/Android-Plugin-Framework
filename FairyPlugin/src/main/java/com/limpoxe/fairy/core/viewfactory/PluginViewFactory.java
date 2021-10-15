@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 
+import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.RefInvoker;
 
 /**
  * Created by Administrator on 2015/12/13.
@@ -65,27 +65,9 @@ public class PluginViewFactory implements PluginFactoryInterface {
 				Context fragmentContext = createContext(context, pluginId);
 				if (fragmentContext != null) {
 					if (mOriginalWindowCallback instanceof LayoutInflater.Factory) {
-						//框架并不知道实际可能是什么类型，所以都试一下
-						try {
-							//for android.app.Fragment
-							android.app.Fragment.instantiate(fragmentContext, fname, null);
-						} catch (Exception e) {
-							//e.printStackTrace();
-						}
-						try {
-							//for android.support.v4.app.Fragment
-							RefInvoker.invokeMethod(null, "android.support.v4.app.Fragment",
-								"isSupportFragmentClass",new Class[]{Context.class, String.class}, new Object[]{fragmentContext, fname});
-						} catch (Exception e) {
-							//e.printStackTrace();
-						}
-						try {
-							//for androidx.fragment.app.Fragment
-							RefInvoker.invokeMethod(null, "androidx.fragment.app.Fragment",
-								"isSupportFragmentClass",new Class[]{Context.class, String.class}, new Object[]{fragmentContext, fname});
-						} catch (Exception e) {
-							//e.printStackTrace();
-						}
+
+						CompatForFragmentClassCache.forceCache(fragmentContext, fname);
+
 						View view = ((LayoutInflater.Factory) mOriginalWindowCallback).onCreateView(name, fragmentContext, attrs);
 						if (view != null) {
 							return view;

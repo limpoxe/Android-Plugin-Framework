@@ -2,7 +2,8 @@ package com.limpoxe.fairy.core.compat;
 
 import android.view.View;
 
-import com.limpoxe.fairy.util.LogUtil;
+import androidx.collection.SimpleArrayMap;
+
 import com.limpoxe.fairy.util.RefInvoker;
 
 import java.lang.reflect.Constructor;
@@ -22,36 +23,65 @@ public class CompatForSupportv7ViewInflater {
     public static void installPluginCustomViewConstructorCache() {
         Class AppCompatViewInflater = null;
         try {
+            AppCompatViewInflater = Class.forName(androidx_app_AppCompatViewInflater);
+            Object cache = RefInvoker.getField(null, AppCompatViewInflater,
+                androidx_app_AppCompatViewInflater_sConstructorMap);
+            if (cache != null) {
+                if (cache instanceof Map) {
+                    EmptyHashMap<String, Constructor<? extends View>> newCacheMap = new EmptyHashMap<String, Constructor<? extends View>>();
+                    newCacheMap.putAll((Map)cache);
+                    RefInvoker.setField(null, AppCompatViewInflater,
+                        androidx_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
+                } else if (cache instanceof SimpleArrayMap) {
+                    EmptySimpleArrayMap<String, Constructor<? extends View>> newCacheMap = new EmptySimpleArrayMap<String, Constructor<? extends View>>();
+                    newCacheMap.putAll((SimpleArrayMap)cache);
+                    RefInvoker.setField(null, AppCompatViewInflater,
+                        androidx_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
+                }
+                return;
+            }
+        } catch (ClassNotFoundException e) {
+            //LogUtil.printException("CompatForSupportv7ViewInflater.installAndroidXPluginCustomViewConstructorCache", e);
+        }
+
+        try {
             AppCompatViewInflater = Class.forName(android_support_v7_app_AppCompatViewInflater);
-            Map cache = (Map) RefInvoker.getField(null, AppCompatViewInflater,
+            Object cache = RefInvoker.getField(null, AppCompatViewInflater,
                     android_support_v7_app_AppCompatViewInflater_sConstructorMap);
             if (cache != null) {
-                EmptyHashMap<String, Constructor<? extends View>> newCacheMap = new EmptyHashMap<String, Constructor<? extends View>>();
-                newCacheMap.putAll(cache);
-                RefInvoker.setField(null, AppCompatViewInflater,
+                if (cache instanceof Map) {
+                    EmptyHashMap<String, Constructor<? extends View>> newCacheMap = new EmptyHashMap<String, Constructor<? extends View>>();
+                    newCacheMap.putAll((Map)cache);
+                    RefInvoker.setField(null, AppCompatViewInflater,
                         android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
+                } else if (cache instanceof SimpleArrayMap) {
+                    EmptySimpleArrayMap<String, Constructor<? extends View>> newCacheMap = new EmptySimpleArrayMap<String, Constructor<? extends View>>();
+                    newCacheMap.putAll((SimpleArrayMap)cache);
+                    RefInvoker.setField(null, AppCompatViewInflater,
+                        android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
+                }
+                return;
             }
         } catch (ClassNotFoundException e) {
             //LogUtil.printException("CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache", e);
         }
     }
 
-    public static void installAndroidXPluginCustomViewConstructorCache() {
-        Class AppCompatViewInflater = null;
+    public static void clearViewInflaterConstructorCache() {
         try {
-            AppCompatViewInflater = Class.forName(androidx_app_AppCompatViewInflater);
-            Object cache = RefInvoker.getField(null, AppCompatViewInflater,
-                    androidx_app_AppCompatViewInflater_sConstructorMap);
-            if (cache != null && cache instanceof Map) {
-                EmptyHashMap<String, Constructor<? extends View>> newCacheMap = new EmptyHashMap<String, Constructor<? extends View>>();
-                newCacheMap.putAll((Map)cache);
-                RefInvoker.setField(null, AppCompatViewInflater,
-                        androidx_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
-            } else {
-                LogUtil.e("todo fix SimpleArrayMap", androidx_app_AppCompatViewInflater, androidx_app_AppCompatViewInflater_sConstructorMap);
+            Class AppCompatViewInflater = Class.forName(androidx_app_AppCompatViewInflater);
+            Object sConstructorMap = RefInvoker.getField(null, AppCompatViewInflater,
+                androidx_app_AppCompatViewInflater_sConstructorMap);
+            if (sConstructorMap == null) {
+                AppCompatViewInflater = Class.forName(android_support_v7_app_AppCompatViewInflater);
+                sConstructorMap = RefInvoker.getField(null, AppCompatViewInflater,
+                    android_support_v7_app_AppCompatViewInflater_sConstructorMap);
+            }
+            if (sConstructorMap != null) {
+                RefInvoker.invokeMethod(sConstructorMap, sConstructorMap.getClass(), "clear", (Class[])null, (Object[])null);
             }
         } catch (ClassNotFoundException e) {
-            //LogUtil.printException("CompatForSupportv7ViewInflater.installAndroidXPluginCustomViewConstructorCache", e);
+            //LogUtil.printException("CompatForSupportv7ViewInflater.clearViewInflaterConstructorCache", e);
         }
     }
 

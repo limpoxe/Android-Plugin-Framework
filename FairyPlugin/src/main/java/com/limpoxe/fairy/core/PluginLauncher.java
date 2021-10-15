@@ -29,6 +29,7 @@ import com.limpoxe.fairy.core.android.HackApplication;
 import com.limpoxe.fairy.core.android.HackContentProvider;
 import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
 import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
+import com.limpoxe.fairy.core.compat.CompatForSupportv7ViewInflater;
 import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
 import com.limpoxe.fairy.core.exception.PluginNotFoundError;
 import com.limpoxe.fairy.core.exception.PluginResInitError;
@@ -436,6 +437,7 @@ public class PluginLauncher implements Serializable {
 
 		LogUtil.d("清理fragment class 缓存");
 		//即退出由FragmentManager保存的Fragment
+		CompatForSupportv7ViewInflater.clearViewInflaterConstructorCache();
         CompatForFragmentClassCache.clearFragmentClassCache();
         CompatForFragmentClassCache.clearSupportV4FragmentClassCache();
 		CompatForFragmentClassCache.clearAndroidXFragmentClassCache();
