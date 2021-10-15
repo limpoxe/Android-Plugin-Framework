@@ -129,8 +129,8 @@ public class RefInvoker {
 				field.setAccessible(true);
 				return field.get(target);
 			} catch (Exception superE) {
-				LogUtil.printException("RefInvoker.getField", e);
-				LogUtil.printException("RefInvoker.getField", superE);
+				//LogUtil.printException("RefInvoker.getField", e);
+				//LogUtil.printException("RefInvoker.getField", superE);
 			}
 		} catch (IllegalArgumentException e) {
 			LogUtil.printException("RefInvoker.getField", e);

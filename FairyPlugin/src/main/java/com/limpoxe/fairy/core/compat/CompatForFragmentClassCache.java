@@ -1,6 +1,5 @@
 package com.limpoxe.fairy.core.compat;
 
-import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 
 import java.util.HashMap;
@@ -37,7 +36,7 @@ public class CompatForFragmentClassCache {
                 }
             }
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForFragmentClassCache.installSupportV4FragmentClassCache", e);
+            //LogUtil.printException("CompatForFragmentClassCache.installSupportV4FragmentClassCache", e);
         }
     }
 
@@ -62,7 +61,7 @@ public class CompatForFragmentClassCache {
                 }
             }
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForFragmentClassCache.installFragmentClassCache", e);
+            //LogUtil.printException("CompatForFragmentClassCache.installFragmentClassCache", e);
         }
     }
 
@@ -87,7 +86,7 @@ public class CompatForFragmentClassCache {
                 }
             }
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForFragmentClassCache.clearSupportV4FragmentClassCache", e);
+            //LogUtil.printException("CompatForFragmentClassCache.clearSupportV4FragmentClassCache", e);
         }
     }
 
@@ -103,7 +102,7 @@ public class CompatForFragmentClassCache {
             }
 
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForFragmentClassCache.clearFragmentClassCache", e);
+            //LogUtil.printException("CompatForFragmentClassCache.clearFragmentClassCache", e);
         }
     }
 
@@ -119,7 +118,7 @@ public class CompatForFragmentClassCache {
             }
 
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForFragmentClassCache.clearAndroidXFragmentClassCache", e);
+            //LogUtil.printException("CompatForFragmentClassCache.clearAndroidXFragmentClassCache", e);
         }
     }
 

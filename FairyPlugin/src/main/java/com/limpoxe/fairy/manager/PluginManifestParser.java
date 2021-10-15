@@ -2,6 +2,8 @@ package com.limpoxe.fairy.manager;
 
 import android.app.Application;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.content.res.AssetManager;
 import android.content.res.XmlResourceParser;
 import android.text.TextUtils;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PluginManifestParser {
+    public static String PREVIOUS = "unsafe.proxy.";
 
     public static PluginDescriptor parseManifest(String pluginPath) {
         try {
@@ -259,6 +262,23 @@ public class PluginManifestParser {
                             String name = parser.getAttributeValue(namespaceAndroid, "name");
                             name = getName(name, packageName);
                             String author = parser.getAttributeValue(namespaceAndroid, "authorities");
+                            ProviderInfo[] hostProviders = new ProviderInfo[0];
+                            try {
+                                hostProviders = FairyGlobal.getHostApplication().getPackageManager()
+                                    .getPackageInfo(FairyGlobal.getHostApplication().getPackageName(),
+                                        PackageManager.GET_PROVIDERS).providers;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (hostProviders != null) {
+                                for(ProviderInfo hostProvider : hostProviders) {
+                                    if (hostProvider.authority.equals(author)) {
+                                        LogUtil.e("此contentProvider已经在宿主中定义，表示需要桥接, 追加一个标记", hostProvider.authority, name);
+                                        author = PREVIOUS + author;
+                                        break;
+                                    }
+                                }
+                            }
                             String exported = parser.getAttributeValue(namespaceAndroid, "exported");
                             String grantUriPermissions = parser.getAttributeValue(namespaceAndroid, "grantUriPermissions");
                             HashMap<String, PluginProviderInfo> providers = desciptor.getProviderInfos();

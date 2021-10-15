@@ -1,18 +1,12 @@
 package com.limpoxe.fairy.core.proxy.systemservice;
 
 import android.os.IBinder;
-import android.os.IInterface;
-import android.text.TextUtils;
 
-import com.limpoxe.fairy.core.PluginLoader;
 import com.limpoxe.fairy.core.proxy.MethodDelegate;
 import com.limpoxe.fairy.core.proxy.MethodProxy;
 import com.limpoxe.fairy.core.proxy.ProxyUtil;
-import com.limpoxe.fairy.core.proxy.WhiteList;
 import com.limpoxe.fairy.util.LogUtil;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -36,53 +30,12 @@ public class AndroidOsIBinder extends MethodProxy {
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             if (invokeResult == null) {//为空表示不是服务侧
-                try {
-
-                    String descriptor = (String) args[0];
-                    LogUtil.i("Hook服务 : " + descriptor, target.getClass().getName());
-
-                    // 仍然可能会有一些其他服务hook不到, 比如PackageManager和ActivityManager,
-                    // 是因为这些服务的binder在queryLocalInterface方法被hook之前, 已经被系统获取到了并缓存到全局静态变量中
-                    // 后面再取获取这些服务的时候, 直接返回的是这些缓存, 不会调用queryLocalInterface
-                    // 所以AndroidOsServiceManager应该尽可能早地执行installProxy, 以免错过hook时机
-
-                    String className = WhiteList.getProxyImplClassName(descriptor);
-                    if (TextUtils.isEmpty(className)) {
-                        return null;
-                    }
-
-                    Class stubProxy = Class.forName(className, true, PluginLoader.class.getClassLoader());
-                    Constructor constructor = stubProxy.getDeclaredConstructor(IBinder.class);
-                    constructor.setAccessible(true);
-                    IInterface proxy = (IInterface)constructor.newInstance(target);
-                    SystemApiDelegate binderProxyDelegate = new SystemApiDelegate(descriptor);
-
-                    //借此方法可以一次代理掉所有服务的remote, 而不必每个服务加一个hook
-                    proxy = (IInterface)ProxyUtil.createProxy2(proxy, binderProxyDelegate);
-
-                    return proxy;
-                } catch (ClassNotFoundException e) {
-                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
-                } catch (NoSuchMethodException e) {
-                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
-                } catch (IllegalAccessException e) {
-                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
-                } catch (InstantiationException e) {
-                    LogUtil.printException("AndroidOsIBinder.queryLocalInterface", e);
-                } catch (InvocationTargetException e) {
-                    Throwable cause = e.getCause();
-                    if(cause instanceof RuntimeException) {
-                        throw (RuntimeException)cause;
-                    } else if(cause instanceof Error) {
-                        throw (Error)cause;
-                    } else {
-                        throw new RuntimeException("AndroidOsIBinder.queryLocalInterface", cause);
-                    }
+                invokeResult = AndroidOsBinderProxyWrapper.hookQueryLocalInterface((String)args[0], (IBinder)target);
+                if (invokeResult != null) {
+                    return invokeResult;
                 }
             }
-
             return super.afterInvoke(target, method, args, beforeInvoke, invokeResult);
         }
     }
-
 }

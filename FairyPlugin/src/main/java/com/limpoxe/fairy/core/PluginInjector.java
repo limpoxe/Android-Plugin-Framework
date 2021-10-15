@@ -9,11 +9,16 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.Process;
 import android.text.TextUtils;
+import android.util.ArrayMap;
+import android.util.LongSparseArray;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Window;
 
@@ -43,6 +48,9 @@ import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 import com.limpoxe.fairy.util.ResourceUtil;
 
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -78,9 +86,15 @@ public class PluginInjector {
 	}
 
 	public static void installContentProviders(Context context, Context pluginContext, Collection<PluginProviderInfo> pluginProviderInfos) {
-		List<ProviderInfo> hostProviders = context.getPackageManager().queryContentProviders(FairyGlobal.getHostApplication().getPackageName(), Process.myUid(),0);
-        boolean isAlreadyAddByHost = false;
-
+        ProviderInfo[] hostProviders = new ProviderInfo[0];
+		try {
+			hostProviders = FairyGlobal.getHostApplication().getPackageManager()
+				.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(),
+					PackageManager.GET_PROVIDERS).providers;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		boolean isAlreadyAddByHost = false;
 		List<ProviderInfo> providers = new ArrayList<ProviderInfo>();
 		for (PluginProviderInfo pluginProviderInfo : pluginProviderInfos) {
 
@@ -482,5 +496,305 @@ public class PluginInjector {
 		} else {
 			LogUtil.e("What!!Why?");
 		}
+	}
+
+	/**
+	 * 将当前进程的resource替换掉，适用于宿主资源热修复以及所有插件和宿主的资源完全融合的插件方案
+	 * @param context
+	 * @param newResourceFile
+	 */
+	public static void replaceResource(Context context, String newResourceFile) {
+		if (newResourceFile == null || context == null) {
+			return;
+		}
+
+		try {
+			Class activityThread_clazz = Class.forName("android.app.ActivityThread");
+			Class loadedApk_clazz = null;
+			try {
+				loadedApk_clazz = Class.forName("android.app.LoadedApk");
+			} catch (ClassNotFoundException exception) {
+				loadedApk_clazz = Class.forName("android.app.ActivityThread$PackageInfo");
+			}
+			Field resDir = findField(loadedApk_clazz, "mResDir");
+			Field publicSourceDirField = findField(ApplicationInfo.class, "publicSourceDir");
+			Field packagesField = findField(activityThread_clazz, "mPackages");
+			Field[] packagesFields = null;
+			if (Build.VERSION.SDK_INT < 27) {
+				packagesFields = new Field[]{packagesField, findField(activityThread_clazz, "mResourcePackages")};
+			} else {
+				packagesFields = new Field[]{packagesField};
+			}
+
+			Object activityThread = getActivityThread(context, activityThread_clazz);
+			ApplicationInfo appInfo = context.getApplicationInfo();
+
+			for(int i = 0; i < packagesFields.length; ++i) {
+				Object resourcesManager = packagesFields[i].get(activityThread);
+				Iterator iterator = ((Map)resourcesManager).entrySet().iterator();
+				while(iterator.hasNext()) {
+					Map.Entry<String, WeakReference<?>> entry = (Map.Entry)iterator.next();
+					Object resourceImpl = ((WeakReference)entry.getValue()).get();
+					if (resourceImpl != null) {
+						String resDirPath = (String)resDir.get(resourceImpl);
+						if (appInfo.sourceDir.equals(resDirPath)) {
+							resDir.set(resourceImpl, newResourceFile);
+						}
+					}
+				}
+			}
+
+			AssetManager newAssetManager = (AssetManager)AssetManager.class.getConstructor().newInstance();
+			Method mAddAssetPath = AssetManager.class.getDeclaredMethod("addAssetPath", String.class);
+			mAddAssetPath.setAccessible(true);
+			Integer cookie = (Integer)mAddAssetPath.invoke(newAssetManager, newResourceFile);
+			if (cookie == null || cookie == 0) {
+				throw new IllegalMonitorStateException();
+			}
+
+			try {
+				Method mEnsureStringBlocks = AssetManager.class.getDeclaredMethod("ensureStringBlocks");
+				mEnsureStringBlocks.setAccessible(true);
+				mEnsureStringBlocks.invoke(newAssetManager);
+			} catch (Exception e) {
+			}
+
+			Collection references;
+			if (Build.VERSION.SDK_INT >= 19) {
+				Class<?> resourcesManager_clazz = Class.forName("android.app.ResourcesManager");
+				Method mGetInstance = resourcesManager_clazz.getDeclaredMethod("getInstance");
+				mGetInstance.setAccessible(true);
+				Object resourcesManager = mGetInstance.invoke((Object)null);
+				try {
+					Field mAssets = resourcesManager_clazz.getDeclaredField("mActiveResources");
+					mAssets.setAccessible(true);
+					Map<?, WeakReference<Resources>> map = (Map)mAssets.get(resourcesManager);
+					references = map.values();
+				} catch (NoSuchFieldException e) {
+					Field mResourcesImpl = resourcesManager_clazz.getDeclaredField("mResourceReferences");
+					mResourcesImpl.setAccessible(true);
+					references = (Collection)mResourcesImpl.get(resourcesManager);
+				}
+			} else {
+				Field mAssets = activityThread_clazz.getDeclaredField("mActiveResources");
+				mAssets.setAccessible(true);
+				Map<?, WeakReference<Resources>> map = (Map)mAssets.get(activityThread);
+				references = map.values();
+			}
+
+			Iterator iterator = references.iterator();
+			while(iterator.hasNext()) {
+				WeakReference<Resources> weakReference = (WeakReference)iterator.next();
+				Resources resources = (Resources)weakReference.get();
+				if (resources != null) {
+					try {
+						Field mAssets = Resources.class.getDeclaredField("mAssets");
+						mAssets.setAccessible(true);
+						mAssets.set(resources, newAssetManager);
+					} catch (Throwable throwable) {
+						Field mResourcesImpl = Resources.class.getDeclaredField("mResourcesImpl");
+						mResourcesImpl.setAccessible(true);
+						Object resourceImpl = mResourcesImpl.get(resources);
+						Field mAssets = findField(resourceImpl.getClass(), "mAssets");
+						mAssets.setAccessible(true);
+						mAssets.set(resourceImpl, newAssetManager);
+					}
+					resources.updateConfiguration(resources.getConfiguration(), resources.getDisplayMetrics());
+				}
+			}
+
+			if (Build.VERSION.SDK_INT >= 24) {
+				try {
+					if (publicSourceDirField != null) {
+						publicSourceDirField.set(context.getApplicationInfo(), newResourceFile);
+					}
+				} catch (Throwable throwable) {
+				}
+			}
+		} catch (Throwable throwable) {
+			throw new IllegalStateException(throwable);
+		}
+	}
+
+	/**
+	 * 清理resource静态资源缓存
+	 * @param resources
+	 */
+	public static void refreshResourceCaches(Object resources) {
+		if (Build.VERSION.SDK_INT >= 21) {
+			try {
+				Field mTypedArrayPool = Resources.class.getDeclaredField("mTypedArrayPool");
+				mTypedArrayPool.setAccessible(true);
+				Object arrayPool = mTypedArrayPool.get(resources);
+				Class<?> poolClass = arrayPool.getClass();
+				Method acquireMethod = poolClass.getDeclaredMethod("acquire");
+				acquireMethod.setAccessible(true);
+
+				Object typedArray;
+				do {
+					typedArray = acquireMethod.invoke(arrayPool);
+				} while(typedArray != null);
+			} catch (Throwable throwable) {
+			}
+		}
+
+		if (Build.VERSION.SDK_INT >= 23) {
+			try {
+				Field mResourcesImpl = Resources.class.getDeclaredField("mResourcesImpl");
+				mResourcesImpl.setAccessible(true);
+				resources = mResourcesImpl.get(resources);
+			} catch (Throwable throwable) {
+			}
+		}
+
+		Object lock = null;
+		Field field;
+		if (Build.VERSION.SDK_INT >= 18) {
+			try {
+				field = resources.getClass().getDeclaredField("mAccessLock");
+				field.setAccessible(true);
+				lock = field.get(resources);
+			} catch (Throwable throwable) {
+			}
+		} else {
+			try {
+				field = Resources.class.getDeclaredField("mTmpValue");
+				field.setAccessible(true);
+				lock = field.get(resources);
+			} catch (Throwable throwable) {
+			}
+		}
+
+		if (lock == null) {
+			lock = PluginInjector.class;
+		}
+
+		synchronized(lock) {
+			refreshResourceCache(resources, "mDrawableCache");
+			refreshResourceCache(resources, "mColorDrawableCache");
+			refreshResourceCache(resources, "mColorStateListCache");
+			if (Build.VERSION.SDK_INT >= 23) {
+				refreshResourceCache(resources, "mAnimatorCache");
+				refreshResourceCache(resources, "mStateListAnimatorCache");
+			} else if (Build.VERSION.SDK_INT == 19) {
+				refreshResourceCache(resources, "sPreloadedDrawables");
+				refreshResourceCache(resources, "sPreloadedColorDrawables");
+				refreshResourceCache(resources, "sPreloadedColorStateLists");
+			}
+
+		}
+	}
+
+	private static boolean refreshResourceCache(Object resources, String fieldName) {
+		try {
+			Field cacheField = findField(resources.getClass(), fieldName);
+			if (cacheField == null) {
+				cacheField = Resources.class.getDeclaredField(fieldName);
+			}
+
+			cacheField.setAccessible(true);
+			Object cache = cacheField.get(resources);
+			Class<?> type = cacheField.getType();
+			if (Build.VERSION.SDK_INT < 16) {
+				if (cache instanceof SparseArray) {
+					((SparseArray)cache).clear();
+					return true;
+				}
+			} else {
+				Method clearSparseMap;
+				if (Build.VERSION.SDK_INT < 23) {
+					if ("mColorStateListCache".equals(fieldName)) {
+						if (cache instanceof LongSparseArray) {
+							((LongSparseArray)cache).clear();
+						}
+					} else {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+							if (type.isAssignableFrom(ArrayMap.class)) {
+								clearSparseMap = Resources.class.getDeclaredMethod("clearDrawableCachesLocked", ArrayMap.class, Integer.TYPE);
+								clearSparseMap.setAccessible(true);
+								clearSparseMap.invoke(resources, cache, -1);
+								return true;
+							}
+						}
+
+						if (type.isAssignableFrom(LongSparseArray.class)) {
+							try {
+								clearSparseMap = Resources.class.getDeclaredMethod("clearDrawableCachesLocked", LongSparseArray.class, Integer.TYPE);
+								clearSparseMap.setAccessible(true);
+								clearSparseMap.invoke(resources, cache, -1);
+								return true;
+							} catch (NoSuchMethodException e) {
+								if (cache instanceof LongSparseArray) {
+									((LongSparseArray)cache).clear();
+									return true;
+								}
+							}
+						} else if (type.isArray() && type.getComponentType().isAssignableFrom(LongSparseArray.class)) {
+							LongSparseArray[] arrays = (LongSparseArray[])((LongSparseArray[])cache);
+							for(int i = 0; i < arrays.length; ++i) {
+								LongSparseArray array = arrays[i];
+								if (array != null) {
+									array.clear();
+								}
+							}
+
+							return true;
+						}
+					}
+				} else {
+					while(type != null) {
+						try {
+							clearSparseMap = type.getDeclaredMethod("onConfigurationChange", Integer.TYPE);
+							clearSparseMap.setAccessible(true);
+							clearSparseMap.invoke(cache, -1);
+							return true;
+						} catch (Throwable throwable) {
+							type = type.getSuperclass();
+						}
+					}
+				}
+			}
+		} catch (Throwable throwable) {
+		}
+
+		return false;
+	}
+
+	private static Object getActivityThread(Context context, Class<?> activityThread_clazz) {
+		try {
+			Method currentActivityThread_method = activityThread_clazz.getMethod("currentActivityThread");
+			currentActivityThread_method.setAccessible(true);
+			Object currentActivityThread = currentActivityThread_method.invoke((Object)null);
+			if (currentActivityThread != null) {
+				return currentActivityThread;
+			}
+			if (context != null) {
+				Field mLoadedApk_field = context.getClass().getField("mLoadedApk");
+				mLoadedApk_field.setAccessible(true);
+				Object mLoadedApk = mLoadedApk_field.get(context);
+				Field mActivityThread_field = mLoadedApk.getClass().getDeclaredField("mActivityThread");
+				mActivityThread_field.setAccessible(true);
+				return mActivityThread_field.get(mLoadedApk);
+			}
+		} catch (Throwable throwable) {
+		}
+		return null;
+	}
+
+	private static Field findField(Class clazz, String fieldName) {
+		if (clazz == null || fieldName == null) {
+			return null;
+		}
+		Class localClass = clazz;
+		while(localClass != Object.class) {
+			try {
+				Field field = localClass.getDeclaredField(fieldName);
+				field.setAccessible(true);
+				return field;
+			} catch (NoSuchFieldException e) {
+				localClass = localClass.getSuperclass();
+			}
+		}
+		return null;
 	}
 }

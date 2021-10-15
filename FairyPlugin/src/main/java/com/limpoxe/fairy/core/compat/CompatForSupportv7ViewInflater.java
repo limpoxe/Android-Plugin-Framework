@@ -1,6 +1,5 @@
 package com.limpoxe.fairy.core.compat;
 
-import android.os.Debug;
 import android.view.View;
 
 import com.limpoxe.fairy.util.LogUtil;
@@ -33,7 +32,7 @@ public class CompatForSupportv7ViewInflater {
                         android_support_v7_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
             }
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache", e);
+            //LogUtil.printException("CompatForSupportv7ViewInflater.installPluginCustomViewConstructorCache", e);
         }
     }
 
@@ -41,16 +40,18 @@ public class CompatForSupportv7ViewInflater {
         Class AppCompatViewInflater = null;
         try {
             AppCompatViewInflater = Class.forName(androidx_app_AppCompatViewInflater);
-            Map cache = (Map) RefInvoker.getField(null, AppCompatViewInflater,
+            Object cache = RefInvoker.getField(null, AppCompatViewInflater,
                     androidx_app_AppCompatViewInflater_sConstructorMap);
-            if (cache != null) {
+            if (cache != null && cache instanceof Map) {
                 EmptyHashMap<String, Constructor<? extends View>> newCacheMap = new EmptyHashMap<String, Constructor<? extends View>>();
-                newCacheMap.putAll(cache);
+                newCacheMap.putAll((Map)cache);
                 RefInvoker.setField(null, AppCompatViewInflater,
                         androidx_app_AppCompatViewInflater_sConstructorMap, newCacheMap);
+            } else {
+                LogUtil.e("todo fix SimpleArrayMap", androidx_app_AppCompatViewInflater, androidx_app_AppCompatViewInflater_sConstructorMap);
             }
         } catch (ClassNotFoundException e) {
-            LogUtil.printException("CompatForSupportv7ViewInflater.installAndroidXPluginCustomViewConstructorCache", e);
+            //LogUtil.printException("CompatForSupportv7ViewInflater.installAndroidXPluginCustomViewConstructorCache", e);
         }
     }
 

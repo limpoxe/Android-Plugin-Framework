@@ -2,8 +2,10 @@ package com.limpoxe.fairy.core;
 
 import android.app.Application;
 
+import com.limpoxe.fairy.core.exception.PluginResInitError;
 import com.limpoxe.fairy.manager.mapping.StubMappingProcessor;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.ResourceUtil;
 
 import java.util.ArrayList;
 
@@ -18,7 +20,8 @@ public class FairyGlobal {
     private static ArrayList<StubMappingProcessor> mappingProcessors = new ArrayList<StubMappingProcessor>();
     private static boolean sFakePluginProcessName = true;
     private static boolean sNeedVerifyHostVersionName = true;
-
+    private static String sNotificationResPath;
+    
     public static Application getHostApplication() {
         if (sApplication == null) {
             throw new IllegalStateException("not inited yet");
@@ -28,6 +31,11 @@ public class FairyGlobal {
 
     /*package*/ static void setApplication(Application application) {
         sApplication = application;
+        //public_static_final_host_string_这个资源是由框架脚本植入宿主的, 由此判断对宿主的id分组是否成功
+        int id = sApplication.getResources().getIdentifier("public_static_final_host_string_", "string", sApplication.getPackageName());
+        if (id != 0 && !ResourceUtil.isMainResId(id)) {
+            throw new PluginResInitError("对宿主id分组失败，说明宿主编译有错，请clean后重新编译: " + ResourceUtil.covent2Hex(String.valueOf(id)));
+        }
     }
 
     /*package*/ static void setIsInited(boolean isInited) {
@@ -102,6 +110,17 @@ public class FairyGlobal {
 
     public static void setNeedVerifyHostVersionName(boolean needVerify) {
         sNeedVerifyHostVersionName = needVerify;
+    }
+
+    public static String getNotificationResPath() {
+        if (sNotificationResPath == null) {
+            return getHostApplication().getExternalCacheDir().getAbsolutePath() + "/notification_res.apk";
+        }
+        return sNotificationResPath;
+    }
+
+    public static void setNotificationResPath(String notificationResPath) {
+        sNotificationResPath = notificationResPath;
     }
 
     /**
