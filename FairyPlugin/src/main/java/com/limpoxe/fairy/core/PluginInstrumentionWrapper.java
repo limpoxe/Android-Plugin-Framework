@@ -295,8 +295,8 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 	@Override
 	public void callActivityOnCreate(Activity activity, Bundle icicle) {
-		if (icicle != null && icicle.getParcelable("android:support:fragments") != null) {
-			if (ProcessUtil.isPluginProcess()) {
+		if (icicle != null && ProcessUtil.isPluginProcess()) {
+			if (icicle.getParcelable("android:support:fragments") != null) {
 				if (AnnotationProcessor.getPluginContainer(activity.getClass()) != null) {
 					// 加了注解的Activity正在自动恢复且页面包含了Fragment。直接清除fragment，
 					// 防止如果被恢复的fragment来自插件时，在某些情况下会使用宿主的classloader加载插件fragment
@@ -304,6 +304,15 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					icicle.clear();
 					icicle = null;
 				}
+			}
+			//处理androidx的fragment缓存在activity自动恢复时导致的classcast问题
+			//androidx.fragment.app.FragmentActivity
+			//-->androidx.activity.ComponentActivity
+			//---->androidx.savedstate.SavedStateRegistryController
+			//------>androidx.savedstate.SavedStateRegistry.SAVED_COMPONENTS_KEY
+			if (icicle.getParcelable("androidx.lifecycle.BundlableSavedStateRegistry.key") != null) {
+				icicle.clear();
+				icicle = null;
 			}
 		}
 
