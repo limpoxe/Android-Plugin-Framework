@@ -9,6 +9,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -27,9 +30,11 @@ import com.limpoxe.fairy.manager.PluginActivityMonitor;
 import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.manager.PluginManagerProviderClient;
 import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.PackageVerifyer;
 import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -65,20 +70,60 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 
 		//ContentProvider的相关操作应该放在installContentProvider之后执行,
 		//而installContentProvider是ActivityThread在调用application的attach之后,onCreate之前执行
-		//因此下面的初始化操作的最佳时机是在application的oncreate之前执行，因为它们会触发ContentProvider调用
+		//因此可以触发ContentProvider调用的最早时机就是这里了
+		//下面这个函数内就会触发PluginManagerProvider的调用
+		beforeHostCallApplicationOnCreate();
+		real.callApplicationOnCreate(app);
+	}
 
-		PluginLoader.removeNotSupportedPluginIfUpgraded();
-
+	private static void beforeHostCallApplicationOnCreate() {
 		LocalServiceManager.init();
-		if (ProcessUtil.isPluginProcess()) {
-			Iterator<PluginDescriptor> itr = PluginManagerHelper.getPlugins().iterator();
-			while (itr.hasNext()) {
-				PluginDescriptor plugin = itr.next();
-				LocalServiceManager.registerService(plugin);
+		boolean isHostVerionChanged = isHostVerionChanged();
+		ArrayList<PluginDescriptor> pluginDescriptorList =  PluginManagerHelper.getPlugins();
+		//边循环边删除没问题，因为是不同的列表对象
+		for(int i = 0; i < pluginDescriptorList.size(); i++) {
+			PluginDescriptor pluginDescriptor = pluginDescriptorList.get(i);
+			if (isHostVerionChanged && !PackageVerifyer.isCompatibleWithHost(pluginDescriptor)) {
+				LogUtil.e("插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
+				LogUtil.e("当前宿主版本不支持此插件版本，卸载此插件 " + pluginDescriptor.getPackageName());
+				PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+				LogUtil.e("卸载完成");
+			} else if (pluginDescriptor.isBroken()) {
+				LogUtil.e("插件文件可能已损坏，卸载此插件 " + pluginDescriptor.getPackageName());
+				PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+				LogUtil.e("卸载完成");
+			} else {
+				if (ProcessUtil.isPluginProcess()) {
+					LocalServiceManager.registerService(pluginDescriptor);
+				}
+				if (pluginDescriptor.getAutoStart()) {
+					//宿主启动时自动唤醒自启动插件
+					LogUtil.w("插件配置了自启动, 唤起插件：" + pluginDescriptor.getPackageName());
+					PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+				}
 			}
 		}
+	}
 
-		real.callApplicationOnCreate(app);
+	private static boolean isHostVerionChanged() {
+		//如果宿主进行了覆盖安装的升级操作，移除已经安装的对宿主版本有要求的非独立插件
+		String KEY = "last_host_versionName";
+		SharedPreferences prefs = FairyGlobal.getHostApplication().getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
+		String lastHostVersoinName = prefs.getString(KEY, null);
+		String hostVersionName = null;
+		try {
+			PackageManager packageManager = FairyGlobal.getHostApplication().getPackageManager();
+			PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_META_DATA);
+			hostVersionName = hostPackageInfo.versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			LogUtil.printException("PluginLoader.isHostVerionChanged", e);
+		}
+		boolean isHostVerionChanged = hostVersionName != null && !hostVersionName.equals(lastHostVersoinName);
+		//版本号发生了变化, 保存新的版本号
+		if (isHostVerionChanged) {
+			prefs.edit().putString(KEY, hostVersionName).apply();
+		}
+		return isHostVerionChanged;
 	}
 
 	@Override

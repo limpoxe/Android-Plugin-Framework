@@ -124,7 +124,9 @@ public class PluginDescriptor implements Serializable {
 	private String dalvikCacheDir;
 	private String dataDir;
 	private String installedPath;
-
+	private long fileSize;
+	private String fileMd5;
+	private String fileCrc;
 	private long installationTime;
 
 	private String[] dependencies;
@@ -476,6 +478,30 @@ public class PluginDescriptor implements Serializable {
 		this.installedPath = installedPath;
 	}
 
+	public long getFileSize() {
+		return fileSize;
+	}
+
+	public void setFileSize(long fileSize) {
+		this.fileSize = fileSize;
+	}
+
+	public String getFileMd5() {
+		return fileMd5;
+	}
+
+	public void setFileMd5(String fileMd5) {
+		this.fileMd5 = fileMd5;
+	}
+
+	public String getFileCrc() {
+		return fileCrc;
+	}
+
+	public void setFileCrc(String fileCrc) {
+		this.fileCrc = fileCrc;
+	}
+
 	public String[] getDependencies() {
 		return dependencies;
 	}
@@ -607,6 +633,25 @@ public class PluginDescriptor implements Serializable {
 			return PROVIDER;
 		}
 		return UNKOWN;
+	}
+
+	public boolean isBroken() {
+		//简单检查一下文件是否已损坏
+		File file = new File(getInstalledPath());
+		if (!file.exists()) {
+			return true;
+		}
+		if (!file.canRead()) {
+			return true;
+		}
+		if (file.length() == 0) {
+			return true;
+		}
+		if (getFileSize() > 0 && file.length() != getFileSize()) {
+			return true;
+		}
+		//md5 or crc check
+		return false;
 	}
 
 	public ArrayList<String> matchPlugin(Intent intent, int type) {

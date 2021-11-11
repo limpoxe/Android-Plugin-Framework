@@ -230,6 +230,7 @@ class PluginManagerService {
 				LogUtil.e("fail::PARSE_MANIFEST_FAIL", srcPluginFile);
 				return new InstallResult(PluginManagerHelper.PARSE_MANIFEST_FAIL);
 			}
+			pluginDescriptor.setFileSize(new File(srcPluginFile).length());
 			LogUtil.w("插件详情", pluginDescriptor.getPackageName(), pluginDescriptor.getVersion(), pluginDescriptor.isStandalone(), pluginDescriptor.getAutoStart());
 
 			// 检查插件适用系统版本

@@ -108,8 +108,11 @@ public class PluginLauncher implements Serializable {
 						FairyGlobal.getHostApplication().getResources(), pluginDescriptor);
 
 					if (pluginRes == null) {
-						LogUtil.e("初始化插件失败 : res");
-						throw new PluginResInitError("初始化插件失败 : res");
+						LogUtil.e("初始化插件失败: " + pluginDescriptor.getPackageName());
+						LogUtil.e("插件文件可能已损坏，卸载此插件 " + pluginDescriptor.getPackageName());
+						PluginManagerHelper.remove(pluginDescriptor.getPackageName());
+						LogUtil.e("卸载完成");
+						return null;
 					}
 
 					long t1 = System.currentTimeMillis();

@@ -59,8 +59,8 @@ public class PluginCreator {
 	 * @return
 	 */
 	public static Resources createPluginResource(String mainApkPath, Resources mainRes, PluginDescriptor pluginDescriptor) {
-		String absolutePluginApkPath = pluginDescriptor.getInstalledPath();
-		if (new File(absolutePluginApkPath).exists()) {
+		if (!pluginDescriptor.isBroken()) {
+			String absolutePluginApkPath = pluginDescriptor.getInstalledPath();
 			boolean isStandalone = pluginDescriptor.isStandalone();
 			String[] dependencies = pluginDescriptor.getDependencies();
 
@@ -81,13 +81,8 @@ public class PluginCreator {
 
 				return pluginRes;
 			} catch (Exception e) {
-                LogUtil.printException("创建插件res失败" + absolutePluginApkPath, e);
-            }
-		} else {
-			LogUtil.e("插件文件不存在", absolutePluginApkPath);
-            LogUtil.e("插件文件可能已损坏，正在卸载此插件...");
-            PluginManagerHelper.remove(pluginDescriptor.getPackageName());
-            LogUtil.e("卸载完成");
+                LogUtil.printException("创建插件res失败：" + absolutePluginApkPath, e);
+			}
         }
 		return null;
 	}

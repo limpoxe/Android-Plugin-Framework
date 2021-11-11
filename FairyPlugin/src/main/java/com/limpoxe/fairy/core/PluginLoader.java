@@ -142,46 +142,6 @@ public class PluginLoader {
         LogUtil.w("插件框架初始化完成", "耗时：" + (t2-t1));
 	}
 
-    public static void removeNotSupportedPluginIfUpgraded() {
-        //如果宿主进行了覆盖安装的升级操作，移除已经安装的对宿主版本有要求的非独立插件
-        String KEY = "last_host_versionName";
-        SharedPreferences prefs = FairyGlobal.getHostApplication().getSharedPreferences("fairy_configs", Context.MODE_PRIVATE);
-        String lastHostVersoinName = prefs.getString(KEY, null);
-        String hostVersionName = null;
-        try {
-            PackageManager packageManager = FairyGlobal.getHostApplication().getPackageManager();
-            PackageInfo hostPackageInfo = packageManager.getPackageInfo(FairyGlobal.getHostApplication().getPackageName(), PackageManager.GET_META_DATA);
-            hostVersionName = hostPackageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            LogUtil.printException("PluginLoader.removeNotSupportedPluginIfUpgraded", e);
-            return;
-        }
-
-        boolean isHostVerionChanged = !hostVersionName.equals(lastHostVersoinName);
-
-        ArrayList<PluginDescriptor> pluginDescriptorList =  PluginManagerHelper.getPlugins();
-        for(int i = 0; i < pluginDescriptorList.size(); i++) {
-            PluginDescriptor pluginDescriptor = pluginDescriptorList.get(i);
-            if (isHostVerionChanged && !PackageVerifyer.isCompatibleWithHost(pluginDescriptor)) {
-                LogUtil.e("当前宿主版本不支持此插件版本", "宿主versionName:" + hostVersionName, "插件RequiredHostVersionName:" + pluginDescriptor.getRequiredHostVersionName());
-                LogUtil.w("卸载此插件");
-                //边循环边删除没问题，因为是不同的列表对象
-                PluginManagerHelper.remove(pluginDescriptor.getPackageName());
-            } else {
-                //如果插件配置了自启动，宿主启动时自动唤醒这些插件
-                if (pluginDescriptor.getAutoStart()) {
-                    LogUtil.w("唤起此插件：" + pluginDescriptor.getPackageName());
-                    PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
-                }
-            }
-        }
-
-        //版本号发生了变化, 保存新的版本号
-        if (isHostVerionChanged) {
-            prefs.edit().putString(KEY, hostVersionName).apply();
-        }
-    }
-
 	public static Context fixBaseContextForReceiver(Context superApplicationContext) {
 		if (superApplicationContext instanceof ContextWrapper) {
 			return ((ContextWrapper)superApplicationContext).getBaseContext();
