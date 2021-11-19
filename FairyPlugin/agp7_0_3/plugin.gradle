@@ -1,0 +1,823 @@
+import org.xml.sax.InputSource
+import org.xml.sax.SAXException
+import org.xml.sax.helpers.DefaultHandler
+
+import javax.xml.parsers.ParserConfigurationException
+import javax.xml.parsers.SAXParser
+import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.sax.SAXTransformerFactory
+import javax.xml.transform.sax.TransformerHandler
+import javax.xml.transform.stream.StreamResult
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+import java.util.zip.*
+
+configurations {
+    baselinePatch
+    debugBaselinePatch
+    releaseBaselinePatch
+}
+
+class FaiyExt {
+    private boolean requireHostVersion = true;
+
+    public boolean getRequireHostVersion() {
+        return requireHostVersion
+    }
+
+    public void setRequireHostVersion(boolean required) {
+        this.requireHostVersion = required
+    }
+}
+extensions.create('fairy', FaiyExt)
+
+android{
+}
+
+def hostBar = "host.bar"
+def hostJar = "host_classes.jar"
+def hostBarRootDir = rootProject.rootDir.absolutePath + '/.gradle/fairy/baselinePatch/'
+def defaultExtraDir = hostBarRootDir + "unspecified"
+def currentSelectedBar = defaultExtraDir + "/" + hostBar
+gradle.startParameter.taskNames.each { startTaskName ->
+    if (startTaskName.contains("Debug")) {
+        currentSelectedBar = hostBarRootDir + "debug" + "/" + hostBar
+    } else if (startTaskName.contains("Release")) {
+        currentSelectedBar = hostBarRootDir + "release" + "/" + hostBar
+    }
+}
+
+println "执行命令决定了bar文件依赖路径！"
+println ">>>" + hostBarRootDir
+println ">>>" + currentSelectedBar
+
+android.androidResources.additionalParameters(
+        '-I', currentSelectedBar,
+        '--package-id', "0x7f", //默认0x7f，可以修改为任意其他值，如0x66、0x88，但要确保不和系统已经使用的id重复。典型的如0x10、0x20，都已被系统使用
+        '--allow-reserved-package-id',
+        '--stable-ids', project.buildDir.absolutePath + "/outputs/public_attrs.properties")
+
+afterEvaluate {
+    def isApplicationModule = getPlugins().hasPlugin("com.android.application")
+    if (isApplicationModule) {
+        if (android.defaultConfig.applicationId == null) {
+            throw new Exception("插件build.gradle未配置android.defaultConfig.applicationId")
+        }
+    }
+    def moduleVariants = isApplicationModule ? android.applicationVariants : android.libraryVariants
+    for (variant in moduleVariants) {
+        def varName = variant.name;
+        def buildTypeName = variant.buildType.name
+        def flavorName = variant.flavorName
+        def varDirName =  variant.dirName
+        def hostBarExtraRootDir = hostBarRootDir + variant.buildType.name
+
+        println '\n'
+        println project.name + ' Check Env : variant=' + varName +  ", buildTypeName=" + buildTypeName + ", flavorName=" + flavorName + ", varDirName=" + varDirName
+
+        //读取宿主基线包文件路径，并解压到指定目录
+        def configure = configurations.maybeCreate(variant.buildType.name + 'BaselinePatch')
+        if (configure == null || configure.files.size() == 0) {
+            configure = configurations['baselinePatch']
+        }
+        if (configure.files.size() == 0) {
+            project.logger.error '未配置基线包依赖！'
+        }
+        configure.files.each { patch ->
+            println "发现宿主基线配置指向位置：" + patch.absolutePath
+            //从原理上讲应该每个变种都需要一个对应的基线包解压路径，这里偷懒了，只考虑了buildType，忽略favor
+            if ("".equals(patch.absolutePath) || !file(patch.absolutePath).exists()) {
+                println "宿主基线patch文件不存在：" + patch.absolutePath
+                println "清理对应的缓存目录：" + hostBarExtraRootDir
+                file(hostBarExtraRootDir).deleteDir();
+            } else {
+                //按buildType解压到不同的文件夹里面
+                println "解压宿主基线文件：" + patch.absolutePath + "\n    到 " + hostBarExtraRootDir
+                //这里做一个简单校验判断，提高效率
+                if (file(hostBarExtraRootDir + "/" + hostBar).size() != file(patch.absolutePath).size()) {
+                    copy {
+                        def zipFile = file(patch.absolutePath)
+                        def outputDir = file(hostBarExtraRootDir)
+                        outputDir.deleteDir();
+                        from zipTree(zipFile)
+                        from(zipFile) {
+                            rename {
+                                hostBar
+                            }
+                        }
+                        into outputDir
+                    }
+                } else {
+                    println "源与目标文件大小相同，省去解压步骤"
+                }
+                //这里做一个简单校验判断，提高效率
+                if (file(defaultExtraDir + "/" + hostBar).size() != file(patch.absolutePath).size()) {
+                    copy {
+                        //留存一份到默认目录，当不是使用assembleDebug和assembleRelease编译时会使用这个文件夹
+                        //如果同时配置了debug和release，使用最后一个遍历到的buildType覆盖
+                        def zipFile = file(patch.absolutePath);
+                        def outputDir = file(defaultExtraDir)
+                        outputDir.deleteDir();
+                        from zipTree(zipFile)
+                        from(zipFile) {
+                            rename {
+                                hostBar
+                            }
+                        }
+                        into outputDir
+                    }
+                }
+                //读取宿主编译信息
+                File propFile = file(hostBarExtraRootDir + "/HostInfo.prop");
+                if (!propFile.exists()) {
+                    throw new Exception("HostInfo.prop丢失：" + propFile.absolutePath)
+                }
+                def Properties props = new Properties()
+                props.load(new FileInputStream(propFile))
+                props.keySet().forEach { propKey->
+                    project.ext.setProperty(propKey, props.getProperty(propKey))
+                }
+            }
+        }
+        //根据混淆开关来选择是使用compileOnly还是implementation来依赖基线包的jar
+        //这里偷懒了，只考虑了buildType，忽略favor
+        def hostClassesJar = hostBarExtraRootDir + "/" + hostJar
+        if (!file(hostClassesJar).exists()) {
+            //当不是使用assembleDebug和assembleRelease编译时
+            println "hostClassesJar " + hostClassesJar + " 不存在，自动切换到default"
+            hostClassesJar = defaultExtraDir + "/" + hostJar;
+        }
+        println "添加宿主基线jar依赖：" + hostClassesJar + "\n混淆开关：minifyEnabled=" + variant.buildType.minifyEnabled
+        if (!variant.buildType.minifyEnabled) {
+            configurations[variant.buildType.name + 'CompileOnly'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
+        } else {
+            configurations[variant.buildType.name + 'Implementation'].dependencies.add(project.dependencies.create(files(hostClassesJar)))
+        }
+
+        def mergeResourceTask = tasks.findByName("merge${varName.capitalize()}Resources");
+        mergeResourceTask.setOnlyIf { true }
+        mergeResourceTask.outputs.upToDateWhen { false }
+        mergeResourceTask.doLast {
+            //应用宿主的主题包
+            applyThemePatch(varName, varDirName, hostBarExtraRootDir);
+        }
+
+        if (isApplicationModule) {
+            tasks.findByName("compile${varName.capitalize()}JavaWithJavac").finalizedBy tasks.findByName("bundle${varName.capitalize()}Classes")
+            tasks.findByName("compile${variant.name.capitalize()}Sources").doLast {
+                project.copy {
+                    from(buildDir.absolutePath + '/intermediates/app_classes/' + varName) {
+                        include "classes.jar"
+                    }
+                    into(buildDir.absolutePath + "/outputs")
+                    rename('classes', project.name + "-" + varName)
+                }
+            }
+            tasks.findByName("process${varName.capitalize()}Manifest").doLast {
+                def hostVersionName = project.ext.getProperty("host.versionName")
+                def hostVersionCode = project.ext.getProperty("host.versionCode")
+                def hostApplicationId = project.ext.getProperty("host.applicationId")
+                def hostBuildType = project.ext.getProperty("host.buildType")
+                def hostFlavorName = project.ext.getProperty("host.flavorName")
+                def hostVarName = project.ext.getProperty("host.varName")
+                def hostVarDirName = project.ext.getProperty("host.varDirName")
+                if (hostApplicationId != null) {
+                    projects.logger.log(LogLevel.ERROR, "宿主基线包信息：hostVersionName=" + hostVersionName + " hostVersionCode=" + hostVersionCode + " hostApplicationId=" + hostApplicationId + " hostBuildType=" + hostBuildType + " hostFlavorName=" + hostFlavorName)
+                } else {
+                    if ("".equals(hostBarExtraRootDir) || !file(hostBarExtraRootDir).exists()) {
+                        throw new Exception("依赖的宿主基线文件不存在，请检查${project.name}工程的dependencies.baselinePatch依赖的文件是否存在。\n依赖的文件路径为：" + hostBarExtraRootDir)
+                    } else {
+                        throw new Exception("宿主基线包信息丢失")
+                    }
+                }
+
+                fileTree(multiApkManifestOutputDirectory).include("**/AndroidManifest.xml").each { manifestFile->
+                    if (hostVersionName != null && hostApplicationId != null && hostVersionCode != null) {
+                        println "插件Manifest：" + manifestFile.absolutePath
+                        println "插入宿主版本号标识 requiredHostVersionName=" + hostVersionName
+                        println "插入宿主版本号标识 requiredHostVersionCode=" + hostVersionCode
+                        println "插入宿主ID hostApplicationId=" + hostApplicationId
+                        def originManifestContent = manifestFile.getText('UTF-8')
+                        def modifyedManifestContent = originManifestContent.replace("<manifest ", "<manifest " +
+                                (fairy.requireHostVersion?("requiredHostVersionName=\"" + hostVersionName + "\" "):"") +
+                                (fairy.requireHostVersion?("requiredHostVersionCode=\"" + hostVersionCode + "\" "):"") +
+                                ("hostApplicationId=\"" + hostApplicationId + "\" "));
+                        manifestFile.write(modifyedManifestContent, 'UTF-8')
+                    } else {
+                        throw new Exception("宿主基线包信息不全，请检查.")
+                    }
+                }
+            }
+
+            tasks.findByName("process${varName.capitalize()}Resources").doFirst {
+                File public_attrs = file(project.buildDir.absolutePath + "/outputs/public_attrs.properties")
+                if (!public_attrs.exists()) {
+                    def packageName = android.defaultConfig.applicationId
+                    copy {
+                        from(file(currentSelectedBar).parent) {
+                            include "public_attrs.properties"
+                        }
+                        into project.buildDir.absolutePath + "/outputs/"
+                        filter { String line ->
+                            (packageName + ":" + line.split([":"])[1])
+                            .replace("public_static_final_host", "public_static_final_plugin")
+                            .replace("0x7f3", "0x7f0")
+                            .replace("0x7f4", "0x7f1")
+                        }
+                    }
+                }
+            }
+
+            //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
+            def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${varName.capitalize()}")
+            if (proguardTask == null) {
+                proguardTask = project.tasks.findByName("minify${varName.capitalize()}WithProguard")
+            }
+            if (proguardTask != null) {
+                if (project.ext.has("host.varName")) {
+                    def baselineMappingFile = hostBarExtraRootDir + "/mapping/" + project.ext.getProperty("host.varName") + "/mapping.txt";
+                    println "应用基线mapping文件： " + baselineMappingFile
+                }
+                proguardTask.doFirst {
+                    println "开始混淆任务：" + varName.capitalize()
+                }
+                proguardTask.doLast {
+
+                    println "混淆完成 " + varName.capitalize()
+
+                    def host_obfuscated_jar = hostBarExtraRootDir + "/host_obfuscated.jar"
+                    if (!new File(host_obfuscated_jar).exists()) {
+                        project.logger.error "宿主基线混淆包不存在 " + host_obfuscated_jar
+                        throw new Exception("宿主基线混淆包不存在 " + host_obfuscated_jar + "， 请检查宿主编译产物中是否包含此文件")
+                    }
+                    println "依赖的宿主基线混淆包jar路径为：" + host_obfuscated_jar
+
+                    boolean isFind = false;
+                    outputs.files.files.each { File file->
+                        //http://blog.csdn.net/sbsujjbcy/article/details/50839263
+                        //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
+                        //最新版本路径已发生变化；2017-11-12
+                        println "file outputs=>${file.absolutePath}"
+                        String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
+                        println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildTypeName + " " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
+                        if ((file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName))
+                                || file.absolutePath.contains("/shrunk_jar/")) {
+                            isFind = true;
+                            def pluginObfuscatedJar = "plugin_obfuscated.jar"
+                            def sourcePluginObfuscatedJar
+                            if (new File(file.absolutePath + "/0.jar").exists()) {
+                                sourcePluginObfuscatedJar = file.absolutePath + "/0.jar"
+                            } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
+                                sourcePluginObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
+                            } else if (file.absolutePath.endsWith("/minified.jar")) {
+                                sourcePluginObfuscatedJar = file.absolutePath
+                            }
+                            //保留一个备份
+                            project.logger.error "导出混淆后的插件jar包 "
+                            println "From " + sourcePluginObfuscatedJar //此文件是proguard任务的固定输出目录
+                            println "To " + "${project.buildDir}/outputs/" + pluginObfuscatedJar
+                            copy {
+                                from sourcePluginObfuscatedJar
+                                into("${project.buildDir}/outputs/")
+                                rename(new Transformer<String, String>() {
+                                    @Override
+                                    String transform(String s) {
+                                        return pluginObfuscatedJar
+                                    }
+                                })
+                            }
+
+                            diffJar(sourcePluginObfuscatedJar, host_obfuscated_jar);
+                        }
+                    }
+                    if (!isFind) {
+                        throw new Exception("obfuscated jar file not found, please check.")
+                    }
+                }
+            }
+        }
+    }
+}
+
+def diffJar(String plugin, String host) {
+
+
+    println "通过基线混淆包和插件混淆包做diff清理重复的class"
+
+    println "插件：" + plugin + "，  宿主：" + host
+
+    println "先把插件和宿主的都解压 " + "${project.buildDir}/tmp/jarUnzip/plugin/" + ", " + "${project.buildDir}/tmp/jarUnzip/host/"
+
+    ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
+    List<String> hostClasses = ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
+
+    println "再删掉插件的源 " + plugin
+    new File(plugin).delete()
+
+    println "通过压缩过滤重新生成插件的源，替换之前被删掉的源， host classSize = " + hostClasses.size() + ", " + file(plugin).getName()
+    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", file(plugin).getParent(), file(plugin).getName(), hostClasses)
+    println "重新生成的插件的源 " + plugin
+
+    //备份diff后的包
+    copy {
+        println "备份diff后重新生成的插件的源包到插件out目录"
+        println "From " + plugin
+        println "To " + "${project.buildDir}/outputs/plugin_obfuscated_after_diff.jar"
+        from plugin
+        into("${project.buildDir}/outputs/")
+        rename(new Transformer<String, String>() {
+            @Override
+            String transform(String s) {
+                return "plugin_obfuscated_after_diff.jar"
+            }
+        })
+    }
+}
+
+public class ZipUtil {
+
+    public static List<String> unZip(String path, String savepath) throws IOException
+    {
+        def resultList = new ArrayList<String>();
+        def count = -1;
+        def index = -1;
+        def flag = false;
+        def file = null;
+        def is = null;
+        def fos = null;
+        def bos = null;
+
+        ZipFile zipFile = new ZipFile(path);
+        Enumeration<?> entries = zipFile.entries();
+
+        while(entries.hasMoreElements())
+        {
+            def buf = new byte[2048];
+            ZipEntry entry = (ZipEntry)entries.nextElement();
+
+            def filename = savepath + entry.getName();
+
+            File folder = new File(filename).getParentFile();
+            if(!folder.exists()){
+                folder.mkdirs();
+            }
+
+            if(!filename.endsWith(File.separator)){
+
+                System.out.println("解压：" + filename);
+
+                file = new File(filename);
+                file.createNewFile();
+                is = zipFile.getInputStream(entry);
+                fos = new FileOutputStream(file);
+                bos = new BufferedOutputStream(fos, 2048);
+
+                while((count = is.read(buf)) > -1)
+                {
+                    bos.write(buf, 0, count );
+                }
+
+                bos.flush();
+
+                fos.close();
+                is.close();
+
+                resultList.add(entry.getName());
+            }
+        }
+
+        zipFile.close();
+
+        return resultList
+    }
+
+    /**
+     * 递归压缩文件夹
+     * @param srcRootDir 压缩文件夹根目录的子路径
+     * @param file 当前递归压缩的文件或目录对象
+     * @param zos 压缩文件存储对象
+     * @throws Exception
+     */
+    public static zip(String srcRootDir, File file, ZipOutputStream zos, ArrayList<String> filter) throws Exception
+    {
+        if (file == null)
+        {
+            return;
+        }
+
+        //如果是文件，则直接压缩该文件
+        if (file.isFile())
+        {
+            int count, bufferLen = 1024;
+            byte[] data = new byte[bufferLen];
+
+            //获取文件相对于压缩文件夹根目录的子路径
+            String subPath = file.getAbsolutePath();
+            int index = subPath.indexOf(srcRootDir);
+            if (index != -1)
+            {
+                subPath = subPath.substring(srcRootDir.length() + File.separator.length());
+            }
+
+            if (filter.contains(subPath)) {
+                System.out.println("过滤：" + subPath)
+                return;
+            } else {
+                System.out.println("压缩：" + subPath)
+            }
+
+            ZipEntry entry = new ZipEntry(subPath);
+            zos.putNextEntry(entry);
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+            while ((count = bis.read(data, 0, bufferLen)) != -1)
+            {
+                zos.write(data, 0, count);
+            }
+            bis.close();
+            zos.closeEntry();
+        }
+        //如果是目录，则压缩整个目录
+        else
+        {
+            //压缩目录中的文件或子目录
+            File[] childFileList = file.listFiles();
+            for (int n=0; n<childFileList.length; n++)
+            {
+                childFileList[n].getAbsolutePath().indexOf(file.getAbsolutePath());
+                zip(srcRootDir, childFileList[n], zos, filter);
+            }
+        }
+    }
+
+    /**
+     * 对文件或文件目录进行压缩
+     * @param srcPath 要压缩的源文件路径。如果压缩一个文件，则为该文件的全路径；如果压缩一个目录，则为该目录的顶层目录路径
+     * @param zipPath 压缩文件保存的路径。注意：zipPath不能是srcPath路径下的子文件夹
+     * @param zipFileName 压缩文件名
+     * @throws Exception
+     */
+    public static zip(String srcPath, String zipPath, String zipFileName, ArrayList<String> filter) throws Exception
+    {
+        CheckedOutputStream cos = null;
+        ZipOutputStream zos = null;
+        try
+        {
+            File srcFile = new File(srcPath);
+
+            //判断压缩文件保存的路径是否存在，如果不存在，则创建目录
+            File zipDir = new File(zipPath);
+            if (!zipDir.exists() || !zipDir.isDirectory())
+            {
+                zipDir.mkdirs();
+            }
+
+            //创建压缩文件保存的文件对象
+            String zipFilePath = zipPath + File.separator + zipFileName;
+            File zipFile = new File(zipFilePath);
+            if (zipFile.exists())
+            {
+                ///删除已存在的目标文件
+                boolean success = zipFile.delete();
+                System.out.println("删除已存在的目标文件:" + success)
+
+            }
+
+            cos = new CheckedOutputStream(new FileOutputStream(zipFile), new CRC32());
+            zos = new ZipOutputStream(cos);
+
+            //如果只是压缩一个文件，则需要截取该文件的父目录
+            String srcRootDir = srcPath;
+            if (srcFile.isFile())
+            {
+                int index = srcPath.lastIndexOf(File.separator);
+                if (index != -1)
+                {
+                    srcRootDir = srcPath.substring(0, index);
+                }
+            }
+            //调用递归压缩方法进行目录或文件压缩
+            zip(srcRootDir, srcFile, zos, filter);
+            zos.flush();
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+        finally
+        {
+            try
+            {
+                if (zos != null)
+                {
+                    zos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+def applyThemePatch(varName, varDir, hostPatchExtractDir) {
+    println "开始merge插件工程资源：" + hostPatchExtractDir + " 到" + varDir
+
+    if (!file(hostPatchExtractDir).exists()) {
+        throw new FileNotFoundException("Dir Not Found: " + hostPatchExtractDir);
+    }
+
+    def fromDir = hostPatchExtractDir + "/theme_patch/" + project.ext.getProperty("host.varDirName")
+    def resourceDir = project.buildDir.absolutePath + "/intermediates/incremental/merge" + varName.capitalize() + "Resources/merged.dir"
+
+    if (!file(fromDir).exists()) {
+        throw new FileNotFoundException("Dir Not Found: " + fromDir);
+    }
+
+    if (!file(resourceDir).exists()) {
+        file(resourceDir).mkdirs()
+    }
+
+    FileTree allxmlFiles = fileTree(dir: fromDir)
+    allxmlFiles.include '**/*.xml'
+
+    if (allxmlFiles.size() == 0) {
+        println fromDir + " 目录未生成，请先编译宿主！！"
+        throw new FileNotFoundException("theme_patch目录未生成，请先编译宿主！！\n请检查这个目录：\n" + fromDir);
+    }
+
+    allxmlFiles.each { File itemFile ->
+        file(buildDir.getAbsolutePath() + "/intermediates/merged_res/" + varName).mkdirs()
+
+        File buildToolsPath = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion())
+        String aapt2Exe = new File(buildToolsPath, "aapt2" + (System.getProperty("os.name").startsWith("Windows")?".exe":"")).absolutePath
+
+        projects.logger.log(LogLevel.ERROR, "$aapt2Exe compile -o $buildDir.absolutePath/intermediates/merged_res/$varName $itemFile")
+        "$aapt2Exe compile -o $buildDir.absolutePath/intermediates/merged_res/$varName $itemFile".execute().waitFor()
+    }
+}
+
+public class StyleProcessor extends DefaultHandler {
+
+    File destFile;
+    Stack<Node> stack = new Stack<Node>();
+    TransformerHandler outXmlHandler;
+
+    SortedMap<String, ArrayList<String>> attrList = new TreeMap<String, ArrayList<String>>();
+    HashSet<String> attrSets = new HashSet<String>();
+
+    HashMap<String, String> enumItemList = new HashMap<String, String>();
+
+    HashMap<String, HashMap<String, String>> attrFlagMap = new HashMap<String, HashMap<String, String>>();
+
+    public StyleProcessor(File destFile) {
+        this.destFile = destFile;
+
+        SAXTransformerFactory factory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
+        outXmlHandler = factory.newTransformerHandler();
+
+    }
+
+    public static StyleProcessor fixDeclareStyle(File srcFile, File destFile) {
+        try {
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            StyleProcessor processor = new StyleProcessor(destFile);
+            BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(srcFile), "UTF-8"));
+            InputSource inputSource = new InputSource(br)
+            saxParser.parse(inputSource, processor);
+            return processor;
+        } catch (ParserConfigurationException e) {
+            System.out.println(e.getMessage());
+        } catch (SAXException e) {
+            System.out.println(e.getMessage());
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    ////////////////
+    ////////////////
+    ////////////////
+
+    public void startDocument() throws SAXException {
+        try {
+            javax.xml.transform.Transformer transformer = outXmlHandler.getTransformer();     // 设置xml属性
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+            transformer.setOutputProperty(OutputKeys.VERSION, "1.0");
+            outXmlHandler.setResult(new StreamResult(new OutputStreamWriter(new FileOutputStream(destFile), "UTF-8")));
+            char[] common = new String("\n AUTO-GENERATED FILE.  DO NOT MODIFY \n").toCharArray();
+            outXmlHandler.comment(common, 0, common.length);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes attributes) throws SAXException {
+
+        boolean skip = false;
+        if (!qName.equals("declare-styleable")) {
+            String space = "\n";
+            for (int i = 0; i < stack.size(); i++) {
+                space = space + "    ";
+            }
+            String tag = space + "<" + qName;
+            for (int i = 0; i < attributes.getLength(); i++) {
+                tag = tag + " " + attributes.getQName(i) + "=\""+ attributes.getValue(i) + "\"";
+            }
+            tag = tag + ">";
+
+            if (qName.equals("attr") && stack.size() == 2) {
+                String parentDecalreStyleName = attrList.lastKey();
+                attrList.get(parentDecalreStyleName).add(attributes.getValue("name"));
+            }
+
+            if (qName.equals("enum") && stack.size() == 3) {
+
+                Node n3 = stack.get(2);
+                String attr = n3.name;
+
+                String regx = ":" + attr + "\\s*=\\s*\"" + attributes.getValue("name") + "\"";
+                String regValue = ":" + attr + "=\"" + attributes.getValue("value") + "\"";
+                println "prepare enum att regx " + regx + "-->" + regValue + " enumItemList size = " + enumItemList.size();
+                enumItemList.put(regx, regValue)
+
+            }
+
+            if (qName.endsWith("flag") && stack.size() == 3) {
+
+                Node n3 = stack.get(2);
+                String attr = n3.name;
+
+                String flagName = attributes.getValue("name");
+                String flagValue = attributes.getValue("value");
+
+                HashMap<String, String> item = attrFlagMap.get(attr);
+                if (item == null) {
+                    item = new HashMap<String, String>();
+                    attrFlagMap.put(attr, item)
+                }
+
+                println "collect attr flag " + attr + "={" + flagName + "=" + flagValue + "}"
+
+                item.put(flagName, flagValue);
+            }
+
+            if (qName.equals("attr")) {
+                if (!attrSets.contains(attributes.getValue("name"))) {
+                    attrSets.add(attributes.getValue("name"));
+                    try {
+                        outXmlHandler.startElement(uri, localName, qName, attributes)
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    skip = true;
+                }
+            } else {
+                try {
+                    outXmlHandler.startElement(uri, localName, qName, attributes)
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            //declare-styleable的name属性
+            attrList.put(attributes.getValue("name"), new ArrayList<String>());
+        }
+
+        if (!stack.empty()) {
+            Node top = stack.peek();
+            top.hasChild = true;
+        }
+        stack.add(new Node(attributes.getValue("name"), false, skip));
+    }
+
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+
+        Node node = stack.pop();
+        if (node.skip) {
+            return;
+        }
+
+        if (!qName.equals("declare-styleable")) {
+            String space = "";
+            if (node.hasChild) {
+                space = "\n";
+                for (int i = 0; i < stack.size(); i++) {
+                    space = space + "    ";
+                }
+            }
+            try {
+                outXmlHandler.endElement(uri, localName, qName)
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        Node node = stack.peek();
+        if (node.skip) {
+            return;
+        }
+
+        try {
+            outXmlHandler.characters(ch, start, length)
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void endDocument() throws SAXException {
+        try {
+            outXmlHandler.endDocument();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class Node {
+        String name = null;
+        boolean hasChild = false;
+        boolean skip = false;
+
+        public Node(String name, boolean hasChild, boolean skip) {
+            this.name = name;
+            this.hasChild = hasChild;
+            this.skip = skip;
+        }
+    }
+
+    public static String fixAttrFlag(final String xmlText, HashMap<String, HashMap<String, String>> attrFlagMap) {
+
+        String localText = xmlText;
+
+        Iterator<Map.Entry<String, HashMap<String, String>>> flagItr = attrFlagMap.entrySet().iterator();
+
+        while (flagItr.hasNext()) {
+            Map.Entry<String, HashMap<String, String>> entry = flagItr.next();
+
+            HashMap<String, String> flagValueMap = entry.getValue();
+            String attrName = entry.getKey();
+
+            String regx = ":" + attrName + "\\s*=\\s*\".+?\"";
+
+            Matcher matcher = Pattern.compile(regx).matcher(localText);
+
+            HashMap<String, String> flagsMap = new HashMap<String, String>();
+
+            while(matcher.find()) {
+
+                String text0 = matcher.group(0);
+
+                String flagValue = text0.split("=")[1].trim().replaceAll("\"", "");
+                String[] flags = flagValue.split("\\|");
+
+                Integer flagIntValue = null;
+                for(String flag: flags) {
+
+                    String intFlag = flagValueMap.get(flag);
+                    int definedValue;
+                    if (intFlag.startsWith("0x")) {
+                        //16进制
+                        definedValue = Integer.valueOf(intFlag.substring(2), 16);
+                    } else {
+                        //10进制
+                        definedValue = Integer.valueOf(intFlag);
+                    }
+
+                    if (flagIntValue == null) {
+                        flagIntValue = definedValue;
+                    } else {
+                        flagIntValue = flagIntValue | definedValue;
+                    }
+                }
+
+                String text0ed = ":" + attrName + "=\"" + flagIntValue + "\"";
+                text0 = text0.replaceAll("\\|", "\\\\|");//正则转义
+
+                println "prepare enum att regx " + attrName + ", " + text0 + " --> " + text0ed
+
+                flagsMap.put(text0, text0ed);
+            }
+
+            Iterator<Map.Entry<String, String>> iterator = flagsMap.entrySet().iterator();
+            while(iterator.hasNext()) {
+                Map.Entry<String, String> stringEntry = iterator.next();
+                localText = localText.replaceAll(stringEntry.getKey(), stringEntry.getValue());
+            }
+        }
+
+        return localText;
+    }
+
+}

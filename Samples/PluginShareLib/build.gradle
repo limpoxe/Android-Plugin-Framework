@@ -11,8 +11,6 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
-        versionCode 1
-        versionName "1.0"
         flavorDimensions "versionCode"
     }
     compileOptions {

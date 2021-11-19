@@ -7,8 +7,6 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion TARGET_SDK_VERSION
-        versionCode 1
-        versionName "1.0"
         flavorDimensions "versionCode"
     }
 

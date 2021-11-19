@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
 
 group='com.github.limpoxe'
 
@@ -10,8 +9,6 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
-        versionCode 67
-        versionName "0.0.70"
     }
 
     lintOptions {
