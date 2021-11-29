@@ -257,68 +257,117 @@ afterEvaluate {
     }
 }
 
+def String curl(String url, String md5, String dir) {
+    File file = new File(dir, url.substring(url.lastIndexOf("/") + 1))
+    if (file.exists() && file.length() > 0) {
+        return file.absolutePath
+    }
+    println "downloading " + url
+    new File(dir).mkdirs();
+    MessageDigest messageDigest = MessageDigest.getInstance("MD5")
+    messageDigest.reset()
+    try {
+        HttpURLConnection httpConn =(HttpURLConnection)(new URL(url).openConnection())
+        InputStream inputStream = httpConn.getInputStream()
+        OutputStream ouput =new FileOutputStream(file)
+        byte[] buffer = new byte[8*1024]
+        int size
+        while((size = inputStream.read(buffer)) != -1) {
+            ouput.write(buffer, 0, size)
+            messageDigest.update(buffer, 0, size)
+        }
+        ouput.close()
+        httpConn.disconnect()
+    } catch(Exception){}
+    byte[] bs = messageDigest.digest()
+    StringBuilder stringBuilder = new StringBuilder()
+    for(byte b : bs) {
+        String hex = Integer.toHexString(b & 0xFF)
+        if (hex.length() < 2) {
+            stringBuilder.append("0")
+        }
+        stringBuilder.append(hex)
+    }
+    if (!md5.equalsIgnoreCase(stringBuilder.toString())) {
+        println "download fail: " + url + " " + stringBuilder.toString()
+        file.delete()
+    } else {
+        println "download success: " + url + " " + stringBuilder.toString()
+    }
+    return file.absolutePath
+}
+def ArrayList<String> basksmali(String exe, String src, String dest) throws Exception
+{
+    ArrayList<String> result = new ArrayList<>()
+    new File(dest).mkdirs()
+    File srcDir = new File(src);
+    for (File dex : srcDir.listFiles()) {
+        var cmd = ("java -jar " + exe + " " +
+                "d " +
+                "-o " + dest + "/" + dex.name + " " +
+                dex.absolutePath)
+        consumeStream(cmd.execute().getInputStream())
+        fileTree(dest + "/" + dex.name).forEach { it->
+            var relativeFile = it.absolutePath.replace(dest + "/" + dex.name, "")
+            result.add(relativeFile)
+        }
+    }
+    return result;
+}
+def void smali(String exe, String src, String dest) throws Exception
+{
+    for (File f : file(src).listFiles()) {
+        file(dest + "/" + f.name).delete()
+        var cmd = ("java -jar " + exe + " " +
+                    "a " +
+                    "-o " + dest + "/" + f.name + " " +
+                    f.absolutePath)
+        println cmd
+        consumeStream(cmd.execute().getInputStream())
+    }
+}
+def consumeStream(InputStream is) {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
+    final byte[] buffer = new byte[256]
+    int len
+    try {
+        while ((len = is.read(buffer)) > 0) {
+            outputStream.write(buffer, 0, len)
+        }
+    } catch(IOException){}
+    finally {
+        String msg = outputStream.toString()
+        if (msg != null && msg.length() > 0) {
+            println "***exe msg begin***"
+            println msg
+            println "***exe msg end***"
+        }
+        try {
+            outputStream.close()
+            is.close()
+        } catch(Exception){}
+    }
+}
+def deleteDuplicated(String plugin, ArrayList<String> hostClasses) {
+    for(File dexDir : file(plugin).listFiles()) {
+        fileTree(dexDir.absolutePath).forEach {
+            var relativeFile = it.absolutePath.replace(dexDir.absolutePath, "")
+            if (hostClasses.contains(relativeFile)) {
+                it.delete()
+            }
+        }
+    }
+}
 def diffDexes(String plugin, String host) {
     println "通过基线混淆包和插件混淆包做diff清理重复的class"
     println "插件：" + plugin
     println "宿主：" + host
-    SmaliUtil.prepare(rootProject.rootDir.absolutePath + '/.gradle/fairy/tools')
-    SmaliUtil.unZip(plugin, "${project.buildDir}/tmp/dexUnzip/plugin/")
-    SmaliUtil.unZip(host, "${project.buildDir}/tmp/dexUnzip/host/")
-    SmaliUtil.zip("${project.buildDir}/tmp/dexUnzip/plugin", plugin)
-}
-
-public class SmaliUtil {
-    static def prepare(dir) {
-        curl("https://bitbucket.org/JesusFreke/smali/downloads/baksmali-2.5.2.jar", "9ef9dcba677533541b8a1385e6af550b", dir)
-        curl("https://bitbucket.org/JesusFreke/smali/downloads/smali-2.5.2.jar", "0386bfa3676962fba8ca560392d7c78e", dir)
-    }
-    static def curl(String url, String md5, String dir) {
-        File file = new File(dir, url.substring(url.lastIndexOf("/") + 1))
-        if (file.exists() && file.length() > 0) {
-            return
-        }
-        println "downloading " + url
-        new File(dir).mkdirs();
-        MessageDigest messageDigest = MessageDigest.getInstance("MD5")
-        messageDigest.reset()
-        try {
-            HttpURLConnection httpConn =(HttpURLConnection)(new URL(url).openConnection())
-            InputStream inputStream = httpConn.getInputStream()
-            OutputStream ouput =new FileOutputStream(file)
-            byte[] buffer = new byte[8*1024]
-            int size
-            while((size = inputStream.read(buffer)) != -1) {
-                ouput.write(buffer, 0, size)
-                messageDigest.update(buffer, 0, size)
-            }
-            ouput.close()
-            httpConn.disconnect()
-        } catch(Exception){}
-        byte[] bs = messageDigest.digest()
-        StringBuilder stringBuilder = new StringBuilder()
-        for(byte b : bs) {
-            String hex = Integer.toHexString(b & 0xFF)
-            if (hex.length() < 2) {
-                stringBuilder.append("0")
-            }
-            stringBuilder.append(hex)
-        }
-        if (!md5.equalsIgnoreCase(stringBuilder.toString())) {
-            println "download fail: " + url + " " + stringBuilder.toString()
-            file.delete()
-        } else {
-            println "download success: " + url + " " + stringBuilder.toString()
-        }
-    }
-
-    public static void unZip(String src, String dest) throws Exception
-    {
-        //todo
-    }
-    public static void zip(String src, String dest) throws Exception
-    {
-        //todo
-    }
+    var BAKSMALI = curl("https://bitbucket.org/JesusFreke/smali/downloads/baksmali-2.5.2.jar", "9ef9dcba677533541b8a1385e6af550b", rootProject.rootDir.absolutePath + '/.gradle/fairy/tools')
+    var SMALI = curl("https://bitbucket.org/JesusFreke/smali/downloads/smali-2.5.2.jar", "0386bfa3676962fba8ca560392d7c78e", rootProject.rootDir.absolutePath + '/.gradle/fairy/tools')
+    basksmali(BAKSMALI, plugin, "${project.buildDir}/tmp/dexUnzip/plugin")
+    ArrayList<String> hostClasses = basksmali(BAKSMALI, host, "${project.buildDir}/tmp/dexUnzip/host")
+    deleteDuplicated("${project.buildDir}/tmp/dexUnzip/plugin", hostClasses)
+    smali(SMALI, "${project.buildDir}/tmp/dexUnzip/plugin", plugin)
 }
 
 def applyThemePatch(varName, varDir, hostPatchExtractDir) {
