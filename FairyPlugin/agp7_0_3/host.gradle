@@ -289,60 +289,21 @@ afterEvaluate {
         }
 
         if (variant.buildType.minifyEnabled) {
-            //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
-            def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${varName.capitalize()}")
-            if (proguardTask == null) {
-                proguardTask = project.tasks.findByName("minify${varName.capitalize()}WithProguard")
-            }
+            def proguardTask = project.tasks.findByName("minify${varName.capitalize()}WithR8")
             if (proguardTask != null) {
-                proguardTask.doFirst {
-                    println "开始混淆任务：" + varName.capitalize()
-                }
                 proguardTask.doLast {
-                    println "混淆完成：" + varName.capitalize()
-                    boolean isFind = false;
                     proguardTask.outputs.files.files.each { File file->
-                        //http://blog.csdn.net/sbsujjbcy/article/details/50839263
-                        //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
-                        //最新版本路径已发生变化；2017-11-12
-                        project.logger.error "file outputs=>${file.absolutePath}"
-                        String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                        println String.valueOf(file.absolutePath.contains(keyword)) + ", " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
-                        if ((file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName))
-                            || file.absolutePath.contains("/shrunk_jar/")) {
-
-                            isFind = true;
-                            def sourceHostObfuscatedJar
-                            if (new File(file.absolutePath + "/0.jar").exists()) {
-                                sourceHostObfuscatedJar = file.absolutePath + "/0.jar"
-                            } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
-                                sourceHostObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
-                            } else if (file.absolutePath.endsWith("/minified.jar")) {
-                                sourceHostObfuscatedJar = file.absolutePath
-                            }
-                            def hostObfuscatedJar = "host_obfuscated.jar"
-                            project.logger.error "导出混淆后的宿主jar " + sourceHostObfuscatedJar + " 包到 " + "${project.buildDir}/outputs/" + hostObfuscatedJar
-
+                        if (file.absolutePath.endsWith(proguardTask.name)) {
+                            println "file outputs=>${file.absolutePath}"
                             copy {
-                                from sourceHostObfuscatedJar
-                                into("${project.buildDir}/outputs/")
-                                rename(new Transformer<String, String>() {
-                                    @Override
-                                    String transform(String s) {
-                                        project.logger.error "rename:" + s
-                                        return hostObfuscatedJar
-                                    }
-                                })
+                                from file.absolutePath
+                                into("${project.buildDir}/outputs/minifyWithR8")
                             }
                         }
-                    }
-                    if (!isFind) {
-                        throw new Exception("obfuscated jar file not found, please check.")
                     }
                 }
             }
         }
-
 
         //将宿主编译产物作为基线包存档，这样可以使插件脱离宿主工程独立编译
         task "makeHostBaseLine${varName.capitalize()}"(type: Zip) {

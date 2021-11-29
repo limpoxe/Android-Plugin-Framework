@@ -9,9 +9,9 @@ import javax.xml.transform.OutputKeys
 import javax.xml.transform.sax.SAXTransformerFactory
 import javax.xml.transform.sax.TransformerHandler
 import javax.xml.transform.stream.StreamResult
+import java.security.MessageDigest
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import java.util.zip.*
 
 configurations {
     baselinePatch
@@ -230,294 +230,94 @@ afterEvaluate {
             }
 
             //处理混淆，这里保存混淆以后dex之前的jar包作为基线包备用
-            def proguardTask = project.tasks.findByName("transformClassesAndResourcesWithProguardFor${varName.capitalize()}")
-            if (proguardTask == null) {
-                proguardTask = project.tasks.findByName("minify${varName.capitalize()}WithProguard")
-            }
+            def proguardTask = project.tasks.findByName("minify${varName.capitalize()}WithR8")
             if (proguardTask != null) {
                 if (project.ext.has("host.varName")) {
                     def baselineMappingFile = hostBarExtraRootDir + "/mapping/" + project.ext.getProperty("host.varName") + "/mapping.txt";
-                    println "应用基线mapping文件： " + baselineMappingFile
-                }
-                proguardTask.doFirst {
-                    println "开始混淆任务：" + varName.capitalize()
+                    println "发现基线mapping文件： " + baselineMappingFile
                 }
                 proguardTask.doLast {
-
                     println "混淆完成 " + varName.capitalize()
-
-                    def host_obfuscated_jar = hostBarExtraRootDir + "/host_obfuscated.jar"
-                    if (!new File(host_obfuscated_jar).exists()) {
-                        project.logger.error "宿主基线混淆包不存在 " + host_obfuscated_jar
-                        throw new Exception("宿主基线混淆包不存在 " + host_obfuscated_jar + "， 请检查宿主编译产物中是否包含此文件")
+                    def host_obfuscated_dex = hostBarExtraRootDir + "/minifyWithR8"
+                    if (!new File(host_obfuscated_dex).exists()) {
+                        project.logger.error "宿主基线混淆包不存在 " + host_obfuscated_dex
+                        throw new Exception("宿主基线混淆包不存在 " + host_obfuscated_dex + "， 请检查宿主编译产物中是否包含此文件")
                     }
-                    println "依赖的宿主基线混淆包jar路径为：" + host_obfuscated_jar
+                    println "依赖的宿主基线混淆包路径为：" + host_obfuscated_dex
 
-                    boolean isFind = false;
                     outputs.files.files.each { File file->
-                        //http://blog.csdn.net/sbsujjbcy/article/details/50839263
-                        //build/intermediates/transforms/proguard/anzhi/release/jars/3/1f/main.jar
-                        //最新版本路径已发生变化；2017-11-12
-                        println "file outputs=>${file.absolutePath}"
-                        String keyword = File.separator + "transforms" + File.separator + "proguard" + File.separator;
-                        println "contains keyword " + keyword + " " + String.valueOf(file.absolutePath.contains(keyword)) + ", endsWith buildType " + buildTypeName + " " + String.valueOf(file.absolutePath.endsWith(buildTypeName))
-                        if ((file.absolutePath.contains(keyword) && file.absolutePath.endsWith(buildTypeName))
-                                || file.absolutePath.contains("/shrunk_jar/")) {
-                            isFind = true;
-                            def pluginObfuscatedJar = "plugin_obfuscated.jar"
-                            def sourcePluginObfuscatedJar
-                            if (new File(file.absolutePath + "/0.jar").exists()) {
-                                sourcePluginObfuscatedJar = file.absolutePath + "/0.jar"
-                            } else if (new File(file.absolutePath + "/jars/3/1f/main.jar").exists()) {
-                                sourcePluginObfuscatedJar = file.absolutePath + "/jars/3/1f/main.jar"
-                            } else if (file.absolutePath.endsWith("/minified.jar")) {
-                                sourcePluginObfuscatedJar = file.absolutePath
-                            }
-                            //保留一个备份
-                            project.logger.error "导出混淆后的插件jar包 "
-                            println "From " + sourcePluginObfuscatedJar //此文件是proguard任务的固定输出目录
-                            println "To " + "${project.buildDir}/outputs/" + pluginObfuscatedJar
-                            copy {
-                                from sourcePluginObfuscatedJar
-                                into("${project.buildDir}/outputs/")
-                                rename(new Transformer<String, String>() {
-                                    @Override
-                                    String transform(String s) {
-                                        return pluginObfuscatedJar
-                                    }
-                                })
-                            }
-
-                            diffJar(sourcePluginObfuscatedJar, host_obfuscated_jar);
+                        if (file.absolutePath.endsWith(proguardTask.name)) {
+                            println "file outputs=>${file.absolutePath}"
+                            diffDexes(file.absolutePath, host_obfuscated_dex)
                         }
                     }
-                    if (!isFind) {
-                        throw new Exception("obfuscated jar file not found, please check.")
-                    }
                 }
             }
         }
     }
 }
 
-def diffJar(String plugin, String host) {
-
-
+def diffDexes(String plugin, String host) {
     println "通过基线混淆包和插件混淆包做diff清理重复的class"
-
-    println "插件：" + plugin + "，  宿主：" + host
-
-    println "先把插件和宿主的都解压 " + "${project.buildDir}/tmp/jarUnzip/plugin/" + ", " + "${project.buildDir}/tmp/jarUnzip/host/"
-
-    ZipUtil.unZip(plugin, "${project.buildDir}/tmp/jarUnzip/plugin/")
-    List<String> hostClasses = ZipUtil.unZip(host, "${project.buildDir}/tmp/jarUnzip/host/")
-
-    println "再删掉插件的源 " + plugin
-    new File(plugin).delete()
-
-    println "通过压缩过滤重新生成插件的源，替换之前被删掉的源， host classSize = " + hostClasses.size() + ", " + file(plugin).getName()
-    ZipUtil.zip("${project.buildDir}/tmp/jarUnzip/plugin", file(plugin).getParent(), file(plugin).getName(), hostClasses)
-    println "重新生成的插件的源 " + plugin
-
-    //备份diff后的包
-    copy {
-        println "备份diff后重新生成的插件的源包到插件out目录"
-        println "From " + plugin
-        println "To " + "${project.buildDir}/outputs/plugin_obfuscated_after_diff.jar"
-        from plugin
-        into("${project.buildDir}/outputs/")
-        rename(new Transformer<String, String>() {
-            @Override
-            String transform(String s) {
-                return "plugin_obfuscated_after_diff.jar"
-            }
-        })
-    }
+    println "插件：" + plugin
+    println "宿主：" + host
+    SmaliUtil.prepare(rootProject.rootDir.absolutePath + '/.gradle/fairy/tools')
+    SmaliUtil.unZip(plugin, "${project.buildDir}/tmp/dexUnzip/plugin/")
+    SmaliUtil.unZip(host, "${project.buildDir}/tmp/dexUnzip/host/")
+    SmaliUtil.zip("${project.buildDir}/tmp/dexUnzip/plugin", plugin)
 }
 
-public class ZipUtil {
-
-    public static List<String> unZip(String path, String savepath) throws IOException
-    {
-        def resultList = new ArrayList<String>();
-        def count = -1;
-        def index = -1;
-        def flag = false;
-        def file = null;
-        def is = null;
-        def fos = null;
-        def bos = null;
-
-        ZipFile zipFile = new ZipFile(path);
-        Enumeration<?> entries = zipFile.entries();
-
-        while(entries.hasMoreElements())
-        {
-            def buf = new byte[2048];
-            ZipEntry entry = (ZipEntry)entries.nextElement();
-
-            def filename = savepath + entry.getName();
-
-            File folder = new File(filename).getParentFile();
-            if(!folder.exists()){
-                folder.mkdirs();
-            }
-
-            if(!filename.endsWith(File.separator)){
-
-                System.out.println("解压：" + filename);
-
-                file = new File(filename);
-                file.createNewFile();
-                is = zipFile.getInputStream(entry);
-                fos = new FileOutputStream(file);
-                bos = new BufferedOutputStream(fos, 2048);
-
-                while((count = is.read(buf)) > -1)
-                {
-                    bos.write(buf, 0, count );
-                }
-
-                bos.flush();
-
-                fos.close();
-                is.close();
-
-                resultList.add(entry.getName());
-            }
-        }
-
-        zipFile.close();
-
-        return resultList
+public class SmaliUtil {
+    static def prepare(dir) {
+        curl("https://bitbucket.org/JesusFreke/smali/downloads/baksmali-2.5.2.jar", "9ef9dcba677533541b8a1385e6af550b", dir)
+        curl("https://bitbucket.org/JesusFreke/smali/downloads/smali-2.5.2.jar", "0386bfa3676962fba8ca560392d7c78e", dir)
     }
-
-    /**
-     * 递归压缩文件夹
-     * @param srcRootDir 压缩文件夹根目录的子路径
-     * @param file 当前递归压缩的文件或目录对象
-     * @param zos 压缩文件存储对象
-     * @throws Exception
-     */
-    public static zip(String srcRootDir, File file, ZipOutputStream zos, ArrayList<String> filter) throws Exception
-    {
-        if (file == null)
-        {
-            return;
+    static def curl(String url, String md5, String dir) {
+        File file = new File(dir, url.substring(url.lastIndexOf("/") + 1))
+        if (file.exists() && file.length() > 0) {
+            return
         }
-
-        //如果是文件，则直接压缩该文件
-        if (file.isFile())
-        {
-            int count, bufferLen = 1024;
-            byte[] data = new byte[bufferLen];
-
-            //获取文件相对于压缩文件夹根目录的子路径
-            String subPath = file.getAbsolutePath();
-            int index = subPath.indexOf(srcRootDir);
-            if (index != -1)
-            {
-                subPath = subPath.substring(srcRootDir.length() + File.separator.length());
+        println "downloading " + url
+        new File(dir).mkdirs();
+        MessageDigest messageDigest = MessageDigest.getInstance("MD5")
+        messageDigest.reset()
+        try {
+            HttpURLConnection httpConn =(HttpURLConnection)(new URL(url).openConnection())
+            InputStream inputStream = httpConn.getInputStream()
+            OutputStream ouput =new FileOutputStream(file)
+            byte[] buffer = new byte[8*1024]
+            int size
+            while((size = inputStream.read(buffer)) != -1) {
+                ouput.write(buffer, 0, size)
+                messageDigest.update(buffer, 0, size)
             }
-
-            if (filter.contains(subPath)) {
-                System.out.println("过滤：" + subPath)
-                return;
-            } else {
-                System.out.println("压缩：" + subPath)
+            ouput.close()
+            httpConn.disconnect()
+        } catch(Exception){}
+        byte[] bs = messageDigest.digest()
+        StringBuilder stringBuilder = new StringBuilder()
+        for(byte b : bs) {
+            String hex = Integer.toHexString(b & 0xFF)
+            if (hex.length() < 2) {
+                stringBuilder.append("0")
             }
-
-            ZipEntry entry = new ZipEntry(subPath);
-            zos.putNextEntry(entry);
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-            while ((count = bis.read(data, 0, bufferLen)) != -1)
-            {
-                zos.write(data, 0, count);
-            }
-            bis.close();
-            zos.closeEntry();
+            stringBuilder.append(hex)
         }
-        //如果是目录，则压缩整个目录
-        else
-        {
-            //压缩目录中的文件或子目录
-            File[] childFileList = file.listFiles();
-            for (int n=0; n<childFileList.length; n++)
-            {
-                childFileList[n].getAbsolutePath().indexOf(file.getAbsolutePath());
-                zip(srcRootDir, childFileList[n], zos, filter);
-            }
+        if (!md5.equalsIgnoreCase(stringBuilder.toString())) {
+            println "download fail: " + url + " " + stringBuilder.toString()
+            file.delete()
+        } else {
+            println "download success: " + url + " " + stringBuilder.toString()
         }
     }
 
-    /**
-     * 对文件或文件目录进行压缩
-     * @param srcPath 要压缩的源文件路径。如果压缩一个文件，则为该文件的全路径；如果压缩一个目录，则为该目录的顶层目录路径
-     * @param zipPath 压缩文件保存的路径。注意：zipPath不能是srcPath路径下的子文件夹
-     * @param zipFileName 压缩文件名
-     * @throws Exception
-     */
-    public static zip(String srcPath, String zipPath, String zipFileName, ArrayList<String> filter) throws Exception
+    public static void unZip(String src, String dest) throws Exception
     {
-        CheckedOutputStream cos = null;
-        ZipOutputStream zos = null;
-        try
-        {
-            File srcFile = new File(srcPath);
-
-            //判断压缩文件保存的路径是否存在，如果不存在，则创建目录
-            File zipDir = new File(zipPath);
-            if (!zipDir.exists() || !zipDir.isDirectory())
-            {
-                zipDir.mkdirs();
-            }
-
-            //创建压缩文件保存的文件对象
-            String zipFilePath = zipPath + File.separator + zipFileName;
-            File zipFile = new File(zipFilePath);
-            if (zipFile.exists())
-            {
-                ///删除已存在的目标文件
-                boolean success = zipFile.delete();
-                System.out.println("删除已存在的目标文件:" + success)
-
-            }
-
-            cos = new CheckedOutputStream(new FileOutputStream(zipFile), new CRC32());
-            zos = new ZipOutputStream(cos);
-
-            //如果只是压缩一个文件，则需要截取该文件的父目录
-            String srcRootDir = srcPath;
-            if (srcFile.isFile())
-            {
-                int index = srcPath.lastIndexOf(File.separator);
-                if (index != -1)
-                {
-                    srcRootDir = srcPath.substring(0, index);
-                }
-            }
-            //调用递归压缩方法进行目录或文件压缩
-            zip(srcRootDir, srcFile, zos, filter);
-            zos.flush();
-        }
-        catch (Exception e)
-        {
-            throw e;
-        }
-        finally
-        {
-            try
-            {
-                if (zos != null)
-                {
-                    zos.close();
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
+        //todo
+    }
+    public static void zip(String src, String dest) throws Exception
+    {
+        //todo
     }
 }
 
