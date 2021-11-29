@@ -4,19 +4,16 @@
 -dontoptimize #不优化输入的类文件
 -dontpreverify  #不预校验
 -verbose #混淆时是否记录日志
--ignorewarning #忽略警告
 -dontshrink #禁用压缩--重要
 #混淆时所采用的算法
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 
-#apk包内所有class的内部结构
--dump dump.txt
 #未混淆的类和成员
--printseeds seeds.txt
+-printseeds build/outputs/seeds.txt
 #列出被删除的代码
--printusage unused.txt
+-printusage build/outputs/unused.txt
 #混淆前后的映射
--printmapping mapping.txt
+-printmapping build/outputs/mapping.txt
 
 #Android组件
 -keep public class * extends android.app.Fragment
