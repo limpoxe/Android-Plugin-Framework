@@ -295,6 +295,10 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
                     isGranted = false;
                     requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 10086);
                 }
+				if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_DENIED) {
+					isGranted = false;
+					requestPermissions(new String[]{"android.permission.ACCESS_FINE_LOCATION"}, 10086);
+				}
             }
             if (isGranted) {
                 TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
