@@ -94,6 +94,16 @@
 # 保护FairyPlugin不受混淆影响 Begin
 -keep public class * extends android.app.Instrumentation {public *;}
 -keep public class * extends android.content.ContextWrapper {public *;}
+-keep class android.support.v4.content.LocalBroadcastManager {*;}
+-keep class android.support.v4.app.Fragment {*;}
+-keep class android.support.v7.app.AppCompatViewInflater {*;}
+-keep class android.support.v7.app.AppCompatActivity {*;}
+-keep class android.support.v7.widget.TintResources {*;}
+-keep class android.support.v7.widget.TintContextWrapper {*;}
+-keep class androidx.appcompat.app.AppCompatViewInflater {*;}
+-keep class androidx.fragment.app.FragmentFactory {*;}
+-keep class androidx.fragment.app.Fragment {*;}
+-keep class androidx.localbroadcastmanager.content.LocalBroadcastManager {*;}
 # 保护FairyPlugin不受混淆影响 End
 
 # bugly sdk
