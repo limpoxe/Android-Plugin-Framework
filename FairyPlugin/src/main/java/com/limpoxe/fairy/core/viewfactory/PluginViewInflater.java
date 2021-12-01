@@ -141,21 +141,22 @@ public class PluginViewInflater {
     static Context createContext(Context Context, String pluginId) {
         try {
             PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(pluginId);
-
             if (pluginDescriptor != null) {
-
                 //插件可能尚未初始化，确保使用前已经初始化
                 LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
-
-                Context baseContext = Context;
-                if (!(baseContext instanceof PluginContextTheme)) {
-                    baseContext = ((ContextWrapper)baseContext).getBaseContext();
+                if (plugin != null) {
+                    Context baseContext = Context;
+                    if (!(baseContext instanceof PluginContextTheme)) {
+                        baseContext = ((ContextWrapper)baseContext).getBaseContext();
+                    }
+                    if (baseContext instanceof PluginContextTheme) {
+                        baseContext = ((PluginContextTheme) baseContext).getBaseContext();
+                    }
+                    Context pluginViewContext = PluginCreator.createNewPluginComponentContext(plugin.pluginContext, baseContext, pluginDescriptor.getApplicationTheme());
+                    return pluginViewContext;
+                } else {
+                    LogUtil.e("插件启动失败 " + pluginId);
                 }
-                if (baseContext instanceof PluginContextTheme) {
-                    baseContext = ((PluginContextTheme) baseContext).getBaseContext();
-                }
-                Context pluginViewContext = PluginCreator.createNewPluginComponentContext(plugin.pluginContext, baseContext, pluginDescriptor.getApplicationTheme());
-                return pluginViewContext;
             } else {
                 LogUtil.e("未找到插件" + pluginId + "，请确认是否已安装");
             }

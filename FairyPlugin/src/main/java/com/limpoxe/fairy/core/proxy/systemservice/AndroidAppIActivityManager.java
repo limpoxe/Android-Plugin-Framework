@@ -227,14 +227,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             if(ProcessUtil.isPluginProcess()) {
-                String auth = (String)args[1];
-                //Q版本的参数位置发生了变化
-                //TODO 由于预览版rom的SDK_INT仍然是28，这里暂时使用BASE_OS来判断
-                if ("Q".equals(Build.VERSION.CODENAME)) {
-                    auth = (String)args[2];
-                } else {
-                    auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
-                }
+                String auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
                 LogUtil.e("getContentProvider", auth);
                 tryWakeupBeforeCallPluginProvider(auth);
             }
@@ -282,14 +275,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
             }
             //invokeResult为空表示没有获取到contentprovider，正常情况下会抛出Unknown URI
             //这里为了让非插件进程也能调用插件进程的插件ContentProvider，需要在此进程安装一个Proxy进行桥接
-            String auth = (String)args[1];
-            //Q版本的参数位置发生了变化
-            //TODO 由于预览版rom的SDK_INT仍然是28，这里暂时使用BASE_OS来判断
-            if ("Q".equals(Build.VERSION.CODENAME)) {
-                auth = (String)args[2];
-            } else {
-                auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
-            }
+            String auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
             LogUtil.e("getContentProvider", auth);
             //快速判断，排除不是来自插件的auth
             if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {

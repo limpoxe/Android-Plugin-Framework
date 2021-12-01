@@ -184,7 +184,7 @@ public class PluginInjector {
                 }
 
 				LoadedPlugin plugin = PluginLauncher.instance().getRunningPlugin(pluginDescriptor.getPackageName());
-				if (plugin == null || plugin.pluginApplication == null) {
+				if (plugin == null) {
 					throw new PluginNotInitError("插件尚未初始化 " + pluginDescriptor.getPackageName() + " " + plugin);
 				}
 
@@ -210,6 +210,9 @@ public class PluginInjector {
 
 					//插件可能尚未初始化，确保使用前已经初始化
 					LoadedPlugin plugin = PluginLauncher.instance().startPlugin(pluginDescriptor);
+					if (plugin == null) {
+						throw new PluginNotInitError("启动插件失败 " + pluginDescriptor.getPackageName());
+					}
 					pluginContext = PluginCreator.createNewPluginComponentContext(plugin.pluginContext, activity.getBaseContext(), 0);
 
 				} else {

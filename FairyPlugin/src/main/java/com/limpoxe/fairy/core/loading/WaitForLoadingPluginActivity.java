@@ -13,6 +13,7 @@ import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginIntentResolver;
 import com.limpoxe.fairy.core.PluginLauncher;
+import com.limpoxe.fairy.manager.PluginManagerHelper;
 import com.limpoxe.fairy.util.LogUtil;
 
 /**
@@ -70,7 +71,7 @@ public class WaitForLoadingPluginActivity extends Activity {
     protected void onResume() {
         super.onResume();
         LogUtil.i("WaitForLoadingPluginActivity Shown");
-        if (pluginDescriptor != null && !PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName())) {
+        if (pluginDescriptor != null && !PluginManagerHelper.isRunning(pluginDescriptor.getPackageName())) {
             AsyncTask asyncTask = new AsyncTask() {
                 @Override
                 protected Object doInBackground(Object[] objects) {

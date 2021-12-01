@@ -94,7 +94,9 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 				LogUtil.e("卸载完成");
 			} else {
 				if (ProcessUtil.isPluginProcess()) {
+					LogUtil.v("注册插件内定义的localService");
 					LocalServiceManager.registerService(pluginDescriptor);
+					LogUtil.v("注册完成");
 				}
 				if (pluginDescriptor.getAutoStart()) {
 					//宿主启动时自动唤醒自启动插件
@@ -176,7 +178,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(pluginClassName);
 
 					if (pluginDescriptor != null) {
-						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+						boolean isRunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
 						if (!isRunning) {
 							if (FairyGlobal.getMinLoadingTime() > 0 && FairyGlobal.getLoadingResId() != 0) {
 								return waitForLoading(pluginDescriptor, pluginClassName);
@@ -230,7 +232,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 					PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
 					if (pluginDescriptor != null && FairyGlobal.getMinLoadingTime() > 0 && FairyGlobal.getLoadingResId() != 0) {
-						boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+						boolean isRunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
 						if (!isRunning) {
 							return waitForLoading(pluginDescriptor, className);
 						}
@@ -277,7 +279,7 @@ public class PluginInstrumentionWrapper extends Instrumentation {
 								PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByClassName(className);
 
 								if (pluginDescriptor != null && FairyGlobal.getMinLoadingTime() > 0 && FairyGlobal.getLoadingResId() != 0) {
-									boolean isRunning = PluginLauncher.instance().isRunning(pluginDescriptor.getPackageName());
+									boolean isRunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
 									if (!isRunning) {//理论上这里的isRunning应当是true
 										return waitForLoading(pluginDescriptor, className);
 									}

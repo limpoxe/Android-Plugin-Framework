@@ -7,6 +7,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -385,15 +387,24 @@ class PluginManagerService {
 			LogUtil.v("注册完成");
 			//自启动，安装时就启动
 			if (pluginDescriptor.getAutoStart() || isOldRunning) {
-				LogUtil.w("需要立即唤醒插件", pluginDescriptor.getPackageName());
-				boolean succ = PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
-				LogUtil.w("立即唤醒" + (succ?"成功":"失败"), pluginDescriptor.getPackageName());
+				postWakeup(pluginDescriptor);
 			}
 			LogUtil.w("安装" + pluginDescriptor.getPackageName() + "成功，耗时(ms) : " + (System.currentTimeMillis() - startAt));
 			LogUtil.w("安装详情", pluginDescriptor.getPackageName(), pluginDescriptor.getVersion(), pluginDescriptor.getInstalledPath());
 
 			return new InstallResult(PluginManagerHelper.SUCCESS, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 		}
+	}
+
+	private void postWakeup(final PluginDescriptor pluginDescriptor) {
+		LogUtil.w("需要唤醒插件", pluginDescriptor.getPackageName());
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			@Override
+			public void run() {
+				boolean succ = PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
+				LogUtil.w("立即唤醒" + (succ?"成功":"失败"), pluginDescriptor.getPackageName());
+			}
+		});
 	}
 
 	private static ArrayList<String> getSupportedAbis() {
