@@ -31,7 +31,9 @@ public class MyApplication extends DemoApplication {
         FairyGlobal.setLoadingResId(R.layout.loading);
         //Just for test custom Mapping Processor
         FairyGlobal.registStubMappingProcessor(new TestCoustProcessor());
-
+        if (BuildConfig.DEBUG) {
+            FairyGlobal.setInstallationWithSameVersion(true);
+        }
         if (Build.VERSION.SDK_INT >= 28) {
             WebView.setDataDirectorySuffix(getProcessName().replaceAll("[\\.:]", "_"));
         }

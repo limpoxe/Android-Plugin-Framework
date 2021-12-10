@@ -110,6 +110,13 @@ public class MainActivity extends AppCompatActivity {
         Log.e("xx", "stringFromJNI " + CxxTest.stringFromJNI());
         testUseLibray();
         CxxTest.println(LOG_ID_MAIN, Log.ERROR, "MainActivity", "end onCreate ");
+
+        //辅助安装和卸载，方便测试插件
+        PluginManagerHelper.autoInstallPackage(new String[]{
+                "com.example.*",
+                "com.limpoxe.*",
+                "cn.ckh.*"
+        });
     }
 
     private void testUseLibray() {
