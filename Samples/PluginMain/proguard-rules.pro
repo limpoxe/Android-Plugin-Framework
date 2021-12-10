@@ -94,6 +94,7 @@
 # 保护FairyPlugin不受混淆影响 Begin
 -keep public class * extends android.app.Instrumentation {public *;}
 -keep public class * extends android.content.ContextWrapper {public *;}
+-keep class com.limpoxe.fairy.content.** {*;}
 -keep class android.support.v4.content.LocalBroadcastManager {*;}
 -keep class android.support.v4.app.Fragment {*;}
 -keep class android.support.v7.app.AppCompatViewInflater {*;}
