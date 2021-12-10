@@ -31,8 +31,6 @@ import com.limpoxe.fairy.core.android.HackSupportV4LocalboarcastManager;
 import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7ViewInflater;
 import com.limpoxe.fairy.core.compat.CompatForWebViewFactoryApi21;
-import com.limpoxe.fairy.core.exception.PluginNotFoundError;
-import com.limpoxe.fairy.core.exception.PluginResInitError;
 import com.limpoxe.fairy.core.localservice.LocalServiceManager;
 import com.limpoxe.fairy.core.proxy.systemservice.AndroidWebkitWebViewFactoryProvider;
 import com.limpoxe.fairy.manager.PluginActivityMonitor;
@@ -288,6 +286,7 @@ public class PluginLauncher implements Serializable {
 	}
 
 	public void stopPlugin(String packageName, PluginDescriptor pluginDescriptor) {
+		LogUtil.w("停止插件", packageName);
 		if (pluginDescriptor == null) {
 			LogUtil.w("插件不存在", packageName);
 			return;
@@ -297,7 +296,6 @@ public class PluginLauncher implements Serializable {
 			LogUtil.w("插件未运行", packageName);
 			return;
 		}
-		LogUtil.e("stopPlugin...", plugin.pluginPackageName);
 		//退出LocalService
 		LogUtil.d("退出LocalService");
 		LocalServiceManager.unRegistService(pluginDescriptor);

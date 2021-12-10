@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core.bridge;
 
+import static com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy.TARGET_URL;
+
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -13,8 +15,6 @@ import android.os.ParcelFileDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.compat.CompatForContentProvider;
 import com.limpoxe.fairy.util.LogUtil;
-
-import static com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy.TARGET_URL;
 
 public class PluginShadowProviderClient {
 

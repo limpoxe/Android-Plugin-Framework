@@ -42,8 +42,7 @@ public class FileUtil {
 	}
 
 	public static boolean copyFile(final InputStream inputStream, String dest) {
-		LogUtil.d("copyFile to " + dest);
-
+		LogUtil.v("copyFile to " + dest);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (dest.startsWith(Environment.getExternalStorageDirectory().getAbsolutePath())) {
 				int permissionState = FairyGlobal.getHostApplication().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -155,7 +154,7 @@ public class FileUtil {
 			tempDir.mkdirs();
 		}
 
-		LogUtil.d("开始so文件", tempDir.getAbsolutePath());
+		LogUtil.v("开始解压so", tempDir.getAbsolutePath());
 
 		ZipFile zfile = null;
 		boolean isSuccess = false;
@@ -285,12 +284,10 @@ public class FileUtil {
 				}
 			}
 		}
-		LogUtil.v("delete", file.getAbsolutePath());
 		return file.delete();
 	}
 
 	public static void printAll(File file) {
-		LogUtil.v("printAll", file.getAbsolutePath());
 		if (file.isDirectory()) {
 			File[] childFiles = file.listFiles();
 			if (childFiles != null && childFiles.length > 0) {

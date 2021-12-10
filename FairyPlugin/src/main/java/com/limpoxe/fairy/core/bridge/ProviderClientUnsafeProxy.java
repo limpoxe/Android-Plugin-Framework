@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core.bridge;
 
+import static com.limpoxe.fairy.manager.PluginManifestParser.PREVIOUS;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,8 +18,6 @@ import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.RefInvoker;
 
 import java.io.FileNotFoundException;
-
-import static com.limpoxe.fairy.manager.PluginManifestParser.PREVIOUS;
 
 public class ProviderClientUnsafeProxy extends ContentProvider {
     /**

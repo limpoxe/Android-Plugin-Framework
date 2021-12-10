@@ -95,7 +95,6 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
         @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
-            LogUtil.v("afterInvoke", method.getName());
             //由于插件运行在插件进程中，这里需要欺骗插件，让插件的中判断进程的逻辑以为当前是在主进程中运行
             //但是这会导致插件框架也无法判断当前的进程了，因此框架中判断插件进程的方法一定要在安装ActivityManager代理之前执行并记住状态
             //同时要保证主进程能正确判断进程。
@@ -123,7 +122,6 @@ public class AndroidAppIActivityManager extends MethodProxy {
 
         @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
-            LogUtil.v("beforeInvoke", method.getName(), args[1]);
             int type = (int)args[0];
             args[1] = FairyGlobal.getHostApplication().getPackageName();
             if (type != INTENT_SENDER_ACTIVITY_RESULT) {
@@ -228,7 +226,6 @@ public class AndroidAppIActivityManager extends MethodProxy {
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             if(ProcessUtil.isPluginProcess()) {
                 String auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
-                LogUtil.e("getContentProvider", auth);
                 tryWakeupBeforeCallPluginProvider(auth);
             }
             return super.beforeInvoke(target, method, args);
@@ -250,20 +247,15 @@ public class AndroidAppIActivityManager extends MethodProxy {
                                 //先检查插件是否已经初始化
                                 boolean isrunning = PluginManagerHelper.isRunning(pluginDescriptor.getPackageName());
                                 if (!isrunning) {
-                                    LogUtil.e("getContentProvider", "not running, wakeup", pluginDescriptor.getPackageName());
+                                    LogUtil.d("getContentProvider", "not running, wakeup", pluginDescriptor.getPackageName());
                                     PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
                                     //TODO 这里时许仍然晚了一步 可能是因为wakeup异步执行的原因
-                                } else {
-                                    LogUtil.e("getContentProvider", "is running", pluginProviderInfo.getAuthority(), pluginProviderInfo.getName());
                                 }
                                 break;
-                            } else {
-                                LogUtil.e("getContentProvider", "not match", pluginProviderInfo.getAuthority(), pluginProviderInfo.getName());
                             }
                         }
                     }
                 }
-                LogUtil.e("getContentProvider", auth, "found", found);
             }
         }
 
@@ -276,7 +268,6 @@ public class AndroidAppIActivityManager extends MethodProxy {
             //invokeResult为空表示没有获取到contentprovider，正常情况下会抛出Unknown URI
             //这里为了让非插件进程也能调用插件进程的插件ContentProvider，需要在此进程安装一个Proxy进行桥接
             String auth = (String)args[Build.VERSION.SDK_INT <= 28 ? 1 : 2];
-            LogUtil.e("getContentProvider", auth);
             //快速判断，排除不是来自插件的auth
             if (PluginManagerProvider.buildUri().getAuthority().equals(auth)) {
                 return invokeResult;
@@ -401,7 +392,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                                 return invokeResult;
                             }
 
-                            LogUtil.e("安装插件中的contentProvider");
+                            LogUtil.w("安装插件中的contentProvider");
                             ProviderInfo providerInfo = new ProviderInfo();
                             providerInfo.name = pluginProviderInfo.getName();
                             providerInfo.authority = pluginProviderInfo.getAuthority();
@@ -411,13 +402,12 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             providerInfo.packageName = FairyGlobal.getHostApplication().getApplicationInfo().packageName;
                             providerInfo.grantUriPermissions = pluginProviderInfo.isGrantUriPermissions();
 
-                            LogUtil.e("providerInfo packageName ", pluginDescriptor.getPackageName(), providerInfo.packageName, auth);
+                            LogUtil.w("providerInfo packageName ", pluginDescriptor.getPackageName(), providerInfo.packageName, auth);
 
                             Object holder = HackContentProviderHolder.newInstance(providerInfo);
                             if (holder != null) {
                                 return holder;
                             } else {
-                                LogUtil.d("getContentProvider", "NULL");
                                 return invokeResult;
                             }
                         }

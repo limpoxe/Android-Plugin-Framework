@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core;
 
+import static com.limpoxe.fairy.core.PluginLauncher.instance;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
@@ -37,8 +39,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-
-import static com.limpoxe.fairy.core.PluginLauncher.instance;
 
 /**
  * 插件Activity免注册的主要实现原理。 如有必要，可以增加被代理的方法数量。

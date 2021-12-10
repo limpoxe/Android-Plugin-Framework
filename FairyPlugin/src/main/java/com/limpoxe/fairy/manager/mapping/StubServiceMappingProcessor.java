@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.manager.mapping;
 
+import static com.limpoxe.fairy.manager.mapping.PluginStubBinding.buildDefaultAction;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,8 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static com.limpoxe.fairy.manager.mapping.PluginStubBinding.buildDefaultAction;
 
 public class StubServiceMappingProcessor implements StubMappingProcessor {
     /**

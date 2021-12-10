@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core.bridge;
 
+import static com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy.TARGET_URL;
+
 import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -17,8 +19,6 @@ import com.limpoxe.fairy.manager.PluginManagerProvider;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.io.FileNotFoundException;
-
-import static com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy.TARGET_URL;
 
 public class PluginShadowProvider extends ContentProvider {
 

@@ -1,6 +1,7 @@
 package com.limpoxe.fairy.content;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.res.Resources;
@@ -350,7 +351,6 @@ public class PluginDescriptor implements Serializable {
 		this.metaDataTobeInflate = metaDataTobeInflate;
 	}
 
-
 	public HashMap<String, String> getFragments() {
 		return fragments;
 	}
@@ -407,11 +407,13 @@ public class PluginDescriptor implements Serializable {
 		this.services = services;
 	}
 
+	public static String getFairyDir() {
+		return FairyGlobal.getHostApplication().getDir("plugin_dir", Context.MODE_PRIVATE).getAbsolutePath();
+	}
+
 	public String getRootDir() {
 		if (rootDir == null) {
-			if (installedPath != null) {
-				rootDir = new File(getVersionedRootDir()).getParentFile().getAbsolutePath();
-			}
+			rootDir = getFairyDir() + File.separator + getPackageName();
 		}
 		return rootDir;
 	}
@@ -422,9 +424,7 @@ public class PluginDescriptor implements Serializable {
 
 	public String getVersionedRootDir() {
 		if (versionedRootDir == null) {
-			if (installedPath != null) {
-				versionedRootDir = new File(installedPath).getParentFile().getAbsolutePath();
-			}
+			versionedRootDir = getRootDir() + File.separator + getVersion();
 		}
 		return versionedRootDir;
 	}
@@ -435,9 +435,7 @@ public class PluginDescriptor implements Serializable {
 
 	public String getNativeLibDir() {
 		if (nativeLibDir == null) {
-			if (installedPath != null) {
-				nativeLibDir = getVersionedRootDir() + File.separator + "lib";
-			}
+			nativeLibDir = getVersionedRootDir() + File.separator + "lib";
 		}
 		return nativeLibDir;
 	}
@@ -448,9 +446,7 @@ public class PluginDescriptor implements Serializable {
 
 	public String getDalvikCacheDir() {
 		if (dalvikCacheDir == null) {
-			if (installedPath != null) {
-				dalvikCacheDir = getVersionedRootDir() + File.separator + "dalvik-cache";
-			}
+			dalvikCacheDir = getVersionedRootDir() + File.separator + "dalvik-cache";
 		}
 		return dalvikCacheDir;
 	}
@@ -471,6 +467,9 @@ public class PluginDescriptor implements Serializable {
 	}
 
 	public String getInstalledPath() {
+		if (installedPath == null) {
+			installedPath = getVersionedRootDir() + File.separator + "base-1.apk";
+		}
 		return installedPath;
 	}
 

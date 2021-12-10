@@ -1,5 +1,8 @@
 package com.limpoxe.fairy.manager.mapping;
 
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+import static com.limpoxe.fairy.manager.mapping.PluginStubBinding.buildDefaultAction;
+
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -22,9 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-import static com.limpoxe.fairy.manager.mapping.PluginStubBinding.buildDefaultAction;
 
 public class StubActivityMappingProcessor implements StubMappingProcessor {
 

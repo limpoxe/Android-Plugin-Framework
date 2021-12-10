@@ -1,11 +1,20 @@
 package com.limpoxe.fairy.manager;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+
 import com.limpoxe.fairy.content.PluginDescriptor;
+import com.limpoxe.fairy.core.FairyGlobal;
 import com.limpoxe.fairy.core.PluginFilter;
 import com.limpoxe.fairy.util.LogUtil;
 import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * Created by cailiming on 16/3/11.
@@ -112,4 +121,74 @@ public class PluginManagerHelper {
         }
     }
 
+    /**
+     * 此功能仅限开发测试时使用：
+     * 为了在插件开发期间，方便插件的安装和卸载，监听系统广播。
+     * 当收到插件的安装和卸载的系统广播时，自动将插件安装到宿主中，或自动从宿主中卸载
+     * 其中，安装时由于框架默认限制了相同的版本好不重复安装，因此需要配合{@link FairyGlobal#isInstallationWithSameVersion()}使用
+     * @param pluginPackageRegex
+     */
+    @Deprecated
+    public static void autoInstallPackage(String[] pluginPackageRegex) {
+        if (!FairyGlobal.isInited()) {
+            return;
+        }
+        if (pluginPackageRegex == null || pluginPackageRegex.length == 0) {
+            return;
+        }
+        try {
+            //先把p当作非正则查询一次
+            for (String p : pluginPackageRegex) {
+                ApplicationInfo applicationInfo = FairyGlobal.getHostApplication().getPackageManager()
+                        .getApplicationInfo(p, PackageManager.GET_META_DATA);
+                if (applicationInfo != null) {
+                    LogUtil.d("发现已经安装到系统的插件包，触发安装插件", p, applicationInfo.sourceDir);
+                    installPlugin(applicationInfo.sourceDir);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        //intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addDataScheme("package");
+        FairyGlobal.getHostApplication().registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+                    String pkgName = intent.getData().getSchemeSpecificPart();
+                    for (String p : pluginPackageRegex) {
+                        try {
+                            if (Pattern.matches(p, pkgName)) {
+                                ApplicationInfo applicationInfo = FairyGlobal.getHostApplication().getPackageManager()
+                                        .getApplicationInfo(pkgName, PackageManager.GET_META_DATA);
+                                if (applicationInfo != null) {
+                                    LogUtil.d("收到系统广播，触发安装插件", pkgName, applicationInfo.sourceDir);
+                                    installPlugin(applicationInfo.sourceDir);
+                                }
+                                break;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+                    String pkgName = intent.getData().getSchemeSpecificPart();
+                    for (String p : pluginPackageRegex) {
+                        try {
+                            if (Pattern.matches(p, pkgName)) {
+                                LogUtil.d("收到系统广播，触发卸载插件", pkgName);
+                                PluginManagerHelper.remove(pkgName);
+                                break;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }, intentFilter);
+    }
 }

@@ -1,7 +1,5 @@
 package com.limpoxe.fairy.core.android;
 
-import android.annotation.TargetApi;
-//import android.app.AppComponentFactory;
 import android.app.Application;
 import android.content.res.Resources;
 

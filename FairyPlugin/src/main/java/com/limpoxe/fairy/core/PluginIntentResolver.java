@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core;
 
+import static com.limpoxe.fairy.manager.PluginCallback.ACTION_PLUGIN_CHANGED;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +19,6 @@ import com.limpoxe.fairy.util.ProcessUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import static com.limpoxe.fairy.manager.PluginCallback.ACTION_PLUGIN_CHANGED;
 
 public class PluginIntentResolver {
 

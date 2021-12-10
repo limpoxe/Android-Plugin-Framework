@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.manager.mapping;
 
+import static com.limpoxe.fairy.manager.mapping.PluginStubBinding.buildDefaultAction;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -8,8 +10,6 @@ import com.limpoxe.fairy.content.PluginDescriptor;
 import com.limpoxe.fairy.core.FairyGlobal;
 
 import java.util.List;
-
-import static com.limpoxe.fairy.manager.mapping.PluginStubBinding.buildDefaultAction;
 
 public class StubReceiverMappingProcessor implements StubMappingProcessor {
 

@@ -5,9 +5,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +12,6 @@ import android.os.Looper;
 
 import com.limpoxe.fairy.content.LoadedPlugin;
 import com.limpoxe.fairy.content.PluginDescriptor;
-import com.limpoxe.fairy.core.android.HackActivityThread;
 import com.limpoxe.fairy.core.android.HackLayoutInflater;
 import com.limpoxe.fairy.core.compat.CompatForFragmentClassCache;
 import com.limpoxe.fairy.core.compat.CompatForSupportv7ViewInflater;
@@ -32,10 +28,7 @@ import com.limpoxe.fairy.manager.mapping.StubReceiverMappingProcessor;
 import com.limpoxe.fairy.manager.mapping.StubServiceMappingProcessor;
 import com.limpoxe.fairy.util.FreeReflection;
 import com.limpoxe.fairy.util.LogUtil;
-import com.limpoxe.fairy.util.PackageVerifyer;
 import com.limpoxe.fairy.util.ProcessUtil;
-
-import java.util.ArrayList;
 
 public class PluginLoader {
 

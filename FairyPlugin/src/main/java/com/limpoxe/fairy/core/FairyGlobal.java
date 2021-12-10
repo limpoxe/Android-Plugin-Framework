@@ -21,7 +21,8 @@ public class FairyGlobal {
     private static boolean sFakePluginProcessName = true;
     private static boolean sNeedVerifyHostVersionName = true;
     private static String sNotificationResPath;
-    
+    private static boolean sInstallationWithSameVersion = false;
+
     public static Application getHostApplication() {
         if (sApplication == null) {
             throw new IllegalStateException("not inited yet");
@@ -167,4 +168,16 @@ public class FairyGlobal {
         sFakePluginProcessName = fake;
     }
 
+    /**
+     * 安装插件的时候，如果已经安装的版本，和将要安装的版本相同时，是否允许安装
+     * 默认不允许
+     * @return
+     */
+    public static boolean isInstallationWithSameVersion() {
+        return sInstallationWithSameVersion;
+    }
+
+    public static void setInstallationWithSameVersion(boolean withSameVersion) {
+        sInstallationWithSameVersion = withSameVersion;
+    }
 }

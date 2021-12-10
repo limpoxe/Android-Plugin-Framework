@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.util;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.content.Context;
 import android.os.Build;
 import android.util.Base64;
@@ -10,8 +12,6 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 
 import dalvik.system.DexFile;
-
-import static android.os.Build.VERSION.SDK_INT;
 
 /**
  * Copy From FreeReflection

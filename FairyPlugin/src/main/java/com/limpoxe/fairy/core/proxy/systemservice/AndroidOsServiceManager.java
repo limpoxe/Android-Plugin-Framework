@@ -1,5 +1,7 @@
 package com.limpoxe.fairy.core.proxy.systemservice;
 
+import static com.limpoxe.fairy.core.proxy.ProxyUtil.createProxy;
+
 import android.content.Context;
 import android.os.Build;
 import android.os.IBinder;
@@ -16,8 +18,6 @@ import com.limpoxe.fairy.util.ProcessUtil;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
-
-import static com.limpoxe.fairy.core.proxy.ProxyUtil.createProxy;
 
 /**
  * Created by cailiming on 16/9/15.
