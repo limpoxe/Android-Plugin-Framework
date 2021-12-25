@@ -147,7 +147,6 @@ public class PluginManagerHelper {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
         }
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);

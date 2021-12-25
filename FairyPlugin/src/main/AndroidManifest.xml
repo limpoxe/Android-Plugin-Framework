@@ -40,6 +40,7 @@
         -->
         <service
             android:name="${applicationId}.stub.PluginStubService0"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -49,6 +50,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService1"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -58,6 +60,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService2"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -67,6 +70,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService3"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -76,6 +80,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService4"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -85,6 +90,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService5"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -94,6 +100,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService6"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -103,6 +110,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService7"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -112,6 +120,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService8"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
@@ -121,6 +130,7 @@
 
         <service
             android:name="${applicationId}.stub.PluginStubService9"
+            android:exported="false"
             android:process=":plugin">
             <intent-filter>
                 <action android:name="${applicationId}.STUB_DEFAULT" />
