@@ -10,7 +10,8 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="690NR5h8UN9m7UBFhr4xmMrRK8ceUpGp" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

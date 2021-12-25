@@ -5,7 +5,8 @@
         android:label="@string/app_name"
         android:icon="@drawable/icon_launcher"
         android:theme="@style/Theme.AppCompat.Light">
-        <activity android:name=".RootActivity">
+        <activity android:name=".RootActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

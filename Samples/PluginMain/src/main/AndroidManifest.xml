@@ -70,7 +70,8 @@
         <meta-data android:value="591d0ae61061d23ca5000dbf" android:name="UMENG_APPKEY"/>
         <meta-data android:value="Main_CN" android:name="UMENG_CHANNEL"/>
 
-        <activity android:name=".MainActivity" >
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
@@ -124,6 +125,7 @@
         <service android:name=".MainService" />
 
         <service android:name="com.example.plugintest.service.TestAccessibilitySerivce"
+            android:exported="true"
             android:permission='android.permission.BIND_ACCESSIBILITY_SERVICE'
             android:description="@string/access_test"
             android:process=":plugin"
@@ -140,7 +142,8 @@
         </service>
 
         <receiver android:name="com.example.plugintest.receiver.BootCompletedReceiver"
-                  android:process=":plugin">
+            android:exported="true"
+            android:process=":plugin">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
@@ -154,8 +157,8 @@
             </intent-filter>
         </receiver>
 
-        <service
-            android:name=".HostService">
+        <service android:name=".HostService"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.example.HostService" />
             </intent-filter>

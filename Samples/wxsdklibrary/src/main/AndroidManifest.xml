@@ -11,7 +11,8 @@
         <uses-library android:name="com.example.plugintestbase" android:required="true" />
 
         <activity
-            android:name="com.example.wxsdklibrary.TestSendToWXActivity">
+            android:name="com.example.wxsdklibrary.TestSendToWXActivity"
+            android:exported="true">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />

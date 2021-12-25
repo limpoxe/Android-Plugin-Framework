@@ -11,6 +11,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -337,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private static String getErrMsg(int code) {
 		if(code== PluginManagerHelper.SUCCESS) {
-			return "安装成功";
+			return "成功";
 		} else if (code == PluginManagerHelper.SRC_FILE_NOT_FOUND) {
 			return "失败: 安装文件未找到";
 		} else if (code == PluginManagerHelper.COPY_FILE_FAIL) {
@@ -388,6 +389,12 @@ public class MainActivity extends AppCompatActivity {
         boolean isInstalled = PluginManager.isInstalled("com.example.plugintest");
         boolean isRunning = PluginManager.isRunning("com.example.plugintest");
 	    if (!isInstalled || !isRunning) {
+	        return;
+        }
+
+	    //todo cailiming bugfix on android12：在非插件进程中调用插件进程的contentprovider会造成ANR
+        //这个类中的逻辑需要适配 com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIActivityManager$getContentProvider
+	    if (Build.VERSION.SDK_INT >= 31) {
 	        return;
         }
 
@@ -442,5 +449,12 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onXXXEvent(MessageEvent event) {
         LogUtil.d("宿主响应了事件 onXXXEvent");
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //android12模拟器上返回键不会关闭activity了
+        finish();
     }
 }

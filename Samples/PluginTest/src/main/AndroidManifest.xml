@@ -28,7 +28,8 @@
             android:label="com.example.pluginsharelib.ShareService" />
 
         <activity android:name=".activity.LauncherActivity"
-                  android:theme="@style/PluginTheme5">
+            android:theme="@style/PluginTheme5"
+            android:exported="true">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
@@ -39,6 +40,7 @@
 
         <activity
             android:name="com.example.plugintest.activity.PluginTestActivity"
+            android:exported="true"
             android:theme="@style/PluginTheme3"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -52,6 +54,7 @@
 
         <activity
             android:name="com.example.plugintest.activity.PluginFragmentTestActivity"
+            android:exported="false"
             android:windowSoftInputMode="stateAlwaysVisible">
             <intent-filter>
                 <action
@@ -64,6 +67,7 @@
         
         <activity
             android:name="com.example.plugintest.activity.PluginNotInManifestActivity"
+            android:exported="false"
             android:theme="@style/PluginTheme7"
             android:launchMode="singleTop"
             android:immersive="true"
@@ -88,7 +92,8 @@
         </activity>
         
         <activity
-            android:name="com.example.plugintest.activity.PluginForOppoAndVivoActivity" >
+            android:name="com.example.plugintest.activity.PluginForOppoAndVivoActivity"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.ijk" />
@@ -99,7 +104,8 @@
         </activity>
         
         <activity
-            android:name="com.example.plugintest.activity.PluginTestOpenPluginActivity" >
+            android:name="com.example.plugintest.activity.PluginTestOpenPluginActivity"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.zxc" />
@@ -109,7 +115,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.plugintest.activity.PluginWebViewActivity" >
+            android:name="com.example.plugintest.activity.PluginWebViewActivity"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.webXX" />
@@ -119,7 +126,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.plugintest.activity.PluginForDialogActivity" >
+            android:name="com.example.plugintest.activity.PluginForDialogActivity"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.dialogXX" />
@@ -144,7 +152,8 @@
             android:name="com.example.plugintest.activity.TransparentActivity">
         </activity>
 
-        <service android:name="com.example.plugintest.service.PluginTestService">
+        <service android:name="com.example.plugintest.service.PluginTestService"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.lmn" />
@@ -154,7 +163,8 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.example.plugintest.service.PluginTestService2">
+        <service android:name="com.example.plugintest.service.PluginTestService2"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.lmn2" />
@@ -164,7 +174,8 @@
             </intent-filter>
         </service>
         
-        <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver" >
+        <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.rst" />
@@ -179,7 +190,8 @@
             </intent-filter>
         </receiver>
         
-        <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver2" >
+        <receiver android:name="com.example.plugintest.receiver.PluginTestReceiver2"
+            android:exported="false">
             <intent-filter>
                 <action
                     android:name="test.rst2" />
@@ -188,7 +200,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.example.plugintest.receiver.BootCompletedReceiver">
+        <receiver android:name="com.example.plugintest.receiver.BootCompletedReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
@@ -202,6 +215,7 @@
             android:name="com.example.plugintest.provider.PluginTestProvider"/>
 
         <service android:name="com.example.plugintest.service.TestAccessibilitySerivce"
+            android:exported="false"
             android:permission='android.permission.BIND_ACCESSIBILITY_SERVICE'>
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
