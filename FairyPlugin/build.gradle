@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 
-group='com.github.limpoxe'
+apply from: './jcenter.gradle'
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION
@@ -9,6 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
+        versionName "0.0.72"
     }
 
     lintOptions {
