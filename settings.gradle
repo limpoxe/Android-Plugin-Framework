@@ -1,7 +1,9 @@
 include ':FairyPlugin'
+
+def buildSamples = false
+if (buildSamples) {
 include ':Samples:PluginShareLib'
 include ':Samples:PluginMain'
-
 include ':Samples:PluginTesBase'
 include ':Samples:PluginHelloWorld'
 include ':Samples:PluginTest'
@@ -10,3 +12,4 @@ include ':Samples:plugintest3'
 include ':Samples:wxsdklibrary'
 include ':Samples:baidumapsdk'
 include ':Samples:admobdemo'
+}
