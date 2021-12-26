@@ -19,6 +19,19 @@ android {
         textReport false
         htmlReport false
         xmlReport false
+        disable 'MissingClass',
+                'MissingPermission',
+                'QueryPermissionsNeeded',
+                'ExportedReceiver',
+                'ApplySharedPref',
+                'ObsoleteSdkInt',
+                'PackageManagerGetSignatures',
+                'StaticFieldLeak',
+                'UseValueOf',
+                'NewApi',
+                'PrivateApi',
+                'DiscouragedPrivateApi',
+                'SoonBlockedPrivateApi'
     }
 
     buildTypes {
