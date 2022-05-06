@@ -249,11 +249,11 @@ public class PluginDescriptor implements Serializable {
 	public static void inflateMetaData(PluginDescriptor descriptor, Resources pluginRes) {
 		Bundle metaData = descriptor.getMetaData();
 
-
 		if (metaData == null) {
 			LogUtil.i("开始填充插件MetaData");
 
 			metaData = new Bundle();
+			//todo cailiming bugfix metadata需要按manifest中的节点分开存储，不能合并成一个大bundle
 			descriptor.setMetaData(metaData);
 
 			Iterator<Map.Entry<String, String>> strItr = descriptor.getMetaDataString().entrySet().iterator();
