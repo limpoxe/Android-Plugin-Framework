@@ -215,10 +215,10 @@ public class PluginLauncher implements Serializable {
             return null;
 		}
 
+		((PluginContextTheme)pluginContext).setPluginApplication(pluginApplication);
+
 		//安装ContentProvider, 在插件Application对象构造以后，oncreate调用之前
 		PluginInjector.installContentProviders(FairyGlobal.getHostApplication(), pluginApplication, pluginDescriptor.getProviderInfos().values());
-
-        ((PluginContextTheme)pluginContext).setPluginApplication(pluginApplication);
 
         LogUtil.v("屏蔽插件中的UncaughtExceptionHandler");
         // 1、先拿到宿主的crashHandler
