@@ -9,14 +9,19 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -26,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.example.pluginsharelib.SharePOJO;
 import com.limpoxe.fairy.content.PluginDescriptor;
@@ -248,10 +254,39 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, TestCaseListActivity.class));
 
                 testProvider();
+
+                testOverLayWindow();
             }
         });
 	}
 
+    private void testOverLayWindow() {
+        WindowManager.LayoutParams mWindowParams = new WindowManager.LayoutParams();
+        WindowManager mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        mWindowParams.format = PixelFormat.RGBA_8888;
+        mWindowParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        mWindowParams.gravity = Gravity.START | Gravity.TOP;
+        mWindowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        mWindowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        View windowView =  LayoutInflater.from(MainActivity.this).inflate(R.layout.loading, null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 7.0 以上需要引导用去设置开启窗口浮动权限
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 8.0 以上type需要设置成这个
+                mWindowParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            } else{
+                mWindowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+            }
+            if (!Settings.canDrawOverlays(MainActivity.this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + MainActivity.this.getPackageName()));
+                startActivityForResult(intent, 10086);
+            } else {
+                if (mWindowManager != null && windowView.getWindowId() == null) {
+                    mWindowManager.addView(windowView, mWindowParams);
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // 6.0 动态申请
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW}, 1);
+        }
+    }
 
     private void testStartActivity2(PluginDescriptor pluginDescriptor) {
         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(pluginDescriptor.getPackageName());

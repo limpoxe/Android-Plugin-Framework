@@ -20,6 +20,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
@@ -28,6 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.view.Gravity;
@@ -36,11 +38,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 
@@ -136,6 +140,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 				| ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		findViewById( R.id.onClickHellowrld).setOnClickListener(this);
+		findViewById( R.id.onClickShowOverlay).setOnClickListener(this);
 		findViewById( R.id.onClickPluginNormalFragment).setOnClickListener(this);
 		findViewById( R.id.onClickPluginSpecFragment).setOnClickListener(this);
 		findViewById( R.id.onClickPluginForDialogActivity).setOnClickListener(this);
@@ -327,6 +332,8 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		switch (v.getId()) {
 			case R.id.onClickHellowrld:
 				onClickHellowrld(v);
+			case R.id.onClickShowOverlay:
+				onClickShowOverlay(v);
 				break;
 			case R.id.onClickPluginNormalFragment:
 				onClickPluginNormalFragment(v);
@@ -474,6 +481,35 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
                 e.printStackTrace();
             }
         }
+	}
+
+	public void onClickShowOverlay(View v) {
+		WindowManager.LayoutParams mWindowParams = new WindowManager.LayoutParams();
+		WindowManager mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		mWindowParams.format = PixelFormat.RGBA_8888;
+		mWindowParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+		mWindowParams.gravity = Gravity.START | Gravity.TOP;
+		mWindowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+		mWindowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+		mWindowParams.packageName = FairyGlobal.getHostApplication().getPackageName();
+		View windowView =  LayoutInflater.from(LauncherActivity.this).inflate(com.example.pluginmain.R.layout.loading, null);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 7.0 以上需要引导用去设置开启窗口浮动权限
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // 8.0 以上type需要设置成这个
+				mWindowParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+			} else{
+				mWindowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+			}
+			if (!Settings.canDrawOverlays(LauncherActivity.this)) {
+				Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + LauncherActivity.this.getPackageName()));
+				startActivityForResult(intent, 10086);
+			} else {
+				if (mWindowManager != null && windowView.getWindowId() == null) {
+					mWindowManager.addView(windowView, mWindowParams);
+				}
+			}
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // 6.0 动态申请
+			ActivityCompat.requestPermissions(LauncherActivity.this, new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW}, 1);
+		}
 	}
 
 	public void onClickPluginNormalFragment(View v) {

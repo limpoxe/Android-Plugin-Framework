@@ -24,6 +24,14 @@
             android:text="打开Hellow World插件" />
 
         <Button
+            android:id="@+id/onClickShowOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_margin="10dp"
+            android:text="显示Overlay窗口" />
+
+        <Button
             android:id="@+id/onClickPluginNormalFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
