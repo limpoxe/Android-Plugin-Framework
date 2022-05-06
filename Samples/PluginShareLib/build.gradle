@@ -47,5 +47,5 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['**/**.jar'])
     implementation "com.google.android.material:material:${MATERIAL_VERSION}"
-    implementation "androidx.appcompat:appcompat:${SUPPORT_VERSION}"
+    implementation "androidx.appcompat:appcompat:${APPCOMPAT_VERSION}"
 }

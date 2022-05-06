@@ -152,12 +152,19 @@ dependencies {
     implementation project(':Samples:PluginShareLib')
 
     implementation "com.google.android.material:material:${MATERIAL_VERSION}"
-    implementation "androidx.appcompat:appcompat:${SUPPORT_VERSION}"
+    implementation "androidx.appcompat:appcompat:${APPCOMPAT_VERSION}"
+    implementation "androidx.fragment:fragment:1.4.1"
+    implementation "androidx.navigation:navigation-fragment:2.4.2"
+    implementation "androidx.navigation:navigation-ui:2.4.2"
+    implementation "androidx.recylerview:recylerview:1.2.1"
+    implementation "androidx.startup:startup-runtime:1.0.0"
+    implementation "androidx.room:room-runtime:2.4.2"
+    annotationProcessor 'androidx.room:room-compiler:2.4.2'
 
     implementation 'com.tencent.bugly:crashreport:2.1.5'
     //implementation 'com.umeng.analytics:analytics:latest.integration'
 
-    implementation 'org.greenrobot:eventbus:3.0.0'
+    implementation 'org.greenrobot:eventbus:3.2.0'
 
     //Test ButterKnife
     implementation 'com.jakewharton:butterknife:10.2.0'

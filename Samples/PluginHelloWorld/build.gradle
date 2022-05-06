@@ -58,7 +58,7 @@ android {
 
 dependencies {
     implementation "com.google.android.material:material:${MATERIAL_VERSION}"
-    implementation "androidx.appcompat:appcompat:${SUPPORT_VERSION}"
+    implementation "androidx.appcompat:appcompat:${APPCOMPAT_VERSION}"
 }
 
 //afterEvaluate {
