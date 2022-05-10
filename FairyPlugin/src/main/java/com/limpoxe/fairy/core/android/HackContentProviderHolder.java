@@ -13,6 +13,8 @@ public class HackContentProviderHolder {
     private static final String ClassName = "android.app.IActivityManager$ContentProviderHolder";
     private static final String ClassName8 = "android.app.ContentProviderHolder";
 
+    private static final String Field_mLocal = "mLocal";
+
     private Object instance;
 
     public HackContentProviderHolder(Object instance) {
@@ -27,4 +29,9 @@ public class HackContentProviderHolder {
         }
     }
 
+    public void setLocal(boolean local) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+            RefInvoker.setField(instance, ClassName8, Field_mLocal, local);
+        }
+    }
 }

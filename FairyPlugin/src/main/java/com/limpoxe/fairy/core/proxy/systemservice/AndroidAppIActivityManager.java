@@ -249,7 +249,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                                 if (!isrunning) {
                                     LogUtil.d("getContentProvider", "not running, wakeup", pluginDescriptor.getPackageName());
                                     PluginManagerHelper.wakeup(pluginDescriptor.getPackageName());
-                                    //TODO 这里时许仍然晚了一步 可能是因为wakeup异步执行的原因
+                                    //TODO 这里时序仍然晚了一步 可能是因为wakeup异步执行的原因
                                 }
                                 break;
                             }
@@ -337,7 +337,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             providerInfo.name = ProviderClientUnsafeProxy.class.getName();
                             providerInfo.packageName = FairyGlobal.getHostApplication().getPackageName();
                             Object holder = HackContentProviderHolder.newInstance(providerInfo);
-
+                            new HackContentProviderHolder(holder).setLocal(true);
                             if (holder != null) {
                                 //返回代理Provider
                                 return holder;
@@ -405,6 +405,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             LogUtil.w("providerInfo packageName ", pluginDescriptor.getPackageName(), providerInfo.packageName, auth);
 
                             Object holder = HackContentProviderHolder.newInstance(providerInfo);
+                            new HackContentProviderHolder(holder).setLocal(true);
                             if (holder != null) {
                                 return holder;
                             } else {
