@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
 //A const defined in the top-level build.gradle file
 apply from: PLUGIN_FAIRY_SCRIPT
 
