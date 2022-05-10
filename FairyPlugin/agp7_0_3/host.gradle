@@ -239,8 +239,10 @@ afterEvaluate {
         //将宿主的所有class，包括宿主的、和它所有依赖的类，合并起来打出一个jar来，供将来的非独立插件使用
         variant.javaCompileProvider.configure {
             it.doLast {
-
                 println "Merge Jar After Task " + name + " buildType is " + buildTypeName + ", flavorName is " + flavorName +  ", varName is " + varName
+                it.inputs.files.each { inputsFile->
+                    //println "inputs: " + inputsFile
+                }
 
                 File jarFile = new File(project.buildDir, "outputs/host_classes.jar")
                 if (jarFile.exists()) {
@@ -259,9 +261,13 @@ afterEvaluate {
                     });
 
                     classpath.each { jarPath ->
-                        println "adding jar " + jarPath
-                        jarMerger.addJar(jarPath);
-                        //jarMerger.addFolder(directoryInput.getFile());
+                        if (jarPath.isDirectory()) {
+                            println "adding folder " + jarPath
+                            jarMerger.addFolder(jarPath);
+                        } else {
+                            println "adding jar " + jarPath
+                            jarMerger.addJar(jarPath);
+                        }
                     }
 
                     File classes = new File(destinationDir.getParent(), "classes.jar");
