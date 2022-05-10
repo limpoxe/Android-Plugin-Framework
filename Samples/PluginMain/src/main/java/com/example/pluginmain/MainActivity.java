@@ -427,12 +427,6 @@ public class MainActivity extends AppCompatActivity {
 	        return;
         }
 
-	    //todo cailiming bugfix on android12：在非插件进程中调用插件进程的contentprovider会造成ANR
-        //这个类中的逻辑需要适配 com.limpoxe.fairy.core.proxy.systemservice.AndroidAppIActivityManager$getContentProvider
-	    if (Build.VERSION.SDK_INT >= 31) {
-	        return;
-        }
-
         ContentValues values = new ContentValues();
         values.put(MY_FIRST_PLUGIN_NAME, "test web" + System.currentTimeMillis());
         Uri uri = getContentResolver().insert(CONTENT_URI, values);
