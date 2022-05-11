@@ -9,6 +9,14 @@
         android:layout_height="wrap_content" />
 
     <Button
+        android:id="@+id/test_dexmaker_btn"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/test_switch_btn"
+        android:layout_centerInParent="true"
+        android:text="测试dexmaker"/>
+
+    <Button
         android:id="@+id/test_s_btn"
         android:layout_width="fill_parent"
         android:layout_height="50dp"

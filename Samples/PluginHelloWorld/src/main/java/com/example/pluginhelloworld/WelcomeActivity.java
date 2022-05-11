@@ -20,7 +20,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import com.android.dx.stock.ProxyBuilder;
+
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
 /**
  * 独立插件测试demo
@@ -46,6 +51,31 @@ public class WelcomeActivity extends AppCompatActivity {
         Log.e("xxx5", getResources().getString(android.R.string.httpErrorBadUrl));
         Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginhelloworld")));
         Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
+
+        findViewById(R.id.test_dexmaker_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Stock stock = ProxyBuilder.forClass(Stock.class)
+                            .dexCache(getDir("dexmaker", Context.MODE_PRIVATE))
+                            .handler(new InvocationHandler() {
+                                @Override
+                                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                    Log.d("ProxyBuilder", "before " + method.getName());
+                                    Object result = ProxyBuilder.callSuper(proxy, method, args);
+                                    Log.d("ProxyBuilder", "after " + method.getName());
+                                    return result;
+                                }
+                            })
+                            .build();
+                    stock.testProxyMethod("test proxy method");
+                    Log.d("WelcomeActivity", "Real Stock Class : " + stock.getClass().getName());
+                    Log.d("WelcomeActivity", "Real Stock ClassLoader" + stock.getClass().getClassLoader());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         findViewById(R.id.test_s_btn).setOnClickListener(new View.OnClickListener() {
             @Override

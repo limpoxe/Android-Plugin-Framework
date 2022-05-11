@@ -59,6 +59,7 @@ android {
 dependencies {
     implementation "com.google.android.material:material:${MATERIAL_VERSION}"
     implementation "androidx.appcompat:appcompat:${APPCOMPAT_VERSION}"
+    implementation "com.linkedin.dexmaker:dexmaker:2.28.1"
 }
 
 //afterEvaluate {
