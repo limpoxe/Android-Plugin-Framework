@@ -216,14 +216,14 @@ afterEvaluate {
         def mergeResourceTask = tasks.findByName("merge${varName.capitalize()}Resources")
         if (mergeResourceTask != null) {
             mergeResourceTask.doFirst {
-                FileTree resources = null
-                //variant.allRawAndroidResources.files.each { rawRes->
-                mergeResourceTask.rawLocalResourcesProcessRes.each { rawRes->
-                    resources = resources==null? fileTree(rawRes.absolutePath).include("**/*.xml")
-                            : (resources + fileTree(rawRes.absolutePath).include("**/*.xml"))
-                }
-                resources.forEach { xml->
-                    println 'resources::' + xml
+                //variant.allRawAndroidResources.files.each { it1->
+                //mergeResourceTask.sourceFolderInputs.each { it1->
+                //mergeResourceTask.rawLocalResourcesProcessRes.each { it1->
+                //mergeResourceTask.sourceSetInputs.librarySourceSets.each { it1->
+                mergeResourceTask.sourceSetInputs.resourceSourceSets.each { it1->
+                    fileTree(it1.absolutePath).include("**/*.xml").each { it2->
+                        println 'resources::' + it2
+                    }
                 }
             }
         }
