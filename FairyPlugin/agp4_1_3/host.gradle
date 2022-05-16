@@ -262,9 +262,13 @@ afterEvaluate {
                     });
 
                     classpath.each { jarPath ->
-                        println "adding jar " + jarPath
-                        jarMerger.addJar(jarPath);
-                        //jarMerger.addFolder(directoryInput.getFile());
+                        if (jarPath.isDirectory()) {
+                            println "adding folder " + jarPath
+                            jarMerger.addFolder(jarPath);
+                        } else {
+                            println "adding jar " + jarPath
+                            jarMerger.addJar(jarPath);
+                        }
                     }
 
                     File classes = new File(destinationDir.getParent(), "classes.jar");
@@ -559,6 +563,9 @@ public class ThemeProcessor extends DefaultHandler {
                     } else {
                         outXmlStream.write(tag);
                         if (qName.equals("attr") && outPublicAttrStream != null) {
+                            if (tag.contains("type=\"reference\"")) {
+                                tag = tag.replace("type=\"reference\"", " ");
+                            }
                             outPublicAttrStream.write(tag.replace("<attr", "<public type=\"attr\" ") + "</public>")
                         }
                     }

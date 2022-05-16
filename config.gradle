@@ -7,6 +7,7 @@ ext {
     MATERIAL_VERSION = "1.6.0"
     APPCOMPAT_VERSION = "1.4.1"
     GRADLE_PLUGIN_VERSION = '7.2.0'
+    KOTLIN_PLUGIN_VERSION = '1.6.0'
 
     //定义常量，方便统一切换脚本的版本
     HOST_FAIRY_SCRIPT = "../../FairyPlugin/agp7_2_0/host.gradle"
