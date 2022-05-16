@@ -129,7 +129,7 @@ public class PluginManagerHelper {
      * @param pluginPackageRegex
      */
     @Deprecated
-    public static void autoInstallPackage(String[] pluginPackageRegex) {
+    public static void autoInstallPackage(final String[] pluginPackageRegex) {
         if (!FairyGlobal.isInited()) {
             return;
         }
