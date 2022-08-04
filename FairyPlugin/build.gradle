@@ -9,7 +9,6 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
-        versionName "0.0.72"
     }
 
     lintOptions {
