@@ -1,6 +1,6 @@
 include ':FairyPlugin'
 
-def buildSamples = false
+def buildSamples = true
 if (buildSamples) {
 include ':Samples:PluginShareLib'
 include ':Samples:PluginMain'
