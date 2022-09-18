@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 //A const defined in the top-level build.gradle file
 apply from: PLUGIN_FAIRY_SCRIPT
@@ -18,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.plugintest"
-        minSdkVersion 11
+        minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0.1"
