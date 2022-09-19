@@ -25,7 +25,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 - 支持插件WebView加载插件本地HTML文件
 - 支持插件Fragment/View内嵌宿主Activity中
 - 支持FileProvider
-- 支持2.3-11.0
+- 支持2.3-12.0
 
 ### LIMIT
 - 不支持插件Activity转场动画使用插件中的动画资源
@@ -64,7 +64,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 2、 在宿主工程的build.gradle文件下添加如下3个配置
 ```
     //插件脚本
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/host.gradle"        
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp7_2_0/host.gradle"        
 
     android {
         defaultConfig {
@@ -153,7 +153,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 2、在build.gradle中添加如下2个配置
 ```
     //插件脚本
-    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/plugin.gradle"
+    apply from: "https://raw.githubusercontent.com/limpoxe/Android-Plugin-Framework/master/FairyPlugin/agp7_2_0/plugin.gradle"
 
     android {
         defaultConfig {
