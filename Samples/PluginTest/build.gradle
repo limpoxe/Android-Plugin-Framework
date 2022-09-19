@@ -131,7 +131,7 @@ dependencies {
 
     //Just For Test ButterKnife
     //compile 'com.jakewharton:butterknife:8.5.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
+    kapt 'com.jakewharton:butterknife-compiler:10.2.0'
 
 }
 
