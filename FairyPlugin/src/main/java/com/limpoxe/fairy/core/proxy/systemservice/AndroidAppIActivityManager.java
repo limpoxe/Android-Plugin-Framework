@@ -63,6 +63,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
         //sMethods.put("bindService", new bindService());
         //sMethods.put("unbindService", new unbindService());
         //sMethods.put("clearApplicationUserData", new clearApplicationUserData());
+        sMethods.put("stopServiceToken", new stopServiceToken());
     }
 
     public static void installProxy() {
@@ -148,6 +149,8 @@ public class AndroidAppIActivityManager extends MethodProxy {
     }
 
     public static class overridePendingTransition extends MethodDelegate {
+
+        @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             if (ProcessUtil.isPluginProcess()) {
                 if (!ResourceUtil.isMainResId((Integer) args[2])) {
@@ -157,11 +160,13 @@ public class AndroidAppIActivityManager extends MethodProxy {
                     args[3] = 0;
                 }
             }
-            return null;
+            return super.beforeInvoke(target, method, args);
         }
     }
 
     public static class serviceDoneExecuting extends MethodDelegate {
+
+        @Override
         public Object beforeInvoke(Object target, Method method, Object[] args) {
             if (ProcessUtil.isPluginProcess()) {
                 if (((Integer)args[1]).equals(HackActivityThread.getSERVICE_DONE_EXECUTING_ANON())) {
@@ -182,7 +187,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                     }
                 }
             }
-            return null;
+            return super.beforeInvoke(target, method, args);
         }
     }
 
@@ -421,6 +426,8 @@ public class AndroidAppIActivityManager extends MethodProxy {
     }
 
     public static class getTasks extends MethodDelegate {
+
+        @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             if (ProcessUtil.isPluginProcess()) {
                 List<ActivityManager.RunningTaskInfo> list = (List<ActivityManager.RunningTaskInfo>)invokeResult;
@@ -450,7 +457,10 @@ public class AndroidAppIActivityManager extends MethodProxy {
         }
     }
 
+    //useless
     public static class getAppTasks extends MethodDelegate {
+
+        @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             if (ProcessUtil.isPluginProcess()) {
                 LogUtil.d("getAppTasks", invokeResult);
@@ -459,12 +469,31 @@ public class AndroidAppIActivityManager extends MethodProxy {
         }
     }
 
+    //useless
     public static class getServices extends MethodDelegate {
+
+        @Override
         public Object afterInvoke(Object target, Method method, Object[] args, Object beforeInvoke, Object invokeResult) {
             if (ProcessUtil.isPluginProcess()) {
                 LogUtil.d("getServices", invokeResult);
             }
             return invokeResult;
+        }
+    }
+
+    //in case: calling stopSelf
+    public static class stopServiceToken extends MethodDelegate {
+
+        @Override
+        public Object beforeInvoke(Object target, Method method, Object[] args) {
+            if(ProcessUtil.isPluginProcess()) {
+                 //fix packageName
+                ComponentName old = (ComponentName) args[0];
+                ComponentName real = new ComponentName(FairyGlobal.getHostApplication().getPackageName(), old.getClassName());
+                args[0] = real;
+                LogUtil.d("stopServiceToken", old + " -> " + real);
+            }
+            return super.beforeInvoke(target, method, args);
         }
     }
 

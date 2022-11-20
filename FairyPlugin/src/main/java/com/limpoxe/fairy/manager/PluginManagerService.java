@@ -253,7 +253,7 @@ class PluginManagerService {
 			// 可选步骤，验证插件APK证书是否和宿主程序证书相同。
 			// 证书中存放的是公钥和算法信息，而公钥和私钥是1对1的
 			// 公钥相同意味着是同一个作者发布的程序
-			LogUtil.w("检查插件和宿主签名（调用setNeedVerifyPlugin()可关闭检查）");
+			LogUtil.w("检查插件和宿主签名（调用FairyGlobal.setNeedVerifyPlugin()可关闭检查）");
 			boolean debuggable = (0 != (FairyGlobal.getHostApplication().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 			if (FairyGlobal.isNeedVerifyPlugin() && !debuggable) {
 				Signature[] mainSignatures = null;
@@ -279,12 +279,12 @@ class PluginManagerService {
 				return new InstallResult(PluginManagerHelper.HOST_VERSION_NOT_SUPPORT_CURRENT_PLUGIN, pluginDescriptor.getPackageName(), pluginDescriptor.getVersion());
 			}
 
-			// 检查现有插件版本和要更新的插件版本是否相同
-			LogUtil.w("检查插件版本是否有变化");
 			boolean isOldRunning = false;
 			boolean isSameVersion = false;
 			PluginDescriptor oldPluginDescriptor = getPluginDescriptorByPluginId(pluginDescriptor.getPackageName());
 			if (oldPluginDescriptor != null) {
+				// 检查现有插件版本和要更新的插件版本是否相同
+				LogUtil.w("检查插件版本是否有变化（调用FairyGlobal.setInstallationWithSameVersion()可关闭坚持）");
 				isOldRunning = PluginLauncher.instance().isRunning(oldPluginDescriptor.getPackageName());
 				isSameVersion = oldPluginDescriptor.getVersion().equals(pluginDescriptor.getVersion());
 				//版本号无变化，不需要安装
