@@ -491,6 +491,7 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		mWindowParams.gravity = Gravity.START | Gravity.TOP;
 		mWindowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
 		mWindowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+		//需要修正packageName为宿主的
 		mWindowParams.packageName = FairyGlobal.getHostApplication().getPackageName();
 		View windowView =  LayoutInflater.from(LauncherActivity.this).inflate(com.example.pluginmain.R.layout.loading, null);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 7.0 以上需要引导用去设置开启窗口浮动权限
