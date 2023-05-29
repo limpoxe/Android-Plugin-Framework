@@ -98,6 +98,7 @@ public class FileUtil {
 					LogUtil.d("try supported abi:", abi);
 					File sourceSoFile = new File(sourceDir, "lib" + File.separator + abi + File.separator + soName);
 					if (sourceSoFile.exists()) {
+						LogUtil.d("安装 " + sourceSoFile + " 到 " + dest + File.separator + soName);
 						isSuccess = copyFile(sourceSoFile.getAbsolutePath(), dest + File.separator + soName);
 						break;
 					}

@@ -146,7 +146,22 @@ public class PluginManifestParser {
                                         //等插件初始化的时候再处理这类meta信息
                                         desciptor.getMetaDataTobeInflate().put(name, ResourceUtil.covent2Hex(value));
                                     } else if (value != null) {
-                                        desciptor.getMetaDataString().put(name, ResourceUtil.covent2Hex(value));
+                                        //meta-data支持的数据类型：Boolean、Float、Integer、String
+                                        if ("true".equals(value) || "false".equals(value)) {
+                                            desciptor.getMetaDataObject().put(name, Boolean.parseBoolean(value));
+                                        } else if (value.contains(".")) {
+                                            try {
+                                                desciptor.getMetaDataObject().put(name, Float.parseFloat(value));
+                                            } catch (Exception e) {
+                                                desciptor.getMetaDataObject().put(name, ResourceUtil.covent2Hex(value));
+                                            }
+                                        } else {
+                                            try {
+                                                desciptor.getMetaDataObject().put(name, Integer.parseInt(value));
+                                            } catch (Exception e) {
+                                                desciptor.getMetaDataObject().put(name, ResourceUtil.covent2Hex(value));
+                                            }
+                                        }
                                     } else if (resource != null && resource.startsWith("@")) {
                                         desciptor.getMetaDataResource().put(name, ResourceUtil.parseResId(ResourceUtil.covent2Hex(resource)));
                                     }

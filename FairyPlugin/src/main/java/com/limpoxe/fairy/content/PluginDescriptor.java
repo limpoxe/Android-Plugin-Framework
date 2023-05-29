@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 
@@ -75,7 +76,7 @@ public class PluginDescriptor implements Serializable {
 
 	private transient Bundle metaData;
 
-	private HashMap<String, String> metaDataString = new HashMap<String, String>();
+	private HashMap<String, Object> metaDataObject = new HashMap<String, Object>();
 	private HashMap<String, Integer> metaDataResource = new HashMap<String, Integer>();
 	private HashMap<String, String> metaDataTobeInflate = new HashMap<String, String>();
 
@@ -134,7 +135,7 @@ public class PluginDescriptor implements Serializable {
 
 	private ArrayList<String> muliDexList;
 
-	private transient HashMap<Integer, PackageInfo> packageInfoHashMap;
+	private transient HashMap<Object, PackageInfo> packageInfoHashMap;
 
 	//=============getter and setter======================
 
@@ -256,11 +257,20 @@ public class PluginDescriptor implements Serializable {
 			//todo cailiming bugfix metadata需要按manifest中的节点分开存储，不能合并成一个大bundle
 			descriptor.setMetaData(metaData);
 
-			Iterator<Map.Entry<String, String>> strItr = descriptor.getMetaDataString().entrySet().iterator();
+			Iterator<String> strItr = descriptor.getMetaDataObject().keySet().iterator();
 			while(strItr.hasNext()) {
-				Map.Entry<String, String> entry = strItr.next();
-				LogUtil.d(entry.getKey(), entry.getValue());
-				metaData.putString(entry.getKey(), entry.getValue());
+				String key = strItr.next();
+				Object value =  descriptor.getMetaDataObject().get(key);
+				LogUtil.d(key, value);
+				if (value instanceof Boolean) {
+					metaData.putBoolean(key, (Boolean) value);
+				} else if (value instanceof Float) {
+					metaData.putFloat(key, (Float) value);
+				} else if (value instanceof Integer) {
+					metaData.putInt(key, (Integer) value);
+				} else if (value instanceof String) {
+					metaData.putString(key, (String) value);
+				}
 			}
 
 			Iterator<Map.Entry<String, Integer>> resItr = descriptor.getMetaDataResource().entrySet().iterator();
@@ -327,12 +337,12 @@ public class PluginDescriptor implements Serializable {
 		this.metaData = metaData;
 	}
 
-	public HashMap<String, String> getMetaDataString() {
-		return metaDataString;
+	public HashMap<String, Object> getMetaDataObject() {
+		return metaDataObject;
 	}
 
-	public void setMetaDataString(HashMap<String, String> metaDataString) {
-		this.metaDataString = metaDataString;
+	public void setMetaDataObject(HashMap<String, Object> metaDataObj) {
+		this.metaDataObject = metaDataObj;
 	}
 
 	public HashMap<String, Integer> getMetaDataResource() {
@@ -710,13 +720,17 @@ public class PluginDescriptor implements Serializable {
 		return null;
 	}
 
-	public PackageInfo getPackageInfo(Integer flags) {
+	public PackageInfo getPackageInfo(Object flags) {
 		if (packageInfoHashMap == null) {
 			packageInfoHashMap = new HashMap<>();
 		}
 		PackageInfo packageInfo = packageInfoHashMap.get(flags);
 		if (packageInfo == null) {
-			packageInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(getInstalledPath(), flags);
+			if (flags instanceof Integer) {
+				packageInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(getInstalledPath(), (int)flags);
+			} else {
+				packageInfo = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(getInstalledPath(), PackageManager.PackageInfoFlags.of((long)flags));
+			}
 			if (packageInfo != null && packageInfo.applicationInfo != null) {
 				packageInfo.applicationInfo.sourceDir = getInstalledPath();
 				packageInfo.applicationInfo.publicSourceDir = getInstalledPath();

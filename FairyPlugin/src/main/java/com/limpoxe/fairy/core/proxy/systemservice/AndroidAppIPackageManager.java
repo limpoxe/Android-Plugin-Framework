@@ -97,7 +97,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
             if (!packageName.equals(FairyGlobal.getHostApplication().getPackageName())) {
                 PluginDescriptor pluginDescriptor = PluginManagerHelper.getPluginDescriptorByPluginId(packageName);
                 if (pluginDescriptor != null) {
-                    PackageInfo packageInfo = pluginDescriptor.getPackageInfo((int) args[1]);
+                    PackageInfo packageInfo = pluginDescriptor.getPackageInfo(args[1]);
                     return packageInfo;
                 }
             }
@@ -398,6 +398,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 providerInfo.name = info.getName();
                 providerInfo.packageName = getPackageName(pluginDescriptor);
                 providerInfo.icon = pluginDescriptor.getApplicationIcon();
+                //todo
                 providerInfo.metaData = pluginDescriptor.getMetaData();
                 providerInfo.enabled = true;
                 providerInfo.exported = info.isExported();
@@ -405,6 +406,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 providerInfo.authority = info.getAuthority();
                 return providerInfo;
             }
+            LogUtil.d("null authorities", args[0]);
             return null;
         }
     }
