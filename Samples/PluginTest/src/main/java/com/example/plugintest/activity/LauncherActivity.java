@@ -218,10 +218,10 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
     private void testMeta() {
         try {
             ApplicationInfo application = (ApplicationInfo)getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-            String hellowMeta = (String)application.metaData.get("abcdef");
+			Integer hellowMeta = (Integer)application.metaData.get("abcdef");
             Toast.makeText(this, hellowMeta + "", Toast.LENGTH_SHORT).show();
 
-			hellowMeta = (String)getApplicationInfo().metaData.get("abcdef");
+			hellowMeta = (Integer)getApplicationInfo().metaData.get("abcdef");
 			LogUtil.d("abcdef", hellowMeta);
 
         } catch (PackageManager.NameNotFoundException e) {

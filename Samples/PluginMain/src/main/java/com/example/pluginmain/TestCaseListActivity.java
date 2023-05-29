@@ -78,8 +78,8 @@ public class TestCaseListActivity extends AppCompatActivity implements View.OnCl
         webSettings.setPluginState(WebSettings.PluginState.ON);
         webSettings.setUserAgentString(webSettings.getUserAgentString());
         webSettings.setDomStorageEnabled(true);
-        webSettings.setAppCacheEnabled(true);
-        webSettings.setAppCachePath(getCacheDir().getPath());
+        //webSettings.setAppCacheEnabled(true);
+        //webSettings.setAppCachePath(getCacheDir().getPath());
         webSettings.setUseWideViewPort(true);// 影响默认满屏和双击缩放
         webSettings.setLoadWithOverviewMode(true);// 影响默认满屏和手势缩放
 
