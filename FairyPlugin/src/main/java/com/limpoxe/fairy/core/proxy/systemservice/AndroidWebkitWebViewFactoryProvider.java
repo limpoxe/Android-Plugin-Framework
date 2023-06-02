@@ -34,7 +34,13 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             LogUtil.d("安装WebViewFactoryProviderProxy");
             //在4.4及以上，这里的WebViewFactoryProvider的实际类型是
             // com.android.webview.chromium.WebViewChromiumFactoryProvider implements WebViewFactoryProvider
-            Object webViewFactoryProvider = HackWebViewFactory.getProvider();
+            Object webViewFactoryProvider = null;
+            try {
+                webViewFactoryProvider = HackWebViewFactory.getProvider();
+            } catch (Exception e) {
+                e.printStackTrace();
+                LogUtil.printException("HackWebViewFactory getProvider", e);
+            }
             if (webViewFactoryProvider != null) {
                 Object webViewFactoryProviderProxy = ProxyUtil.createProxy(webViewFactoryProvider, new AndroidWebkitWebViewFactoryProvider());
                 HackWebViewFactory.setProviderInstance(webViewFactoryProviderProxy);
@@ -122,7 +128,13 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
             ClassLoader cl = null;
             if (sContextUtils == null) {
                 if (sContentMain == null) {
-                    Object provider = HackWebViewFactory.getProvider();
+                    Object provider = null;
+                    try {
+                        provider = HackWebViewFactory.getProvider();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        LogUtil.printException("HackWebViewFactory getProvider", e);
+                    }
                     if (provider != null) {
                         cl = provider.getClass().getClassLoader();
 
@@ -139,6 +151,7 @@ public class AndroidWebkitWebViewFactoryProvider extends MethodProxy {
                         }
 
                         if (sContentMain == null) {
+                            //try com.android.webview.chromium.WebViewChromium.init()?
                             throw new ClassNotFoundException(String.format("Can not found class %s or %s in classloader %s", "org.chromium.content.app.ContentMain", "com.android.org.chromium.content.app.ContentMain", cl));
                         }
                     }
