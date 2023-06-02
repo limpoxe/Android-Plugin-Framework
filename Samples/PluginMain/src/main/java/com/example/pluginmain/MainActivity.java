@@ -289,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testStartActivity2(PluginDescriptor pluginDescriptor) {
+        finish();
         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(pluginDescriptor.getPackageName());
         if (launchIntent != null) {
             //打开插件的Launcher界面

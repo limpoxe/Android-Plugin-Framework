@@ -28,7 +28,7 @@ public class MyApplication extends DemoApplication {
         FairyGlobal.setLogEnable(true);
         FairyGlobal.setLocalHtmlenable(false);
         //not mecessary
-        FairyGlobal.setLoadingResId(R.layout.loading);
+        //FairyGlobal.setLoadingResId(R.layout.loading);
         //Just for test custom Mapping Processor
         FairyGlobal.registStubMappingProcessor(new TestCoustProcessor());
         if (BuildConfig.DEBUG) {

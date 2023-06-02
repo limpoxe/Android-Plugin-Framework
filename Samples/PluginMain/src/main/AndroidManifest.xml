@@ -201,6 +201,27 @@
             android:process=":plugin">
         </activity>
 
+        <!-- demo for bridge test -->
+        <provider
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy$ProviderClientUnsafeProxy0"
+            android:exported="false"
+            android:authorities="game.vewf48s4d8f48ef68th9hr.cf5d8g48e8r6g9rw.fileprovider"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepath2" />
+        </provider>
+        <provider
+            android:name="com.limpoxe.fairy.core.bridge.ProviderClientUnsafeProxy$ProviderClientUnsafeProxy1"
+            android:exported="false"
+            android:authorities="unsafe.proxy.game.vewf48s4d8f48ef68th9hr.cf5d8g48e8r6g9rw.fileprovider"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepath2" />
+        </provider>
     </application>
 
 </manifest>
