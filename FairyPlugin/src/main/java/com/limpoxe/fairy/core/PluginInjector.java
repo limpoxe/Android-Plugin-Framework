@@ -127,6 +127,7 @@ public class PluginInjector {
 		if(providers.size() > 0) {
 			LogUtil.e("为插件安装ContentProvider", pluginContext.getPackageName(), pluginProviderInfos.size());
 			//安装的时候使用的是插件的Context, 所有无需对Classloader进行映射处理
+			//todo
 			HackActivityThread.get().installContentProviders(pluginContext, providers);
 		}
 	}

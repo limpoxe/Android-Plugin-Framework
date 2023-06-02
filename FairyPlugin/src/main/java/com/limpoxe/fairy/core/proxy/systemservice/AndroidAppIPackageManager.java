@@ -406,7 +406,7 @@ public class AndroidAppIPackageManager extends MethodProxy {
                 providerInfo.authority = info.getAuthority();
                 return providerInfo;
             }
-            LogUtil.d("null authorities", args[0]);
+            LogUtil.e("null authorities", args[0]);
             return null;
         }
     }
