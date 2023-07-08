@@ -1,5 +1,8 @@
 package com.limpoxe.fairy.core;
 
+import com.limpoxe.fairy.util.LogUtil;
+import com.limpoxe.fairy.util.RefInvoker;
+
 import dalvik.system.PathClassLoader;
 
 /**
@@ -15,5 +18,12 @@ public class PluginClassLoader extends PathClassLoader {
 	public PluginClassLoader(String pluginPackageName, String dexPath, ClassLoader parent) {
 		super(dexPath, parent);
 		this.pluginPackageName = pluginPackageName;
+	}
+
+	@Override
+	public String findLibrary(String name) {
+		String libPath = (String) RefInvoker.invokeMethod(getParent(), getParent().getClass(), "findLibrary", new Class[]{String.class}, new Object[]{name});
+		LogUtil.d("findLibrary", name, libPath);
+		return libPath;
 	}
 }
