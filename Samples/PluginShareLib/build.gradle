@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 repositories {
-    google()
+    maven { url 'https://maven.aliyun.com/repository/google' }
 }
 
 android {

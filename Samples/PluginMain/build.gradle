@@ -15,7 +15,7 @@ configurations.all {
 }
 
 repositories {
-    google()
+    maven { url 'https://maven.aliyun.com/repository/google' }
 }
 
 android {
@@ -23,6 +23,8 @@ android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
     ndkVersion NDK_VERSION
+
+    namespace 'com.example.pluginmain'
 
     useLibrary 'org.apache.http.legacy'
 
@@ -222,11 +224,8 @@ afterEvaluate {
                 //mergeResourceTask.sourceFolderInputs.each { it1->
                 //mergeResourceTask.rawLocalResourcesProcessRes.each { it1->
                 //mergeResourceTask.sourceSetInputs.librarySourceSets.each { it1->
-                mergeResourceTask.sourceSetInputs.resourceSourceSets.each { it1->
-                    fileTree(it1.absolutePath).include("**/*.xml").each { it2->
-                        println 'resources::' + it2
-                    }
-                }
+                //mergeResourceTask.sourceSetInputs.resourceSourceSets.each { it1->
+                //}
             }
         }
     }
