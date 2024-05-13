@@ -6,6 +6,7 @@ buildscript {
         //aliyun public包含了mavenCentral和jcenter
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         maven { url 'https://jitpack.io' }
     }
@@ -25,6 +26,7 @@ allprojects {
         //aliyun public包含了mavenCentral和jcenter
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
         maven { url 'https://jitpack.io' }
     }
 }
