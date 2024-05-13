@@ -46,8 +46,8 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
 ```
     buildscript {
         dependencies {
-            //gradle-7.3.3-all
-            classpath "com.android.tools.build:gradle:7.2.0"
+            //gradle-7.5-all
+            classpath "com.android.tools.build:gradle:7.4.2"
         }
     }
     

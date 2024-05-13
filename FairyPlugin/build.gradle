@@ -6,18 +6,16 @@ android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
 
+    namespace 'com.limpoxe.fairy'
+
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
     }
 
-    lintOptions {
-        tasks.lint.enabled false
-        checkReleaseBuilds false
+    lint {
         abortOnError false
-        textReport false
-        htmlReport false
-        xmlReport false
+        checkReleaseBuilds false
         disable 'MissingClass',
                 'MissingPermission',
                 'QueryPermissionsNeeded',
@@ -31,6 +29,9 @@ android {
                 'PrivateApi',
                 'DiscouragedPrivateApi',
                 'SoonBlockedPrivateApi'
+        htmlReport false
+        textReport false
+        xmlReport false
     }
 
     buildTypes {

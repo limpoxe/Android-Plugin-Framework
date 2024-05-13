@@ -6,7 +6,7 @@ ext {
     TARGET_SDK_VERSION = 31
     MATERIAL_VERSION = "1.6.0"
     APPCOMPAT_VERSION = "1.4.1"
-    GRADLE_PLUGIN_VERSION = '7.2.0'
+    GRADLE_PLUGIN_VERSION = '7.4.2'
     KOTLIN_PLUGIN_VERSION = '1.7.0'
 
     //定义常量，方便统一切换脚本的版本
