@@ -177,6 +177,7 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             if (service instanceof PluginShadowService) {
                                 PluginShadowService shadowService = (PluginShadowService) service;
                                 if (shadowService.realService != null) {
+                                    LogUtil.e("serviceDoneExecuting", "resolve real service for this PluginShadowService");
                                     services.put((IBinder) obj, shadowService.realService);
                                 } else {
                                     LogUtil.e("serviceDoneExecuting", "unable to create real service for this PluginShadowService");
@@ -185,6 +186,10 @@ public class AndroidAppIActivityManager extends MethodProxy {
                             break;
                         }
                     }
+                } else if (((Integer)args[1]).equals(HackActivityThread.getSERVICE_DONE_EXECUTING_START())) {
+                    // do nothing
+                } else if (((Integer)args[1]).equals(HackActivityThread.getSERVICE_DONE_EXECUTING_STOP())) {
+                    // do nothing
                 }
             }
             return super.beforeInvoke(target, method, args);

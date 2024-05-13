@@ -233,6 +233,22 @@ public class HackActivityThread {
         return ret;
     }
 
+    public static Integer getSERVICE_DONE_EXECUTING_START() {
+        Integer ret = (Integer) RefInvoker.getField(null, ClassName, Field_SERVICE_DONE_EXECUTING_START);
+        if (ret == null) {
+            ret = 0;//default is 0
+        }
+        return ret;
+    }
+
+    public static Integer getSERVICE_DONE_EXECUTING_STOP() {
+        Integer ret = (Integer) RefInvoker.getField(null, ClassName, Field_SERVICE_DONE_EXECUTING_STOP);
+        if (ret == null) {
+            ret = 0;//default is 0
+        }
+        return ret;
+    }
+
     public Map getProviderMap() {
         return (Map) RefInvoker.getField(instance, ClassName, Field_mProviderMap);
     }

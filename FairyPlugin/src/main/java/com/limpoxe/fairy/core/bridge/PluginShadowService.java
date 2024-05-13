@@ -28,6 +28,10 @@ public class PluginShadowService extends Service {
 
 	public Service realService;
 
+	public PluginShadowService() {
+		LogUtil.d("PluginShadowService()");
+	}
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -82,7 +86,15 @@ public class PluginShadowService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
+		LogUtil.d("onBind", "PluginShadowService -> " + mClassName);
 		return null;
 	}
 
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		// AndroidAppIActivityManager.serviceDoneExecuting会将realService替换ApplicationThread中的mServices的内容
+		// 如果PluginShadowService的onStartCommand被触发则说明realService替换失败了
+		LogUtil.e("onStartCommand", "PluginShadowService should not call onStartCommand! -> " + mClassName);
+		return super.onStartCommand(intent, flags, startId);
+	}
 }
