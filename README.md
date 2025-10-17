@@ -177,7 +177,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
   
 ### Demo编译方法
 
-   a）如果是命令行中：
+   a）如果是命令行中(编译前需先打开settings.gradle文件中的buildSamples开关)：
    
 ```
    cd  Android-Plugin-Framework

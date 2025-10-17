@@ -1,6 +1,6 @@
 include ':FairyPlugin'
-
-def buildSamples = true
+// 默认关掉Samples
+def buildSamples = false
 if (buildSamples) {
 include ':Samples:PluginShareLib'
 include ':Samples:PluginMain'

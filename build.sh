@@ -5,6 +5,7 @@ if (($? != 0)); then
   exit 0
 fi
 
+# 编译前需先打开settings.gradle文件中的buildSamples开关
 # 编译主包
 ./gradlew :Samples:PluginMain:assembleF1Debug
 if (($? != 0)); then
