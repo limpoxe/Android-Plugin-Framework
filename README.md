@@ -4,7 +4,7 @@ README: [中文](https://github.com/limpoxe/Android-Plugin-Framework/blob/master
 
 Android-Plugin-Framework是一个Android插件化框架，用于通过动态加载的方式免安装运行插件apk
 
-### 最新版本: 'com.github.limpoxe:Android-Plugin-Framework:0.0.73@aar'
+### 最新版本: 'com.github.limpoxe:Android-Plugin-Framework:0.0.74@aar'
                
 ### 此项目主要目标是为了运行非独立插件，而不是任意第三方app。
 
