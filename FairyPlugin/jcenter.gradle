@@ -16,6 +16,7 @@ if(projectPropertiesFile.exists()){
 def projectName = properties.getProperty("project.name")
 def projectGroupId = properties.getProperty("project.groupId")
 def projectArtifactId = properties.getProperty("project.artifactId")
+def projectVersion = properties.getProperty("project.version")
 def projectPackaging = properties.getProperty("project.packaging")
 def projectSiteUrl = properties.getProperty("project.siteUrl")
 def projectGitUrl = properties.getProperty("project.gitUrl")
@@ -26,14 +27,17 @@ def developerEmail = properties.getProperty("developer.email")
 
 def javadocName = properties.getProperty("javadoc.name")
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
+// jitpack commad:
+// ./gradlew clean -Pgroup=com.github.limpoxe -Pversion=<tag> -xtest -xlint assemble publishToMavenLocal
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = projectGroupId
+            artifactId = projectArtifactId
+            version = version // 'unspecified' or command args
+
+            afterEvaluate {
                 from components.release
-                groupId = projectGroupId
-                artifactId = projectArtifactId
-                version = project.android.defaultConfig.versionName
             }
         }
     }
