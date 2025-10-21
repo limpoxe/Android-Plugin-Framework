@@ -35,7 +35,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.pluginmain"
-        minSdkVersion 14
+        minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 6
         versionName "1.2.0_" + project.ext.VCS_commitId

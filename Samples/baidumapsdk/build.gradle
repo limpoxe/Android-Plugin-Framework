@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId "com.limpoxe.baidumapsdk"
-        minSdkVersion 14
+        minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"

@@ -11,7 +11,7 @@ android {
     namespace = 'com.example.pluginsharelib'
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         flavorDimensions "versionCode"
     }

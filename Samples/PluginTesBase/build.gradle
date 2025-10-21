@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.plugintestbase"
-        minSdkVersion 14
+        minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"

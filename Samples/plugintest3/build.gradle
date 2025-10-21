@@ -7,7 +7,7 @@ android {
     namespace = 'com.limpoxe.plugintest3'
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         flavorDimensions "versionCode"
     }

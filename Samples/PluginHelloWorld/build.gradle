@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.pluginhelloworld"
-        minSdkVersion 14
+        minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 2
         versionName "1.0.1"

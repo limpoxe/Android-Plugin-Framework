@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.plugintest2"
-        minSdkVersion 21
+        minSdkVersion MIN_SDK_VERSION
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0.0"
