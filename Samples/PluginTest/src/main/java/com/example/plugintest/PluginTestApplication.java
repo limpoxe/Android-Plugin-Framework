@@ -5,8 +5,6 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Application;
 import android.content.Context;
 import android.os.Process;
-import androidx.multidex.MultiDex;
-import com.limpoxe.fairy.util.FakeUtil;
 import com.limpoxe.fairy.util.LogUtil;
 
 import java.util.List;
@@ -34,7 +32,6 @@ public class  PluginTestApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(FakeUtil.fakeMultiDexContext(this));
     }
 
     @Override
