@@ -241,9 +241,8 @@ class PluginManagerService {
 			// 是因为不同的minSdkVersion在签名时使用的sha算法长度不同，
 			// 也即高版本的minSdkVersion的插件，即使签名没有被篡改过，在低版本的系统中仍然会校验失败
 			// 所以先校验minSdkVersion，再校验签名
-			//sApplication.getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES);
 			LogUtil.w("读取插件APK签名");
-			Signature[] pluginSignatures = PackageVerifyer.collectCertificates(srcPluginFile, false);
+			Signature[] pluginSignatures = FairyGlobal.getHostApplication().getPackageManager().getPackageArchiveInfo(srcPluginFile, PackageManager.GET_SIGNATURES).signatures;
 			if (pluginSignatures == null) {
 				new File(srcPluginFile).delete();
 				LogUtil.e("fail::SIGNATURES_INVALIDATE", srcPluginFile);
