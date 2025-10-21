@@ -75,17 +75,12 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
 
-import butterknife.BindView;
 
 //import com.umeng.analytics.MobclickAgent;
 
 //import com.example.plugintest.databinding.PluginLauncherBinding;
 
 public class LauncherActivity extends BaseActivity implements View.OnClickListener {
-
-    //Test ButterKnife
-    @BindView(R.id.onClickHellowrld)
-    Button butterTest;
 
     //Test UmengSdk
     Activity fakeThisForUmengSdk;
@@ -123,7 +118,6 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
 		//bing.setTest(dataBindingTestVO);
 
 		setContentView(R.layout.plugin_launcher);
-        ButterKnifeCompat.bind(this);
 
 		testLog();
 
@@ -258,7 +252,6 @@ public class LauncherActivity extends BaseActivity implements View.OnClickListen
         Log.e("xxx6", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.plugintest")));
         Log.e("xxx7", getResources().getString(getResources().getIdentifier("app_name", "string", getPackageName())));
         Log.e("xxx8", getResources().getString(getResources().getIdentifier("app_name", "string", "com.example.pluginmain")));
-        Log.e("xxx9", butterTest.getText());
     }
 
     private void testNotification() {

@@ -97,21 +97,6 @@
 -keep public class * extends android.content.ContextWrapper {public *;}
 # 保护FairyPlugin不受混淆影响 End
 
-# butterknife 混淆保护  Begin
--keep class butterknife.** { *; }
--dontwarn butterknife.internal.**
--keep class **$$ViewBinder { *; }
--keepclasseswithmembernames class * {
-    @butterknife.* <fields>;
-}
--keepclasseswithmembernames class * {
-    @butterknife.* <methods>;
-}
--keep class * implements butterknife.Unbinder {
-    *;
-}
-# butterknife 混淆保护  End
-
 # 保护AIDL Begin
 -keep class * implements android.os.IInterface {
     *;

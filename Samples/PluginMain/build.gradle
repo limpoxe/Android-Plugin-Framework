@@ -181,9 +181,6 @@ dependencies {
 
     implementation 'org.greenrobot:eventbus:3.2.0'
 
-    //Test ButterKnife
-    implementation 'com.jakewharton:butterknife:10.2.0'
-    kapt 'com.jakewharton:butterknife-compiler:10.2.0'
 }
 
 fairy {

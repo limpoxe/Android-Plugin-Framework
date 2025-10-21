@@ -111,18 +111,6 @@
 -dontwarn com.tencent.bugly.**
 -keep public class com.tencent.bugly.**{*;}
 
-# butterknife 混淆保护  Begin
--keep class butterknife.** { *; }
--dontwarn butterknife.internal.**
--keep class **$$ViewBinder { *; }
--keepclasseswithmembernames class * {
-    @butterknife.* <fields>;
-}
--keepclasseswithmembernames class * {
-    @butterknife.* <methods>;
-}
-# butterknife 混淆保护  End
-
 # 保护AIDL Begin
 -keep class * implements android.os.IInterface {
     *;

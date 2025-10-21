@@ -52,8 +52,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 //import android.provider.BaseColumns;
 //import com.umeng.analytics.MobclickAgent;
@@ -68,9 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
     private BaseAdapter listAdapter;
     private ListView mListView;
-
-    @BindView(R.id.install)
-    Button butterTest;
 
     private ArrayList<PluginDescriptor> plugins = new ArrayList<PluginDescriptor>();
 	private Button install;
@@ -96,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
 		setContentView(R.layout.main_activity);
-        ButterKnife.bind(this);
 
 		setTitle("插件列表");
 
@@ -113,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
         List<ResolveInfo> infos = manager.queryIntentActivities(intent, 0);
 
         Log.e("xx", "launcher intent size =" + (infos==null?"0":infos.size()));
-        Log.e("xx", "btnText=" + butterTest.getText().toString());
         Log.e("xx", "stringFromJNI " + CxxTest.stringFromJNI());
         testUseLibray();
         CxxTest.println(LOG_ID_MAIN, Log.ERROR, "MainActivity", "end onCreate ");
