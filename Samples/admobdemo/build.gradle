@@ -1,12 +1,15 @@
 apply plugin: 'com.android.application'
 
 repositories {
-    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url = 'https://maven.aliyun.com/repository/google' }
 }
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
+
+    namespace = 'cn.ckh.admob'
+
     defaultConfig {
         applicationId "cn.ckh.admob"
         minSdkVersion 15
@@ -26,12 +29,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     lintOptions {
-        tasks.lint.enabled false
-        checkReleaseBuilds false
-        abortOnError false
-        textReport false
-        htmlReport false
-        xmlReport false
+        tasks.lint.enabled = false
+        checkReleaseBuilds = false
+        abortOnError = false
+        textReport = false
+        htmlReport = false
+        xmlReport = false
     }
     //测试框架脚本是否支持Flavor配置
     productFlavors {

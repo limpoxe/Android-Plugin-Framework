@@ -11,6 +11,8 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
+    namespace = 'com.mdroid.repo.depth_lib_android_'
+
     defaultConfig {
         applicationId "com.example.plugintest2"
         minSdkVersion 21
@@ -24,12 +26,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     lintOptions {
-        tasks.lint.enabled false
-        checkReleaseBuilds false
-        abortOnError false
-        textReport false
-        htmlReport false
-        xmlReport false
+        tasks.lint.enabled = false
+        checkReleaseBuilds = false
+        abortOnError = false
+        textReport = false
+        htmlReport = false
+        xmlReport = false
     }
     //测试框架脚本是否支持Flavor配置
     productFlavors {

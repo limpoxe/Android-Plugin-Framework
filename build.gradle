@@ -4,11 +4,11 @@ buildscript {
 
     repositories {
         //aliyun public包含了mavenCentral和jcenter
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        maven { url 'https://jitpack.io' }
+        maven { url = 'https://maven.aliyun.com/repository/public' }
+        maven { url = 'https://maven.aliyun.com/repository/google' }
+        maven { url = 'https://maven.aliyun.com/repository/central' }
+        maven { url = 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url = 'https://jitpack.io' }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${GRADLE_PLUGIN_VERSION}"
@@ -24,9 +24,9 @@ buildscript {
 allprojects {
     repositories {
         //aliyun public包含了mavenCentral和jcenter
-        maven { url 'https://maven.aliyun.com/repository/public' }
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        maven { url 'https://jitpack.io' }
+        maven { url = 'https://maven.aliyun.com/repository/public' }
+        maven { url = 'https://maven.aliyun.com/repository/google' }
+        maven { url = 'https://maven.aliyun.com/repository/central' }
+        maven { url = 'https://jitpack.io' }
     }
 }

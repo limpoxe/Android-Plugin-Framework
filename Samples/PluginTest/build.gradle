@@ -9,7 +9,9 @@ apply from: PLUGIN_FAIRY_SCRIPT
 android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
-    ndkVersion NDK_VERSION
+    ndkVersion = NDK_VERSION
+
+    namespace = 'com.example.plugintest'
 
     useLibrary 'org.apache.http.legacy'
 
@@ -25,7 +27,7 @@ android {
         versionCode 1
         versionName "1.0.1"
         flavorDimensions "versionCode"
-        multiDexEnabled true
+        multiDexEnabled = true
         externalNativeBuild {
             cmake {
                 cppFlags ""
@@ -36,7 +38,7 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version CMAKE_VERSION
+            version = CMAKE_VERSION
         }
     }
     compileOptions {
@@ -45,11 +47,11 @@ android {
     }
     lintOptions {
         tasks.lint.enabled = false
-        checkReleaseBuilds false
-        abortOnError false
-        textReport false
-        htmlReport false
-        xmlReport false
+        checkReleaseBuilds = false
+        abortOnError = false
+        textReport = false
+        htmlReport = false
+        xmlReport = false
     }
 
     signingConfigs {
@@ -72,14 +74,14 @@ android {
         debug {
             versionNameSuffix '_' + getDate()
             debuggable true
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             versionNameSuffix '_' + getDate()
             debuggable true
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

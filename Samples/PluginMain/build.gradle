@@ -15,16 +15,16 @@ configurations.all {
 }
 
 repositories {
-    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url = 'https://maven.aliyun.com/repository/google' }
 }
 
 android {
 
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
-    ndkVersion NDK_VERSION
+    ndkVersion = NDK_VERSION
 
-    namespace 'com.example.pluginmain'
+    namespace = 'com.example.pluginmain'
 
     useLibrary 'org.apache.http.legacy'
 
@@ -54,7 +54,7 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version CMAKE_VERSION
+            version = CMAKE_VERSION
         }
     }
 
@@ -65,11 +65,11 @@ android {
 
     lintOptions {
         tasks.lint.enabled = false
-        checkReleaseBuilds false
-        abortOnError false
-        textReport false
-        htmlReport false
-        xmlReport false
+        checkReleaseBuilds = false
+        abortOnError = false
+        textReport = false
+        htmlReport = false
+        xmlReport = false
     }
 
     signingConfigs {
@@ -91,13 +91,13 @@ android {
     buildTypes {
         debug {
             debuggable true
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             debuggable true
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -114,7 +114,7 @@ android {
 
     splits {
         abi {
-            enable true
+            enable = true
             reset()
             include 'armeabi-v7a', "arm64-v8a", "x86"//select ABIs to build APKs for
             //universalApk true //generate an additional APK that contains all the ABIs

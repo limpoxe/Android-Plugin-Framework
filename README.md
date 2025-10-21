@@ -54,7 +54,7 @@ Android-Plugin-Framework是一个Android插件化框架，用于通过动态加�
     allprojects {
     		repositories {
     			...
-    			maven { url 'https://jitpack.io' }
+    			maven { url = 'https://jitpack.io' }
     		}
     }
 ```
