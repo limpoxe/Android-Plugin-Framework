@@ -51,6 +51,11 @@ android {
             }
         }
     }
+
+    viewBinding {
+        enabled = false
+    }
+
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
@@ -86,6 +91,10 @@ android {
             keyAlias "limpoxe"
             keyPassword "123456"
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
