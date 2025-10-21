@@ -1,7 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 
 //A const defined in the top-level build.gradle file
 apply from: HOST_FAIRY_SCRIPT
@@ -174,7 +171,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation "androidx.startup:startup-runtime:1.1.1"
     implementation "androidx.room:room-runtime:2.4.2"
-    kapt 'androidx.room:room-compiler:2.4.2'
+    annotationProcessor 'androidx.room:room-compiler:2.4.2'
 
     implementation 'com.tencent.bugly:crashreport:2.1.5'
     //implementation 'com.umeng.analytics:analytics:latest.integration'

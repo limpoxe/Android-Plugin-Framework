@@ -13,12 +13,8 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${GRADLE_PLUGIN_VERSION}"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${KOTLIN_PLUGIN_VERSION}"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
-
-        //编译时注解
-        //classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2',  http://blog.csdn.net/zjbpku/article/details/22976291
     }
 }
 
